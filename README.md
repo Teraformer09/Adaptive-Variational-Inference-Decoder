@@ -2,7 +2,7 @@
 ### Real-Time Variational Inference of Correlated Noise for Hardware-Accelerated Surface Codes
 
 **Target Hardware:** Xilinx Zynq-7020 / Kria K26 SOM  
-**Quality Standard:** MIT EECS / PRX Quantum / Nature Electronics
+
 
 ---
 
