@@ -32,6 +32,25 @@ CHECKPOINT_DIR = Path(__file__).resolve().parent / "checkpoints"
 EVIDENCE_DIR = Path(__file__).resolve().parent / "evidance"
 
 
+def load_env_file() -> None:
+    """Load key=value pairs from `.env` in repo root, `world_model/.env`, or current working directory."""
+    candidate_paths = [
+        Path.cwd() / ".env",
+        Path(__file__).resolve().parent.parent / ".env",
+        Path(__file__).resolve().parent / ".env",
+    ]
+    for env_path in candidate_paths:
+        if env_path.is_file():
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    stripped = line.strip()
+                    if not stripped or stripped.startswith("#") or "=" not in stripped:
+                        continue
+                    k, v = stripped.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+
 def train_regime_adapters(
     base_model: AVIDWorldModel,
     splits: Dict[str, List[Dict[str, Any]]],
@@ -300,27 +319,30 @@ def build_and_optionally_upload_hf_bundle(
 
     print(f"[HF Bundle] Ready at: {HF_BUNDLE_DIR}", flush=True)
 
+    load_env_file()
     token = hf_token or os.environ.get("HF_TOKEN")
-    if repo_id and token:
+    resolved_repo_id = repo_id or os.environ.get("HF_REPO_ID", "Terrano09/AVID-Quantum-Noise-World-Model")
+    if resolved_repo_id and token:
         from huggingface_hub import HfApi
 
         api = HfApi(token=token)
-        print(f"[HF Upload] Creating/verifying Hugging Face repo: {repo_id} ...", flush=True)
-        api.create_repo(repo_id=repo_id, repo_type="model", exist_ok=True)
+        print(f"[HF Upload] Creating/verifying Hugging Face repo: {resolved_repo_id} ...", flush=True)
+        api.create_repo(repo_id=resolved_repo_id, repo_type="model", exist_ok=True)
         api.upload_folder(
             folder_path=str(HF_BUNDLE_DIR),
-            repo_id=repo_id,
+            repo_id=resolved_repo_id,
             repo_type="model",
             commit_message="Upload AVID Quantum Noise World Model, Checkpoints, and 5 LoRA Regime Adapters",
         )
-        print(f"[HF Upload] Successfully uploaded to https://huggingface.co/{repo_id}", flush=True)
+        print(f"[HF Upload] Successfully uploaded to https://huggingface.co/{resolved_repo_id}", flush=True)
 
     return HF_BUNDLE_DIR
 
 
 if __name__ == "__main__":
+    load_env_file()
     parser = argparse.ArgumentParser(description="Train, package, and upload AVID World Model + Adapters to Hugging Face Hub.")
-    parser.add_argument("--repo-id", type=str, default=None, help="Hugging Face repo ID, e.g. 'username/AVID-Quantum-Noise-World-Model'")
-    parser.add_argument("--token", type=str, default=None, help="Hugging Face write token (or set HF_TOKEN env var)")
+    parser.add_argument("--repo-id", type=str, default=None, help="Hugging Face repo ID (defaults to HF_REPO_ID in .env)")
+    parser.add_argument("--token", type=str, default=None, help="Hugging Face write token (defaults to HF_TOKEN in .env)")
     args = parser.parse_args()
     build_and_optionally_upload_hf_bundle(repo_id=args.repo_id, hf_token=args.token)

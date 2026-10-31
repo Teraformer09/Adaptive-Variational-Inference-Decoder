@@ -473,4 +473,7 @@ def run_full_evaluation() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    run_full_evaluation()
+    from world_model.hf_export import build_and_optionally_upload_hf_bundle, load_env_file
+
+    load_env_file()
+    build_and_optionally_upload_hf_bundle()
