@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AVID world-model trajectory record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "trajectory_id",
+    "seed",
+    "device_config_id",
+    "topology_id",
+    "round_start",
+    "round_end",
+    "observations",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "trajectory_id": { "type": "string", "minLength": 1 },
+    "seed": { "type": "integer" },
+    "device_config_id": { "type": "string" },
+    "topology_id": { "type": "string" },
+    "round_start": { "type": "integer", "minimum": 0 },
+    "round_end": { "type": "integer", "minimum": 0 },
+    "observations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/observation" }
+    },
+    "future_schedule": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": true }
+    },
+    "latent_truth": {
+      "type": "object",
+      "description": "Simulator-only ground truth. MUST NOT be passed to the inference model.",
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["simulator", "config_hash"],
+      "properties": {
+        "simulator": { "type": "string" },
+        "simulator_version": { "type": "string" },
+        "model_version": { "type": "string" },
+        "config_hash": { "type": "string" },
+        "parameter_sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "required": ["round", "schedule_features"],
+      "properties": {
+        "round": { "type": "integer", "minimum": 0 },
+        "detection_events": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "description": "Sparse detector indices; alternatively define a versioned dense detector-vector encoding."
+        },
+        "syndrome": {
+          "type": "array",
+          "items": { "type": "integer", "enum": [0, 1] }
+        },
+        "calibration": {
+          "type": "object",
+          "additionalProperties": { "type": ["number", "null"] }
+        },
+        "calibration_mask": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" }
+        },
+        "readout_features": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "readout_mask": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" }
+        },
+        "schedule_features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["gate_type", "targets"],
+            "properties": {
+              "gate_type": { "type": "string" },
+              "targets": {
+                "type": "array",
+                "items": { "type": "integer", "minimum": 0 }
+              },
+              "couplers": {
+                "type": "array",
+                "items": { "type": "integer", "minimum": 0 }
+              },
+              "concurrency_group": { "type": ["integer", "null"] },
+              "duration_ns": { "type": ["number", "null"] }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
