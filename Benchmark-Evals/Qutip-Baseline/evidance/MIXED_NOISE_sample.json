@@ -1,0 +1,2687 @@
+{
+  "schema_version": "1.0.0",
+  "trajectory_id": "MIXED_S101_000",
+  "seed": 101,
+  "device_config_id": "surface17_mixed_noise_gen",
+  "topology_id": "surface17_d3",
+  "round_start": 0,
+  "round_end": 59,
+  "observations": [
+    {
+      "round": 0,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0097
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.9735,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0128
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.1223,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0185
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.9036,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0228
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.0071,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.021
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -3.1845,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0224
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.0445,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0211
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.6951,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0236
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.27,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 8,
+      "detection_events": [
+        1
+      ],
+      "syndrome": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0275
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.5906,
+        "total_defects": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0249
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.9382,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 10,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0224
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.1792,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 11,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0221
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.8681,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 12,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0209
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.1291,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 13,
+      "detection_events": [
+        0,
+        3
+      ],
+      "syndrome": [
+        1,
+        0,
+        0,
+        1
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0183
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.076,
+        "total_defects": 2
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 14,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.014
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.4435,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 15,
+      "detection_events": [
+        0
+      ],
+      "syndrome": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0119
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.4554,
+        "total_defects": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 16,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0096
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.8049,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 17,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0102
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.813,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 18,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0083
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.8525,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 19,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.006
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.158,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 20,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0066
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.316,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 21,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0082
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.0959,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 22,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0132
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.4699,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 23,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0151
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.6974,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 24,
+      "detection_events": [
+        2
+      ],
+      "syndrome": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0169
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.2588,
+        "total_defects": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 25,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0162
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.696,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 26,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0105
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -3.1056,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 27,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0109
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.0077,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 28,
+      "detection_events": [
+        0
+      ],
+      "syndrome": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0201
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.6987,
+        "total_defects": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 29,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.022
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.0985,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 30,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0199
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.0303,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 31,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0236
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.7432,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 32,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.016
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.1692,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 33,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0155
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.7616,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 34,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0147
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.1022,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 35,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0116
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.428,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 36,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0113
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.2523,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 37,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0065
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.7235,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 38,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.006
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.7464,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 39,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0088
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.5649,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 40,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0067
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.0446,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 41,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0105
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.1311,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 42,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0133
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.6263,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 43,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0101
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.6589,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 44,
+      "detection_events": [
+        2
+      ],
+      "syndrome": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0107
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.1669,
+        "total_defects": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 45,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.006
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.7924,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 46,
+      "detection_events": [
+        1
+      ],
+      "syndrome": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.006
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.8626,
+        "total_defects": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 47,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0068
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.1094,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 48,
+      "detection_events": [
+        0
+      ],
+      "syndrome": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.006
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.3018,
+        "total_defects": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 49,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.007
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.7343,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 50,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0135
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.7994,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 51,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0108
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.3452,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 52,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0084
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.4161,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 53,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0081
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.9799,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 54,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0067
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.1127,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 55,
+      "detection_events": [
+        0
+      ],
+      "syndrome": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0079
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.6213,
+        "total_defects": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_CONCURRENT",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 56,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0126
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.226,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 57,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0131
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.6699,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 58,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.016
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.2959,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 59,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "drift_telemetry": 0.0128
+      },
+      "calibration_mask": {
+        "drift_telemetry": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.5232,
+        "total_defects": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "total_defects": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    }
+  ],
+  "latent_truth": {
+    "mean_effective_fault_rate": [
+      0.011433915565153932,
+      0.01457002893554824,
+      0.020213782597446273,
+      0.02452126902752781,
+      0.04518226142779367,
+      0.046557729476749,
+      0.04525420557323132,
+      0.047760014334048126,
+      0.02923540794977423,
+      0.026623446388294603,
+      0.024079947359294272,
+      0.02382908761470342,
+      0.045033041842674267,
+      0.04241432727836536,
+      0.03812230476382979,
+      0.036077689319080564,
+      0.01132828702053784,
+      0.011961207096568746,
+      0.010046435132301702,
+      0.007725000000000001,
+      0.030776278360941395,
+      0.03236781110744783,
+      0.03734926985334043,
+      0.03923909235618958,
+      0.018584767592655014,
+      0.017972462946164783,
+      0.012229647306367135,
+      0.012628530329597444,
+      0.0442573901257894,
+      0.04611553675325626,
+      0.04402060491056871,
+      0.04774313729381542,
+      0.017694353133528094,
+      0.01719216023285465,
+      0.01644256642488811,
+      0.013318662797892197,
+      0.03544124481604487,
+      0.0306940916946772,
+      0.03015,
+      0.03293478799266832,
+      0.008416703889284985,
+      0.012236923052970824,
+      0.014999384512890726,
+      0.011812327594989867,
+      0.2448966932944297,
+      0.20208345814637618,
+      0.17091720966748425,
+      0.1462083804649183,
+      0.10208408246461652,
+      0.08601360664753646,
+      0.07852036272873088,
+      0.06427499958494703,
+      0.07493078007979354,
+      0.06691406466612095,
+      0.059259547878549694,
+      0.055310618735874284,
+      0.03338177595888647,
+      0.030441334936653353,
+      0.030472162182883542,
+      0.02501313830105281
+    ],
+    "active_causes_xtalk_leak_burst": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "provenance": {
+    "simulator": "QuTiP-Calibrated-Mixed-Trajectory-Generator",
+    "config_hash": "mixed_all_three_v1",
+    "parameter_sources": [
+      "Ketterer 2023",
+      "Wilen 2021",
+      "Varbanov 2020",
+      "Agarwal 2023",
+      "Gulacsi 2023"
+    ]
+  }
+}

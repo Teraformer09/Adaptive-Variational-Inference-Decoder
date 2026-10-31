@@ -253,52 +253,86 @@ def plot_03_c1_c2_temporal(data: dict) -> Path:
     return out
 
 
-def plot_04_stage6_decoders(data: dict) -> Path:
-    s6 = data["stage6_downstream_decoding"]
-    regimes = ["A1_CROSSTALK", "A2_COMMON_EVENT", "B1_LEAKAGE", "C_TEMPORAL_MEMORY", "MIXED_ALL_THREE"]
-    reg_labels = ["A1: Gate\nCrosstalk", "A2: Chip-Wide\nEvents", "B1: Transmon\nLeakage", "C1/C2: Temporal\nMemory", "Mixed: All 3\nFamilies"]
-    decoders = [
-        ("D0_STATIC_MWPM", "D0: Static MWPM", "#6b7280"),
-        ("D1_CORR_MWPM", "D1: Static Correlated MWPM", "#f59e0b"),
-        ("D2_EXISTING_AVID", "D2: Existing AVID (HMM/Var)", "#2563eb"),
-        ("D4_ORACLE_REF", "D4: Oracle-Weight Reference", "#10b981"),
+def plot_04_mixed_noise_estimation(data: dict) -> Path:
+    mx = data["priority5_mixed_noise_estimation"]
+    models = [
+        ("B0_STATIC_INDEP", "B0: Static\nIndep.", "#6b7280"),
+        ("B1_STATIC_CORR", "B1: Static\nCorrelated", "#f59e0b"),
+        ("B2_SINGLE_HMM", "B2: Single\nHMM", "#8b5cf6"),
+        ("B4_AR1_OU_FILTER", "B4: AR(1)/OU\nFilter", "#d97706"),
+        ("B3_MULTI_CHANNEL_TRACKER", "B3: Schedule+Analog\nVariational", "#2563eb"),
+        ("B5_ORACLE_REF", "B5: Oracle\nGround Truth", "#10b981"),
     ]
 
-    fig, axes = plt.subplots(1, 2, figsize=(14.5, 5.2))
+    fig, axes = plt.subplots(2, 2, figsize=(14.5, 9.2))
     fig.suptitle(
-        "Stage 6 — Downstream Surface-17 ($d=3$) Logical Decoding Baseline Comparison (D0, D1, D2, D4)\n"
-        "[Paired Trajectory Evaluation with 95% Bootstrap Confidence Intervals — Prior to D3 RSSM Integration]",
-        fontsize=12, fontweight="bold", y=1.02
+        "Priority 5 — Mixed-Noise Trajectory Generation, Latent Mechanism Disentanglement & Channel Ablations\n"
+        "[Simultaneous Crosstalk (A1) + Chip-Wide Burst (A2) + Leakage (B1) + Temporal Drift (C1/C2) — Noise Estimation Only]",
+        fontsize=11.5, fontweight="bold", y=1.01
     )
 
-    # Panel A: Logical Failure Probability @ 50 Rounds across Regimes
-    ax = axes[0]
-    x = np.arange(len(regimes))
-    w = 0.19
-    for idx, (d_key, d_label, col) in enumerate(decoders):
-        means = [s6["results_by_regime"][r][d_key]["logical_failure_prob_50rds"] for r in regimes]
-        err_lo = [means[i] - s6["results_by_regime"][r][d_key]["ci95_low"] for i, r in enumerate(regimes)]
-        err_hi = [s6["results_by_regime"][r][d_key]["ci95_high"] - means[i] for i, r in enumerate(regimes)]
-        ax.bar(x + (idx - 1.5) * w, means, w, yerr=[err_lo, err_hi], capsize=2.5, color=col, label=d_label)
-    ax.set_xticks(x)
-    ax.set_xticklabels(reg_labels, fontsize=8.5)
-    ax.set_ylabel("50-Round Logical Failure Probability $P_L$")
-    ax.set_title("(a) 50-Round Logical Failure Probability Across Noise Regimes")
-    ax.legend(fontsize=8.5)
+    # Panel A: Sample Mixed-Noise Trajectory Fault Rate & Coexisting Causes
+    ax = axes[0, 0]
+    tr = mx["sample_trace"]
+    rates = np.array(tr["mean_effective_fault_rate"])
+    causes = np.array(tr["active_causes_xtalk_leak_burst"])
+    rds = np.arange(len(rates))
+    ax.plot(rds, rates, color="#111827", lw=2.0, label="True Combined Fault Rate $\\bar{p}_t$")
+    ax.fill_between(rds, 0, rates, where=(causes[:, 0] == 1), color="#93c5fd", alpha=0.35, step="mid", label="Concurrent Schedule Active (A1)")
+    ax.fill_between(rds, 0, rates, where=(causes[:, 1] == 1), color="#fca5a5", alpha=0.55, step="mid", label="Transmon Leaked $|2\\rangle$ (B1)")
+    ax.fill_between(rds, 0, rates, where=(causes[:, 2] == 1), color="#fde047", alpha=0.55, step="mid", label="Chip-Wide Phonon Burst (A2)")
+    ax.set_title("(a) Generated Mixed-Noise Trajectory & Coexisting Causes")
+    ax.set_xlabel("QEC Round $t$")
+    ax.set_ylabel("Mean Effective Check Fault Rate")
+    ax.legend(fontsize=8, loc="upper left")
 
-    # Panel B: Logical Survival vs QEC Rounds under Mixed Noise
-    ax = axes[1]
-    r_list = s6["rounds_evaluated"]
-    for d_key, d_label, col in decoders:
-        ax.plot(r_list, s6["mixed_noise_survival_curves"][d_key], "o-", color=col, lw=2.2, label=d_label)
-    ax.set_title("(b) Logical State Survival vs QEC Rounds (Mixed Noise: All 3 Families)")
-    ax.set_xlabel("Number of QEC Rounds $R$")
-    ax.set_ylabel("Logical Survival Probability $1 - P_L(R)$")
-    ax.set_ylim(0.48, 1.02)
-    ax.legend(fontsize=8.5)
+    # Panel B: Latent Mechanism Disentanglement Macro PR-AUC across B0..B5
+    ax = axes[0, 1]
+    names = [m[1] for m in models]
+    macro_pr = [mx["models"][m[0]]["disentanglement_macro_pr_auc"] for m in models]
+    colors = [m[2] for m in models]
+    bars = ax.bar(np.arange(len(models)), macro_pr, color=colors, width=0.55)
+    for b in bars:
+        ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.02, f"{b.get_height():.2f}", ha="center", fontsize=8.5)
+    ax.set_xticks(np.arange(len(models)))
+    ax.set_xticklabels(names, fontsize=8)
+    ax.set_ylim(0, 1.15)
+    ax.set_ylabel("Macro PR-AUC (Crosstalk / Leakage / Burst)")
+    ax.set_title("(b) Latent Noise Cause Disentanglement under Mixed Noise")
+
+    # Panel C: Multi-Horizon Latent Noise Rate RMSE across H in {1, 2, 4, 8}
+    ax = axes[1, 0]
+    horizons = [1, 2, 4, 8]
+    h_keys = [f"H={h}" for h in horizons]
+    for m_key, m_label, col in models[:-1]:
+        vals = [mx["models"][m_key]["horizons"][hk]["latent_rate_rmse"] * 100 for hk in h_keys]
+        ax.plot(horizons, vals, "o-", color=col, lw=2, label=m_label.replace("\n", " "))
+    ax.set_xticks(horizons)
+    ax.set_xlabel("Forecast Horizon $H$ (Rounds)")
+    ax.set_ylabel("Latent Fault-Rate Forecast RMSE (%)")
+    ax.set_title("(c) Multi-Horizon Mixed-Noise Forecast RMSE ($H \\in \\{1,2,4,8\\}$)")
+    ax.legend(fontsize=8)
+
+    # Panel D: Observation-Channel Ablation Study
+    ax = axes[1, 1]
+    abl = mx["channel_ablations"]
+    abl_keys = list(abl.keys())
+    abl_labels = ["Syndrome Only\n$(d_t, s_t)$", "Syndrome +\nSchedule $(u_t)$", "Full Contract\n$(d_t, u_t, c_t, a_t)$", "Oracle Truth\n$(x_t)$"]
+    nll_vals = [abl[k]["H1_detection_nll"] for k in abl_keys]
+    pr_vals = [abl[k]["disentanglement_macro_pr_auc"] for k in abl_keys]
+    x = np.arange(len(abl_keys))
+    w = 0.35
+    ax.bar(x - w / 2, nll_vals, w, color="#dc2626", label="$H=1$ Detection NLL (Lower Better)")
+    ax.bar(x + w / 2, pr_vals, w, color="#2563eb", label="Cause Disentangle PR-AUC (Higher Better)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(abl_labels, fontsize=8)
+    ax.set_ylim(0, 1.15)
+    ax.set_ylabel("Metric Value")
+    ax.set_title("(d) Observation-Channel Ablation (Why $u_t, c_t, a_t$ Matter)")
+    ax.legend(fontsize=8)
 
     fig.tight_layout()
-    out = PLOTS_DIR / "04_stage6_downstream_surface17_decoder_comparison.png"
+    out = PLOTS_DIR / "04_mixed_noise_generation_and_latent_estimation.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     return out
@@ -310,8 +344,8 @@ def main() -> None:
     p1 = plot_01_b1_leakage(data)
     p2 = plot_02_a1_a2_spatial(data)
     p3 = plot_03_c1_c2_temporal(data)
-    p4 = plot_04_stage6_decoders(data)
-    print("Generated 300-DPI benchmark evaluation plots:")
+    p4 = plot_04_mixed_noise_estimation(data)
+    print("Generated 300-DPI benchmark evaluation plots (Noise Generation & Estimation Only):")
     for p in (p1, p2, p3, p4):
         print(f"  - {p}")
 

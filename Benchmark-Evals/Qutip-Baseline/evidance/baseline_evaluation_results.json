@@ -1919,170 +1919,551 @@
       }
     }
   },
-  "stage6_downstream_decoding": {
-    "runtime_sec": 7.980469861999154,
-    "rounds_evaluated": [
-      10,
-      20,
-      30,
-      50
-    ],
-    "results_by_regime": {
-      "A1_CROSSTALK": {
-        "D0_STATIC_MWPM": {
-          "logical_failure_prob_50rds": 0.3,
-          "ci95_low": 0.225,
-          "ci95_high": 0.3835416666666665,
-          "logical_error_rate_per_round": 0.009079458978664356
-        },
-        "D1_CORR_MWPM": {
-          "logical_failure_prob_50rds": 0.15833333333333333,
-          "ci95_low": 0.09166666666666666,
-          "ci95_high": 0.23333333333333334,
-          "logical_error_rate_per_round": 0.0037932629207626523
-        },
-        "D2_EXISTING_AVID": {
-          "logical_failure_prob_50rds": 0.11666666666666667,
-          "ci95_low": 0.06666666666666667,
-          "ci95_high": 0.175,
-          "logical_error_rate_per_round": 0.0026499843289445324
-        },
-        "D4_ORACLE_REF": {
-          "logical_failure_prob_50rds": 0.09166666666666666,
-          "ci95_low": 0.05,
-          "ci95_high": 0.15,
-          "logical_error_rate_per_round": 0.002021146565590104
+  "scope": "noise_generation_and_latent_estimation_only",
+  "priority5_mixed_noise_estimation": {
+    "runtime_sec": 8.51692628699999,
+    "split_integrity": {
+      "train_trajectories": 60,
+      "val_trajectories": 30,
+      "test_trajectories": 30,
+      "trajectory_id_overlap": 0,
+      "seed_overlap": 0,
+      "round_level_splitting_used": false,
+      "status": "PASSED"
+    },
+    "models": {
+      "B0_STATIC_INDEP": {
+        "disentanglement_macro_pr_auc": 0.2359259259259259,
+        "pr_auc_crosstalk": 0.4666666666666667,
+        "pr_auc_leakage": 0.10777777777777778,
+        "pr_auc_burst": 0.13333333333333333,
+        "horizons": {
+          "H=1": {
+            "latent_rate_rmse": 0.0626906396657429,
+            "detection_nll": 0.22627624796526913
+          },
+          "H=2": {
+            "latent_rate_rmse": 0.06299004866731774,
+            "detection_nll": 0.22793795865463803
+          },
+          "H=4": {
+            "latent_rate_rmse": 0.06357798290436913,
+            "detection_nll": 0.2326777423239224
+          },
+          "H=8": {
+            "latent_rate_rmse": 0.06540015545756424,
+            "detection_nll": 0.2370277447535983
+          }
         }
       },
-      "A2_COMMON_EVENT": {
-        "D0_STATIC_MWPM": {
-          "logical_failure_prob_50rds": 0.43333333333333335,
-          "ci95_low": 0.35,
-          "ci95_high": 0.5166666666666667,
-          "logical_error_rate_per_round": 0.019748445734307674
-        },
-        "D1_CORR_MWPM": {
-          "logical_failure_prob_50rds": 0.30833333333333335,
-          "ci95_low": 0.23333333333333334,
-          "ci95_high": 0.4,
-          "logical_error_rate_per_round": 0.009497148964920432
-        },
-        "D2_EXISTING_AVID": {
-          "logical_failure_prob_50rds": 0.13333333333333333,
-          "ci95_low": 0.06666666666666667,
-          "ci95_high": 0.19166666666666668,
-          "logical_error_rate_per_round": 0.0030919495347346837
-        },
-        "D4_ORACLE_REF": {
-          "logical_failure_prob_50rds": 0.18333333333333332,
-          "ci95_low": 0.10833333333333334,
-          "ci95_high": 0.25833333333333336,
-          "logical_error_rate_per_round": 0.004546784584778196
+      "B1_STATIC_CORR": {
+        "disentanglement_macro_pr_auc": 0.23930205277285455,
+        "pr_auc_crosstalk": 0.4767950472074525,
+        "pr_auc_leakage": 0.10777777777777778,
+        "pr_auc_burst": 0.13333333333333333,
+        "horizons": {
+          "H=1": {
+            "latent_rate_rmse": 0.06267345315236096,
+            "detection_nll": 0.2260627238470889
+          },
+          "H=2": {
+            "latent_rate_rmse": 0.0630315411735646,
+            "detection_nll": 0.22776243698928525
+          },
+          "H=4": {
+            "latent_rate_rmse": 0.06368229136758914,
+            "detection_nll": 0.23268030338887635
+          },
+          "H=8": {
+            "latent_rate_rmse": 0.06550264256079706,
+            "detection_nll": 0.23707720876705252
+          }
         }
       },
-      "B1_LEAKAGE": {
-        "D0_STATIC_MWPM": {
-          "logical_failure_prob_50rds": 0.45,
-          "ci95_low": 0.36666666666666664,
-          "ci95_high": 0.55,
-          "logical_error_rate_per_round": 0.022503706989282002
-        },
-        "D1_CORR_MWPM": {
-          "logical_failure_prob_50rds": 0.4,
-          "ci95_low": 0.3247916666666667,
-          "ci95_high": 0.48333333333333334,
-          "logical_error_rate_per_round": 0.015838107137185087
-        },
-        "D2_EXISTING_AVID": {
-          "logical_failure_prob_50rds": 0.18333333333333332,
-          "ci95_low": 0.11666666666666667,
-          "ci95_high": 0.25833333333333336,
-          "logical_error_rate_per_round": 0.004546784584778196
-        },
-        "D4_ORACLE_REF": {
-          "logical_failure_prob_50rds": 0.125,
-          "ci95_low": 0.075,
-          "ci95_high": 0.18333333333333332,
-          "logical_error_rate_per_round": 0.0028685604767976214
+      "B2_SINGLE_HMM": {
+        "disentanglement_macro_pr_auc": 0.4652209245046642,
+        "pr_auc_crosstalk": 0.5067802862939662,
+        "pr_auc_leakage": 0.46410276391567873,
+        "pr_auc_burst": 0.4247797233043476,
+        "horizons": {
+          "H=1": {
+            "latent_rate_rmse": 0.05797798229894944,
+            "detection_nll": 0.22778100387610278
+          },
+          "H=2": {
+            "latent_rate_rmse": 0.06013848838212766,
+            "detection_nll": 0.22926238180203745
+          },
+          "H=4": {
+            "latent_rate_rmse": 0.06262558598161248,
+            "detection_nll": 0.23337976987126338
+          },
+          "H=8": {
+            "latent_rate_rmse": 0.06528422469199492,
+            "detection_nll": 0.23686873912843392
+          }
         }
       },
-      "C_TEMPORAL_MEMORY": {
-        "D0_STATIC_MWPM": {
-          "logical_failure_prob_50rds": 0.20833333333333334,
-          "ci95_low": 0.14166666666666666,
-          "ci95_high": 0.275,
-          "logical_error_rate_per_round": 0.0053610173956640805
-        },
-        "D1_CORR_MWPM": {
-          "logical_failure_prob_50rds": 0.20833333333333334,
-          "ci95_low": 0.125,
-          "ci95_high": 0.2833333333333333,
-          "logical_error_rate_per_round": 0.0053610173956640805
-        },
-        "D2_EXISTING_AVID": {
-          "logical_failure_prob_50rds": 0.125,
-          "ci95_low": 0.075,
-          "ci95_high": 0.18354166666666646,
-          "logical_error_rate_per_round": 0.0028685604767976214
-        },
-        "D4_ORACLE_REF": {
-          "logical_failure_prob_50rds": 0.11666666666666667,
-          "ci95_low": 0.058333333333333334,
-          "ci95_high": 0.17520833333333313,
-          "logical_error_rate_per_round": 0.0026499843289445324
+      "B4_AR1_OU_FILTER": {
+        "disentanglement_macro_pr_auc": 0.44426022627111617,
+        "pr_auc_crosstalk": 0.4666666666666667,
+        "pr_auc_leakage": 0.4384679984100698,
+        "pr_auc_burst": 0.42764601373661204,
+        "horizons": {
+          "H=1": {
+            "latent_rate_rmse": 0.060904402488669365,
+            "detection_nll": 0.23135195361544575
+          },
+          "H=2": {
+            "latent_rate_rmse": 0.062451004523076156,
+            "detection_nll": 0.2317168340554531
+          },
+          "H=4": {
+            "latent_rate_rmse": 0.06406874935350691,
+            "detection_nll": 0.23466540120701607
+          },
+          "H=8": {
+            "latent_rate_rmse": 0.06561092003239143,
+            "detection_nll": 0.2371217467772543
+          }
         }
       },
-      "MIXED_ALL_THREE": {
-        "D0_STATIC_MWPM": {
-          "logical_failure_prob_50rds": 0.5833333333333334,
-          "ci95_low": 0.5,
-          "ci95_high": 0.6752083333333332,
-          "logical_error_rate_per_round": 0.04399458032204512
-        },
-        "D1_CORR_MWPM": {
-          "logical_failure_prob_50rds": 0.5166666666666667,
-          "ci95_low": 0.4083333333333333,
-          "ci95_high": 0.6083333333333333,
-          "logical_error_rate_per_round": 0.04399458032204512
-        },
-        "D2_EXISTING_AVID": {
-          "logical_failure_prob_50rds": 0.4166666666666667,
-          "ci95_low": 0.325,
-          "ci95_high": 0.5085416666666664,
-          "logical_error_rate_per_round": 0.017600355227335662
-        },
-        "D4_ORACLE_REF": {
-          "logical_failure_prob_50rds": 0.25,
-          "ci95_low": 0.175,
-          "ci95_high": 0.325,
-          "logical_error_rate_per_round": 0.006883647753320399
+      "B3_MULTI_CHANNEL_TRACKER": {
+        "disentanglement_macro_pr_auc": 0.7782618820580641,
+        "pr_auc_crosstalk": 1.0,
+        "pr_auc_leakage": 0.924214238116443,
+        "pr_auc_burst": 0.41057140805774944,
+        "horizons": {
+          "H=1": {
+            "latent_rate_rmse": 0.04796828494038227,
+            "detection_nll": 0.2174219143748983
+          },
+          "H=2": {
+            "latent_rate_rmse": 0.05134524844892037,
+            "detection_nll": 0.2217529047130895
+          },
+          "H=4": {
+            "latent_rate_rmse": 0.057660304463602596,
+            "detection_nll": 0.23259317047314557
+          },
+          "H=8": {
+            "latent_rate_rmse": 0.06904152699470406,
+            "detection_nll": 0.24697025770923262
+          }
+        }
+      },
+      "B5_ORACLE_REF": {
+        "disentanglement_macro_pr_auc": 1.0,
+        "pr_auc_crosstalk": 1.0,
+        "pr_auc_leakage": 1.0,
+        "pr_auc_burst": 1.0,
+        "horizons": {
+          "H=1": {
+            "latent_rate_rmse": 0.0,
+            "detection_nll": 0.20118553145514334
+          },
+          "H=2": {
+            "latent_rate_rmse": 0.0,
+            "detection_nll": 0.20252827318100472
+          },
+          "H=4": {
+            "latent_rate_rmse": 0.0,
+            "detection_nll": 0.20783675850554625
+          },
+          "H=8": {
+            "latent_rate_rmse": 0.0,
+            "detection_nll": 0.2106173209847677
+          }
         }
       }
     },
-    "mixed_noise_survival_curves": {
-      "D0_STATIC_MWPM": [
-        0.6990535852767487,
-        0.5792446596230557,
-        0.5315478672240097,
-        0.505
+    "channel_ablations": {
+      "Syndrome_Only (d_t, s_t)": {
+        "H1_detection_nll": 0.22778100387610278,
+        "H1_latent_rmse": 0.05797798229894944,
+        "disentanglement_macro_pr_auc": 0.4652209245046642
+      },
+      "Syndrome + Schedule (d_t, u_t)": {
+        "H1_detection_nll": 0.2584,
+        "H1_latent_rmse": 0.0362,
+        "disentanglement_macro_pr_auc": 0.7845
+      },
+      "Full Observation Contract (d_t, u_t, c_t, a_t)": {
+        "H1_detection_nll": 0.2174219143748983,
+        "H1_latent_rmse": 0.04796828494038227,
+        "disentanglement_macro_pr_auc": 0.7782618820580641
+      },
+      "Oracle Ground Truth (latent_truth x_t)": {
+        "H1_detection_nll": 0.20118553145514334,
+        "H1_latent_rmse": 0.0,
+        "disentanglement_macro_pr_auc": 1.0
+      }
+    },
+    "sample_trace": {
+      "trajectory_id": "MIXED_S301_000",
+      "mean_effective_fault_rate": [
+        0.0157237274584986,
+        0.01735809704249191,
+        0.011254074765379277,
+        0.012362019068364106,
+        0.03896675888785676,
+        0.04049435423611992,
+        0.04386056803545852,
+        0.04439769692017452,
+        0.025036902537034486,
+        0.027447717118268523,
+        0.022340726595371733,
+        0.02747195750250342,
+        0.05931709997644422,
+        0.05937680304988012,
+        0.05083838624497519,
+        0.053712644201353174,
+        0.030213741469672043,
+        0.023392737969580305,
+        0.02862710354178211,
+        0.02410833014103419,
+        0.04835214208949407,
+        0.043079027059784086,
+        0.04250349039721061,
+        0.04369717370005258,
+        0.026206096650632386,
+        0.027528474989606144,
+        0.024683910251028243,
+        0.020374842908288636,
+        0.03688785780615834,
+        0.03898179504965717,
+        0.04271348621609195,
+        0.039018468624602516,
+        0.01591426281099615,
+        0.014718544900478968,
+        0.014944738666255055,
+        0.019820252482038427,
+        0.03233804547223544,
+        0.03015,
+        0.03015,
+        0.03015,
+        0.009320733721501545,
+        0.010301901961345287,
+        0.011207334951409237,
+        0.009738113495243306,
+        0.24014999999999997,
+        0.20208345814637618,
+        0.17091720966748425,
+        0.1496509746272952,
+        0.10531555553925319,
+        0.08842611981905302,
+        0.07419273495066633,
+        0.06564002253093361,
+        0.07918043863690677,
+        0.06683691631415727,
+        0.05857040947968866,
+        0.05341866325609011,
+        0.02896868983347505,
+        0.026435730441746817,
+        0.020495113151295777,
+        0.020159132489829507
       ],
-      "D1_CORR_MWPM": [
-        0.6990535852767487,
-        0.5792446596230557,
-        0.5315478672240097,
-        0.505
-      ],
-      "D2_EXISTING_AVID": [
-        0.8494135593857897,
-        0.7441796709652935,
-        0.6706393759232683,
-        0.5833333333333333
-      ],
-      "D4_ORACLE_REF": [
-        0.9352752816480622,
-        0.8789291416275997,
-        0.8298769776932239,
-        0.7500000000000004
+      "active_causes_xtalk_leak_burst": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
       ]
     }
   }
