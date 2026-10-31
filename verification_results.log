@@ -1,0 +1,76 @@
+/usr/lib/python3/dist-packages/pyparsing/core.py:5637: SyntaxWarning: 'return' in a 'finally' block
+  return f"{type(self).__name__}: {retString}"
+/usr/lib/python3/dist-packages/IPython/core/interactiveshell.py:3141: SyntaxWarning: 'return' in a 'finally' block
+  return result
+
+========================================================================================
+  TEST 1: Spatially Correlated Noise (Coherent ZZ + Drive Crosstalk vs. Lindblad)
+========================================================================================
+Single-cycle duration t = 1.00 us, Residual ZZ = 0.09 MHz
+  [Coherent ZZ + Xtalk] P(Z1)= 0.0794, P(Z2)= 0.0794, Joint P(Z1 & Z2)= 0.0794
+                        Product of marginals P(Z1)*P(Z2) = 0.0063
+                        Correlation ratio P(Z1,Z2)/[P(Z1)P(Z2)] = 12.59x
+  [Independent Lindblad] P(Z1)= 0.0807, P(Z2)= 0.0807, Joint P(Z1 & Z2)= 0.0065
+                        Correlation ratio P(Z1,Z2)/[P(Z1)P(Z2)] = 1.00x
+
+Multi-cycle coherence <X1> evolution across 6 cycles (showing coherent revivals vs monotonic decay):
+  Cycle 1 (1.0 us): Coherent <X1> = +0.8412 | Corr-Lindblad <X1> = +0.8386 | Indep-Lindblad <X1> = +0.8386
+  Cycle 2 (2.0 us): Coherent <X1> = +0.4301 | Corr-Lindblad <X1> = +0.7033 | Indep-Lindblad <X1> = +0.7033
+  Cycle 4 (4.0 us): Coherent <X1> = -0.4457 | Corr-Lindblad <X1> = +0.4920 | Indep-Lindblad <X1> = +0.4920
+  Cycle 6 (6.0 us): Coherent <X1> = -0.3121 | Corr-Lindblad <X1> = +0.3461 | Indep-Lindblad <X1> = +0.3461
+  Cycle 9 (9.0 us): Coherent <X1> = +0.9486 | Corr-Lindblad <X1> = +0.2030 | Indep-Lindblad <X1> = +0.2030
+  Cycle 12 (12.0 us): Coherent <X1> = +0.1964 | Corr-Lindblad <X1> = +0.1191 | Indep-Lindblad <X1> = +0.1191
+[PASS] Test 1 verified: Coherent ZZ crosstalk produces non-factorizable joint errors and coherent
+       oscillations/revivals that Markovian Pauli/Lindblad channels cannot capture.
+
+========================================================================================
+  TEST 2: Multilevel Transmon Leakage (|2> Dynamics & QuTiP 3^N Scaling Wall)
+========================================================================================
+Part A: Fast 8 ns Gaussian X_pi pulse |0> -> |1> (Anharmonicity alpha/2pi = -200 MHz)
+  [2-Level Qubit Model]  P(|0>) = 0.00000, P(|1>) = 1.00000, P(|2> leakage) = 0.00000 (by construction)
+  [3-Level Qutrit Model] P(|0>) = 0.04571, P(|1>) = 0.94641, P(|2> post-gate) = 0.00789 (0.79%), Peak mid-gate P(|2>) = 0.12192 (12.19%)
+
+Part B: Multi-round leakage persistence & spectator corruption (T1_{|2>->|1>} = 15 us):
+  Round 1 (1 us): Leaked P(|2>) = 0.93551 | Spectator <X> (with leakage) = -0.88186 vs (clean) = 1.00000
+  Round 2 (2 us): Leaked P(|2>) = 0.87517 | Spectator <X> (with leakage) = 0.69606 vs (clean) = 1.00000
+  Round 3 (3 us): Leaked P(|2>) = 0.81873 | Spectator <X> (with leakage) = -0.46479 vs (clean) = 1.00000
+  Round 4 (4 us): Leaked P(|2>) = 0.76593 | Spectator <X> (with leakage) = 0.21994 vs (clean) = 1.00000
+  Round 5 (5 us): Leaked P(|2>) = 0.71653 | Spectator <X> (with leakage) = 0.01741 vs (clean) = 1.00000
+
+Part C: Empirical QuTiP `mesolve` Scaling Benchmark for N Qutrits (d=3):
+  N (qutrits)  Hilbert (3^N)   Density Matrix (3^2N)  Liouvillian (3^4N)   Runtime (s)  Peak Mem (MB)
+  2            9               81                     6,561                0.0592       0.06        
+  3            27              729                    531,441              0.2492       0.48        
+  4            81              6,561                  43,046,721           3.5681       5.43        
+  5            243             59,049                 3,486,784,401        65.9167      59.53       
+  [Extrapolated N=9 (d=3 Data Qubits Only)]: 3^N = 19,683 | Density Matrix entries = 3.87e+08 (~5.77e+00 GB RAM)
+  [Extrapolated N=17 (d=3 Full Surface Code (AVID))]: 3^N = 129,140,163 | Density Matrix entries = 1.67e+16 (~2.49e+08 GB RAM)
+[PASS] Test 2 verified: 3-level leakage persists across QEC cycles and corrupts spectators,
+       while QuTiP's 3^(2N) density-matrix representation hits an exponential scaling wall by N=5-6.
+
+========================================================================================
+  TEST 3: Non-Stationary & Non-Markovian Noise (OU + TLS Telegraph vs. Static Lindblad)
+========================================================================================
+Simulated 150 QEC rounds (1.0 us/round):
+  [Static Markovian Lindblad] Fixed p_err = 0.0148 | Windowed Fano Factor (Var/Mean) = 0.000
+  [Non-Stationary OU + TLS]   Mean p_err  = 0.3641 (Min=0.0148, Max=0.9780)
+                              Lag-1 Error-Rate Autocorrelation = +0.9125
+                              Windowed Fano Factor (Burstiness) = 3.004
+
+Ramsey Coherence <X>(t) Behavioral Comparison (Exponential vs Non-Markovian):
+  t = 0.25 us: Markovian Lindblad = +0.9924 (pure exp) | Non-Markovian (OU+TLS) = +0.9374
+  t = 0.76 us: Markovian Lindblad = +0.9775 (pure exp) | Non-Markovian (OU+TLS) = +0.6196
+  t = 1.52 us: Markovian Lindblad = +0.9555 (pure exp) | Non-Markovian (OU+TLS) = +0.2946
+  t = 2.53 us: Markovian Lindblad = +0.9269 (pure exp) | Non-Markovian (OU+TLS) = +0.1432
+  t = 4.00 us: Markovian Lindblad = +0.8869 (pure exp) | Non-Markovian (OU+TLS) = +0.2017
+
+QuTiP Re-Compilation Overhead:
+  Single static `mesolve`: 4.47 ms vs 150-round non-stationary loop: 741.39 ms (166.0x slower)
+  Extrapolated 1-qubit time for 1,000,000 AVID ablation rounds in QuTiP: 82.4 minutes (for just 1 qubit!)
+[PASS] Test 3 verified: Non-stationary OU + TLS telegraph noise produces temporally correlated
+       error bursts, non-exponential Ramsey decay, and super-Poissonian Fano factors missed by
+       static Lindblad, while requiring expensive per-round ODE re-integration in QuTiP.
+
+========================================================================================
+  ALL 3 QUTIP VERIFICATION TESTS PASSED SUCCESSFULLY
+========================================================================================
