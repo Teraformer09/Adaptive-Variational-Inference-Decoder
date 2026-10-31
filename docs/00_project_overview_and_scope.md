@@ -1,0 +1,30 @@
+# AVID Noise-Generation and Latent Noise-State Estimation Overview
+
+## 1. Repository Purpose and Strict Scope Boundary
+
+This branch (`Noise-Generation_Model`) of the Adaptive Variational Inference Decoder (AVID) repository is dedicated strictly to **quantum hardware noise generation, physical reference validation, and predictive latent noise-state estimation** on superconducting tunable-coupler transmon processors. All experiments, mathematical formulations, and benchmarks in this repository evaluate how accurately a generative model can simulate realistic non-Pauli hardware noise trajectories, infer hidden physical noise mechanisms from partial classical observations, and forecast future fault statistics across multiple syndrome-extraction rounds. Downstream quantum error correction (QEC) decoding, minimum-weight perfect matching (MWPM) weight adaptation, logical error rate (LER) suppression claims, and reinforcement-learning control loops are explicitly excluded from this phase.
+
+## 2. Repository Architecture and Documentation Structure
+
+The repository is organized into four functional directories that progress from exact open-system physical reference verification to neural world-model estimation:
+
+The **`Limiation_sim/`** module establishes the physical motivation for learned noise generation by running exact open-system master-equation simulations in QuTiP 5.2.3 across three canonical superconducting hardware noise families: spatially correlated gate crosstalk (`A1`) and cosmic-ray substrate phonon bursts (`A2`), multi-level $|2\rangle$ transmon leakage (`B1`), and non-stationary driven two-level-system (TLS) defects (`C1`) alongside non-Markovian idle bath memory (`C2`). It empirically documents both the physical behaviors missed by independent Pauli channels and the $O(d^{2N})$ Liouville-space memory wall that prevents exact density-matrix simulation at Surface-17 scale.
+
+The **`Benchmark-Evals/Qutip-Baseline/`** module freezes the five individual benchmark specifications and the combined mixed-noise benchmark (`MIXED_ALL_THREE`) in `configs/benchmark_configs.json`. It implements the classical Bayesian noise-estimation baselines (`B0` static independent, `B1` static correlated, `B2` forward Hidden Markov Model, `B3` schedule- and kernel-conditioned variational tracker, `B4` Ornstein–Uhlenbeck filter, and `B5` exact simulator oracle upper bound), storing all quantitative results, schema-validated sample trajectories, and multi-panel diagnostic figures in `Benchmark-Evals/Qutip-Baseline/evidance/`.
+
+The **`world_model/`** package implements the schema-validated trajectory generator, the R2D2 burn-in replay dataset (`burn_in_steps = 16`), the non-vision `QuantumGraphPerceptionEncoder`, the five-component factored variational latent space (`z_corr`, `z_leak`, `z_drift`, `z_memory`, `z_event`), and two interchangeable spatio-temporal backbones: **Version A (`R2D2-Graph-RSSM`)** using Chrono-Initialized dual-timescale LSTM cells with R2D2 burn-in warmup, and **Version B (`Small Spatio-Temporal Causal Transformer`)**. All prose specifications, mathematical contracts, benchmark protocols, and implementation policies are consolidated in **`docs/`**:
+- [`00_project_overview_and_scope.md`](file:///home/tirtha/docs/00_project_overview_and_scope.md): Repository scope, directory map, and architectural summary.
+- [`01_quantum_noise_physics_and_motivation.md`](file:///home/tirtha/docs/01_quantum_noise_physics_and_motivation.md): Physical mechanisms of transmon crosstalk, phonon bursts, qutrit leakage, and non-Markovian TLS memory, and the QuTiP scaling wall.
+- [`02_world_model_architecture_and_perception.md`](file:///home/tirtha/docs/02_world_model_architecture_and_perception.md): Non-vision graph perception layer, factored latent space, R2D2-Graph-RSSM vs. Small Spatio-Temporal Transformer backbones, six prediction heads, and variational ELBO objective.
+- [`03_benchmark_and_baseline_evaluation_protocol.md`](file:///home/tirtha/docs/03_benchmark_and_baseline_evaluation_protocol.md): Five-benchmark specification, mixed-noise disentanglement protocol, classical baselines (`B0–B5`), and zero-leakage dataset split rules.
+- [`04_implementation_policy_and_ablation_study.md`](file:///home/tirtha/docs/04_implementation_policy_and_ablation_study.md): Six-phase implementation policy, three-stage curriculum training, inference-contract enforcement, and seven-variant ablation results.
+
+## References
+
+1. **Varbanov, B. M., Battistel, F., Tarasinski, B. M., Ostroukh, V. P., Haider, T. E., DiCarlo, L., & Terhal, B. M.** (2020). Leakage detection and mitigation for the surface code. *npj Quantum Information*, 6, 102. https://doi.org/10.1038/s41534-020-00330-w
+2. **Ketterer, A., & Wellens, T.** (2023). Characterizing crosstalk of superconducting transmon processors. *Physical Review Applied*, 20(3), 034065. https://doi.org/10.1103/PhysRevApplied.20.034065
+3. **Wilen, C. D., Abdullah, S., Kurinsky, N. A., Stanford, C., Cardani, L., D'Imperio, G., ... & McDermott, R.** (2021). Correlated charge noise and relaxation errors in superconducting qubits. *Nature*, 594(7863), 369–373. https://doi.org/10.1038/s41586-021-03557-5
+4. **Agarwal, A., Lindoy, L. P., Lall, D., Jamet, F., & Rungger, I.** (2023). Modelling non-Markovian noise in driven superconducting qubits. *Quantum Science and Technology*, 9(1), 015017. https://doi.org/10.1088/2058-9565/ad0811
+5. **Gulácsi, B., & Burkard, G.** (2023). Signatures of non-Markovianity of a superconducting qubit. *Physical Review B*, 107(17), 174511. https://doi.org/10.1103/PhysRevB.107.174511
+6. **Hafner, D., Lillicrap, T., Fischer, I., Villegas, R., Ha, D., Lee, H., & Davidson, J.** (2019). Learning latent dynamics for planning from pixels. In *Proceedings of the 36th International Conference on Machine Learning (ICML)* (pp. 2555–2565). PMLR.
+7. **Kapturowski, S., Ostrovski, G., Quan, J., Munos, R., & Dabney, W.** (2019). Recurrent experience replay in distributed reinforcement learning (R2D2). In *International Conference on Learning Representations (ICLR)*.
