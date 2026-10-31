@@ -1,0 +1,3941 @@
+{
+  "schema_version": "1.0.0",
+  "trajectory_id": "B1_L125_R50_S101_000",
+  "seed": 101,
+  "device_config_id": "surface17_netzero_cz",
+  "topology_id": "surface17_d3",
+  "round_start": 0,
+  "round_end": 49,
+  "observations": [
+    {
+      "round": 0,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.9643,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.3378,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.3756,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.3528,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.627,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.025,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 1.2245,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.4561,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 8,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.9777,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.7755,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 10,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.9256,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 11,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.0147,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 12,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -3.8925,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 13,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.05,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 14,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.4507,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 15,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.2073,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 16,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.7893,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 17,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.9657,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 18,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.3548,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 19,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -3.9536,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 20,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.8676,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 21,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.22,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 22,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.3477,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 23,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.3736,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 24,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 0.2113,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 25,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.2766,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 26,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -3.2457,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 27,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.5019,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 28,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.8511,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 29,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.6163,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 30,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.2366,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 31,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.7444,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 32,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.93,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 33,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.8012,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 34,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.239,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 35,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.2291,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 36,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.6186,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 37,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.084,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 38,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.8917,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 39,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.5771,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 40,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.6379,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 41,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -0.476,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 42,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -2.6283,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 43,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.4426,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 44,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": -1.6057,
+        "n_checks_fired": 0
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 45,
+      "detection_events": [
+        2
+      ],
+      "syndrome": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 2.2385,
+        "n_checks_fired": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 46,
+      "detection_events": [
+        1,
+        2,
+        3
+      ],
+      "syndrome": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 3.136,
+        "n_checks_fired": 3
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 47,
+      "detection_events": [
+        1,
+        2,
+        3
+      ],
+      "syndrome": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 2.3087,
+        "n_checks_fired": 3
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 48,
+      "detection_events": [
+        2,
+        3
+      ],
+      "syndrome": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 2.5394,
+        "n_checks_fired": 2
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    },
+    {
+      "round": 49,
+      "detection_events": [
+        1
+      ],
+      "syndrome": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "calibration": {
+        "cz_l1_est": 0.00125,
+        "t1_us": 65.0
+      },
+      "calibration_mask": {
+        "cz_l1_est": true,
+        "t1_us": true
+      },
+      "readout_features": {
+        "soft_leakage_llr": 1.5734,
+        "n_checks_fired": 1
+      },
+      "readout_mask": {
+        "soft_leakage_llr": true,
+        "n_checks_fired": true
+      },
+      "schedule_features": [
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            2
+          ],
+          "couplers": [
+            1
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            3
+          ],
+          "couplers": [
+            2
+          ],
+          "concurrency_group": 0,
+          "duration_ns": 50.0
+        },
+        {
+          "gate_type": "CZ_NET_ZERO",
+          "targets": [
+            0,
+            4
+          ],
+          "couplers": [
+            3
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 50.0
+        }
+      ]
+    }
+  ],
+  "latent_truth": {
+    "leaked_flags": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "persistence_runs": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "gamma_CL": 0.004990632810058515,
+    "gamma_LC": 0.0625
+  },
+  "provenance": {
+    "simulator": "QuTiP-5.2.3 + Surface17-Markov-Wrapper",
+    "config_hash": "b1_varbanov_2020_v1",
+    "parameter_sources": [
+      "Varbanov et al. npj QI 6, 102 (2020)"
+    ]
+  }
+}

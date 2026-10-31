@@ -1,0 +1,262 @@
+{
+  "suite_version": "1.0.0",
+  "frozen_at": "2026-10-31",
+  "description": "Stage 0 frozen benchmark specifications for the AVID World-Model & Classical Baseline Evaluation Suite (5 benchmarks across 3 noise families).",
+  "split_policy": {
+    "unit": "complete_trajectory",
+    "forbid_round_level_split": true,
+    "train_seeds": [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112],
+    "val_seeds": [201, 202, 203, 204],
+    "test_seeds": [301, 302, 303, 304],
+    "ood_test_seeds": [401, 402, 403, 404],
+    "forecast_horizons_rounds": [1, 2, 4, 8]
+  },
+  "benchmarks": {
+    "A1_GATE_CROSSTALK": {
+      "benchmark_id": "A1_GATE_CROSSTALK",
+      "family": "A_SPATIALLY_CORRELATED",
+      "physical_reference": "Ketterer and Wellens, Phys. Rev. Applied 20, 034065 (2023)",
+      "doi": "10.1103/PhysRevApplied.20.034065",
+      "arxiv": "2303.14103",
+      "physical_system": "Three-transmon neighbourhood (Q1, Q2 target pair + Q3 spectator/concurrent neighbour)",
+      "noise_mechanism": "Schedule-conditioned simultaneous-gate crosstalk (residual ZZ + microwave drive crosstalk)",
+      "reference_simulator": "QuTiP (mesolve + Pauli-twirled PTM channel reduction)",
+      "scalable_qec_simulator": "Stim + schedule-conditioned custom crosstalk layer",
+      "ground_truth_variables": [
+        "zeta_zz_khz_by_schedule",
+        "omega_xtalk_khz_by_schedule",
+        "ptm_effective_pauli_probabilities",
+        "injected_fault_pairs"
+      ],
+      "observable_variables": [
+        "detection_events",
+        "syndrome",
+        "schedule_features",
+        "calibration",
+        "topology_graph"
+      ],
+      "evaluation_target": "Schedule-conditioned local correlation forecast P(E_i, E_j | b_t, u_t)",
+      "primary_baselines": ["B0", "B1", "B3", "B5"],
+      "parameters": {
+        "rb_sequence_lengths": {
+          "value": [1, 3, 10, 20, 40, 65, 95, 130, 175],
+          "provenance": "published",
+          "source": "Ketterer & Wellens (2023), Sec. III"
+        },
+        "isolated_zz_coupling_khz": {
+          "value": 12.0,
+          "provenance": "synthetic_controlled",
+          "source": "Baseline idle/isolated residual coupling for transmon triplet test"
+        },
+        "concurrent_zz_coupling_khz": {
+          "value": 85.0,
+          "provenance": "synthetic_controlled",
+          "source": "Active concurrent-schedule ZZ coupling for transmon triplet test"
+        },
+        "concurrent_drive_xtalk_khz": {
+          "value": 30.0,
+          "provenance": "synthetic_controlled",
+          "source": "Simultaneous-drive spectator crosstalk amplitude"
+        },
+        "gate_duration_ns": {
+          "value": 60.0,
+          "provenance": "synthetic_controlled",
+          "source": "Two-qubit/concurrent Clifford step duration in QuTiP reference"
+        }
+      }
+    },
+    "A2_CHIPWIDE_EVENTS": {
+      "benchmark_id": "A2_CHIPWIDE_EVENTS",
+      "family": "A_SPATIALLY_CORRELATED",
+      "physical_reference": "Wilen et al., Nature 594, 369-373 (2021)",
+      "doi": "10.1038/s41586-021-03557-5",
+      "physical_system": "4-qubit spatially separated superconducting transmon array (0 to 1200 um spacing)",
+      "noise_mechanism": "Phonon/quasiparticle-mediated transient correlated relaxation bursts from substrate radiation impacts",
+      "reference_simulator": "QuTiP (time-dependent Lindblad amplitude damping mesolve across multi-qubit array)",
+      "scalable_qec_simulator": "Stim + spatiotemporal event field g(r, t) injection layer",
+      "ground_truth_variables": [
+        "event_times_tk",
+        "event_locations_rk_um",
+        "event_amplitudes_Ak",
+        "event_decay_tau_rounds",
+        "per_qubit_gamma1_t",
+        "affected_qubit_footprint"
+      ],
+      "observable_variables": [
+        "detection_events",
+        "syndrome",
+        "schedule_features",
+        "topology_graph"
+      ],
+      "evaluation_target": "Common-event detection, spatial footprint estimation, and transient relaxation decay forecast",
+      "primary_baselines": ["B0", "B1", "B3", "B5"],
+      "parameters": {
+        "spatial_correlation_length_um": {
+          "value": 650.0,
+          "provenance": "published",
+          "source": "Wilen et al. (2021) reported >600 um correlated charge/relaxation length scale"
+        },
+        "qubit_positions_um": {
+          "value": [[0.0, 0.0], [350.0, 0.0], [700.0, 0.0], [1100.0, 0.0]],
+          "provenance": "synthetic_controlled",
+          "source": "Millimetre-scale 4-transmon line geometry"
+        },
+        "baseline_t1_us": {
+          "value": 65.0,
+          "provenance": "published",
+          "source": "Representative transmon baseline T1 before radiation burst"
+        },
+        "event_decay_rounds": {
+          "value": 6.0,
+          "provenance": "synthetic_controlled",
+          "source": "Scaled QEC-round decay constant for tractable trajectory benchmarking"
+        }
+      }
+    },
+    "B1_TRANSMON_LEAKAGE": {
+      "benchmark_id": "B1_TRANSMON_LEAKAGE",
+      "family": "B_LEAKAGE",
+      "physical_reference": "Varbanov et al., npj Quantum Information 6, 102 (2020)",
+      "doi": "10.1038/s41534-020-00330-w",
+      "physical_system": "Distance-3 Surface-17 transmon unit cell (qutrit {|0>, |1>, |2>} data + ancilla stabilizer check)",
+      "noise_mechanism": "Net-Zero CZ gate leakage into |2>, seepage to computational subspace, and conditional phase scrambling",
+      "reference_simulator": "QuTiP (qutrit-qubit density-matrix stabilizer cycle + Markovian {C, L} transition dynamics)",
+      "scalable_qec_simulator": "quantumsim / Stim + leakage-aware Surface-17 wrapper",
+      "ground_truth_variables": [
+        "leakage_state_L_i_t",
+        "qutrit_p2_population",
+        "cz_leakage_rate_L1",
+        "seepage_rate_gamma_LC",
+        "leakage_persistence_durations"
+      ],
+      "observable_variables": [
+        "detection_events",
+        "syndrome",
+        "readout_features",
+        "readout_mask",
+        "schedule_features"
+      ],
+      "evaluation_target": "Per-transmon leakage posterior P(L_i(t)=1 | o_1:t), detection delay, and persistence forecast",
+      "primary_baselines": ["B0", "B2", "B3", "B5"],
+      "parameters": {
+        "cz_leakage_L1_baseline": {
+          "value": 0.00125,
+          "provenance": "published",
+          "source": "Varbanov et al. (2020), baseline L1 = 0.125% per CZ"
+        },
+        "cz_leakage_L1_sensitivity": {
+          "value": 0.005,
+          "provenance": "published",
+          "source": "Varbanov et al. (2020), higher sensitivity L1 = 0.5% per CZ"
+        },
+        "qec_rounds_windows": {
+          "value": [20, 50],
+          "provenance": "published",
+          "source": "Varbanov et al. (2020), 20- and 50-round protocols"
+        },
+        "expected_data_leakage_persistence_cycles": {
+          "value": 16.0,
+          "provenance": "published",
+          "source": "Varbanov et al. (2020), average data-qubit leakage persistence ~16 cycles"
+        },
+        "expected_ancilla_leakage_persistence_cycles": {
+          "value": 17.0,
+          "provenance": "published",
+          "source": "Varbanov et al. (2020), average ancilla leakage persistence ~17 cycles"
+        },
+        "flux_dance_cz_per_round": {
+          "value": 4,
+          "provenance": "published",
+          "source": "Surface-17 interior data qubit interacts with 4 CZ gates per QEC cycle"
+        },
+        "cz_flux_pulse_ns": {
+          "value": [30.0, 10.0, 10.0],
+          "provenance": "published",
+          "source": "Varbanov et al. (2020), 30 ns bipolar flux pulse + two 10 ns phase-correction pulses"
+        }
+      }
+    },
+    "C1_DRIVEN_TLS": {
+      "benchmark_id": "C1_DRIVEN_TLS",
+      "family": "C_NONSTATIONARY_TEMPORAL",
+      "physical_reference": "Agarwal et al., arXiv:2306.13021 (2023)",
+      "arxiv": "2306.13021",
+      "physical_system": "Driven superconducting transmon coherently coupled to a microscopic Two-Level System (TLS) defect",
+      "noise_mechanism": "Drive-conditioned non-Markovian qubit-TLS exchange and slow TLS coupling drift under mirrored pseudoidentity U(theta)=X_{-theta}X_{+theta}",
+      "reference_simulator": "QuTiP (composite Transmon x TLS Hamiltonian mesolve without inter-round environment reset)",
+      "scalable_qec_simulator": "Stim + drive-conditioned latent TLS memory process",
+      "ground_truth_variables": [
+        "g_tls_coupling_mhz_t",
+        "tls_excited_population_t",
+        "drive_amplitude_omega_mhz",
+        "pseudoidentity_residual_infidelity"
+      ],
+      "observable_variables": [
+        "detection_events",
+        "syndrome",
+        "schedule_features",
+        "calibration"
+      ],
+      "evaluation_target": "Temporal and drive-amplitude-conditioned error prediction across horizons H in {1,2,4,8}",
+      "primary_baselines": ["B0", "B3", "B4", "B5"],
+      "parameters": {
+        "gate_sequence": {
+          "value": "U(theta) = X_{-theta} X_{+theta}",
+          "provenance": "published",
+          "source": "Agarwal et al. (2023), mirrored pseudoidentity sequence"
+        },
+        "tls_coupling_range_mhz": {
+          "value": [0.15, 0.85],
+          "provenance": "synthetic_controlled",
+          "source": "Slowly varying transmon-TLS dipole coupling strength in QuTiP composite reference"
+        },
+        "drive_amplitudes_mhz": {
+          "value": [10.0, 20.0, 30.0, 40.0, 50.0],
+          "provenance": "synthetic_controlled",
+          "source": "Drive amplitude sweep testing quadratic phase-error scaling and TLS back-action"
+        }
+      }
+    },
+    "C2_IDLE_MEMORY": {
+      "benchmark_id": "C2_IDLE_MEMORY",
+      "family": "C_NONSTATIONARY_TEMPORAL",
+      "physical_reference": "Gulacsi and Burkard, Phys. Rev. B 107, 174511 (2023)",
+      "doi": "10.1103/PhysRevB.107.174511",
+      "physical_system": "Idle superconducting transmon coupled to a structured non-Markovian memory bath",
+      "noise_mechanism": "Environmental memory during idle/measurement windows causing periodic coherence revivals, sideband precession frequencies, and negative canonical TCL decay rates",
+      "reference_simulator": "QuTiP (composite qubit-memory Hamiltonian & Time-Convolutionless canonical rate extraction)",
+      "scalable_qec_simulator": "Stim + history-kernel non-Markovian idle phase/relaxation channel",
+      "ground_truth_variables": [
+        "coherence_X_t",
+        "coherence_Y_t",
+        "canonical_tcl_decay_rate_gamma_t",
+        "environment_memory_state",
+        "subsequent_gate_fidelity"
+      ],
+      "observable_variables": [
+        "detection_events",
+        "syndrome",
+        "schedule_features"
+      ],
+      "evaluation_target": "Multi-horizon coherence revival and history-dependent idle fault prediction across H in {1,2,4,8}",
+      "primary_baselines": ["B0", "B2", "B4", "B5"],
+      "parameters": {
+        "memory_coupling_mhz": {
+          "value": 1.2,
+          "provenance": "synthetic_controlled",
+          "source": "Composite bath coupling producing periodic coherence revivals and negative TCL rate"
+        },
+        "bath_detuning_mhz": {
+          "value": 0.8,
+          "provenance": "synthetic_controlled",
+          "source": "Detuned memory mode generating secondary precession frequency peak"
+        },
+        "bath_damping_mhz": {
+          "value": 0.15,
+          "provenance": "synthetic_controlled",
+          "source": "Finite bath correlation time tau_c > 1/g_mem (non-Markovian regime)"
+        }
+      }
+    }
+  }
+}

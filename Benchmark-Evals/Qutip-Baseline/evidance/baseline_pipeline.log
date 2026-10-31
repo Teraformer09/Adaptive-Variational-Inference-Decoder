@@ -1,0 +1,56 @@
+
+================================================================================
+PRIORITY 1 | BENCHMARK B1: Transmon Leakage in Surface-17 (Varbanov et al. 2020)
+================================================================================
+  [Stage 1 QuTiP CZ Reference] Calibrated L1 (baseline target 0.125%): 0.0002%
+  [Stage 1 QuTiP CZ Reference] Calibrated L1 (sensitivity target 0.50%): 0.0039%
+  [Stage 1 QuTiP CZ Reference] Stabilizer defect prob when Data in |2>: 0.5826
+  [Stage 3 Dataset] Empirical mean leakage persistence: 11.57 cycles (published ~16)
+  [Stage 5 Baselines] B0 Static PR-AUC:        0.1261
+  [Stage 5 Baselines] B3 AVID EWMA PR-AUC:     0.9780 | Delay: 1.28 rds
+  [Stage 5 Baselines] B2 HMM (Syndrome) PR-AUC:0.9946 | Delay: 0.18 rds
+  [Stage 5 Baselines] B2 HMM (+Analog) PR-AUC: 0.9998 | Delay: 0.07 rds | Optimality: 99.98%
+
+================================================================================
+PRIORITY 2 | BENCHMARK A1: Schedule-Conditioned Gate Crosstalk (Ketterer & Wellens 2023)
+================================================================================
+  [Stage 1 QuTiP Twirled Channel] ISOLATED   P(E1,E2)=0.00074 (p1=0.0035, p2=0.0040)
+  [Stage 1 QuTiP Twirled Channel] CONCURRENT P(E1,E2)=0.03523 (p1=0.0387, p2=0.0693, ratio=13.13x)
+  [Stage 5 Baselines] Joint-Event NLL -> B0: 0.1409 | B1: 0.0963 | B3 (Schedule-Aware): 0.0842 | B5: 0.0842
+  [Stage 5 Baselines] Pairwise Joint RMSE -> B0: 0.02437 | B1: 0.01725 | B3: 0.00034
+
+================================================================================
+PRIORITY 3A | BENCHMARK C1: Driven Transmon + TLS Mirrored Pseudoidentity (Agarwal et al. 2023)
+================================================================================
+  [Stage 1 QuTiP U(theta)=X_-theta X_+theta] Markovian flat error @ 50MHz: 0.00145
+  [Stage 1 QuTiP U(theta)=X_-theta X_+theta] Qubit-TLS error @ 50MHz (g=0.75MHz): 0.03632
+  [Stage 5 Multi-Horizon RMSE H=1->H=8] B4 OU Filter: 0.0099 -> 0.0070
+  [Stage 5 Multi-Horizon RMSE H=1->H=8] B3 Drive-Aware: 0.0069 -> 0.0068
+
+================================================================================
+PRIORITY 3B | BENCHMARK C2: Idle Transmon Memory & Revivals (Gulacsi & Burkard 2023)
+================================================================================
+  [Stage 1 QuTiP TCL Reference] Min canonical decay rate gamma_TCL(t): -20.170 uS^-1 (< 0 confirms Non-Markovianity)
+  [Stage 1 QuTiP TCL Reference] Time fraction with negative decay rate: 44.0%
+  [Stage 1 QuTiP TCL Reference] Two dominant precession frequencies: 0.80 MHz, 3.19 MHz
+
+================================================================================
+PRIORITY 4 | BENCHMARK A2: Chip-Wide Correlated Events (Wilen et al. 2021)
+================================================================================
+  [Stage 1 QuTiP 4-Qubit Array] Baseline relaxation fault prob: 0.0153
+  [Stage 1 QuTiP 4-Qubit Array] Burst relaxation probs (0..1100 um): [np.float64(0.2769), np.float64(0.2945), np.float64(0.1894), np.float64(0.1136)]
+  [Stage 5 Baselines] Event F1 -> B0: 0.0000 | B1: 0.0087 | B3 Spatial: 0.5452 | Delay: 0.08 rds
+
+================================================================================
+PRIORITY 5 & STAGE 6 | Mixed-Noise & Downstream Surface-17 Decoder Evaluation (D0..D4)
+================================================================================
+  [Stage 6 Mixed-Noise 50-Round Decoding] D0_STATIC_MWPM    : P_fail=0.5833 (95% CI [0.5000, 0.6752]) | LER/round=0.04399
+  [Stage 6 Mixed-Noise 50-Round Decoding] D1_CORR_MWPM      : P_fail=0.5167 (95% CI [0.4083, 0.6083]) | LER/round=0.04399
+  [Stage 6 Mixed-Noise 50-Round Decoding] D2_EXISTING_AVID  : P_fail=0.4167 (95% CI [0.3250, 0.5085]) | LER/round=0.01760
+  [Stage 6 Mixed-Noise 50-Round Decoding] D4_ORACLE_REF     : P_fail=0.2500 (95% CI [0.1750, 0.3250]) | LER/round=0.00688
+
+================================================================================
+ALL 5 BENCHMARKS + STAGE 6 DECODER HARNESS COMPLETED IN 160.80 s
+Peak Python tracemalloc: 168.89 MiB | Peak OS Process RSS: 582.02 MiB
+Results written to: /home/tirtha/Benchmark-Evals/results/baseline_evaluation_results.json
+================================================================================

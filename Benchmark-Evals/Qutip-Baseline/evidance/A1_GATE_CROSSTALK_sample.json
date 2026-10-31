@@ -1,0 +1,3000 @@
+{
+  "schema_version": "1.0.0",
+  "trajectory_id": "A1_S101_000",
+  "seed": 101,
+  "device_config_id": "transmon_triplet_xtalk",
+  "topology_id": "line_3q",
+  "round_start": 0,
+  "round_end": 79,
+  "observations": [
+    {
+      "round": 0,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "detection_events": [
+        0,
+        1,
+        2
+      ],
+      "syndrome": [
+        1,
+        1,
+        1
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 8,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 10,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 11,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 12,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 13,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 14,
+      "detection_events": [
+        0,
+        1
+      ],
+      "syndrome": [
+        1,
+        1,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 15,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 16,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 17,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 18,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 19,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 20,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 21,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 22,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 23,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 24,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 25,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 26,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 27,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 28,
+      "detection_events": [
+        0,
+        1,
+        2
+      ],
+      "syndrome": [
+        1,
+        1,
+        1
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 29,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 30,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 31,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 32,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 33,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 34,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 35,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 36,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 37,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 38,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 39,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 40,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 41,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 42,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 43,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 44,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 45,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 46,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 47,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 48,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 49,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 50,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 51,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 52,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 53,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 54,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 55,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 56,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 57,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 58,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 59,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 60,
+      "detection_events": [
+        1
+      ],
+      "syndrome": [
+        0,
+        1,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 61,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 62,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 63,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 64,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 65,
+      "detection_events": [
+        1
+      ],
+      "syndrome": [
+        0,
+        1,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 66,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 67,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 68,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 69,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 70,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 71,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 72,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 73,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 74,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 75,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_ISOLATED",
+          "targets": [
+            0,
+            1
+          ],
+          "couplers": [
+            0
+          ],
+          "concurrency_group": 1,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 76,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 77,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 78,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    },
+    {
+      "round": 79,
+      "detection_events": [],
+      "syndrome": [
+        0,
+        0,
+        0
+      ],
+      "calibration": {
+        "isolated_epc": 0.0003103895672948029
+      },
+      "calibration_mask": {
+        "isolated_epc": true
+      },
+      "readout_features": {},
+      "readout_mask": {},
+      "schedule_features": [
+        {
+          "gate_type": "CZ_SIMULTANEOUS",
+          "targets": [
+            0,
+            1,
+            2
+          ],
+          "couplers": [
+            0,
+            1
+          ],
+          "concurrency_group": 2,
+          "duration_ns": 60.0
+        }
+      ]
+    }
+  ],
+  "latent_truth": {
+    "schedule_modes": [
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "ISOLATED",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT",
+      "CONCURRENT"
+    ],
+    "true_joint_probs": [
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.0007384431967290897,
+        0.0004764640300946067
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ],
+      [
+        0.035227018523760284,
+        0.022531987859115206
+      ]
+    ]
+  },
+  "provenance": {
+    "simulator": "QuTiP-5.2.3-PTM-Twirled",
+    "config_hash": "a1_ketterer_wellens_2023_v1",
+    "parameter_sources": [
+      "Ketterer & Wellens PRA 20, 034065 (2023)",
+      "synthetic_controlled"
+    ]
+  }
+}
