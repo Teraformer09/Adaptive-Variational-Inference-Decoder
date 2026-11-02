@@ -4,72 +4,51 @@ project(AA_QEC CXX C)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD   11)
 
-# =============================================================================
-# Cross-compilation for Zynq ARM (uncomment on x86 host)
-# =============================================================================
-# set(CMAKE_SYSTEM_NAME      Linux)
-# set(CMAKE_SYSTEM_PROCESSOR arm)
-# set(CMAKE_C_COMPILER       arm-linux-gnueabihf-gcc)
-# set(CMAKE_CXX_COMPILER     arm-linux-gnueabihf-g++)
-# set(CMAKE_FIND_ROOT_PATH   /usr/arm-linux-gnueabihf)
-# set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-# set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-# set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+find_package(Eigen3 QUIET NO_MODULE)
 
-# =============================================================================
-# Eigen3 (header-only — no link needed if using INTERFACE target)
-# =============================================================================
-find_package(Eigen3 REQUIRED NO_MODULE)
-
-# =============================================================================
-# avid_daemon — the adaptive inference process
-# =============================================================================
-add_executable(avid_daemon
+set(AVID_CORE_SOURCES
     src/driver/weight_reg_driver.c
+    src/driver/weight_bank_driver.c
     src/driver/dma_manager.c
-    src/inference/ring_buffer.h       # Header-only component
+    src/ingress/packet_validator.cpp
+    src/ingress/dma_ingress_tap.cpp
     src/inference/noise_model.cpp
     src/inference/lbfgs_optimizer.cpp
     src/inference/weight_injector.cpp
+    src/estimator/joint_dp_estimator.cpp
+    src/estimator/lbfgs_solver.cpp
+    src/estimator/llr_quantizer.cpp
+    src/control/causal_scheduler.cpp
+    src/control/stage_profiler.cpp
+    src/control/fallback_fsm.cpp
+    src/custom_engine/cycle_accurate_bp_engine.cpp
+)
+
+add_executable(avid_daemon
+    ${AVID_CORE_SOURCES}
     src/inference/avid_daemon.cpp
 )
 
-target_include_directories(avid_daemon PRIVATE
-    ${CMAKE_SOURCE_DIR}/src
+add_executable(test_baseline_suite
+    ${AVID_CORE_SOURCES}
+    tests/test_baseline_suite.cpp
 )
 
-target_link_libraries(avid_daemon PRIVATE Eigen3::Eigen)
+if(Eigen3_FOUND)
+    target_include_directories(avid_daemon PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    target_link_libraries(avid_daemon PRIVATE Eigen3::Eigen)
+    target_include_directories(test_baseline_suite PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    target_link_libraries(test_baseline_suite PRIVATE Eigen3::Eigen)
+else()
+    message(STATUS "System Eigen3 not found — using built-in zero-allocation Eigen/Dense header")
+    target_include_directories(avid_daemon PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include)
+    target_include_directories(test_baseline_suite PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include)
+endif()
 
-# ARM NEON vectorisation for Eigen matrix operations
-target_compile_options(avid_daemon PRIVATE
-    -O3
-    -ffast-math
-    $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm>:-march=armv7-a -mfpu=neon -mfloat-abi=hard>
-    $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},aarch64>:-march=armv8-a>
-)
+target_compile_options(avid_daemon PRIVATE -O3 -Wall)
+target_compile_definitions(avid_daemon PRIVATE EIGEN_DONT_PARALLELIZE EIGEN_NO_DEBUG)
 
-# Suppress Eigen warnings on ARM
-target_compile_definitions(avid_daemon PRIVATE
-    EIGEN_DONT_PARALLELIZE          # Single-threaded: no OpenMP contention
-    EIGEN_NO_DEBUG                  # Disable bounds checks in release
-)
+target_compile_options(test_baseline_suite PRIVATE -O2 -Wall)
+target_compile_definitions(test_baseline_suite PRIVATE EIGEN_DONT_PARALLELIZE)
 
-# =============================================================================
-# Install target (on Zynq Linux: sudo make install → /usr/local/bin/)
-# =============================================================================
 install(TARGETS avid_daemon DESTINATION bin)
-
-# =============================================================================
-# Build instructions
-# =============================================================================
-message(STATUS "")
-message(STATUS "AVID Software Build")
-message(STATUS "  Compiler : ${CMAKE_CXX_COMPILER}")
-message(STATUS "  Eigen3   : ${EIGEN3_INCLUDE_DIR}")
-message(STATUS "")
-message(STATUS "Build on Zynq:")
-message(STATUS "  mkdir build && cd build && cmake .. && make -j4")
-message(STATUS "")
-message(STATUS "Cross-compile from x86:")
-message(STATUS "  Uncomment the cross-compilation block above, then:")
-message(STATUS "  mkdir build_arm && cd build_arm && cmake .. && make -j8")

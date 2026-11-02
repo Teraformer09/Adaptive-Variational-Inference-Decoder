@@ -1,0 +1,48 @@
+# SF8 — Canonical LLR Numeric & Fixed-Point Quantization Contract
+schema_version: "1.0.0"
+contract_id: "llr_numeric_contract_v1"
+
+equation:
+  channel_llr_definition: "LLR_v = log((1.0 - p_v_eff) / p_v_eff)"
+  effective_marginal_projection: "p_v_eff = p_v + sum_{j in NB(v)} p_vj * (1.0 - 2.0 * p_v)"
+  sign_convention: "positive_llr_means_error_unlikely_bit_0_preferred_negative_llr_means_error_likely_bit_1"
+  hard_decision_rule: "correction_bit[v] = 1 if belief[v] < 0 (sign bit belief[v][15] == 1) else 0"
+
+probability_clamping:
+  p_min: 0.0001                         # Floor to prevent log(1/0) overflow (max LLR = +9.2102)
+  p_max: 0.4990                         # Ceiling inside half-open Bernoulli interval (min LLR = +0.0040)
+
+float_clipping:
+  llr_min_float: -100.0
+  llr_max_float: 100.0
+
+fixed_point_format:
+  format_name: "Q7.8_signed_twos_complement"
+  total_bits: 16
+  sign_bits: 1
+  integer_bits: 7
+  fractional_bits: 8
+  scale_factor: 256.0
+  rounding_mode: "round_to_nearest_even_or_trunc_toward_zero_documented"
+  c_reference_conversion: "int16_t q78 = clamp(round(llr * 256.0), -32768, 32767)"
+  min_int16: -32768
+  max_int16: 32767
+  default_p0: 0.10
+  default_q78_hex: "0x0232"             # round(log(0.9/0.1) * 256) = 562 = 0x0232
+
+golden_reference_vectors:
+  - { p_eff: 0.001, llr_float: 6.906755, q78_int: 1768, q78_hex: "0x06E8" }
+  - { p_eff: 0.010, llr_float: 4.595120, q78_int: 1176, q78_hex: "0x0498" }
+  - { p_eff: 0.030, llr_float: 3.476099, q78_int: 890,  q78_hex: "0x037A" }
+  - { p_eff: 0.050, llr_float: 2.944439, q78_int: 754,  q78_hex: "0x02F2" }
+  - { p_eff: 0.100, llr_float: 2.197225, q78_int: 562,  q78_hex: "0x0232" }
+  - { p_eff: 0.200, llr_float: 1.386294, q78_int: 355,  q78_hex: "0x0163" }
+  - { p_eff: 0.300, llr_float: 0.847298, q78_int: 217,  q78_hex: "0x00D9" }
+
+register_map_d3:
+  base_addr: "0x43C01000"
+  shadow_x_offset_base: "0x000"         # 0x000 + 4*i for i=0..8
+  shadow_z_offset_base: "0x024"         # 0x024 + 4*i for i=0..8
+  commit_register_offset: "0x048"
+  status_register_offset: "0x04C"
+  epoch_counter_offset: "0x050"

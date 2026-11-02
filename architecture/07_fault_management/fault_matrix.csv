@@ -1,0 +1,9 @@
+fault_id,fault_name,detection_mechanism,trigger_condition,fsm_transition,recovery_action
+F01,DMA_RING_OVERFLOW,axis_ingress_tap flags[1],All 4 DMA slots busy on TValid,NORMAL_ADAPTIVE -> HOLD_LAST_GOOD,Drop slow tap packet; fast BP continues; flush oldest slot
+F02,SEQ_GAP_DETECTED,packet_validator seq_id delta,seq_id != prev_seq_id + 1,NORMAL_ADAPTIVE -> HOLD_LAST_GOOD,Invalidate partial burst histogram and resync seq_id
+F03,PARITY_OR_VALID_ERR,packet_validator flags[0]/flags[2],valid_pkt == 0 or parity_err == 1,NORMAL_ADAPTIVE -> HOLD_LAST_GOOD,Discard corrupted syndrome word; increment error counter
+F04,LBFGS_NON_CONVERGENCE,lbfgs_optimizer status,grad_norm > tol or NaN/Inf in step,NORMAL_ADAPTIVE -> HOLD_LAST_GOOD,Reject candidate theta; retain active weight bank
+F05,LLR_OUT_OF_BOUNDS,llr_quantizer range check,Any q7_8_llr < 0x0040 or > 0x3000,HOLD_LAST_GOOD -> SAFE_STATIC_PRIOR,Clamp and commit calibrated static prior bank
+F06,SLOW_LOOP_DEADLINE_MISS,stage_profiler elapsed_us,elapsed_us > 250.0 us,NORMAL_ADAPTIVE -> HOLD_LAST_GOOD,Abort slow epoch commit; log deadline violation
+F07,CONSECUTIVE_HOLDS_EXCEEDED,fallback_fsm hold_counter,hold_counter >= 3 epochs,HOLD_LAST_GOOD -> SAFE_STATIC_PRIOR,Write calibrated static priors to shadow bank and COMMIT
+F08,AXI_LITE_COMMIT_STUCK,weight_map_reg STATUS[0],commit_pending == 1 for > 1000 cycles,SAFE_STATIC_PRIOR -> DEGRADED_BYPASS,Assert hardware soft-reset and lock default priors

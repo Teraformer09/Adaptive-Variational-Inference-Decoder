@@ -1,0 +1,49 @@
+# A09 / Q18–Q19 — Deterministic Fault Containment & Fallback Policy Contract
+schema_version: "1.0.0"
+contract_id: "fault_policy_v1"
+
+states:
+  - "NOMINAL_ADAPTIVE"                  # Normal operation: ARM commits validated LLR updates
+  - "HOLD_LAST_GOOD_EPOCH"              # Transient fault: retain last committed active LLR bank, skip commit
+  - "STATIC_DEFAULT_FALLBACK"           # Persistent fault (>=3 consecutive failures): revert shadow/active to calibrated p0=0.01 LLRs
+
+triggers:
+  - trigger_id: "F01_PACKET_MAGIC_OR_CRC_INVALID"
+    condition: "packet header magic != 0xAAEC0002/0xAAEC0001 or reserved bits non-zero"
+    transition: "NOMINAL_ADAPTIVE -> HOLD_LAST_GOOD_EPOCH"
+    action: "Discard corrupted packet batch, mark current window invalid, do not run L-BFGS."
+
+  - trigger_id: "F02_SEQUENCE_GAP_OR_DUPLICATE"
+    condition: "seq_id[t] != (seq_id[t-1] + 1) mod 65536"
+    transition: "NOMINAL_ADAPTIVE -> HOLD_LAST_GOOD_EPOCH"
+    action: "Increment gap_counter, flush partial window, require W_min contiguous rounds before resuming."
+
+  - trigger_id: "F03_RING_BUFFER_OVERWRITE_STALE_WINDOW"
+    condition: "DMA ingress overwrites unread ring buffer tail before estimator snapshot"
+    transition: "NOMINAL_ADAPTIVE -> HOLD_LAST_GOOD_EPOCH"
+    action: "Reject stale window; take fresh contiguous snapshot."
+
+  - trigger_id: "F04_ESTIMATOR_NON_CONVERGENCE_OR_NAN"
+    condition: "L-BFGS NLL increases, gradient contains NaN/Inf, or parameters hit hard boundary"
+    transition: "NOMINAL_ADAPTIVE -> HOLD_LAST_GOOD_EPOCH"
+    action: "Reset L-BFGS history, discard proposed theta, do NOT write shadow bank or assert COMMIT."
+
+  - trigger_id: "F05_LLR_OUT_OF_RANGE"
+    condition: "Any proposed q78 LLR <= 0 or NaN"
+    transition: "NOMINAL_ADAPTIVE -> HOLD_LAST_GOOD_EPOCH"
+    action: "Clamp or reject update; retain active bank."
+
+  - trigger_id: "F06_ARM_DEADLINE_OVERRUN"
+    condition: "Adaptation cycle wall time > target_period_us (10,000 us)"
+    transition: "NOMINAL_ADAPTIVE -> HOLD_LAST_GOOD_EPOCH"
+    action: "Coalesce/drop stale pending window; never stall FPGA fast-path decoder."
+
+  - trigger_id: "F07_PERSISTENT_ADAPTATION_FAILURE"
+    condition: "consecutive_fault_windows >= 3"
+    transition: "HOLD_LAST_GOOD_EPOCH -> STATIC_DEFAULT_FALLBACK"
+    action: "Inject calibrated static p0=0.01 weights into shadow bank, commit once, raise adaptation_unavailable flag."
+
+recovery_policy:
+  from_hold_to_nominal: "1 valid contiguous window with finite convergent L-BFGS fit within deadline"
+  from_static_fallback_to_nominal: "3 consecutive valid windows with convergent L-BFGS fits"
+  safety_disclaimer: "Retaining the last-known-good or static calibrated LLR epoch guarantees deterministic decoder execution without mid-decode corruption; it does NOT claim a universal mathematical bound that LER is never worse than static BP under arbitrary adversarial drift."

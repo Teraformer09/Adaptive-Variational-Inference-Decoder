@@ -151,7 +151,7 @@ module avid_top #(
 
     bp_engine #(
         .N_DATA(N_DATA), .N_CHECK(N_CHECK), .MAX_DEG(MAX_DEG),
-        .MAX_ITER(MAX_ITER), .DATA_WIDTH(DATA_WIDTH)
+        .MAX_ITER(MAX_ITER), .DATA_WIDTH(DATA_WIDTH), .BASIS_Z(1'b1)
     ) u_bp_x (
         .clk              (aclk),
         .rst_n            (aresetn),
@@ -172,7 +172,7 @@ module avid_top #(
 
     bp_engine #(
         .N_DATA(N_DATA), .N_CHECK(N_CHECK), .MAX_DEG(MAX_DEG),
-        .MAX_ITER(MAX_ITER), .DATA_WIDTH(DATA_WIDTH)
+        .MAX_ITER(MAX_ITER), .DATA_WIDTH(DATA_WIDTH), .BASIS_Z(1'b0)
     ) u_bp_z (
         .clk              (aclk),
         .rst_n            (aresetn),

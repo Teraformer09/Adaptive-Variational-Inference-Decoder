@@ -1,0 +1,65 @@
+# A01 / Q02 — Canonical Rotated Planar Surface Code Layout Contract
+schema_version: "1.0.0"
+contract_id: "code_layout_v1"
+
+code_family: "rotated_planar_surface_code_css"
+boundary_convention: "rough_top_bottom_x_smooth_left_right_z"
+bit_ordering: "lsb_first_row_major_qubit_0_to_n_minus_1"
+
+codes:
+  d3_rotated:
+    distance: 3
+    n_data: 9
+    n_check_x: 4
+    n_check_z: 4
+    k_logical: 1
+    max_check_degree: 4
+    data_qubit_coordinates:
+      - { id: 0, row: 0, col: 0, x_um: 0.0,   y_um: 0.0   }
+      - { id: 1, row: 0, col: 1, x_um: 100.0, y_um: 0.0   }
+      - { id: 2, row: 0, col: 2, x_um: 200.0, y_um: 0.0   }
+      - { id: 3, row: 1, col: 0, x_um: 0.0,   y_um: 100.0 }
+      - { id: 4, row: 1, col: 1, x_um: 100.0, y_um: 100.0 }
+      - { id: 5, row: 1, col: 2, x_um: 200.0, y_um: 100.0 }
+      - { id: 6, row: 2, col: 0, x_um: 0.0,   y_um: 200.0 }
+      - { id: 7, row: 2, col: 1, x_um: 100.0, y_um: 200.0 }
+      - { id: 8, row: 2, col: 2, x_um: 200.0, y_um: 200.0 }
+    # Canonical CSS checks: 2 weight-2 boundary checks + 2 weight-4 bulk checks per basis
+    # Every X-check shares 0 or 2 qubits with every Z-check -> H_X * H_Z^T = 0 mod 2
+    x_checks:
+      - { id: 0, weight: 2, support: [0, 1],       padded_conn: [0, 1, 0, 0], active_mask: 0b0011, role: "top_boundary"  }
+      - { id: 1, weight: 4, support: [1, 2, 4, 5], padded_conn: [1, 2, 4, 5], active_mask: 0b1111, role: "bulk_right"    }
+      - { id: 2, weight: 4, support: [3, 4, 6, 7], padded_conn: [3, 4, 6, 7], active_mask: 0b1111, role: "bulk_left"     }
+      - { id: 3, weight: 2, support: [7, 8],       padded_conn: [7, 8, 0, 0], active_mask: 0b0011, role: "bottom_boundary"}
+    z_checks:
+      - { id: 0, weight: 4, support: [0, 1, 3, 4], padded_conn: [0, 1, 3, 4], active_mask: 0b1111, role: "bulk_top_left" }
+      - { id: 1, weight: 2, support: [2, 5],       padded_conn: [2, 5, 0, 0], active_mask: 0b0011, role: "right_boundary"}
+      - { id: 2, weight: 2, support: [3, 6],       padded_conn: [3, 6, 0, 0], active_mask: 0b0011, role: "left_boundary" }
+      - { id: 3, weight: 4, support: [4, 5, 7, 8], padded_conn: [4, 5, 7, 8], active_mask: 0b1111, role: "bulk_bot_right"}
+    logical_operators:
+      logical_x: [0, 3, 6]              # Left column X_0 X_3 X_6 (commutes with all Z checks, weight 3)
+      logical_z: [0, 1, 2]              # Top row Z_0 Z_1 Z_2 (commutes with all X checks, weight 3)
+    nearest_neighbor_pairs:
+      - [0, 1]
+      - [1, 2]
+      - [3, 4]
+      - [4, 5]
+      - [6, 7]
+      - [7, 8]
+      - [0, 3]
+      - [3, 6]
+      - [1, 4]
+      - [4, 7]
+      - [2, 5]
+      - [5, 8]
+
+  d5_rotated:
+    distance: 5
+    n_data: 25
+    n_check_x: 12
+    n_check_z: 12
+    k_logical: 1
+    max_check_degree: 4
+    logical_operators:
+      logical_x: [0, 5, 10, 15, 20]
+      logical_z: [0, 1, 2, 3, 4]

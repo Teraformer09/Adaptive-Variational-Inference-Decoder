@@ -1,0 +1,43 @@
+# =============================================================================
+# AVID Baseline Configuration: Rotated d=3 Planar Surface Code Reference
+# Policy Reference: A01 / Q02, A04 / Q01, A06 / Q06
+# =============================================================================
+config_id: "d3_reference"
+code_name: "rotated_planar_surface_code_d3"
+distance: 3
+n_data_qubits: 9
+n_x_checks: 4
+n_z_checks: 4
+n_logical_qubits: 1
+
+decoder:
+  algorithm: "normalized_min_sum_bp"
+  max_check_degree: 4
+  max_var_degree: 4
+  default_iterations_K: 3
+  allowed_iterations_K: [1, 2, 3, 4, 5]
+  scaling_factor_alpha: 0.75
+  fpga_clock_mhz: 250.0
+  # L(K) = 2 + 5*K cycles for fused belief/iter state (17 cycles @ K=3 -> 68 ns)
+  # Legacy unfused state machine: L_legacy(K) = 2 + 6*K cycles (20 cycles @ K=3 -> 80 ns)
+  cycle_formula: "2 + 5 * K"
+  legacy_cycle_formula: "2 + 6 * K"
+
+estimator:
+  mode: "joint_dp_exact"
+  state_space_size: 16
+  fast_trigger_burst_rounds: 64
+  slow_reestimate_burst_rounds: 2048
+  lbfgs_history_m: 5
+  lbfgs_max_iter: 10
+  lbfgs_step_size: 0.05
+  prior_tether_lambda: 0.50
+  prob_floor: 1.0e-5
+  prob_ceiling: 0.49
+
+noise_defaults:
+  base_depolarizing_p: 0.012
+  zz_crosstalk_p: 0.008
+  measurement_bitflip_p: 0.003
+  drift_amplitude: 0.005
+  drift_period_rounds: 20000

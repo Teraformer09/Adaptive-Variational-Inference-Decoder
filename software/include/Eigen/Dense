@@ -1,0 +1,76 @@
+/* ===========================================================================
+ * Eigen/Dense — Self-Contained Fixed-Size Column Vector Implementation
+ * Provides zero-allocation `Eigen::Matrix<Scalar, Rows, 1>` for embedded ARM
+ * and host builds where system libeigen3-dev is not installed.
+ * =========================================================================*/
+#pragma once
+#include <cmath>
+#include <cstring>
+#include <cassert>
+
+namespace Eigen {
+
+template <typename Scalar, int Rows, int Cols>
+class Matrix {
+    static_assert(Cols == 1, "Fixed-size vector specialization requires Cols == 1");
+public:
+    Scalar data_[Rows];
+
+    Matrix() { setZero(); }
+
+    void setZero() {
+        for (int i = 0; i < Rows; i++) data_[i] = Scalar(0);
+    }
+
+    Scalar &operator()(int i) { return data_[i]; }
+    const Scalar &operator()(int i) const { return data_[i]; }
+
+    Scalar dot(const Matrix &other) const {
+        Scalar acc = Scalar(0);
+        for (int i = 0; i < Rows; i++) acc += data_[i] * other.data_[i];
+        return acc;
+    }
+
+    Scalar squaredNorm() const { return dot(*this); }
+    Scalar norm() const { return std::sqrt(squaredNorm()); }
+
+    Matrix operator-() const {
+        Matrix res;
+        for (int i = 0; i < Rows; i++) res.data_[i] = -data_[i];
+        return res;
+    }
+
+    Matrix operator+(const Matrix &rhs) const {
+        Matrix res;
+        for (int i = 0; i < Rows; i++) res.data_[i] = data_[i] + rhs.data_[i];
+        return res;
+    }
+
+    Matrix operator-(const Matrix &rhs) const {
+        Matrix res;
+        for (int i = 0; i < Rows; i++) res.data_[i] = data_[i] - rhs.data_[i];
+        return res;
+    }
+
+    Matrix &operator+=(const Matrix &rhs) {
+        for (int i = 0; i < Rows; i++) data_[i] += rhs.data_[i];
+        return *this;
+    }
+
+    Matrix &operator-=(const Matrix &rhs) {
+        for (int i = 0; i < Rows; i++) data_[i] -= rhs.data_[i];
+        return *this;
+    }
+
+    Matrix operator*(Scalar s) const {
+        Matrix res;
+        for (int i = 0; i < Rows; i++) res.data_[i] = data_[i] * s;
+        return res;
+    }
+
+    friend Matrix operator*(Scalar s, const Matrix &v) {
+        return v * s;
+    }
+};
+
+} // namespace Eigen

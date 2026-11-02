@@ -1,0 +1,736 @@
+{
+  "contract_id": "AVID-NOISE-CHANNEL-V1",
+  "code": "rotated_planar_surface_code_d3",
+  "basis": "X",
+  "events_21_param": [
+    {
+      "event_id": 0,
+      "name": "Z_0",
+      "category": "single_qubit",
+      "qubits": [
+        0
+      ],
+      "signature_bits": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "signature_mask": 1,
+      "signature_hex": "0x1",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 1,
+      "name": "Z_1",
+      "category": "single_qubit",
+      "qubits": [
+        1
+      ],
+      "signature_bits": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "signature_mask": 3,
+      "signature_hex": "0x3",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 2,
+      "name": "Z_2",
+      "category": "single_qubit",
+      "qubits": [
+        2
+      ],
+      "signature_bits": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "signature_mask": 2,
+      "signature_hex": "0x2",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 3,
+      "name": "Z_3",
+      "category": "single_qubit",
+      "qubits": [
+        3
+      ],
+      "signature_bits": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "signature_mask": 4,
+      "signature_hex": "0x4",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 4,
+      "name": "Z_4",
+      "category": "single_qubit",
+      "qubits": [
+        4
+      ],
+      "signature_bits": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "signature_mask": 6,
+      "signature_hex": "0x6",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 5,
+      "name": "Z_5",
+      "category": "single_qubit",
+      "qubits": [
+        5
+      ],
+      "signature_bits": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "signature_mask": 2,
+      "signature_hex": "0x2",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 6,
+      "name": "Z_6",
+      "category": "single_qubit",
+      "qubits": [
+        6
+      ],
+      "signature_bits": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "signature_mask": 4,
+      "signature_hex": "0x4",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 7,
+      "name": "Z_7",
+      "category": "single_qubit",
+      "qubits": [
+        7
+      ],
+      "signature_bits": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "signature_mask": 12,
+      "signature_hex": "0xC",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 8,
+      "name": "Z_8",
+      "category": "single_qubit",
+      "qubits": [
+        8
+      ],
+      "signature_bits": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "signature_mask": 8,
+      "signature_hex": "0x8",
+      "default_prob": 0.012
+    },
+    {
+      "event_id": 9,
+      "name": "ZZ_0_1",
+      "category": "zz_pair",
+      "qubits": [
+        0,
+        1
+      ],
+      "signature_bits": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "signature_mask": 2,
+      "signature_hex": "0x2",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 10,
+      "name": "ZZ_1_2",
+      "category": "zz_pair",
+      "qubits": [
+        1,
+        2
+      ],
+      "signature_bits": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "signature_mask": 1,
+      "signature_hex": "0x1",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 11,
+      "name": "ZZ_3_4",
+      "category": "zz_pair",
+      "qubits": [
+        3,
+        4
+      ],
+      "signature_bits": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "signature_mask": 2,
+      "signature_hex": "0x2",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 12,
+      "name": "ZZ_4_5",
+      "category": "zz_pair",
+      "qubits": [
+        4,
+        5
+      ],
+      "signature_bits": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "signature_mask": 4,
+      "signature_hex": "0x4",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 13,
+      "name": "ZZ_6_7",
+      "category": "zz_pair",
+      "qubits": [
+        6,
+        7
+      ],
+      "signature_bits": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "signature_mask": 8,
+      "signature_hex": "0x8",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 14,
+      "name": "ZZ_7_8",
+      "category": "zz_pair",
+      "qubits": [
+        7,
+        8
+      ],
+      "signature_bits": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "signature_mask": 4,
+      "signature_hex": "0x4",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 15,
+      "name": "ZZ_0_3",
+      "category": "zz_pair",
+      "qubits": [
+        0,
+        3
+      ],
+      "signature_bits": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "signature_mask": 5,
+      "signature_hex": "0x5",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 16,
+      "name": "ZZ_3_6",
+      "category": "zz_pair",
+      "qubits": [
+        3,
+        6
+      ],
+      "signature_bits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "signature_mask": 0,
+      "signature_hex": "0x0",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 17,
+      "name": "ZZ_1_4",
+      "category": "zz_pair",
+      "qubits": [
+        1,
+        4
+      ],
+      "signature_bits": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "signature_mask": 5,
+      "signature_hex": "0x5",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 18,
+      "name": "ZZ_4_7",
+      "category": "zz_pair",
+      "qubits": [
+        4,
+        7
+      ],
+      "signature_bits": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "signature_mask": 10,
+      "signature_hex": "0xA",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 19,
+      "name": "ZZ_2_5",
+      "category": "zz_pair",
+      "qubits": [
+        2,
+        5
+      ],
+      "signature_bits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "signature_mask": 0,
+      "signature_hex": "0x0",
+      "default_prob": 0.008
+    },
+    {
+      "event_id": 20,
+      "name": "ZZ_5_8",
+      "category": "zz_pair",
+      "qubits": [
+        5,
+        8
+      ],
+      "signature_bits": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "signature_mask": 10,
+      "signature_hex": "0xA",
+      "default_prob": 0.008
+    }
+  ],
+  "signature_orbits": {
+    "0x0": [
+      {
+        "event_id": 16,
+        "name": "ZZ_3_6",
+        "category": "zz_pair",
+        "qubits": [
+          3,
+          6
+        ],
+        "signature_bits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "signature_mask": 0
+      },
+      {
+        "event_id": 19,
+        "name": "ZZ_2_5",
+        "category": "zz_pair",
+        "qubits": [
+          2,
+          5
+        ],
+        "signature_bits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "signature_mask": 0
+      }
+    ],
+    "0x1": [
+      {
+        "event_id": 0,
+        "name": "Z_0",
+        "category": "single_qubit",
+        "qubits": [
+          0
+        ],
+        "signature_bits": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "signature_mask": 1
+      },
+      {
+        "event_id": 10,
+        "name": "ZZ_1_2",
+        "category": "zz_pair",
+        "qubits": [
+          1,
+          2
+        ],
+        "signature_bits": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "signature_mask": 1
+      }
+    ],
+    "0x2": [
+      {
+        "event_id": 2,
+        "name": "Z_2",
+        "category": "single_qubit",
+        "qubits": [
+          2
+        ],
+        "signature_bits": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "signature_mask": 2
+      },
+      {
+        "event_id": 5,
+        "name": "Z_5",
+        "category": "single_qubit",
+        "qubits": [
+          5
+        ],
+        "signature_bits": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "signature_mask": 2
+      },
+      {
+        "event_id": 9,
+        "name": "ZZ_0_1",
+        "category": "zz_pair",
+        "qubits": [
+          0,
+          1
+        ],
+        "signature_bits": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "signature_mask": 2
+      },
+      {
+        "event_id": 11,
+        "name": "ZZ_3_4",
+        "category": "zz_pair",
+        "qubits": [
+          3,
+          4
+        ],
+        "signature_bits": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "signature_mask": 2
+      }
+    ],
+    "0x3": [
+      {
+        "event_id": 1,
+        "name": "Z_1",
+        "category": "single_qubit",
+        "qubits": [
+          1
+        ],
+        "signature_bits": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "signature_mask": 3
+      }
+    ],
+    "0x4": [
+      {
+        "event_id": 3,
+        "name": "Z_3",
+        "category": "single_qubit",
+        "qubits": [
+          3
+        ],
+        "signature_bits": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "signature_mask": 4
+      },
+      {
+        "event_id": 6,
+        "name": "Z_6",
+        "category": "single_qubit",
+        "qubits": [
+          6
+        ],
+        "signature_bits": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "signature_mask": 4
+      },
+      {
+        "event_id": 12,
+        "name": "ZZ_4_5",
+        "category": "zz_pair",
+        "qubits": [
+          4,
+          5
+        ],
+        "signature_bits": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "signature_mask": 4
+      },
+      {
+        "event_id": 14,
+        "name": "ZZ_7_8",
+        "category": "zz_pair",
+        "qubits": [
+          7,
+          8
+        ],
+        "signature_bits": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "signature_mask": 4
+      }
+    ],
+    "0x5": [
+      {
+        "event_id": 15,
+        "name": "ZZ_0_3",
+        "category": "zz_pair",
+        "qubits": [
+          0,
+          3
+        ],
+        "signature_bits": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "signature_mask": 5
+      },
+      {
+        "event_id": 17,
+        "name": "ZZ_1_4",
+        "category": "zz_pair",
+        "qubits": [
+          1,
+          4
+        ],
+        "signature_bits": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "signature_mask": 5
+      }
+    ],
+    "0x6": [
+      {
+        "event_id": 4,
+        "name": "Z_4",
+        "category": "single_qubit",
+        "qubits": [
+          4
+        ],
+        "signature_bits": [
+          0,
+          1,
+          1,
+          0
+        ],
+        "signature_mask": 6
+      }
+    ],
+    "0x8": [
+      {
+        "event_id": 8,
+        "name": "Z_8",
+        "category": "single_qubit",
+        "qubits": [
+          8
+        ],
+        "signature_bits": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "signature_mask": 8
+      },
+      {
+        "event_id": 13,
+        "name": "ZZ_6_7",
+        "category": "zz_pair",
+        "qubits": [
+          6,
+          7
+        ],
+        "signature_bits": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "signature_mask": 8
+      }
+    ],
+    "0xA": [
+      {
+        "event_id": 18,
+        "name": "ZZ_4_7",
+        "category": "zz_pair",
+        "qubits": [
+          4,
+          7
+        ],
+        "signature_bits": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "signature_mask": 10
+      },
+      {
+        "event_id": 20,
+        "name": "ZZ_5_8",
+        "category": "zz_pair",
+        "qubits": [
+          5,
+          8
+        ],
+        "signature_bits": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "signature_mask": 10
+      }
+    ],
+    "0xC": [
+      {
+        "event_id": 7,
+        "name": "Z_7",
+        "category": "single_qubit",
+        "qubits": [
+          7
+        ],
+        "signature_bits": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "signature_mask": 12
+      }
+    ]
+  },
+  "summary": {
+    "total_events": 21,
+    "distinct_nonzero_signatures": 9,
+    "zero_signature_events": [
+      "ZZ_3_6",
+      "ZZ_2_5"
+    ],
+    "legacy_marginal_rank": 4,
+    "joint_dp_rank": 9,
+    "map_regularized_rank": 21
+  }
+}

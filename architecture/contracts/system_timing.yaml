@@ -1,0 +1,58 @@
+# A04 / Q01 — Canonical System Timing & Fast/Slow Control Partition Contract
+schema_version: "1.0.0"
+contract_id: "system_timing_v1"
+
+clocks:
+  pl_decoder_clock_hz: 250000000        # 250 MHz FPGA programmable logic clock (4.0 ns period)
+  syndrome_round_rate_hz: 1000000       # f_s = 1 MHz syndrome extraction rate
+  syndrome_round_period_us: 1.0         # T_s = 1 us per QEC round (250 PL clock cycles)
+
+windows_and_cadence:
+  adaptation_period_rounds: 10000       # T_a = 10,000 rounds (10.0 ms at 1 MHz)
+  sliding_window_rounds: 10000          # W = 10,000 rounds stored in ARM ring_buffer_t
+  dma_batch_rounds: 250                 # Rounds transferred per DMA descriptor batch (250 us)
+  min_valid_window_rounds: 500          # Minimum rounds required before first L-BFGS fit
+
+arm_slow_loop_budget:
+  target_period_us: 10000.0             # 10.0 ms nominal slow-loop period
+  estimator_max_lbfgs_iters: 50         # Hard cap on L-BFGS outer iterations
+  estimator_max_line_search: 10         # Hard cap on Armijo backtracking steps
+  commit_wait_bound_cycles: 32          # Max PL cycles to wait for bp_ready_in == 1 atomic swap
+
+test_regimes:
+  short_burst_regime:
+    duration_rounds: 60                 # 60 us transient burst at 1 MHz (Thesis Q01 scenario)
+    causality_classification: "sub_window_fast_trigger_or_hold"
+    fast_burst_detector:
+      enabled: true
+      sliding_subwindow_rounds: 16
+      syndrome_density_threshold: 0.35
+      debounce_rounds: 4
+      bounded_response_action: "boost_crosstalk_pair_weights_and_flag_burst_epoch"
+      worst_case_trigger_latency_rounds: 20
+  sustained_burst_regime:
+    duration_rounds: 10000              # 10 ms sustained burst (10,000 rounds at 1 MHz)
+    causality_classification: "within_slow_loop_adaptation_bandwidth"
+  slow_drift_regime:
+    duration_rounds: 1000000            # Multi-window continuous drift
+    causality_classification: "within_slow_loop_adaptation_bandwidth"
+
+required_trace_events:
+  - "round_accepted"
+  - "window_start"
+  - "window_close"
+  - "estimate_start"
+  - "estimate_end"
+  - "llr_proposal_ready"
+  - "shadow_write_done"
+  - "commit_request"
+  - "commit_complete"
+  - "active_epoch_use"
+
+causal_ordering_invariants:
+  - "window_close < estimate_start"
+  - "estimate_start < estimate_end"
+  - "estimate_end <= shadow_write_done"
+  - "shadow_write_done <= commit_request"
+  - "commit_request <= commit_complete"
+  - "commit_complete <= active_epoch_use"

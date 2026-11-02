@@ -1,0 +1,33 @@
+# =============================================================================
+# AVID Baseline Configuration: Rotated d=5 Planar Surface Code Simulation
+# Policy Reference: A01 / Q02, A03 / Q04
+# =============================================================================
+config_id: "d5_simulation"
+code_name: "rotated_planar_surface_code_d5"
+distance: 5
+n_data_qubits: 25
+n_x_checks: 12
+n_z_checks: 12
+n_logical_qubits: 1
+
+decoder:
+  algorithm: "normalized_min_sum_bp"
+  max_check_degree: 4
+  max_var_degree: 4
+  default_iterations_K: 5
+  allowed_iterations_K: [1, 2, 3, 4, 5]
+  scaling_factor_alpha: 0.75
+  fpga_clock_mhz: 250.0
+  cycle_formula: "2 + 5 * K"
+
+estimator:
+  mode: "joint_dp_exact"
+  state_space_size: 4096
+  fast_trigger_burst_rounds: 128
+  slow_reestimate_burst_rounds: 4096
+  lbfgs_history_m: 5
+  lbfgs_max_iter: 10
+  lbfgs_step_size: 0.04
+  prior_tether_lambda: 0.50
+  prob_floor: 1.0e-5
+  prob_ceiling: 0.49

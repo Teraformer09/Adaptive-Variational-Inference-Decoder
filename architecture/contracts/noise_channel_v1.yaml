@@ -1,0 +1,49 @@
+# A08 / Q17 — Canonical Noise-Channel & Repeated-Round Architecture Contract
+schema_version: "1.0.0"
+contract_id: "noise_channel_v1"
+
+channel_abstraction_level: "phenomenological_two_channel_with_correlated_pairs_and_measurement_flips"
+note: "Circuit-level ancilla/CNOT fault propagation is NOT claimed in this baseline branch; data faults and measurement flips are modelled explicitly and separately."
+
+syndrome_definitions:
+  raw_syndrome_x: "s_X(t) = (H_X * e_Z(t) + m_X(t)) mod 2"
+  raw_syndrome_z: "s_Z(t) = (H_Z * e_X(t) + m_Z(t)) mod 2"
+  repeated_round_detection_event_x: "d_X(t) = s_X(t) XOR s_X(t-1)  with s_X(-1) = 0"
+  repeated_round_detection_event_z: "d_Z(t) = s_Z(t) XOR s_Z(t-1)  with s_Z(-1) = 0"
+
+elementary_event_classes:
+  - event_class: "single_qubit_z_data_fault"
+    pauli_operator: "Z_i"
+    target_set: "data_qubits_0_to_n_minus_1"
+    count_d3: 9
+    detected_by: "H_X (s_X checks)"
+    signature_rule: "g_i = column i of H_X"
+    temporal_model: "stationary_or_piecewise_linear_drift"
+    support: { simulator: true, estimator: true, custom_bp_engine: true, rtl_decoder: true }
+
+  - event_class: "single_qubit_x_data_fault"
+    pauli_operator: "X_i"
+    target_set: "data_qubits_0_to_n_minus_1"
+    count_d3: 9
+    detected_by: "H_Z (s_Z checks)"
+    signature_rule: "h_i = column i of H_Z"
+    temporal_model: "stationary_or_piecewise_linear_drift"
+    support: { simulator: true, estimator: true, custom_bp_engine: true, rtl_decoder: true }
+
+  - event_class: "nearest_neighbor_zz_pair_fault"
+    pauli_operator: "Z_i Z_j"
+    target_set: "12_grid_adjacent_pairs_d3"
+    count_d3: 12
+    detected_by: "H_X (s_X checks)"
+    signature_rule: "g_ij = g_i XOR g_j (bitwise XOR of columns i and j of H_X)"
+    temporal_model: "transient_burst_or_elevated_coupler_crosstalk"
+    support: { simulator: true, estimator: true, custom_bp_engine: true, rtl_decoder: true }
+
+  - event_class: "stabilizer_measurement_bit_flip"
+    pauli_operator: "M_c"
+    target_set: "x_and_z_ancilla_checks"
+    count_d3: 8
+    detected_by: "temporal_pair_d_t_and_d_t_plus_1"
+    signature_rule: "flips check c at round t (creates consecutive detection events at t and t+1)"
+    temporal_model: "iid_bernoulli_per_check_per_round"
+    support: { simulator: true, estimator: true, custom_bp_engine: false, rtl_decoder: false }

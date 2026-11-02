@@ -1,0 +1,32 @@
+# =============================================================================
+# AVID Baseline Configuration: Zynq UltraScale+ ZCU104 / xczu7ev Target Board
+# Policy Reference: A04 / Q01, A05 / Q11, A06 / Q06, A09 / Q18
+# =============================================================================
+config_id: "target_board_zcu104"
+fpga_part: "xczu7ev-ffvc1156-2-e"
+board_name: "Xilinx Zynq UltraScale+ MPSoC ZCU104"
+
+clocks:
+  pl_fabric_clk_mhz: 250.0
+  pl_fabric_period_ns: 4.0
+  ps_arm_cortex_a53_mhz: 1200.0
+  syndrome_round_rate_mhz: 1.0
+  syndrome_round_period_ns: 1000.0
+
+axi_lite_map:
+  base_address: 0xA0000000
+  address_bits: 7
+  data_bits: 32
+  shadow_weight_bank_offset_start: 0x000
+  shadow_weight_bank_offset_end: 0x020
+  active_readback_offset_start: 0x024
+  active_readback_offset_end: 0x044
+  commit_strobe_offset: 0x048
+  status_swap_cnt_offset: 0x04C
+
+dma_ring_buffer:
+  num_slots: 4
+  slot_rounds: 64
+  packet_bytes: 8
+  slot_bytes: 512
+  ownership_states: ["FREE", "DMA_OWNED", "CPU_READY", "CPU_OWNED"]

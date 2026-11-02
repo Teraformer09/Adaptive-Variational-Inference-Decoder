@@ -1,183 +1,151 @@
 #!/usr/bin/env python3
 """
-noise_generator.py — AVID Phase 4.1
-Non-Markovian Noise Scenario Generator
-=======================================
-Generates a 1,000,000-round surface code syndrome dataset with deliberate
-time-varying noise to validate the adaptive decoder.
-
-Noise scenario (designed to stress the static decoder):
-
-  Phase 0  t = 0..499,999   : Stationary regime
-                               p_Z_uniform  = 0.01 (all qubits)
-                               p_ZZ_crosstalk = 0.000
-
-  Phase 1  t = 0..999,999   : Drifting flux-bias on qubits 4 and 5
-                               p_Z[4] linearly 0.01 → 0.05 (5x increase)
-                               p_Z[5] linearly 0.01 → 0.03
-                               Models: slow charge noise / flux creep
-
-  Burst    t = 500,000..510,000 : Sudden ZZ crosstalk on pair (4,5)
-                               p_ZZ[4,5] = 0.08 for 10,000 rounds
-                               Models: transient microwave crosstalk / TLS
-
-  The static BP decoder (optimised at t=0) will degrade in Phase 1 and
-  catastrophically fail during the Burst.  AVID tracks the drift and
-  recovers within a few update epochs (~100ms).
-
-Usage
------
-  python simulation/stimulus/noise_generator.py [--rounds 1000000] [--output syndromes.npy]
+noise_generator.py — Repaired Canonical CSS Non-Markovian Noise Scenario Generator
+Addresses Policy Items A01 / Q02, A05 / Q11, and A08 / Q17:
+  - Uses canonical rotated d=3 planar surface code CSS checks:
+      X_CHECKS = [[0, 1], [1, 2, 4, 5], [3, 4, 6, 7], [7, 8]]
+      Z_CHECKS = [[0, 1, 3, 4], [2, 5], [3, 6], [4, 5, 7, 8]]
+    satisfying H_X * H_Z^T == 0 (mod 2).
+  - Generates independent Z-faults (detected by X-checks), X-faults (detected by Z-checks),
+    nearest-neighbor ZZ pair crosstalk, and syndrome measurement bit-flip errors.
 """
 
+from __future__ import annotations
 import argparse
-import numpy as np
 from pathlib import Path
+import sys
+import numpy as np
 
-try:
-    import stim
-    STIM_AVAILABLE = True
-except ImportError:
-    STIM_AVAILABLE = False
-    print("[WARNING] stim not installed — using Bernoulli approximation")
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-# ============================================================
-# d=3 surface code Tanner graph (X-type stabilizers)
-# ============================================================
+from simulation.reference.code_model.css_code_builder import build_rotated_d3_code
+
 D = 3
-N_DATA   = D * D          # 9 qubits
-N_CHECK  = (N_DATA - 1) // 2  # 4 X-stabilizers
+N_DATA = 9
+N_CHECK = 4
 
-CHECK_CONN = [
-    [0, 1, 3, 4],
-    [1, 2, 4, 5],
-    [3, 4, 6, 7],
-    [4, 5, 7, 8],
-]
+_D3_CODE = build_rotated_d3_code()
+CHECK_CONN = _D3_CODE.x_check_supports  # [[0, 1], [1, 2, 4, 5], [3, 4, 6, 7], [7, 8]]
+Z_CHECK_CONN = _D3_CODE.z_check_supports  # [[0, 1, 3, 4], [2, 5], [3, 6], [4, 5, 7, 8]]
 
-# ============================================================
-# Syndrome computation from error pattern (exact formula)
-# ============================================================
 
-def compute_syndromes(errors: np.ndarray) -> np.ndarray:
+def compute_syndromes(errors: np.ndarray, check_supports=None) -> np.ndarray:
     """
     errors: (n_rounds, n_data) binary array
     returns: (n_rounds, n_check) syndrome bits
     """
+    supports = CHECK_CONN if check_supports is None else check_supports
     n_rounds = errors.shape[0]
-    synd = np.zeros((n_rounds, N_CHECK), dtype=np.uint8)
-    for c, conn in enumerate(CHECK_CONN):
+    synd = np.zeros((n_rounds, len(supports)), dtype=np.uint8)
+    for c, conn in enumerate(supports):
         synd[:, c] = errors[:, conn].sum(axis=1) % 2
     return synd
 
 
-def sample_errors(n_rounds: int, p_single: np.ndarray,
-                  p_cross_pairs: list, rng: np.random.Generator) -> np.ndarray:
+def sample_errors(
+    n_rounds: int,
+    p_single: np.ndarray,
+    p_cross_pairs: list,
+    rng: np.random.Generator,
+) -> np.ndarray:
     """
-    Sample Z-error patterns under correlated Pauli noise model.
-
-    p_single: (N_DATA,) array of single-qubit Z-error rates
-    p_cross_pairs: list of (i, j, p_ij) tuples for ZZ crosstalk
+    Sample Pauli fault patterns under single-qubit + correlated pair noise model.
     """
     errors = rng.binomial(1, p_single, size=(n_rounds, N_DATA)).astype(np.uint8)
-
-    for (i, j, p_ij) in p_cross_pairs:
-        if p_ij > 0:
-            # ZZ error: both qubits i and j flip together
+    for i, j, p_ij in p_cross_pairs:
+        if p_ij > 0.0:
             corr = rng.binomial(1, p_ij, size=n_rounds).astype(np.uint8)
             errors[:, i] ^= corr
             errors[:, j] ^= corr
+    return errors & 1
 
-    return errors % 2
 
-
-# ============================================================
-# Non-Markovian scenario builder
-# ============================================================
-
-def generate_scenario(total_rounds: int, rng: np.random.Generator):
+def generate_scenario(
+    total_rounds: int,
+    rng: np.random.Generator,
+    p_meas: float = 0.002,
+):
     """
-    Generate syndrome dataset with drifting + burst noise.
+    Generate syndrome dataset with drifting + burst ZZ crosstalk + independent X/Z errors.
     Returns:
-      syndromes: (total_rounds, N_CHECK) uint8 — X-stabilizer syndromes
-      true_p:    (total_rounds, N_DATA)  float  — ground-truth p_i(t) for tracking
-      true_pzz:  (total_rounds,)         float  — p_ZZ[4,5](t)
+      syndromes_x: (total_rounds, N_CHECK) uint8 — X-stabilizer syndromes (detect Z errors)
+      syndromes_z: (total_rounds, N_CHECK) uint8 — Z-stabilizer syndromes (detect X errors)
+      true_p:      (total_rounds, N_DATA)  float32 — ground-truth p_Z(t)
+      true_pzz:    (total_rounds,)         float32 — ground-truth p_ZZ[4,5](t)
     """
-    print(f"Generating {total_rounds:,} rounds of non-Markovian noise...")
+    syndromes_x = np.zeros((total_rounds, N_CHECK), dtype=np.uint8)
+    syndromes_z = np.zeros((total_rounds, N_CHECK), dtype=np.uint8)
+    true_p = np.zeros((total_rounds, N_DATA), dtype=np.float32)
+    true_pzz = np.zeros(total_rounds, dtype=np.float32)
 
-    syndromes = np.zeros((total_rounds, N_CHECK), dtype=np.uint8)
-    true_p    = np.zeros((total_rounds, N_DATA),  dtype=np.float32)
-    true_pzz  = np.zeros(total_rounds,            dtype=np.float32)
+    chunk = min(10_000, max(1, total_rounds))
 
-    CHUNK = 10000  # Process in chunks to avoid RAM overflow
-
-    for t_start in range(0, total_rounds, CHUNK):
-        t_end = min(t_start + CHUNK, total_rounds)
-        n     = t_end - t_start
-
-        # Mid-chunk time index for parameter evaluation
+    for t_start in range(0, total_rounds, chunk):
+        t_end = min(t_start + chunk, total_rounds)
+        n = t_end - t_start
         t_mid = (t_start + t_end) // 2
 
-        # ---- Per-qubit error rates (time-varying) ----
-        p = np.full(N_DATA, 0.01, dtype=np.float64)
+        p_z = np.full(N_DATA, 0.01, dtype=np.float64)
+        p_x = np.full(N_DATA, 0.008, dtype=np.float64)
 
-        # Phase 1: linear drift on q4 and q5
-        if t_mid < total_rounds:
-            frac = t_mid / total_rounds
-            p[4] = 0.01 + 0.04 * frac        # 0.01 → 0.05
-            p[5] = 0.01 + 0.02 * frac        # 0.01 → 0.03
+        frac = t_mid / max(1, total_rounds)
+        p_z[4] = 0.01 + 0.04 * frac
+        p_z[5] = 0.01 + 0.02 * frac
+        p_x[3] = 0.008 + 0.02 * frac
 
-        # ---- Crosstalk burst ----
-        p_zz_45 = 0.0
-        if 500_000 <= t_mid < 510_000:
-            p_zz_45 = 0.08
-            print(f"  [burst] ZZ crosstalk p(4,5)=0.08 at t={t_mid:,}")
+        p_zz_45 = 0.08 if (0.50 * total_rounds <= t_mid < 0.55 * total_rounds) else 0.004
+        cross_z = [(4, 5, p_zz_45)]
+        cross_x = [(1, 4, 0.003)]
 
-        cross_pairs = [(4, 5, p_zz_45)] if p_zz_45 > 0 else []
+        err_z = sample_errors(n, p_z, cross_z, rng)
+        err_x = sample_errors(n, p_x, cross_x, rng)
 
-        # ---- Sample errors and compute syndromes ----
-        errors = sample_errors(n, p, cross_pairs, rng)
-        synd   = compute_syndromes(errors)
+        sx = compute_syndromes(err_z, CHECK_CONN)
+        sz = compute_syndromes(err_x, Z_CHECK_CONN)
 
-        syndromes[t_start:t_end] = synd
-        true_p[t_start:t_end]    = p.astype(np.float32)
-        true_pzz[t_start:t_end]  = p_zz_45
+        if p_meas > 0.0:
+            meas_flip_x = rng.binomial(1, p_meas, size=sx.shape).astype(np.uint8)
+            meas_flip_z = rng.binomial(1, p_meas, size=sz.shape).astype(np.uint8)
+            sx ^= meas_flip_x
+            sz ^= meas_flip_z
 
-    return syndromes, true_p, true_pzz
+        syndromes_x[t_start:t_end] = sx
+        syndromes_z[t_start:t_end] = sz
+        true_p[t_start:t_end] = p_z.astype(np.float32)
+        true_pzz[t_start:t_end] = p_zz_45
 
+    return syndromes_x, syndromes_z, true_p, true_pzz
 
-# ============================================================
-# CLI
-# ============================================================
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--rounds",  type=int, default=1_000_000)
-    p.add_argument("--seed",    type=int, default=42)
-    p.add_argument("--output",  type=str, default="simulation/stimulus/syndromes.npz")
+    p.add_argument("--rounds", type=int, default=100_000)
+    p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--output", type=str, default="simulation/stimulus/syndromes.npz")
     return p.parse_args()
 
 
 def main():
     args = parse_args()
-    rng  = np.random.default_rng(args.seed)
-
-    syndromes, true_p, true_pzz = generate_scenario(args.rounds, rng)
+    rng = np.random.default_rng(args.seed)
+    sx, sz, true_p, true_pzz = generate_scenario(args.rounds, rng)
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(str(out_path),
-                        syndromes=syndromes,
-                        true_p=true_p,
-                        true_pzz=true_pzz,
-                        n_check=N_CHECK,
-                        n_data=N_DATA,
-                        total_rounds=args.rounds)
-
-    print(f"Saved {args.rounds:,} rounds → {out_path}")
-    print(f"  Array shapes: syndromes={syndromes.shape}  true_p={true_p.shape}")
-    syndrome_rate = syndromes.mean()
-    print(f"  Mean syndrome fire rate: {syndrome_rate:.4f}")
+    np.savez_compressed(
+        str(out_path),
+        syndromes=sx,
+        syndromes_x=sx,
+        syndromes_z=sz,
+        true_p=true_p,
+        true_pzz=true_pzz,
+        n_check=N_CHECK,
+        n_data=N_DATA,
+        total_rounds=args.rounds,
+    )
+    print(f"Saved {args.rounds:,} canonical CSS rounds -> {out_path}")
 
 
 if __name__ == "__main__":

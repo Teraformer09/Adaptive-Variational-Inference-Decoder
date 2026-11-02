@@ -1,0 +1,61 @@
+# A05 / Q11 / SF1 — Canonical Syndrome Packet & Binary Framing Contract
+schema_version: "1.0.0"
+contract_id: "syndrome_packet_v1"
+
+stream_header:
+  magic: 0xAAEC0002                     # Version 2 header (fixes independent X/Z & seq_id framing)
+  legacy_magic_supported: 0xAAEC0001    # Backward-compatible reader support
+  version: 1
+  endianness: "little"
+  header_size_bytes: 16
+  fields:
+    - { name: "magic",        offset_bytes: 0,  size_bytes: 4, type: "uint32" }
+    - { name: "n_rounds",     offset_bytes: 4,  size_bytes: 4, type: "uint32" }
+    - { name: "start_seq_id", offset_bytes: 8,  size_bytes: 4, type: "uint32" }
+    - { name: "n_check_x",    offset_bytes: 12, size_bytes: 1, type: "uint8"  }
+    - { name: "n_check_z",    offset_bytes: 13, size_bytes: 1, type: "uint8"  }
+    - { name: "distance",     offset_bytes: 14, size_bytes: 1, type: "uint8"  }
+    - { name: "flags",        offset_bytes: 15, size_bytes: 1, type: "uint8"  }
+
+per_round_packet_d3:
+  packet_size_bytes: 4                  # 32-bit aligned DMA word per syndrome round
+  endianness: "little"
+  bit_layout:
+    s_x_bits:                           # Independent X-stabilizer syndrome bits (detect Z data errors)
+      lsb: 0
+      msb: 3
+      width: 4
+      source: "s_X = H_X * e_Z mod 2"
+    s_z_bits:                           # Independent Z-stabilizer syndrome bits (detect X data errors)
+      lsb: 4
+      msb: 7
+      width: 4
+      source: "s_Z = H_Z * e_X mod 2"
+    valid_mask:                         # Bit 8: 1 = valid round, 0 = invalid/gap
+      lsb: 8
+      msb: 8
+      width: 1
+    meas_flip_flag:                     # Bit 9: optional indicator if detection event d_t = s_t XOR s_{t-1}
+      lsb: 9
+      msb: 9
+      width: 1
+    reserved:
+      lsb: 10
+      msb: 15
+      width: 6
+      must_be_zero: true
+    seq_id_low16:                       # Bits [31:16]: modulo-65536 monotonic round sequence ID
+      lsb: 16
+      msb: 31
+      width: 16
+
+axis_fpga_word_d3:
+  width_bits: 16                        # Lower 16 bits fed to axis_syndrome_rx s_axis_tdata[15:0]
+  s_x_slice: "[3:0]"
+  s_z_slice: "[7:4]"
+  valid_bit: "[8]"
+
+invariants:
+  - "s_X and s_Z MUST be generated and packed independently from H_X and H_Z; never copy one array into both."
+  - "pack_round() and unpack_round() MUST be exact mathematical inverses over all 16-bit/32-bit patterns."
+  - "Any sequence gap (seq_id[t] != (seq_id[t-1] + 1) mod 65536) marks the current estimation window invalid."

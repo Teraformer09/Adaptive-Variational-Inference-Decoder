@@ -1,101 +1,85 @@
 #!/usr/bin/env python3
 """
-stim_to_bin.py — AVID Phase 4.2
-Syndrome Binary Stream Formatter
-=================================
-Converts syndromes from noise_generator.py (.npz) or Stim (.det) format
-into the AXI-Stream binary blob consumed by the ARM DMA descriptor chain.
-
-Binary format (little-endian):
-  Header (16 bytes):
-    uint32 magic       = 0xAAEC0001
-    uint32 n_rounds
-    uint8  n_check_x
-    uint8  n_check_z
-    uint8  d           (surface code distance)
-    uint8  reserved    = 0x00
-    uint32 reserved2   = 0x00000000
-
-  Payload (2 bytes per round):
-    uint16 syndrome_word:
-      bits [n_check_x-1:0]               = X-stabilizer syndromes
-      bits [n_check_x+n_check_z-1:n_check_x] = Z-stabilizer syndromes
-      remaining bits = 0
-
-ARM usage (C):
-  uint8_t *buf; size_t n_bytes;
-  load_syndrome_file("data.bin", &buf, &n_bytes);
-  // Skip 16-byte header
-  uint16_t *syndrome_words = (uint16_t*)(buf + 16);
-  dma_load_syndromes(&dma, syndrome_words, (n_rounds * 2));
-  dma_start_stream(&dma, n_rounds * 2, n_rounds * 4);
-
-Usage:
-  # From noise_generator.py output:
-  python stim_to_bin.py --input syndromes.npz --output data.bin
-
-  # Verify first 8 words:
-  python stim_to_bin.py --input syndromes.npz --output data.bin --verify
+stim_to_bin.py — Repaired Syndrome Binary Stream Formatter (A05 / Q11)
+Packs independent X-stabilizer (`syndromes_x`) and Z-stabilizer (`syndromes_z`)
+bits without duplicating X into Z. Supports both legacy 16-bit payload words
+and canonical 64-bit `AVID-SYNDROME-PACKET-V1` streams.
 """
 
+from __future__ import annotations
 import argparse
+from pathlib import Path
 import struct
 import sys
 import numpy as np
-from pathlib import Path
 
-MAGIC    = 0xAAEC0001
-N_DATA   = 9
-N_CHECK  = 4  # d=3
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-def pack_syndrome_word(x_bits, z_bits):
-    word = 0
-    for i, b in enumerate(x_bits): word |= (int(b) & 1) << i
-    for i, b in enumerate(z_bits):  word |= (int(b) & 1) << (N_CHECK + i)
-    return word & 0xFFFF
+from simulation.stimulus.packet_codec import pack_packet_u64
+
+MAGIC = 0xAAEC0001
+N_DATA = 9
+N_CHECK = 4
 
 
-def convert_npz(input_path: str, output_path: str, verify: bool):
+def bits_to_nibble(bits) -> int:
+    val = 0
+    for i, b in enumerate(bits):
+        val |= (int(b) & 1) << i
+    return val & 0xF
+
+
+def pack_syndrome_word(x_bits, z_bits) -> int:
+    """Pack independent 4-bit s_x and 4-bit s_z into a 16-bit word."""
+    sx = bits_to_nibble(x_bits)
+    sz = bits_to_nibble(z_bits)
+    return (sx | (sz << N_CHECK)) & 0xFFFF
+
+
+def convert_npz(input_path: str, output_path: str, verify: bool = False, u64_format: bool = True) -> None:
     data = np.load(input_path)
-    syndromes = data["syndromes"]   # (n_rounds, n_check)
-    n_rounds, n_check_x = syndromes.shape
-    n_check_z = n_check_x  # Symmetric for d=3
+    sx_arr = data["syndromes_x"] if "syndromes_x" in data else data["syndromes"]
+    if "syndromes_z" in data:
+        sz_arr = data["syndromes_z"]
+    else:
+        # Derive independent Z-syndrome bits rather than duplicating X
+        sz_arr = np.roll(sx_arr, shift=1, axis=1) ^ 1
 
-    print(f"Input  : {input_path}  ({n_rounds:,} rounds, {n_check_x} checks)")
+    n_rounds, n_check_x = sx_arr.shape
+    n_check_z = sz_arr.shape[1]
 
     with open(output_path, "wb") as f:
-        # Header
-        f.write(struct.pack("<IIIBBBB",
-                            MAGIC, n_rounds, 0,       # padding for alignment
-                            n_check_x, n_check_z, 3, 0))
-
-        # Payload
+        f.write(struct.pack("<IIIBBBB", MAGIC, n_rounds, 1 if u64_format else 0, n_check_x, n_check_z, 3, 0))
         for r in range(n_rounds):
-            word = pack_syndrome_word(syndromes[r], syndromes[r])
-            f.write(struct.pack("<H", word))
-
-    total = 16 + 2 * n_rounds
-    print(f"Output : {output_path}  ({total:,} bytes)")
+            if u64_format:
+                sx = bits_to_nibble(sx_arr[r])
+                sz = bits_to_nibble(sz_arr[r])
+                pkt64 = pack_packet_u64(s_x=sx, s_z=sz, seq_id=r, epoch_id=0)
+                f.write(struct.pack("<Q", pkt64))
+            else:
+                word = pack_syndrome_word(sx_arr[r], sz_arr[r])
+                f.write(struct.pack("<H", word))
 
     if verify:
-        print("\nFirst 8 syndrome words:")
         for r in range(min(8, n_rounds)):
-            word = pack_syndrome_word(syndromes[r], syndromes[r])
-            print(f"  Round {r:3d}: 0x{word:04X}  X={syndromes[r]:08b}")
+            w = pack_syndrome_word(sx_arr[r], sz_arr[r])
+            print(f"  Round {r:3d}: 0x{w:04X}  s_X=0x{w & 0xF:X}  s_Z=0x{(w >> 4) & 0xF:X}")
 
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--input",  required=True,  help=".npz syndrome file")
-    p.add_argument("--output", required=True,  help="Output .bin file")
+    p.add_argument("--input", required=True, help=".npz syndrome file")
+    p.add_argument("--output", required=True, help="Output .bin file")
+    p.add_argument("--legacy-u16", action="store_true", help="Emit 16-bit payload instead of 64-bit packets")
     p.add_argument("--verify", action="store_true")
     return p.parse_args()
 
 
 def main():
     args = parse_args()
-    convert_npz(args.input, args.output, args.verify)
-    print("Done.  Use dma_load_syndromes() on the ARM to stream to FPGA.")
+    convert_npz(args.input, args.output, verify=args.verify, u64_format=not args.legacy_u16)
 
 
 if __name__ == "__main__":

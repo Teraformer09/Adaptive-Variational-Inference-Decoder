@@ -1,114 +1,29 @@
-# Identifiability of Correlated Pauli Noise from Stabilizer Syndromes
+# Structural Identifiability & Jacobian SVD Rank Report (`A03 / Q04`)
 
-**Project:** AVID (Adaptive Variational Inference Decoder)  
-**Satisfies:** Blueprint COMMANDMENT #8 — "The inference algorithm must only attempt to learn noise parameters that leave a distinct topological signature in the syndrome volume."
+## 1. Executive Summary of Rank Deficiency in the Legacy Marginal Model
+In the legacy estimator (`noise_model.cpp` prior to `A02`/`A03` repair), the 12 nearest-neighbor $Z_i Z_j$ pair probabilities were folded into 9 effective qubit error probabilities $p_{\text{eff}}(v)$, and the likelihood summed 4 independent Bernoulli check marginals $q_0, q_1, q_2, q_3$. Because the observation map factored through 4 scalar check marginals, its $4 \times 21$ Jacobian $J_{\text{marginal}}$ had structural rank:
+$$\operatorname{rank}(J_{\text{marginal}}) = 4 \le 4$$
+leaving a $21 - 4 = 17$-dimensional unobservable nullspace.
 
----
+## 2. Exact Joint Syndrome Distribution & Signature Orbit Analysis
+Under the exact $2^m = 16$-state joint syndrome distribution $P_\theta(s)$, the column of the $16 \times 21$ Jacobian $J_{s, e} = \partial P_\theta(s) / \partial p_e$ for mechanism $e$ is:
+$$J_{:, e} = \frac{P_\theta(s \oplus g_e) - P_\theta(s)}{1 - 2 p_e}$$
+Consequently, two physical fault mechanisms $e_a, e_b$ have linearly dependent (collinear) Jacobian columns if and only if they share the same syndrome signature $g_{e_a} = g_{e_b} \in \{0, \dots, 15\}$, and any mechanism with $g_e = 0$ (stabilizer-equivalent or boundary-commuting fault) has an identically zero Jacobian column.
 
-## 1. What Is Identifiable
+| Metric | Legacy 4-Marginal Model | Repaired 16-State Joint DP (21-param) | Repaired 16-State Joint DP (25-param) | Prior-Tethered MAP ($\lambda=0.5$) |
+| :--- | :---: | :---: | :---: | :---: |
+| Parameter Dimension ($E$) | 21 | 21 | 25 | 21 |
+| Observation Dimension | 4 | 16 | 16 | 16 + 21 prior |
+| Distinct Non-Zero Signatures | N/A | 9 | 9 | 9 |
+| Numerical Jacobian / Fisher Rank | **4** | **9** | **9** | **21** |
+| MAP Hessian Condition Number | $\infty$ (singular) | $\infty$ on gauge nullspace | $\infty$ on gauge nullspace | **234.05** |
 
-A noise parameter θ is **identifiable from stabilizer syndromes** if and only if there exists a mapping from the joint syndrome distribution P(s|θ) to θ that is injective (one-to-one) in the neighborhood of the true value θ*.
+## 3. Gauge Orbits (Syndrome Signature Equivalence Classes)
+Across the 21 fault events (9 single-qubit $Z_i$ + 12 nearest-neighbor $Z_i Z_j$ pairs) on the canonical rotated $d=3$ X-check basis:
+- **Zero-signature events ($g_e = 0$)**: `ZZ_3_6, ZZ_2_5` (events that commute with all 4 X-checks on the boundary).
+- **Distinct non-zero syndrome signatures**: **9** distinct non-zero bitmasks in $\{1, \dots, 15\}$, yielding an exact unregularized Fisher rank of **9** (more than double the legacy rank of 4).
+- **Quotient & MAP Resolution**: Within each signature equivalence class $\mathcal{O}_g = \{e : g_e = g\}$, the aggregate class probability $P_g = \bigoplus_{e \in \mathcal{O}_g} p_e$ is **strictly identifiable** from the joint syndrome histogram, while individual members within a multi-event orbit are uniquely resolved by the strictly convex Gaussian prior tether $\frac{\lambda}{2} \|\theta - \theta_{\text{prior}}\|_2^2$ (Hessian rank = **21 / 21**, condition number $\kappa = 234.05$).
 
-### Identifiable Parameters
-
-**Single-qubit Pauli error rates** p_v ∈ (0, 0.5):  
-A Z-error on qubit v flips exactly those check nodes in N(v).  
-The marginal syndrome rate of check c is:
-
-```
-P(s_c = 1 | {p_v}) = [1 - ∏_{v ∈ N(c)} (1 - 2p_v)] / 2
-```
-
-The Jacobian ∂P(s_c)/∂p_v = ∏_{u ∈ N(c), u≠v}(1-2p_u) is non-zero for 
-p_v ∈ (0, 0.5), so each p_v is locally identifiable from the check rates.
-
-**Correlated ZZ crosstalk rates** p_ij for adjacent pairs (i,j):  
-A ZZ error on (i,j) simultaneously flips both qubits, creating a 
-characteristic *pair* of syndrome changes.  The temporal cross-correlation:
-
-```
-C_{c,c'}(τ=0) = Cov[s_c^t, s_c'^t] = P(s_c=1, s_c'=1) - P(s_c=1)P(s_c'=1)
-```
-
-is elevated by p_ij when checks c and c' share both qubits i and j.  
-This signature is **distinct** from two independent single-qubit errors on 
-i and j, which would require two simultaneous independent events with 
-probability p_i × p_j << p_ij for the crosstalk-dominated regime.
-
----
-
-## 2. What Is NOT Identifiable (and Why We Exclude It)
-
-**Coherent over-rotations** (e.g., systematic X-axis rotations by angle ε):  
-Stabilizer measurements perform Pauli twirling: the measurement process 
-projects any coherent error (ε-rotation) onto the Pauli group.  The 
-resulting Pauli-frame distribution is identical for any ε with the same 
-fidelity |cos(ε)|².  Therefore, the specific coherent angle is NOT 
-distinguishable from a Pauli error rate p = sin²(ε).  
-
-→ **AVID tracks p_eff, not coherent angles.**
-
-**Long-range correlations** beyond nearest-neighbor (|i-j| > 1 in grid distance):  
-For d=3, the surface code has diameter 3.  A ZZ error between non-adjacent 
-qubits (e.g., q0 and q8) produces a syndrome pattern identical to two 
-independent errors at q0 and q8.  The Fisher Information for long-range 
-p_ij approaches zero as distance increases, making estimation unreliable.
-
-→ **AVID parameterises only nearest-neighbor crosstalk.**
-
----
-
-## 3. Fisher Information Analysis
-
-The Fisher Information for parameter θ_k with respect to syndrome round t:
-
-```
-I(θ_k) = Σ_c [  (∂q_c/∂θ_k)²  /  (q_c(1 - q_c))  ]
-```
-
-For a single-qubit rate p_v, summing over its adjacent checks:
-
-```
-I(p_v) = Σ_{c: v∈N(c)} [ ∏_{u∈N(c),u≠v}(1-2p_u) ]² / [q_c(1-q_c)]
-```
-
-At p = 0.01 for all qubits on d=3, I(p_v) ≈ 3.9 per syndrome round.  
-With W = 10,000 rounds, the Cramér-Rao lower bound gives:
-
-```
-Var(p̂_v) ≥ 1 / (W × I(p_v)) ≈ 2.6 × 10⁻⁵
-```
-
-i.e., standard deviation σ ≈ 0.005 — sufficient to detect a 3× rate change 
-(0.01 → 0.03) with 6σ significance in 10,000 rounds.
-
----
-
-## 4. Consequences for LLR Injection
-
-The FPGA BP decoder uses per-qubit channel LLRs:
-
-```
-LLR_v = log( (1 - p_v_eff) / p_v_eff )
-```
-
-where p_v_eff = p_v + Σ_j p_vj - 2Σ_j p_v·p_vj (first-order).
-
-The adaptive range:  
-- At p_v = 0.01: LLR_v ≈ 4.60 (Q7.8: 0x04A0)  
-- At p_v = 0.05: LLR_v ≈ 2.94 (Q7.8: 0x02F0)  
-- At p_v = 0.10: LLR_v ≈ 2.20 (Q7.8: 0x0232)  
-- At p_v = 0.30: LLR_v ≈ 0.85 (Q7.8: 0x00D9)  
-
-The BP decoder's soft-decision performance degrades gracefully with LLR 
-accuracy; a 10% error in p̂_v causes < 0.5% increase in logical error rate 
-at p = 0.05 (verified in the ablation study notebook).
-
----
-
-## 5. References
-
-1. Fowler et al., "Surface codes: Towards practical large-scale quantum computation," PRA 86, 032324 (2012)
-2. Bravyi et al., "Correcting coherent errors with surface codes," npj Quantum Inf 4, 55 (2018)  
-3. Harper et al., "Efficient learning of quantum noise," Nature Physics 16, 1184–1188 (2020)  
-4. Flammia & Liu, "Direct fidelity estimation from few Pauli measurements," PRL 106, 230501 (2011)
+## References
+- **[R4]** E. van den Berg, Z. K. Minev, A. Kandala, and K. Temme, "Probabilistic error cancellation with sparse Pauli-Lindblad models on noisy quantum processors," *Nature Physics*, vol. 19, pp. 1116–1121, 2023.
+- **[R5]** S. T. Flammia and J. J. Wallman, "Efficient estimation of Pauli channels," *ACM Transactions on Quantum Computing*, vol. 1, no. 1, pp. 1–32, 2020.
