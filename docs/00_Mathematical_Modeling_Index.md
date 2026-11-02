@@ -21,7 +21,9 @@ This documentation suite presents the complete, end-to-end mathematical modeling
    Formulates the bit-exact Q7.8 Normalized Min-Sum BP equations, active-edge masking for mixed weight-2/weight-4 checks, DSP-free shift-subtract scaling $\mathcal{S}_{0.75}(x) = x - (x \gg 2)$, weighted OSD-0 residual syndrome tie-breaking, and the exact $L(K) = 2 + 5K = 17$-cycle ($68.0\,\text{ns}$ @ $250\,\text{MHz}$) hardware latency contract.
 7. **[`07_Dual_Timescale_Causal_Control_DMA_and_Baselines_B0_B4.md`](file:///home/tirtha/AVID_EPJ_Patches/docs/07_Dual_Timescale_Causal_Control_DMA_and_Baselines_B0_B4.md)**
    Models the dual-timescale causal epoch commit law $t_{\text{commit}}$, `bp_ready_in`-gated atomic shadow-to-active register swap, 4-state DMA ring buffer ownership FSM, 4-state safety fallback FSM, and the mathematical equations of the 5 shared-input baselines (`B0–B4`).
-8. **[`mathematical_modeling_complete.md`](file:///home/tirtha/AVID_EPJ_Patches/docs/mathematical_modeling_complete.md)** & **[`identifiability_proof.md`](file:///home/tirtha/AVID_EPJ_Patches/docs/identifiability_proof.md)**
+8. **[`08_Weighted_Bellman_R2D2_and_World_Model_Math.md`](file:///home/tirtha/AVID_EPJ_Patches/docs/08_Weighted_Bellman_R2D2_and_World_Model_Math.md)**
+   Formulates the Non-Vision Bipartite Graph Perception layer, `R2D2-Graph-RSSM` with burn-in warmup, Kapturowski invertible value rescaling $h(u)$, Uncertainty-Weighted $n$-Step Bellman TD Loss ($\mathcal{L}_{\text{WB-R2D2}}$), Pair-Aware Logical-Triangle LLR Projection, and Rank-4 Regime LoRA Adaptation.
+9. **[`mathematical_modeling_complete.md`](file:///home/tirtha/AVID_EPJ_Patches/docs/mathematical_modeling_complete.md)** & **[`identifiability_proof.md`](file:///home/tirtha/AVID_EPJ_Patches/docs/identifiability_proof.md)**
    Consolidated single-file mathematical reference and structural identifiability proof.
 
 ---

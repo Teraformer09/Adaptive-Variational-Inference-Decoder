@@ -43,5 +43,5 @@ class B1MarginalLBFGSController:
             bounds=[(1e-5, 0.45)] * self.model.n_params,
             options={"maxiter": 10},
         )
-        _, q78 = self.model.compute_q7_8_llrs(res.x)
+        _, q78 = self.model.compute_q7_8_llrs(res.x, pair_aware_projection=False)
         return q78
