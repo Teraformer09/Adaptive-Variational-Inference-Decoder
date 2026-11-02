@@ -282,7 +282,7 @@ This repository hosts the calibrated **Exact $2^m$-State Dynamic Programming Joi
     (stage_dir / "README.md").write_text(card)
 
     import shutil
-    for folder in ["checkpoints", "datasets", "architecture", "configs"]:
+    for folder in ["checkpoints", "datasets", "architecture", "configs", "docs"]:
         dst = stage_dir / folder
         if dst.exists():
             shutil.rmtree(dst)
