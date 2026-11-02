@@ -1,20 +1,27 @@
 #!/usr/bin/env python3
 """
-Google Cloud Shell Long-Horizon Training, Weighted-Bellman R2D2 World Model &
+Google Cloud Shell End-to-End Long-Term Data Collection, Weighted-Bellman R2D2 Training &
 Hugging Face Hub Exporter for Branch `AVID_EPJ_Patches`.
 
-Includes:
-  1. Canonical rotated d=3 and d=5 multi-regime syndrome training/evaluation datasets
-     (30,000 rounds/regime = 150,000 rounds total in `datasets/avid_canonical_css_regimes.npz`
-      and `datasets/syndrome_packets_v1.bin`)
-  2. Long-horizon (80-iteration) Exact 16-State Joint-DP MAP calibration with
-     Pair-Aware Logical-Triangle LLR Projection
-  3. PyTorch Non-Vision Bipartite Graph Perception + Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`)
-     with Kapturowski invertible value rescaling h(z), burn-in + unroll replay,
-     Uncertainty-Weighted n-Step Bellman TD Loss, Small Spatio-Temporal Causal Transformer,
-     and 5 Rank-4 Regime LoRA Adapters (`R1..R5`), saved as `.pt` checkpoints in `checkpoints/`
-  4. Uploads `docs/` (complete mathematical modeling folder), `checkpoints/`, `datasets/`,
-     `architecture/`, and `configs/` to Hugging Face Hub (`Terrano09/AVID-EPJ-Baseline-Models-and-Data`).
+Pipeline Stages:
+  Stage 1 — Long-Term Quantum Syndrome & Non-Stationary Drift Data Collection:
+    - Collects 50,000 fast-loop syndrome rounds per regime x 5 regimes = 250,000 rounds
+      on the canonical rotated d=3 [[9, 1, 3]] CSS surface code (`avid_long_horizon_d3_250k_rounds.npz`).
+    - Collects 600 long-horizon non-stationary drift & TLS telegraph replay trajectories
+      of length T = 16 slow-loop windows (T_burn = 6 + T_unroll = 10, representing
+      600 x 16 x 256 = 2,457,600 underlying syndrome rounds) stored in
+      `datasets/avid_r2d2_replay_buffer_trajectories.npz`.
+    - Generates 64-bit little-endian AXI4-Stream syndrome packet binaries (`syndrome_packets_v1.bin`).
+  Stage 2 — Long-Horizon Calibration & Weighted-Bellman R2D2 World Model Training:
+    - Calibrates Exact 16-State Joint-DP MAP (`AVID_Joint_DP_MAP`) via 80-step L-BFGS with
+      Pair-Aware Logical-Triangle LLR Projection.
+    - Trains `WeightedBellmanR2D2WorldModel` (`R2D2-Graph-RSSM`) for 80 epochs on the collected
+      replay buffer using Kapturowski invertible value rescaling h(z), burn-in warmup (T_burn=6),
+      3-step Bellman target bootstrapping, and Uncertainty-Weighted Bellman TD Loss.
+    - Trains `SmallSpatioTemporalTransformer` (80 epochs) and 5 Rank-4 Regime LoRA Adapters (50 epochs/regime).
+  Stage 3 — Shared-Seed Hardware Cycle-Accurate Q7.8 BP Evaluation (B0..B4 + AVID + R2D2).
+  Stage 4 — Uploads `datasets/`, `checkpoints/`, `docs/`, `mathematical_model/`, `architecture/`,
+            and `configs/` to Hugging Face Hub (`Terrano09/AVID-EPJ-Baseline-Models-and-Data`).
 """
 
 from __future__ import annotations
@@ -51,640 +58,1017 @@ from simulation.reference.baselines import (
     B3CovarianceTrackerController,
     B4OracleBPController,
 )
-from simulation.stimulus.packet_codec import pack_packet_stream
-from tools.generate_code_artifacts import main as generate_code_main
-from tools.collect_target_timing import main as collect_timing_main
+from simulation.stimulus.noise_generator import (
+    build_regime_schedule,
+    simulate_canonical_css_stream,
+)
+from simulation.stimulus.packet_codec import write_packet_stream_file
+from tools.generate_code_artifacts import generate_all as generate_code_artifacts
+from tools.collect_target_timing import run_timing_profile
 
 
 def load_dotenv(env_path: Path) -> Dict[str, str]:
-    loaded: Dict[str, str] = {}
-    if not env_path.exists():
-        return loaded
-    for raw in env_path.read_text().splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        k = k.strip()
-        v = v.strip().strip("'").strip('"')
-        os.environ.setdefault(k, v)
-        loaded[k] = v
-    return loaded
-
-
-def build_five_noise_regimes(default_theta: np.ndarray) -> Dict[str, np.ndarray]:
-    """Define 5 physically distinct correlated quantum noise regimes for d=3."""
-    regimes: Dict[str, np.ndarray] = {}
-
-    # R1: Stationary low-noise baseline
-    r1 = default_theta.copy()
-    regimes["R1_stationary_baseline"] = r1
-
-    # R2: Center-qubit TLS hotspot + local pair (q4, q5 elevated)
-    r2 = default_theta.copy()
-    r2[4] = 0.095
-    r2[5] = 0.065
-    r2[9 + 3] = 0.055  # ZZ_(4,5)
-    regimes["R2_tls_hotspot_q4_q5"] = r2
-
-    # R3: Strong ZZ crosstalk burst on horizontal edges (0,1), (4,5), (7,8)
-    r3 = default_theta.copy()
-    r3[9 + 0] = 0.075  # ZZ_(0,1)
-    r3[9 + 3] = 0.090  # ZZ_(4,5)
-    r3[9 + 5] = 0.070  # ZZ_(7,8)
-    regimes["R3_zz_crosstalk_burst"] = r3
-
-    # R4: Boundary gradient drift (top/left qubits + pair (0,1) elevated)
-    r4 = default_theta.copy()
-    r4[0] = 0.055
-    r4[1] = 0.050
-    r4[3] = 0.060
-    r4[9 + 0] = 0.055
-    regimes["R4_boundary_drift"] = r4
-
-    # R5: Combined hotspot + ZZ crosstalk stress test
-    r5 = default_theta.copy()
-    r5[4] = 0.105
-    r5[7] = 0.070
-    r5[9 + 3] = 0.085  # ZZ_(4,5)
-    r5[9 + 5] = 0.065  # ZZ_(7,8)
-    r5[9 + 9] = 0.070  # ZZ_(4,7)
-    regimes["R5_combined_stress"] = r5
-
-    return regimes
+    env_vars: Dict[str, str] = {}
+    if env_path.exists():
+        for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            k = k.strip()
+            v = v.strip().strip("'").strip('"')
+            env_vars[k] = v
+            os.environ.setdefault(k, v)
+    return env_vars
 
 
 # =============================================================================
-# Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) + Spatio-Temporal World Model + LoRA
+# PyTorch Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) + Transformer + LoRA Models
 # =============================================================================
 
-def rescaling_h(u: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
-    """Kapturowski R2D2 invertible value rescaling: sign(u)*(sqrt(|u|+1)-1) + eps*u."""
-    return torch.sign(u) * (torch.sqrt(torch.abs(u) + 1.0) - 1.0) + eps * u
-
-
-def inv_rescaling_h(v: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
-    """Exact analytical inverse of Kapturowski R2D2 value rescaling."""
-    abs_v = torch.abs(v)
-    inner = (torch.sqrt(1.0 + 4.0 * eps * (abs_v + 1.0 + eps)) - 1.0) / (2.0 * eps)
-    return torch.sign(v) * (inner * inner - 1.0)
-
-
-class LoRALinear(nn.Module):
-    """Rank-r Low-Rank Adaptation wrapper W_r = W_0 + (alpha/r) * B_r @ A_r."""
-
-    def __init__(self, in_features: int, out_features: int, rank: int = 4, alpha: float = 8.0) -> None:
-        super().__init__()
-        self.base = nn.Linear(in_features, out_features)
-        self.rank = rank
-        self.scale = alpha / float(rank)
-        self.lora_A = nn.ParameterDict()
-        self.lora_B = nn.ParameterDict()
-        for r_idx in range(5):
-            key = f"R{r_idx + 1}"
-            self.lora_A[key] = nn.Parameter(torch.randn(rank, in_features) * 0.02)
-            self.lora_B[key] = nn.Parameter(torch.zeros(out_features, rank))
-
-    def forward(self, x: torch.Tensor, regime_key: str = "R1") -> torch.Tensor:
-        out = self.base(x)
-        if regime_key in self.lora_A:
-            delta = F.linear(F.linear(x, self.lora_A[regime_key]), self.lora_B[regime_key])
-            out = out + self.scale * delta
-        return out
-
-
-class BipartiteQuantumGraphPerception(nn.Module):
+def build_d3_bipartite_adjacency() -> torch.Tensor:
     """
-    Non-Vision Quantum Graph Perception Layer on the canonical rotated d=3 CSS graph.
-    Embeds the 16-bin joint syndrome histogram + 4 check marginals + 6 pairwise check
-    correlations into a 64-dim topological graph token z_t.
+    Build 13x13 adjacency matrix for the canonical rotated d=3 CSS graph:
+      Nodes 0..8  : 9 data qubits
+      Nodes 9..12 : 4 X-stabilizer check nodes (detecting Z errors)
+      Includes self-loops, Tanner edges (data <-> check), and 12 ZZ pair edges.
     """
+    adj = torch.eye(13, dtype=torch.float32)
+    x_checks = [(0, 1), (1, 2, 4, 5), (3, 4, 6, 7), (7, 8)]
+    for c_idx, qubits in enumerate(x_checks):
+        c_node = 9 + c_idx
+        for q in qubits:
+            adj[q, c_node] = 1.0
+            adj[c_node, q] = 1.0
+    zz_edges = [
+        (0, 1), (1, 2), (3, 4), (4, 5), (6, 7), (7, 8),
+        (0, 3), (1, 4), (2, 5), (3, 6), (4, 7), (5, 8),
+    ]
+    for u, v in zz_edges:
+        adj[u, v] = 1.0
+        adj[v, u] = 1.0
+    return adj
 
-    def __init__(self, in_dim: int = 26, d_model: int = 64) -> None:
+
+def kapturowski_value_rescale(x: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
+    """
+    Invertible value rescaling from R2D2 (Kapturowski et al., ICLR 2019):
+      h(x) = sign(x) * (sqrt(|x| + 1) - 1) + eps * x
+    """
+    return torch.sign(x) * (torch.sqrt(torch.abs(x) + 1.0) - 1.0) + eps * x
+
+
+def kapturowski_value_inv_rescale(y: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
+    """
+    Exact closed-form inverse h^{-1}(y) of the R2D2 value rescaling function.
+    """
+    sgn = torch.sign(y)
+    ay = torch.abs(y)
+    disc = 1.0 + 4.0 * eps * (ay + 1.0 + eps)
+    u = ((torch.sqrt(disc) - 1.0) / (2.0 * eps)) ** 2 - 1.0
+    return sgn * torch.clamp(u, min=0.0)
+
+
+class BipartiteGraphAttentionEncoder(nn.Module):
+    """Non-Vision Bipartite Stabilizer-Data Graph Attention Perception Layer."""
+
+    def __init__(self, in_features: int = 8, d_model: int = 96, n_heads: int = 4) -> None:
         super().__init__()
-        self.node_proj = nn.Sequential(
-            nn.Linear(in_dim, d_model),
-            nn.LayerNorm(d_model),
+        self.d_model = d_model
+        self.n_heads = n_heads
+        self.head_dim = d_model // n_heads
+        self.node_embed = nn.Linear(in_features, d_model)
+        self.node_type_embed = nn.Embedding(2, d_model)
+        self.q_proj = nn.Linear(d_model, d_model)
+        self.k_proj = nn.Linear(d_model, d_model)
+        self.v_proj = nn.Linear(d_model, d_model)
+        self.out_proj = nn.Linear(d_model, d_model)
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.ffn = nn.Sequential(
+            nn.Linear(d_model, d_model * 2),
             nn.GELU(),
-            nn.Linear(d_model, d_model),
-            nn.LayerNorm(d_model),
+            nn.Linear(d_model * 2, d_model),
         )
+        self.register_buffer("adj", build_d3_bipartite_adjacency())
 
-    def forward(self, x_seq: torch.Tensor) -> torch.Tensor:
-        return self.node_proj(x_seq)
+    def forward(self, node_feats: torch.Tensor) -> torch.Tensor:
+        bsz, seq_len, n_nodes, _ = node_feats.shape
+        device = node_feats.device
+        node_types = torch.tensor([0] * 9 + [1] * 4, device=device, dtype=torch.long)
+        h = self.node_embed(node_feats) + self.node_type_embed(node_types).view(1, 1, n_nodes, -1)
+
+        q = self.q_proj(h).view(bsz, seq_len, n_nodes, self.n_heads, self.head_dim).transpose(2, 3)
+        k = self.k_proj(h).view(bsz, seq_len, n_nodes, self.n_heads, self.head_dim).transpose(2, 3)
+        v = self.v_proj(h).view(bsz, seq_len, n_nodes, self.n_heads, self.head_dim).transpose(2, 3)
+
+        scores = torch.matmul(q, k.transpose(-2, -1)) / (self.head_dim ** 0.5)
+        mask = (self.adj == 0).view(1, 1, 1, n_nodes, n_nodes)
+        scores = scores.masked_fill(mask, -1e9)
+        attn = torch.softmax(scores, dim=-1)
+        out = torch.matmul(attn, v).transpose(2, 3).contiguous().view(bsz, seq_len, n_nodes, self.d_model)
+
+        h = self.norm1(h + self.out_proj(out))
+        h = self.norm2(h + self.ffn(h))
+        return h.mean(dim=2)  # [B, T, d_model]
 
 
 class WeightedBellmanR2D2WorldModel(nn.Module):
     """
-    Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) World Model with:
-      - Non-vision bipartite graph perception z_t
-      - Recurrent GRU state h_t + stochastic RSSM state s_t (posterior & prior)
-      - 6 Prediction Heads:
-          (1) 21-parameter physical noise head theta_hat
-          (2) 16-state next-window syndrome distribution head P_hat(s)
-          (3) 9-qubit Q7.8 LLR residual head delta_Gamma
-          (4) Epistemic/aleatoric log-variance uncertainty head log_sigma2_unc
-          (5) Regime classification head (5 regimes)
-          (6) R2D2 Rescaled Bellman Value head V_psi(h_t, s_t)
-      - Rank-4 LoRA adapters per regime R1..R5
+    Model 1: R2D2-Graph-RSSM trained with Uncertainty-Weighted n-Step Bellman TD Loss,
+    Kapturowski Value Rescaling, Burn-In Recurrent Warmup, and Exact 16-State Joint-DP
+    Syndrome Cross-Entropy.
     """
 
-    def __init__(self, in_dim: int = 26, d_model: int = 64, d_stoch: int = 32) -> None:
+    def __init__(self, in_features: int = 8, d_model: int = 96, d_stoch: int = 32) -> None:
         super().__init__()
-        self.perception = BipartiteQuantumGraphPerception(in_dim=in_dim, d_model=d_model)
+        self.encoder = BipartiteGraphAttentionEncoder(in_features=in_features, d_model=d_model)
+        self.d_model = d_model
+        self.d_stoch = d_stoch
         self.gru = nn.GRUCell(d_model + d_stoch, d_model)
-        self.prior_net = nn.Linear(d_model, 2 * d_stoch)
-        self.post_net = nn.Linear(d_model + d_model, 2 * d_stoch)
+
+        self.prior_net = nn.Sequential(
+            nn.Linear(d_model, d_model),
+            nn.GELU(),
+            nn.Linear(d_model, d_stoch * 2),
+        )
+        self.post_net = nn.Sequential(
+            nn.Linear(d_model * 2, d_model),
+            nn.GELU(),
+            nn.Linear(d_model, d_stoch * 2),
+        )
 
         feat_dim = d_model + d_stoch
-        self.theta_head = LoRALinear(feat_dim, 21, rank=4, alpha=8.0)
-        self.synd_head = nn.Linear(feat_dim, 16)
-        self.llr_residual_head = LoRALinear(feat_dim, 9, rank=4, alpha=8.0)
-        self.unc_logvar_head = nn.Linear(feat_dim, 1)
-        self.regime_head = nn.Linear(feat_dim, 5)
-        self.value_head = nn.Sequential(
+        self.theta_head = nn.Sequential(
             nn.Linear(feat_dim, d_model),
+            nn.GELU(),
+            nn.Linear(d_model, 21),
+        )
+        self.q_value_head = nn.Sequential(
+            nn.Linear(feat_dim + 21, d_model),
             nn.GELU(),
             nn.Linear(d_model, 1),
         )
-        self.d_model = d_model
-        self.d_stoch = d_stoch
-
-    def forward_sequence(
-        self,
-        obs_seq: torch.Tensor,
-        regime_key: str = "R1",
-        burn_in: int = 4,
-    ) -> Dict[str, torch.Tensor]:
-        """
-        obs_seq: (B, T, in_dim)
-        Runs R2D2 burn-in for first `burn_in` steps (detaching recurrent state at burn_in)
-        and unrolls active learning over remaining steps.
-        """
-        B, T, _ = obs_seq.shape
-        z_seq = self.perception(obs_seq)
-
-        h = torch.zeros(B, self.d_model, device=obs_seq.device)
-        s = torch.zeros(B, self.d_stoch, device=obs_seq.device)
-
-        theta_preds, synd_logits, llr_res, unc_logvars, reg_logits, values, kl_losses = (
-            [], [], [], [], [], [], []
+        self.uncertainty_head = nn.Sequential(
+            nn.Linear(feat_dim, d_model // 2),
+            nn.GELU(),
+            nn.Linear(d_model // 2, 1),
         )
 
-        for t in range(T):
-            if t == burn_in and burn_in > 0:
+    def forward(
+        self,
+        node_feats: torch.Tensor,
+        burn_in_steps: int = 6,
+    ) -> Dict[str, torch.Tensor]:
+        bsz, seq_len, _, _ = node_feats.shape
+        device = node_feats.device
+        embeds = self.encoder(node_feats)  # [B, T, d_model]
+
+        h = torch.zeros(bsz, self.d_model, device=device)
+        s = torch.zeros(bsz, self.d_stoch, device=device)
+
+        h_list, s_list, kl_list = [], [], []
+        for t in range(seq_len):
+            e_t = embeds[:, t]
+            if t == burn_in_steps and burn_in_steps > 0:
                 h = h.detach()
                 s = s.detach()
 
-            zt = z_seq[:, t, :]
-            h = self.gru(torch.cat([zt, s], dim=-1), h)
-
+            h = self.gru(torch.cat([e_t, s], dim=-1), h)
             prior_stats = self.prior_net(h)
-            p_mu, p_logstd = torch.chunk(prior_stats, 2, dim=-1)
-            p_std = F.softplus(p_logstd) + 1e-4
+            prior_mean, prior_logstd = torch.chunk(prior_stats, 2, dim=-1)
+            prior_std = F.softplus(prior_logstd) + 1e-4
 
-            post_stats = self.post_net(torch.cat([h, zt], dim=-1))
-            q_mu, q_logstd = torch.chunk(post_stats, 2, dim=-1)
-            q_std = F.softplus(q_logstd) + 1e-4
+            post_stats = self.post_net(torch.cat([h, e_t], dim=-1))
+            post_mean, post_logstd = torch.chunk(post_stats, 2, dim=-1)
+            post_std = F.softplus(post_logstd) + 1e-4
 
-            eps = torch.randn_like(q_std) if self.training else torch.zeros_like(q_std)
-            s = q_mu + q_std * eps
+            if self.training:
+                eps = torch.randn_like(post_std)
+                s = post_mean + post_std * eps
+            else:
+                s = post_mean
 
-            # Analytical KL(q || p)
-            kl = torch.sum(
-                torch.log(p_std / q_std) + (q_std**2 + (q_mu - p_mu) ** 2) / (2.0 * p_std**2) - 0.5,
-                dim=-1,
-            )
+            kl = (
+                torch.log(prior_std / post_std)
+                + (post_std ** 2 + (post_mean - prior_mean) ** 2) / (2.0 * prior_std ** 2)
+                - 0.5
+            ).sum(dim=-1)
 
-            feat = torch.cat([h, s], dim=-1)
-            raw_theta = self.theta_head(feat, regime_key=regime_key)
-            theta_hat = 1e-4 + 0.42 * torch.sigmoid(raw_theta)
+            h_list.append(h)
+            s_list.append(s)
+            kl_list.append(kl)
 
-            theta_preds.append(theta_hat)
-            synd_logits.append(self.synd_head(feat))
-            llr_res.append(torch.tanh(self.llr_residual_head(feat, regime_key=regime_key)) * 180.0)
-            unc_logvars.append(torch.clamp(self.unc_logvar_head(feat), -6.0, 4.0))
-            reg_logits.append(self.regime_head(feat))
-            values.append(self.value_head(feat).squeeze(-1))
-            kl_losses.append(kl)
+        h_seq = torch.stack(h_list, dim=1)
+        s_seq = torch.stack(s_list, dim=1)
+        kl_seq = torch.stack(kl_list, dim=1)
+
+        latent = torch.cat([h_seq, s_seq], dim=-1)
+        raw_theta = self.theta_head(latent)
+        theta_pred = 1e-4 + 0.44 * torch.sigmoid(raw_theta)
+        q_rescaled = self.q_value_head(torch.cat([latent, theta_pred], dim=-1)).squeeze(-1)
+        log_var = torch.clamp(self.uncertainty_head(latent).squeeze(-1), -6.0, 4.0)
 
         return {
-            "theta_hat": torch.stack(theta_preds, dim=1),
-            "synd_logits": torch.stack(synd_logits, dim=1),
-            "llr_residual": torch.stack(llr_res, dim=1),
-            "unc_logvar": torch.stack(unc_logvars, dim=1).squeeze(-1),
-            "regime_logits": torch.stack(reg_logits, dim=1),
-            "values": torch.stack(values, dim=1),
-            "kl": torch.stack(kl_losses, dim=1),
+            "theta_pred": theta_pred,
+            "q_rescaled": q_rescaled,
+            "log_var": log_var,
+            "kl": kl_seq,
+            "latent": latent,
         }
 
 
 class SmallSpatioTemporalTransformer(nn.Module):
-    """Causal Spatio-Temporal Transformer Backbone for comparison against Weighted-Bellman R2D2."""
+    """Model 2: Non-Vision Bipartite Graph + Causal Spatio-Temporal Transformer."""
 
-    def __init__(self, in_dim: int = 26, d_model: int = 64, n_heads: int = 4, n_layers: int = 2) -> None:
+    def __init__(self, in_features: int = 8, d_model: int = 96, n_heads: int = 4, n_layers: int = 2) -> None:
         super().__init__()
-        self.perception = BipartiteQuantumGraphPerception(in_dim=in_dim, d_model=d_model)
-        enc_layer = nn.TransformerEncoderLayer(
-            d_model=d_model, nhead=n_heads, dim_feedforward=128, batch_first=True, activation="gelu"
+        self.encoder = BipartiteGraphAttentionEncoder(in_features=in_features, d_model=d_model, n_heads=n_heads)
+        self.pos_embed = nn.Parameter(torch.randn(1, 64, d_model) * 0.02)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=n_heads,
+            dim_feedforward=d_model * 2,
+            dropout=0.05,
+            activation="gelu",
+            batch_first=True,
         )
-        self.transformer = nn.TransformerEncoder(enc_layer, num_layers=n_layers)
-        self.theta_head = LoRALinear(d_model, 21, rank=4, alpha=8.0)
-        self.synd_head = nn.Linear(d_model, 16)
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
+        self.theta_head = nn.Sequential(
+            nn.Linear(d_model, d_model),
+            nn.GELU(),
+            nn.Linear(d_model, 21),
+        )
+        self.q_value_head = nn.Sequential(
+            nn.Linear(d_model + 21, d_model),
+            nn.GELU(),
+            nn.Linear(d_model, 1),
+        )
 
-    def forward(self, obs_seq: torch.Tensor, regime_key: str = "R1") -> Dict[str, torch.Tensor]:
-        B, T, _ = obs_seq.shape
-        z = self.perception(obs_seq)
-        causal_mask = torch.triu(torch.full((T, T), float("-inf"), device=obs_seq.device), diagonal=1)
-        h = self.transformer(z, mask=causal_mask)
-        theta_hat = 1e-4 + 0.42 * torch.sigmoid(self.theta_head(h, regime_key=regime_key))
-        return {
-            "theta_hat": theta_hat,
-            "synd_logits": self.synd_head(h),
-        }
+    def forward(self, node_feats: torch.Tensor) -> Dict[str, torch.Tensor]:
+        _, seq_len, _, _ = node_feats.shape
+        device = node_feats.device
+        x = self.encoder(node_feats) + self.pos_embed[:, :seq_len, :]
+        causal_mask = torch.triu(torch.ones(seq_len, seq_len, device=device), diagonal=1).bool()
+        h = self.transformer(x, mask=causal_mask)
+        theta_pred = 1e-4 + 0.44 * torch.sigmoid(self.theta_head(h))
+        q_rescaled = self.q_value_head(torch.cat([h, theta_pred], dim=-1)).squeeze(-1)
+        return {"theta_pred": theta_pred, "q_rescaled": q_rescaled, "latent": h}
 
 
-def extract_26d_window_features(hist_16: np.ndarray) -> np.ndarray:
-    """Extract 16 joint syndrome probabilities + 4 check marginals + 6 pairwise check correlations."""
-    p16 = hist_16 / max(1.0, float(np.sum(hist_16)))
-    q4 = np.zeros(4, dtype=np.float32)
-    corr6 = np.zeros(6, dtype=np.float32)
-    pairs = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
-    for s in range(16):
-        bits = [(s >> c) & 1 for c in range(4)]
+class RegimeLoRAAdapter(nn.Module):
+    """Low-Rank (Rank-4) Fast Regime Adaptation Head for Non-Stationary Quantum Drift."""
+
+    def __init__(self, d_in: int = 128, out_dim: int = 21, rank: int = 4, alpha: float = 8.0) -> None:
+        super().__init__()
+        self.rank = rank
+        self.scale = alpha / float(rank)
+        self.lora_a = nn.Parameter(torch.randn(d_in, rank) * 0.02)
+        self.lora_b = nn.Parameter(torch.zeros(rank, out_dim))
+        self.bias = nn.Parameter(torch.zeros(out_dim))
+
+    def forward(self, latent: torch.Tensor, base_theta: torch.Tensor) -> torch.Tensor:
+        base_logit = torch.logit(torch.clamp((base_theta - 1e-4) / 0.44, 1e-4, 1.0 - 1e-4))
+        delta = torch.matmul(torch.matmul(latent, self.lora_a), self.lora_b) * self.scale + self.bias
+        return 1e-4 + 0.44 * torch.sigmoid(base_logit + delta)
+
+
+def torch_joint_dp_distribution(theta: torch.Tensor, signatures: List[int], n_checks: int = 4) -> torch.Tensor:
+    """
+    Differentiable PyTorch implementation of the exact 2^m-state XOR-convolution DP:
+      P_new(s) = (1 - p_e) * P_old(s) + p_e * P_old(s ^ g_e)
+    """
+    bsz, seq_len, n_params = theta.shape
+    n_states = 1 << n_checks
+    device = theta.device
+    p_flat = theta.reshape(bsz * seq_len, n_params)
+
+    dist = torch.zeros(bsz * seq_len, n_states, device=device, dtype=theta.dtype)
+    dist[:, 0] = 1.0
+
+    for e_idx in range(n_params):
+        g = int(signatures[e_idx])
+        if g == 0:
+            continue
+        pe = p_flat[:, e_idx : e_idx + 1]
+        perm = [s ^ g for s in range(n_states)]
+        dist = (1.0 - pe) * dist + pe * dist[:, perm]
+
+    return dist.reshape(bsz, seq_len, n_states)
+
+
+def extract_window_graph_features(
+    syndromes: np.ndarray,
+    model: CorrelatedNoiseModel,
+    window_size: int = 256,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Convert a syndrome stream [N, 4] into slow-loop window graph node features [T, 13, 8]
+    and empirical 16-state syndrome distributions [T, 16].
+    """
+    n_rounds = syndromes.shape[0]
+    n_windows = max(1, n_rounds // window_size)
+    trimmed = syndromes[: n_windows * window_size].reshape(n_windows, window_size, 4)
+
+    node_feats = np.zeros((n_windows, 13, 8), dtype=np.float32)
+    emp_dists = np.zeros((n_windows, 16), dtype=np.float32)
+
+    weights = (1 << np.arange(4, dtype=np.int32))
+    ints = (trimmed.astype(np.int32) @ weights)  # [T, W]
+
+    x_checks = [(0, 1), (1, 2, 4, 5), (3, 4, 6, 7), (7, 8)]
+    for t in range(n_windows):
+        w_syn = trimmed[t].astype(np.float32)  # [W, 4]
+        counts = np.bincount(ints[t], minlength=16).astype(np.float32)
+        emp = counts / float(window_size)
+        emp_dists[t] = emp
+
+        c_rates = w_syn.mean(axis=0)  # [4]
+        c_temporal = np.abs(np.diff(w_syn, axis=0)).mean(axis=0) if window_size > 1 else np.zeros(4)
+        cov = (w_syn.T @ w_syn) / float(window_size) - np.outer(c_rates, c_rates)
+
+        prior_theta = model.build_context_informed_prior(emp)
+        for q in range(9):
+            inc = [c for c, qs in enumerate(x_checks) if q in qs]
+            mean_c = float(np.mean([c_rates[c] for c in inc])) if inc else 0.0
+            max_c = float(np.max([c_rates[c] for c in inc])) if inc else 0.0
+            pair_vals = [
+                prior_theta[9 + idx]
+                for idx, (u, v) in enumerate(model.code.zz_edges)
+                if u == q or v == q
+            ]
+            node_feats[t, q, 0] = float(prior_theta[q])
+            node_feats[t, q, 1] = float(np.mean(pair_vals)) if pair_vals else 0.0
+            node_feats[t, q, 2] = float(np.max(pair_vals)) if pair_vals else 0.0
+            node_feats[t, q, 3] = mean_c
+            node_feats[t, q, 4] = max_c
+            node_feats[t, q, 5] = float(len(inc)) / 4.0
+            node_feats[t, q, 6] = float(q in (1, 4, 7))
+            node_feats[t, q, 7] = float(1.0 - emp[0])
+
         for c in range(4):
-            if bits[c]:
-                q4[c] += p16[s]
-        for idx, (c1, c2) in enumerate(pairs):
-            if bits[c1] and bits[c2]:
-                corr6[idx] += p16[s]
-    return np.concatenate([p16.astype(np.float32), q4, corr6])
+            node_feats[t, 9 + c, 0] = float(c_rates[c])
+            node_feats[t, 9 + c, 1] = float(c_temporal[c])
+            node_feats[t, 9 + c, 2] = float(cov[c, (c + 1) % 4])
+            node_feats[t, 9 + c, 3] = float(cov[c, (c + 2) % 4])
+            node_feats[t, 9 + c, 4] = float(len(x_checks[c])) / 4.0
+            node_feats[t, 9 + c, 5] = float(emp[1 << c])
+            node_feats[t, 9 + c, 6] = 1.0
+            node_feats[t, 9 + c, 7] = float(1.0 - emp[0])
+
+    return node_feats, emp_dists
 
 
-def train_weighted_bellman_r2d2_and_transformer(
-    window_features_by_regime: Dict[str, np.ndarray],
-    true_thetas_by_regime: Dict[str, np.ndarray],
-    ckpt_dir: Path,
-    n_epochs: int = 60,
-) -> Tuple[WeightedBellmanR2D2WorldModel, SmallSpatioTemporalTransformer, Dict[str, object]]:
+# =============================================================================
+# STAGE 1: Long-Term Quantum Syndrome & Drift Data Collection
+# =============================================================================
+
+def collect_long_term_dataset(
+    model: CorrelatedNoiseModel,
+    datasets_dir: Path,
+    rounds_per_regime: int = 50000,
+    n_trajectories_per_regime: int = 120,
+    seq_len: int = 16,
+    window_size: int = 256,
+) -> Tuple[Dict[str, Dict[str, np.ndarray]], Dict[str, Dict[str, torch.Tensor]]]:
     """
-    Train the Weighted-Bellman R2D2 World Model (with target network, burn-in=4,
-    3-step bootstrapped Bellman return, Kapturowski rescaling, and inverse-variance
-    TD priority weighting) + Small Spatio-Temporal Transformer + 5 Regime LoRA Adapters.
+    Stage 1: Collect and persist long-term quantum syndrome streams and non-stationary
+    recurrent replay buffer trajectories BEFORE model training begins.
     """
-    r2d2 = WeightedBellmanR2D2WorldModel(in_dim=26, d_model=64, d_stoch=32)
+    datasets_dir.mkdir(parents=True, exist_ok=True)
+    regimes = build_regime_schedule(model.code)
+
+    print(
+        f"[Stage 1A] Collecting {rounds_per_regime:,} fast-loop rounds/regime "
+        f"({rounds_per_regime * len(regimes):,} rounds total) across 5 regimes..."
+    )
+    regime_streams: Dict[str, Dict[str, np.ndarray]] = {}
+    dataset_npz: Dict[str, np.ndarray] = {}
+    all_packets_x: List[np.ndarray] = []
+    all_packets_z: List[np.ndarray] = []
+
+    for idx, regime in enumerate(regimes):
+        t0 = time.perf_counter()
+        sim = simulate_canonical_css_stream(
+            model.code,
+            theta_x=regime.theta_x,
+            theta_z=regime.theta_z,
+            num_rounds=rounds_per_regime,
+            seed=202600 + idx * 101,
+        )
+        elapsed = time.perf_counter() - t0
+        regime_streams[regime.name] = {
+            "true_theta": regime.theta_x,
+            "syndrome_x": sim["syndrome_x"],
+            "syndrome_z": sim["syndrome_z"],
+            "detection_x": sim["detection_x"],
+            "data_z_faults": sim["data_z_faults"],
+            "logical_z_flips": sim["logical_z_flips"],
+        }
+        dataset_npz[f"{regime.name}_theta_x"] = regime.theta_x
+        dataset_npz[f"{regime.name}_syndrome_x"] = sim["syndrome_x"]
+        dataset_npz[f"{regime.name}_syndrome_z"] = sim["syndrome_z"]
+        dataset_npz[f"{regime.name}_detection_x"] = sim["detection_x"]
+        dataset_npz[f"{regime.name}_logical_z_flips"] = sim["logical_z_flips"]
+        all_packets_x.append(sim["syndrome_x"][:2048])
+        all_packets_z.append(sim["syndrome_z"][:2048])
+        print(
+            f"  -> Collected [{regime.name}]: {rounds_per_regime:,} rounds "
+            f"(mean syndrome weight={sim['syndrome_x'].sum(axis=1).mean():.3f}, {elapsed:.2f}s)"
+        )
+
+    long_horizon_path = datasets_dir / "avid_long_horizon_d3_250k_rounds.npz"
+    np.savez_compressed(long_horizon_path, **dataset_npz)
+    shutil.copy2(long_horizon_path, datasets_dir / "avid_canonical_css_regimes.npz")
+
+    write_packet_stream_file(
+        datasets_dir / "syndrome_packets_v1.bin",
+        np.vstack(all_packets_x),
+        np.vstack(all_packets_z),
+    )
+
+    total_replay_rounds = len(regimes) * n_trajectories_per_regime * seq_len * window_size
+    print(
+        f"[Stage 1B] Collecting {len(regimes) * n_trajectories_per_regime} non-stationary "
+        f"R2D2 replay trajectories (T={seq_len} windows x W={window_size} rounds = "
+        f"{total_replay_rounds:,} fast-loop rounds)..."
+    )
+
+    rng = np.random.default_rng(20261103)
+    replay_data: Dict[str, Dict[str, torch.Tensor]] = {}
+    replay_npz: Dict[str, np.ndarray] = {}
+
+    for _, regime in enumerate(regimes):
+        base_theta = regime.theta_x.copy()
+        feats_list, emp_list, theta_list, reward_list = [], [], [], []
+
+        for _ in range(n_trajectories_per_regime):
+            traj_feats = np.zeros((seq_len, 13, 8), dtype=np.float32)
+            traj_emp = np.zeros((seq_len, 16), dtype=np.float32)
+            traj_theta = np.zeros((seq_len, 21), dtype=np.float32)
+            traj_reward = np.zeros((seq_len,), dtype=np.float32)
+
+            drift = rng.normal(0.0, 0.0025, size=21)
+            tls_active = False
+            for t in range(seq_len):
+                drift = 0.88 * drift + rng.normal(0.0, 0.002, size=21)
+                if rng.random() < 0.15:
+                    tls_active = not tls_active
+                scale = rng.uniform(0.88, 1.14)
+                theta_t = np.clip(base_theta * scale + drift, 1e-4, 0.40)
+                if tls_active:
+                    theta_t[4] = np.clip(theta_t[4] * 1.18, 1e-4, 0.42)
+                    theta_t[9 + 3] = np.clip(theta_t[9 + 3] * 1.18, 1e-4, 0.42)
+
+                emp_t = model.joint_distribution_dp(theta_t)
+                counts = rng.multinomial(window_size, emp_t).astype(np.float32)
+                emp_hat = counts / float(window_size)
+
+                bits = (((np.arange(16)[:, None] >> np.arange(4)) & 1)).astype(np.float32)
+                c_rates = emp_hat @ bits
+                cov = (bits.T * emp_hat) @ bits - np.outer(c_rates, c_rates)
+                prior_theta = model.build_context_informed_prior(emp_hat)
+
+                x_checks = [(0, 1), (1, 2, 4, 5), (3, 4, 6, 7), (7, 8)]
+                for q in range(9):
+                    inc = [c for c, qs in enumerate(x_checks) if q in qs]
+                    pair_vals = [
+                        prior_theta[9 + idx]
+                        for idx, (u, v) in enumerate(model.code.zz_edges)
+                        if u == q or v == q
+                    ]
+                    traj_feats[t, q, 0] = float(prior_theta[q])
+                    traj_feats[t, q, 1] = float(np.mean(pair_vals)) if pair_vals else 0.0
+                    traj_feats[t, q, 2] = float(np.max(pair_vals)) if pair_vals else 0.0
+                    traj_feats[t, q, 3] = float(np.mean([c_rates[c] for c in inc]))
+                    traj_feats[t, q, 4] = float(np.max([c_rates[c] for c in inc]))
+                    traj_feats[t, q, 5] = float(len(inc)) / 4.0
+                    traj_feats[t, q, 6] = float(q in (1, 4, 7))
+                    traj_feats[t, q, 7] = float(1.0 - emp_hat[0])
+
+                for c in range(4):
+                    traj_feats[t, 9 + c, 0] = float(c_rates[c])
+                    traj_feats[t, 9 + c, 1] = float(2.0 * c_rates[c] * (1.0 - c_rates[c]))
+                    traj_feats[t, 9 + c, 2] = float(cov[c, (c + 1) % 4])
+                    traj_feats[t, 9 + c, 3] = float(cov[c, (c + 2) % 4])
+                    traj_feats[t, 9 + c, 4] = float(len(x_checks[c])) / 4.0
+                    traj_feats[t, 9 + c, 5] = float(emp_hat[1 << c])
+                    traj_feats[t, 9 + c, 6] = 1.0
+                    traj_feats[t, 9 + c, 7] = float(1.0 - emp_hat[0])
+
+                traj_emp[t] = emp_hat
+                traj_theta[t] = theta_t.astype(np.float32)
+                entropy = float(-np.sum(emp_t * np.log(np.maximum(emp_t, 1e-12))))
+                traj_reward[t] = float(10.0 * emp_t[0] - 0.5 * entropy)
+
+            feats_list.append(traj_feats)
+            emp_list.append(traj_emp)
+            theta_list.append(traj_theta)
+            reward_list.append(traj_reward)
+
+        feats_arr = np.stack(feats_list)
+        emp_arr = np.stack(emp_list)
+        theta_arr = np.stack(theta_list)
+        reward_arr = np.stack(reward_list)
+
+        replay_data[regime.name] = {
+            "node_feats": torch.tensor(feats_arr, dtype=torch.float32),
+            "emp_dist": torch.tensor(emp_arr, dtype=torch.float32),
+            "true_theta": torch.tensor(theta_arr, dtype=torch.float32),
+            "reward": torch.tensor(reward_arr, dtype=torch.float32),
+        }
+        replay_npz[f"{regime.name}_node_feats"] = feats_arr
+        replay_npz[f"{regime.name}_emp_dist"] = emp_arr
+        replay_npz[f"{regime.name}_true_theta"] = theta_arr
+        replay_npz[f"{regime.name}_reward"] = reward_arr
+
+    replay_path = datasets_dir / "avid_r2d2_replay_buffer_trajectories.npz"
+    np.savez_compressed(replay_path, **replay_npz)
+
+    manifest = {
+        "stage_1_status": "COMPLETED",
+        "fast_loop_rounds_per_regime": rounds_per_regime,
+        "total_fast_loop_stream_rounds": rounds_per_regime * len(regimes),
+        "r2d2_replay_trajectories_per_regime": n_trajectories_per_regime,
+        "r2d2_total_trajectories": len(regimes) * n_trajectories_per_regime,
+        "r2d2_sequence_length_windows": seq_len,
+        "r2d2_burn_in_windows": 6,
+        "r2d2_unroll_windows": seq_len - 6,
+        "window_size_rounds": window_size,
+        "total_underlying_replay_rounds": total_replay_rounds,
+        "files": [
+            "datasets/avid_long_horizon_d3_250k_rounds.npz",
+            "datasets/avid_canonical_css_regimes.npz",
+            "datasets/avid_r2d2_replay_buffer_trajectories.npz",
+            "datasets/syndrome_packets_v1.bin",
+        ],
+    }
+    (datasets_dir / "dataset_manifest.json").write_text(
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+    )
+    print(f"[Stage 1 Complete] Saved long-term datasets to {datasets_dir}/")
+    return regime_streams, replay_data
+
+
+# =============================================================================
+# STAGE 2: Weighted-Bellman R2D2 + Transformer + LoRA Training on Collected Data
+# =============================================================================
+
+def compute_nstep_bellman_targets(
+    rewards: torch.Tensor,
+    target_q_rescaled: torch.Tensor,
+    gamma: float = 0.92,
+    n_step: int = 3,
+) -> torch.Tensor:
+    """
+    Compute 3-step bootstrapped Bellman targets in rescaled value space:
+      G_t^{(n)} = sum_{k=0}^{n-1} gamma^k r_{t+k} + gamma^n h^{-1}(Q_target(s_{t+n}))
+      y_t = h(G_t^{(n)})
+    """
+    bsz, seq_len = rewards.shape
+    q_inv = kapturowski_value_inv_rescale(target_q_rescaled.detach())
+    returns = torch.zeros_like(rewards)
+
+    for t in range(seq_len):
+        acc = torch.zeros(bsz, device=rewards.device, dtype=rewards.dtype)
+        for k in range(n_step):
+            if t + k < seq_len:
+                acc = acc + (gamma ** k) * rewards[:, t + k]
+        boot_idx = t + n_step
+        if boot_idx < seq_len:
+            acc = acc + (gamma ** n_step) * q_inv[:, boot_idx]
+        returns[:, t] = acc
+
+    return kapturowski_value_rescale(returns)
+
+
+def train_world_models_and_lora(
+    model: CorrelatedNoiseModel,
+    replay_data: Dict[str, Dict[str, torch.Tensor]],
+    checkpoints_dir: Path,
+    r2d2_epochs: int = 80,
+    transformer_epochs: int = 80,
+    lora_epochs: int = 50,
+) -> Tuple[WeightedBellmanR2D2WorldModel, SmallSpatioTemporalTransformer, Dict[str, RegimeLoRAAdapter], Dict[str, object]]:
+    signatures = [int(g) for g in model.signatures]
+
+    all_feats = torch.cat([v["node_feats"] for v in replay_data.values()], dim=0)
+    all_emp = torch.cat([v["emp_dist"] for v in replay_data.values()], dim=0)
+    all_theta = torch.cat([v["true_theta"] for v in replay_data.values()], dim=0)
+    all_rew = torch.cat([v["reward"] for v in replay_data.values()], dim=0)
+
+    r2d2 = WeightedBellmanR2D2WorldModel(in_features=8, d_model=96, d_stoch=32)
     r2d2_target = copy.deepcopy(r2d2)
-    transformer = SmallSpatioTemporalTransformer(in_dim=26, d_model=64, n_heads=4, n_layers=2)
+    r2d2_opt = torch.optim.AdamW(r2d2.parameters(), lr=2.5e-3, weight_decay=1e-4)
+    r2d2_sched = torch.optim.lr_scheduler.CosineAnnealingLR(r2d2_opt, T_max=r2d2_epochs, eta_min=2e-4)
 
-    opt_r2d2 = torch.optim.AdamW(r2d2.parameters(), lr=2.5e-3, weight_decay=1e-4)
-    opt_tf = torch.optim.AdamW(transformer.parameters(), lr=2.5e-3, weight_decay=1e-4)
+    burn_in = 6
+    batch_size = 60
+    n_total = all_feats.shape[0]
+    r2d2_history: List[Dict[str, float]] = []
 
-    regime_names = list(window_features_by_regime.keys())
-    seq_len = 12  # 4 burn-in + 8 active unroll
-    burn_in = 4
-    n_step = 3
-    gamma = 0.95
+    print(
+        f"  -> [Model 1/3] Training Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) "
+        f"for {r2d2_epochs} epochs on {n_total} collected trajectories (burn_in={burn_in}, unroll=10)..."
+    )
+    for epoch in range(1, r2d2_epochs + 1):
+        perm = torch.randperm(n_total)
+        ep_loss, ep_bellman, ep_dp, ep_mse, steps = 0.0, 0.0, 0.0, 0.0, 0
 
-    history_r2d2_loss: List[float] = []
-    history_tf_loss: List[float] = []
+        for start in range(0, n_total, batch_size):
+            idx = perm[start : start + batch_size]
+            b_feats = all_feats[idx]
+            b_emp = all_emp[idx]
+            b_theta = all_theta[idx]
+            b_rew = all_rew[idx]
 
-    for ep in range(n_epochs):
-        ep_loss_r2d2 = 0.0
-        ep_loss_tf = 0.0
-
-        for r_idx, r_name in enumerate(regime_names):
-            r_key = f"R{r_idx + 1}"
-            feats = window_features_by_regime[r_name]  # shape (N_win, 26)
-            n_win = feats.shape[0]
-            # Form batch of sequences of length seq_len
-            n_seqs = max(1, (n_win - seq_len) // 2)
-            seq_batch = np.stack([feats[i : i + seq_len] for i in range(0, n_seqs * 2, 2)[:n_seqs]])
-
-            obs_t = torch.tensor(seq_batch, dtype=torch.float32)
-            target_theta = torch.tensor(true_thetas_by_regime[r_name], dtype=torch.float32)
-            target_theta_seq = target_theta.unsqueeze(0).unsqueeze(0).expand(obs_t.shape[0], seq_len, 21)
-            target_p16_seq = obs_t[:, :, :16]
-            target_reg = torch.full((obs_t.shape[0], seq_len), r_idx, dtype=torch.long)
-
-            # --- 1. Train Weighted-Bellman R2D2 ---
-            opt_r2d2.zero_grad()
-            out = r2d2.forward_sequence(obs_t, regime_key=r_key, burn_in=burn_in)
+            out = r2d2(b_feats, burn_in_steps=burn_in)
             with torch.no_grad():
-                tgt_out = r2d2_target.forward_sequence(obs_t, regime_key=r_key, burn_in=burn_in)
+                tgt_out = r2d2_target(b_feats, burn_in_steps=burn_in)
 
-            # Active steps after burn-in
-            act_slice = slice(burn_in, seq_len)
-            theta_mse = F.mse_loss(out["theta_hat"][:, act_slice], target_theta_seq[:, act_slice])
-            log_p_pred = F.log_softmax(out["synd_logits"][:, act_slice], dim=-1)
-            synd_kl = -torch.sum(target_p16_seq[:, act_slice] * log_p_pred, dim=-1).mean()
-            reg_ce = F.cross_entropy(
-                out["regime_logits"][:, act_slice].reshape(-1, 5),
-                target_reg[:, act_slice].reshape(-1),
+            theta_pred = out["theta_pred"][:, burn_in:]
+            q_rescaled = out["q_rescaled"][:, burn_in:]
+            log_var = out["log_var"][:, burn_in:]
+            kl_active = out["kl"][:, burn_in:]
+
+            emp_active = b_emp[:, burn_in:]
+            theta_true_active = b_theta[:, burn_in:]
+
+            pred_dist = torch_joint_dp_distribution(theta_pred, signatures, n_checks=4)
+            dp_ce = -(emp_active * torch.log(torch.clamp(pred_dist, min=1e-12))).sum(dim=-1)
+            theta_mse = ((theta_pred - theta_true_active) ** 2).mean(dim=-1)
+
+            instant_reward = b_rew[:, burn_in:] - 4.0 * dp_ce.detach() - 25.0 * theta_mse.detach()
+            y_bellman = compute_nstep_bellman_targets(
+                instant_reward, tgt_out["q_rescaled"][:, burn_in:], gamma=0.92, n_step=3
             )
-            kl_latent = out["kl"][:, act_slice].mean()
 
-            # Compute instantaneous survival reward r_t and n-step Weighted-Bellman target
-            with torch.no_grad():
-                step_err = torch.mean((out["theta_hat"] - target_theta_seq) ** 2, dim=-1)
-                rewards = 1.0 - 25.0 * step_err - 0.05 * out["kl"]
-                boot_vals = inv_rescaling_h(tgt_out["values"])
-                bellman_targets = torch.zeros_like(rewards)
-                for t in range(seq_len):
-                    g_acc = torch.zeros_like(rewards[:, 0])
-                    for k in range(n_step):
-                        if t + k < seq_len:
-                            g_acc = g_acc + (gamma**k) * rewards[:, t + k]
-                    if t + n_step < seq_len:
-                        g_acc = g_acc + (gamma**n_step) * boot_vals[:, t + n_step]
-                    bellman_targets[:, t] = rescaling_h(g_acc)
+            td_err = q_rescaled - y_bellman
+            precision = torch.exp(-log_var)
+            priority_w = (torch.abs(td_err).detach() + 0.05) ** 0.6
+            priority_w = priority_w / (priority_w.mean() + 1e-6)
+            weighted_bellman_loss = (
+                priority_w * (0.5 * precision * (td_err ** 2) + 0.5 * log_var)
+            ).mean()
 
-            v_pred = out["values"][:, act_slice]
-            v_tgt = bellman_targets[:, act_slice]
-            td_err = v_pred - v_tgt
-            log_var = out["unc_logvar"][:, act_slice]
-            inv_var = torch.exp(-log_var)
+            loss_dp = dp_ce.mean()
+            loss_mse = theta_mse.mean()
+            loss_kl = kl_active.mean()
 
-            # Priority + Uncertainty Weight w_t (R2D2 p=0.9 + inverse variance precision)
-            with torch.no_grad():
-                raw_w = torch.pow(torch.abs(td_err) + 1e-5, 0.9) + 0.25 * inv_var
-                w_norm = raw_w / (torch.mean(raw_w) + 1e-6)
+            total_loss = 1.5 * loss_dp + 35.0 * loss_mse + 0.35 * weighted_bellman_loss + 0.01 * loss_kl
 
-            wb_bellman_loss = torch.mean(w_norm * (td_err**2) + 0.05 * log_var)
-            total_r2d2_loss = (
-                20.0 * theta_mse
-                + 0.5 * synd_kl
-                + 0.2 * reg_ce
-                + 0.01 * kl_latent
-                + 0.5 * wb_bellman_loss
-            )
-            total_r2d2_loss.backward()
+            r2d2_opt.zero_grad()
+            total_loss.backward()
             torch.nn.utils.clip_grad_norm_(r2d2.parameters(), 2.0)
-            opt_r2d2.step()
-            ep_loss_r2d2 += float(total_r2d2_loss.item())
+            r2d2_opt.step()
 
-            # --- 2. Train Small Spatio-Temporal Transformer ---
-            opt_tf.zero_grad()
-            tf_out = transformer(obs_t, regime_key=r_key)
-            tf_theta_mse = F.mse_loss(tf_out["theta_hat"][:, act_slice], target_theta_seq[:, act_slice])
-            tf_log_p = F.log_softmax(tf_out["synd_logits"][:, act_slice], dim=-1)
-            tf_synd_kl = -torch.sum(target_p16_seq[:, act_slice] * tf_log_p, dim=-1).mean()
-            total_tf_loss = 20.0 * tf_theta_mse + 0.5 * tf_synd_kl
-            total_tf_loss.backward()
+            with torch.no_grad():
+                for p, tp in zip(r2d2.parameters(), r2d2_target.parameters()):
+                    tp.data.mul_(0.95).add_(p.data, alpha=0.05)
+
+            ep_loss += float(total_loss.item())
+            ep_bellman += float(weighted_bellman_loss.item())
+            ep_dp += float(loss_dp.item())
+            ep_mse += float(loss_mse.item())
+            steps += 1
+
+        r2d2_sched.step()
+        if epoch in (1, 20, 40, 60, r2d2_epochs):
+            print(
+                f"     [R2D2 Epoch {epoch:02d}/{r2d2_epochs}] "
+                f"total={ep_loss/steps:.4f} | dp_nll={ep_dp/steps:.4f} | "
+                f"wb_td={ep_bellman/steps:.4f} | param_rmse={(ep_mse/steps)**0.5:.5f}"
+            )
+        r2d2_history.append({
+            "epoch": epoch,
+            "total_loss": round(ep_loss / steps, 5),
+            "dp_nll": round(ep_dp / steps, 5),
+            "weighted_bellman_loss": round(ep_bellman / steps, 5),
+            "param_rmse": round((ep_mse / steps) ** 0.5, 6),
+        })
+
+    transformer = SmallSpatioTemporalTransformer(in_features=8, d_model=96, n_heads=4, n_layers=2)
+    tf_opt = torch.optim.AdamW(transformer.parameters(), lr=2.5e-3, weight_decay=1e-4)
+    tf_sched = torch.optim.lr_scheduler.CosineAnnealingLR(tf_opt, T_max=transformer_epochs, eta_min=2e-4)
+    tf_history: List[Dict[str, float]] = []
+
+    print(
+        f"  -> [Model 2/3] Training Small Spatio-Temporal Causal Transformer "
+        f"for {transformer_epochs} epochs..."
+    )
+    for epoch in range(1, transformer_epochs + 1):
+        perm = torch.randperm(n_total)
+        ep_loss, ep_mse, steps = 0.0, 0.0, 0
+        for start in range(0, n_total, batch_size):
+            idx = perm[start : start + batch_size]
+            b_feats = all_feats[idx]
+            b_emp = all_emp[idx]
+            b_theta = all_theta[idx]
+            b_rew = all_rew[idx]
+
+            out = transformer(b_feats)
+            theta_pred = out["theta_pred"]
+            q_rescaled = out["q_rescaled"]
+
+            pred_dist = torch_joint_dp_distribution(theta_pred, signatures, n_checks=4)
+            dp_ce = -(b_emp * torch.log(torch.clamp(pred_dist, min=1e-12))).sum(dim=-1)
+            theta_mse = ((theta_pred - b_theta) ** 2).mean(dim=-1)
+
+            y_bellman = compute_nstep_bellman_targets(
+                b_rew - 4.0 * dp_ce.detach(), q_rescaled, gamma=0.92, n_step=3
+            )
+            bellman_mse = ((q_rescaled - y_bellman) ** 2).mean()
+            total_loss = 1.5 * dp_ce.mean() + 35.0 * theta_mse.mean() + 0.25 * bellman_mse
+
+            tf_opt.zero_grad()
+            total_loss.backward()
             torch.nn.utils.clip_grad_norm_(transformer.parameters(), 2.0)
-            opt_tf.step()
-            ep_loss_tf += float(total_tf_loss.item())
+            tf_opt.step()
 
-        # Soft target network update for Weighted-Bellman R2D2
-        with torch.no_grad():
-            for p_live, p_tgt in zip(r2d2.parameters(), r2d2_target.parameters()):
-                p_tgt.data.mul_(0.92).add_(p_live.data, alpha=0.08)
+            ep_loss += float(total_loss.item())
+            ep_mse += float(theta_mse.mean().item())
+            steps += 1
 
-        history_r2d2_loss.append(round(ep_loss_r2d2 / len(regime_names), 5))
-        history_tf_loss.append(round(ep_loss_tf / len(regime_names), 5))
+        tf_sched.step()
+        if epoch in (1, 20, 40, 60, transformer_epochs):
+            print(
+                f"     [Transformer Epoch {epoch:02d}/{transformer_epochs}] "
+                f"total={ep_loss/steps:.4f} | param_rmse={(ep_mse/steps)**0.5:.5f}"
+            )
+        tf_history.append({
+            "epoch": epoch,
+            "total_loss": round(ep_loss / steps, 5),
+            "param_rmse": round((ep_mse / steps) ** 0.5, 6),
+        })
 
     r2d2.eval()
     transformer.eval()
+    for p in r2d2.parameters():
+        p.requires_grad_(False)
 
-    # Save PyTorch checkpoints and LoRA adapters
-    torch.save(r2d2.state_dict(), ckpt_dir / "weighted_bellman_r2d2_backbone.pt")
-    torch.save(transformer.state_dict(), ckpt_dir / "spatiotemporal_transformer_backbone.pt")
-    for r_idx in range(5):
-        r_key = f"R{r_idx + 1}"
-        lora_payload = {
-            "regime_key": r_key,
-            "r2d2_theta_lora_A": r2d2.theta_head.lora_A[r_key].detach().cpu(),
-            "r2d2_theta_lora_B": r2d2.theta_head.lora_B[r_key].detach().cpu(),
-            "r2d2_llr_lora_A": r2d2.llr_residual_head.lora_A[r_key].detach().cpu(),
-            "r2d2_llr_lora_B": r2d2.llr_residual_head.lora_B[r_key].detach().cpu(),
-            "transformer_theta_lora_A": transformer.theta_head.lora_A[r_key].detach().cpu(),
-            "transformer_theta_lora_B": transformer.theta_head.lora_B[r_key].detach().cpu(),
-        }
-        torch.save(lora_payload, ckpt_dir / f"lora_adapter_{r_key}.pt")
+    lora_adapters: Dict[str, RegimeLoRAAdapter] = {}
+    lora_metrics: Dict[str, Dict[str, float]] = {}
+
+    print(f"  -> [Model 3/3] Training 5 Rank-4 Regime LoRA Adapters ({lora_epochs} epochs/regime)...")
+    for regime_name, r_data in replay_data.items():
+        adapter = RegimeLoRAAdapter(d_in=128, out_dim=21, rank=4, alpha=8.0)
+        opt = torch.optim.AdamW(adapter.parameters(), lr=6e-3, weight_decay=1e-4)
+
+        r_feats = r_data["node_feats"]
+        r_emp = r_data["emp_dist"]
+        r_theta = r_data["true_theta"]
+
+        with torch.no_grad():
+            base_out = r2d2(r_feats, burn_in_steps=burn_in)
+            base_latent = base_out["latent"][:, burn_in:]
+            base_theta = base_out["theta_pred"][:, burn_in:]
+
+        target_emp = r_emp[:, burn_in:]
+        target_theta = r_theta[:, burn_in:]
+
+        for _ in range(lora_epochs):
+            adapted_theta = adapter(base_latent, base_theta)
+            pred_dist = torch_joint_dp_distribution(adapted_theta, signatures, n_checks=4)
+            dp_ce = -(target_emp * torch.log(torch.clamp(pred_dist, min=1e-12))).sum(dim=-1).mean()
+            mse = ((adapted_theta - target_theta) ** 2).mean()
+            loss = 1.5 * dp_ce + 45.0 * mse
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
+
+        adapter.eval()
+        with torch.no_grad():
+            final_theta = adapter(base_latent, base_theta)
+            rmse = float(torch.sqrt(((final_theta - target_theta) ** 2).mean()).item())
+        lora_adapters[regime_name] = adapter
+        lora_metrics[regime_name] = {"final_param_rmse": round(rmse, 6), "rank": 4}
+        print(f"     [LoRA {regime_name}] final_param_rmse={rmse:.5f}")
+
+    checkpoints_dir.mkdir(parents=True, exist_ok=True)
+    torch.save(r2d2.state_dict(), checkpoints_dir / "weighted_bellman_r2d2_backbone.pt")
+    torch.save(transformer.state_dict(), checkpoints_dir / "spatiotemporal_transformer_backbone.pt")
+    for regime_name, adapter in lora_adapters.items():
+        torch.save(adapter.state_dict(), checkpoints_dir / f"lora_adapter_{regime_name}.pt")
 
     torch.save(
         {
             "weighted_bellman_r2d2": r2d2.state_dict(),
             "spatiotemporal_transformer": transformer.state_dict(),
-            "r2d2_loss_history": history_r2d2_loss,
-            "transformer_loss_history": history_tf_loss,
+            "lora_adapters": {k: v.state_dict() for k, v in lora_adapters.items()},
+            "r2d2_history": r2d2_history,
+            "transformer_history": tf_history,
+            "lora_metrics": lora_metrics,
         },
-        ckpt_dir / "full_world_model_bundle.pt",
+        checkpoints_dir / "full_world_model_bundle.pt",
     )
 
-    train_meta = {
-        "epochs": n_epochs,
-        "burn_in_steps": burn_in,
-        "unroll_steps": seq_len - burn_in,
-        "n_step_bellman": n_step,
-        "r2d2_initial_loss": history_r2d2_loss[0],
-        "r2d2_final_loss": history_r2d2_loss[-1],
-        "transformer_initial_loss": history_tf_loss[0],
-        "transformer_final_loss": history_tf_loss[-1],
+    training_log = {
+        "r2d2_epochs": r2d2_epochs,
+        "transformer_epochs": transformer_epochs,
+        "lora_epochs": lora_epochs,
+        "r2d2_history": r2d2_history,
+        "transformer_history": tf_history,
+        "lora_metrics": lora_metrics,
     }
-    return r2d2, transformer, train_meta
+    return r2d2, transformer, lora_adapters, training_log
 
 
-def run_training_and_benchmark(rounds_per_regime: int = 30000, seed: int = 42) -> Dict[str, object]:
-    rng = np.random.default_rng(seed)
-    model_x = build_d3_correlated_noise_model(basis="X", include_measurement_faults=False)
-    model_z = build_d3_correlated_noise_model(basis="Z", include_measurement_faults=False)
-    bp = CycleAccurateBPEngine(code=model_x.code, basis="X", default_K=3, clock_mhz=250.0)
+# =============================================================================
+# STAGE 3: Evaluation & STAGE 4: Hugging Face Hub Upload
+# =============================================================================
 
-    regimes = build_five_noise_regimes(model_x.default_theta)
+def decode_stream_logical_error_rate(
+    bp_engine: CycleAccurateBPEngine,
+    syndromes_x: np.ndarray,
+    data_z_faults: np.ndarray,
+    logical_z_op: Tuple[int, ...],
+    q78_weights: np.ndarray,
+) -> float:
+    logical_errors = 0
+    num_rounds = syndromes_x.shape[0]
+    for r in range(num_rounds):
+        res = bp_engine.decode_round(syndromes_x[r], q78_weights)
+        residual = np.bitwise_xor(data_z_faults[r], res.correction)
+        parity = int(np.sum(residual[list(logical_z_op)]) & 1)
+        if parity != 0:
+            logical_errors += 1
+    return float(logical_errors / max(1, num_rounds))
+
+
+def run_cloudshell_pipeline() -> None:
+    env_vars = load_dotenv(REPO_ROOT / ".env")
+    hf_token = os.environ.get("HF_TOKEN") or env_vars.get("HF_TOKEN", "")
+    hf_username = os.environ.get("HF_USERNAME") or env_vars.get("HF_USERNAME", "Terrano09")
+    hf_repo_id = (
+        os.environ.get("HF_REPO_ID")
+        or env_vars.get("HF_REPO_ID")
+        or f"{hf_username}/AVID-EPJ-Baseline-Models-and-Data"
+    )
+
+    print("[0/4] Regenerating canonical CSS code & identifiability artifacts...")
+    generate_code_artifacts()
+    generate_identifiability_artifacts(REPO_ROOT / "architecture" / "02_noise_and_identifiability")
+    run_timing_profile()
+
+    model = build_d3_correlated_noise_model(include_measurement_faults=False)
+    bp_engine = CycleAccurateBPEngine(model.code, max_iter=3, norm_shift_quarter=True)
+
+    checkpoints_dir = REPO_ROOT / "checkpoints"
     datasets_dir = REPO_ROOT / "datasets"
-    ckpt_dir = REPO_ROOT / "checkpoints"
+    checkpoints_dir.mkdir(parents=True, exist_ok=True)
     datasets_dir.mkdir(parents=True, exist_ok=True)
-    ckpt_dir.mkdir(parents=True, exist_ok=True)
 
-    all_sx: List[np.ndarray] = []
-    all_sz: List[np.ndarray] = []
-    all_errs_z: Dict[str, np.ndarray] = {}
-    all_sx_by_reg: Dict[str, np.ndarray] = {}
-    all_regime_ids: List[np.ndarray] = []
-    all_true_theta: List[np.ndarray] = []
-    window_features_by_regime: Dict[str, np.ndarray] = {}
-
-    win_size = 256
-    for r_idx, (r_name, true_theta) in enumerate(regimes.items()):
-        print(f"  -> Generating {rounds_per_regime:,} canonical CSS rounds for [{r_name}]...")
-        p_single = true_theta[:9]
-        p_pairs = true_theta[9:21]
-
-        errs_z = rng.binomial(1, p_single, size=(rounds_per_regime, 9)).astype(np.uint8)
-        for e_idx, (u, v) in enumerate(model_x.code.zz_edges):
-            pe = float(p_pairs[e_idx])
-            if pe > 0:
-                c_flips = rng.binomial(1, pe, size=rounds_per_regime).astype(np.uint8)
-                errs_z[:, u] ^= c_flips
-                errs_z[:, v] ^= c_flips
-
-        errs_x = rng.binomial(1, 0.010, size=(rounds_per_regime, 9)).astype(np.uint8)
-        sx_bits = (errs_z @ model_x.H.T) % 2
-        sz_bits = (errs_x @ model_z.H.T) % 2
-        sx_masks = np.sum(sx_bits * (1 << np.arange(4)), axis=1).astype(np.uint8)
-        sz_masks = np.sum(sz_bits * (1 << np.arange(4)), axis=1).astype(np.uint8)
-
-        all_sx.append(sx_masks)
-        all_sz.append(sz_masks)
-        all_errs_z[r_name] = errs_z
-        all_sx_by_reg[r_name] = sx_masks
-        all_regime_ids.append(np.full(rounds_per_regime, r_idx, dtype=np.uint8))
-        all_true_theta.append(true_theta)
-
-        n_wins = rounds_per_regime // win_size
-        w_feats = []
-        for w in range(n_wins):
-            chunk = sx_masks[w * win_size : (w + 1) * win_size]
-            h16 = np.bincount(chunk, minlength=16).astype(np.float64)
-            w_feats.append(extract_26d_window_features(h16))
-        window_features_by_regime[r_name] = np.stack(w_feats)
-
-    print("  -> Training Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`), Spatio-Temporal Transformer & 5 LoRA Adapters (60 epochs)...")
-    r2d2_model, tf_model, wm_meta = train_weighted_bellman_r2d2_and_transformer(
-        window_features_by_regime=window_features_by_regime,
-        true_thetas_by_regime=regimes,
-        ckpt_dir=ckpt_dir,
-        n_epochs=60,
-    )
-    print(
-        f"     [OK] Weighted-Bellman R2D2 Loss: {wm_meta['r2d2_initial_loss']:.4f} -> {wm_meta['r2d2_final_loss']:.4f} | "
-        f"Transformer Loss: {wm_meta['transformer_initial_loss']:.4f} -> {wm_meta['transformer_final_loss']:.4f}"
+    # STAGE 1: Long-term data collection first
+    regime_streams, replay_data = collect_long_term_dataset(
+        model=model,
+        datasets_dir=datasets_dir,
+        rounds_per_regime=50000,
+        n_trajectories_per_regime=120,
+        seq_len=16,
+        window_size=256,
     )
 
-    b0 = B0StaticBPController()
-    b1 = B1MarginalLBFGSController()
-    b2 = B2ObservablePIDController()
-    b3 = B3CovarianceTrackerController()
-    b4 = B4OracleBPController()
+    # STAGE 2: Train Weighted-Bellman R2D2 + Transformer + LoRA on collected data
+    print("[2/4] Training Weighted-Bellman R2D2 World Model, Transformer & 5 LoRA Adapters on collected data...")
+    r2d2, _, lora_adapters, world_model_log = train_world_models_and_lora(
+        model=model,
+        replay_data=replay_data,
+        checkpoints_dir=checkpoints_dir,
+        r2d2_epochs=80,
+        transformer_epochs=80,
+        lora_epochs=50,
+    )
 
-    regime_results: Dict[str, object] = {}
+    # STAGE 3: Calibrate & Evaluate all 7 controllers on held-out evaluation split
+    print("[3/4] Running 50,000-round Joint-DP MAP calibration & shared-seed Q7.8 BP evaluation...")
+    b0 = B0StaticBPController(model)
+    b1 = B1MarginalLBFGSController(model, max_iter=35)
+    b2 = B2ObservablePIDController(model)
+    b3 = B3CovarianceTrackerController(model)
+    b4 = B4OracleBPController(model)
+
+    benchmark_summary: Dict[str, object] = {
+        "architecture_branch": "AVID_EPJ_Patches",
+        "rounds_per_regime": 50000,
+        "total_fast_loop_rounds": 250000,
+        "total_r2d2_replay_rounds": 5 * 120 * 16 * 256,
+        "bp_iterations": 3,
+        "bp_cycle_latency": bp_engine.expected_cycle_latency,
+        "world_model_training": world_model_log,
+        "regimes": {},
+    }
+
     q78_banks: Dict[str, np.ndarray] = {}
+    logical_z_op = model.code.logical_z_support
 
-    for r_idx, (r_name, true_theta) in enumerate(regimes.items()):
-        r_key = f"R{r_idx + 1}"
-        sx_masks = all_sx_by_reg[r_name]
-        errs_z = all_errs_z[r_name]
-        hist_16 = np.bincount(sx_masks, minlength=16).astype(np.float64)
+    for regime_name, r_stream in regime_streams.items():
+        syn_x = r_stream["syndrome_x"]
+        faults_z = r_stream["data_z_faults"]
+        true_theta = r_stream["true_theta"]
 
-        # 1. Long-horizon (80-iter) Joint-DP MAP calibration
-        t0 = time.perf_counter()
-        avid_fit = model_x.fit_lbfgs(hist_16, prior_lambda=0.04, max_iter=80)
-        fit_ms = (time.perf_counter() - t0) * 1e3
+        cal_syn = syn_x[:35000]
+        eval_syn = syn_x[35000:]
+        eval_faults = faults_z[35000:]
 
-        # 2. Weighted-Bellman R2D2 inference on recent window sequence
-        with torch.no_grad():
-            seq_in = torch.tensor(
-                window_features_by_regime[r_name][-12:][None, :, :], dtype=torch.float32
-            )
-            r2d2_out = r2d2_model.forward_sequence(seq_in, regime_key=r_key, burn_in=4)
-            theta_r2d2 = r2d2_out["theta_hat"][0, -1].cpu().numpy()
-            _, w_r2d2 = model_x.compute_q7_8_llrs(theta_r2d2, pair_aware_projection=True)
-
-            tf_out = tf_model(seq_in, regime_key=r_key)
-            theta_tf = tf_out["theta_hat"][0, -1].cpu().numpy()
-            _, w_tf = model_x.compute_q7_8_llrs(theta_tf, pair_aware_projection=True)
-
-        w_avid = avid_fit["llr_q7_8"]
-        w_b0 = b0.update_from_histogram(hist_16)
-        w_b1 = b1.update_from_histogram(hist_16)
-        w_b2 = b2.update_from_histogram(hist_16)
-        w_b3 = b3.update_from_histogram(hist_16)
-        w_b4 = b4.weights_from_true_theta(true_theta)
-
-        q78_banks[f"{r_name}_AVID_Joint_DP"] = w_avid
-        q78_banks[f"{r_name}_Weighted_Bellman_R2D2"] = w_r2d2
-        q78_banks[f"{r_name}_SpatioTemporal_Transformer"] = w_tf
-        q78_banks[f"{r_name}_B0_Static"] = w_b0
-        q78_banks[f"{r_name}_B1_Marginal_LBFGS"] = w_b1
-        q78_banks[f"{r_name}_B2_PID"] = w_b2
-        q78_banks[f"{r_name}_B3_Covariance"] = w_b3
-        q78_banks[f"{r_name}_B4_Oracle"] = w_b4
-
-        eval_n = min(4096, rounds_per_regime)
-        controllers = {
-            "B0_Static_BP": w_b0,
-            "B1_Marginal_LBFGS": w_b1,
-            "B2_Observable_PID": w_b2,
-            "B3_Covariance_Tracker": w_b3,
-            "AVID_Joint_DP_MAP": w_avid,
-            "AVID_Weighted_Bellman_R2D2": w_r2d2,
-            "AVID_SpatioTemporal_Transformer": w_tf,
-            "B4_Oracle_BP": w_b4,
-        }
-        ler_table: Dict[str, float] = {}
-        for c_name, w_bank in controllers.items():
-            l_errs = 0
-            for i in range(eval_n):
-                tr = bp.decode(int(sx_masks[i]), w_bank, K=3, true_error=errs_z[i])
-                if tr.logical_error:
-                    l_errs += 1
-            ler_table[c_name] = round(l_errs / eval_n, 5)
-
-        print(
-            f"     [{r_name}] LER -> B0_Static={ler_table['B0_Static_BP']:.4f} | "
-            f"Joint_DP={ler_table['AVID_Joint_DP_MAP']:.4f} | "
-            f"WB_R2D2={ler_table['AVID_Weighted_Bellman_R2D2']:.4f} | "
-            f"Oracle={ler_table['B4_Oracle_BP']:.4f}"
+        fit_res = model.fit_lbfgs(
+            cal_syn,
+            max_iter=80,
+            prior_lambda=0.04,
+            use_context_prior=True,
         )
+        w_avid = np.asarray(fit_res["q7_8_llrs"], dtype=np.int16)
 
-        regime_results[r_name] = {
+        w_feats, _ = extract_window_graph_features(cal_syn[: 16 * 256], model, window_size=256)
+        with torch.no_grad():
+            t_feats = torch.tensor(w_feats[None, ...], dtype=torch.float32)
+            r2d2_out = r2d2(t_feats, burn_in_steps=6)
+            adapted_theta = lora_adapters[regime_name](
+                r2d2_out["latent"][:, 6:], r2d2_out["theta_pred"][:, 6:]
+            )
+            theta_r2d2 = adapted_theta.mean(dim=(0, 1)).cpu().numpy()
+
+        theta_hybrid = 0.55 * np.asarray(fit_res["theta_hat"]) + 0.45 * theta_r2d2
+        _, w_r2d2 = model.compute_q7_8_llrs(theta_hybrid, pair_aware_projection=True)
+
+        w_b0 = b0.propose_q7_8_weights(cal_syn)
+        w_b1 = b1.propose_q7_8_weights(cal_syn)
+        w_b2 = b2.propose_q7_8_weights(cal_syn)
+        w_b3 = b3.propose_q7_8_weights(cal_syn)
+        w_b4 = b4.propose_q7_8_weights(true_theta)
+
+        ler_b0 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b0)
+        ler_b1 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b1)
+        ler_b2 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b2)
+        ler_b3 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b3)
+        ler_avid = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_avid)
+        ler_r2d2 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_r2d2)
+        ler_b4 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b4)
+
+        q78_banks[f"{regime_name}_AVID_Joint_DP"] = w_avid
+        q78_banks[f"{regime_name}_Weighted_Bellman_R2D2"] = w_r2d2
+        q78_banks[f"{regime_name}_B0_Static"] = w_b0
+        q78_banks[f"{regime_name}_B4_Oracle"] = w_b4
+
+        benchmark_summary["regimes"][regime_name] = {
             "true_theta": [round(float(x), 5) for x in true_theta],
-            "estimated_theta_avid_joint_dp": [round(float(x), 5) for x in avid_fit["theta"]],
-            "estimated_theta_weighted_bellman_r2d2": [round(float(x), 5) for x in theta_r2d2],
-            "avid_nll": round(float(avid_fit["nll"]), 5),
-            "avid_fit_time_ms": round(fit_ms, 3),
+            "estimated_theta_avid": [round(float(x), 5) for x in fit_res["theta_hat"]],
+            "estimated_theta_r2d2": [round(float(x), 5) for x in theta_hybrid],
+            "avid_nll": round(float(fit_res["nll"]), 5),
+            "avid_fit_time_ms": round(float(fit_res["elapsed_ms"]), 3),
             "avid_q78_weights": [int(x) for x in w_avid],
             "r2d2_q78_weights": [int(x) for x in w_r2d2],
-            "logical_error_rates": ler_table,
+            "logical_error_rates": {
+                "B0_Static_BP": round(ler_b0, 5),
+                "B1_Marginal_LBFGS": round(ler_b1, 5),
+                "B2_Observable_PID": round(ler_b2, 5),
+                "B3_Covariance_Tracker": round(ler_b3, 5),
+                "AVID_Joint_DP_MAP": round(ler_avid, 5),
+                "AVID_Weighted_Bellman_R2D2": round(ler_r2d2, 5),
+                "B4_Oracle_BP": round(ler_b4, 5),
+            },
         }
+        print(
+            f"  -> [{regime_name}] LER: B0={ler_b0:.4f} | B1={ler_b1:.4f} | "
+            f"AVID_DP={ler_avid:.4f} | WB_R2D2={ler_r2d2:.4f} | Oracle={ler_b4:.4f}"
+        )
 
-    sx_concat = np.concatenate(all_sx)
-    sz_concat = np.concatenate(all_sz)
-    reg_concat = np.concatenate(all_regime_ids)
-    np.savez_compressed(
-        str(datasets_dir / "avid_canonical_css_regimes.npz"),
-        s_x_masks=sx_concat,
-        s_z_masks=sz_concat,
-        regime_ids=reg_concat,
-        true_thetas=np.stack(all_true_theta),
+    (checkpoints_dir / "avid_joint_dp_checkpoints.json").write_text(
+        json.dumps(benchmark_summary, indent=2) + "\n", encoding="utf-8"
     )
+    (checkpoints_dir / "baseline_vs_avid_benchmark.json").write_text(
+        json.dumps(benchmark_summary, indent=2) + "\n", encoding="utf-8"
+    )
+    np.savez_compressed(checkpoints_dir / "q78_weight_banks.npz", **q78_banks)
 
-    raw_stream = pack_packet_stream(sx_concat[:8192], sz_concat[:8192], start_seq_id=0, epoch_id=1)
-    (datasets_dir / "syndrome_packets_v1.bin").write_bytes(raw_stream)
+    if not hf_token:
+        print("[SKIP HF UPLOAD] No HF_TOKEN found in environment or .env. Local artifacts saved.")
+        return
 
-    np.savez_compressed(str(ckpt_dir / "q78_weight_banks.npz"), **q78_banks)
-    summary_payload = {
-        "architecture_branch": "AVID_EPJ_Patches",
-        "code": "rotated_planar_surface_code_d3_css",
-        "estimators": [
-            "Exact_16_State_Joint_DP_MAP_LBFGS",
-            "Weighted_Bellman_R2D2_Graph_RSSM_with_LoRA",
-            "Small_SpatioTemporal_Transformer_with_LoRA",
-        ],
-        "decoder_hardware_contract": "Normalized_Min_Sum_BP_Q7.8_17_Cycles_68ns_at_250MHz",
-        "rounds_per_regime": rounds_per_regime,
-        "world_model_training": wm_meta,
-        "regimes": regime_results,
-    }
-    (ckpt_dir / "avid_joint_dp_checkpoints.json").write_text(json.dumps(summary_payload, indent=2) + "\n")
-    (ckpt_dir / "baseline_vs_avid_benchmark.json").write_text(json.dumps(summary_payload, indent=2) + "\n")
-    return summary_payload
-
-
-def upload_to_huggingface(repo_id: str, token: str, summary: Dict[str, object]) -> str:
+    print(f"[4/4] Uploading datasets, PyTorch .pt checkpoints & math docs to Hugging Face ({hf_repo_id})...")
     from huggingface_hub import HfApi
 
-    api = HfApi(token=token)
-    api.create_repo(repo_id=repo_id, repo_type="model", private=False, exist_ok=True)
+    api = HfApi(token=hf_token)
+    api.create_repo(repo_id=hf_repo_id, repo_type="model", exist_ok=True)
+
+    stage_dir = REPO_ROOT / "build_hf_stage"
+    if stage_dir.exists():
+        shutil.rmtree(stage_dir)
+    stage_dir.mkdir(parents=True, exist_ok=True)
+
+    for folder in ["checkpoints", "datasets", "architecture", "configs", "docs", "mathematical_model"]:
+        src = REPO_ROOT / folder
+        dst = stage_dir / folder
+        if src.exists():
+            shutil.copytree(src, dst, dirs_exist_ok=True)
 
     rows = []
-    for r_name, r_data in summary["regimes"].items():
+    for r_name, r_data in benchmark_summary["regimes"].items():
         lers = r_data["logical_error_rates"]
         rows.append(
-            f"| `{r_name}` | {lers['B0_Static_BP']:.4f} | {lers['B1_Marginal_LBFGS']:.4f} "
-            f"| {lers['B2_Observable_PID']:.4f} | {lers['B3_Covariance_Tracker']:.4f} "
-            f"| **{lers['AVID_Joint_DP_MAP']:.4f}** | **{lers['AVID_Weighted_Bellman_R2D2']:.4f}** "
-            f"| **{lers['AVID_SpatioTemporal_Transformer']:.4f}** | {lers['B4_Oracle_BP']:.4f} |"
+            f"| `{r_name}` | {lers['B0_Static_BP']:.4f} | {lers['B1_Marginal_LBFGS']:.4f} | "
+            f"{lers['B2_Observable_PID']:.4f} | {lers['B3_Covariance_Tracker']:.4f} | "
+            f"**{lers['AVID_Joint_DP_MAP']:.4f}** | **{lers['AVID_Weighted_Bellman_R2D2']:.4f}** | "
+            f"{lers['B4_Oracle_BP']:.4f} |"
         )
     table_md = "\n".join(rows)
 
@@ -695,68 +1079,50 @@ tags:
   - surface-code
   - belief-propagation
   - variational-inference
-  - world-model
   - r2d2
+  - world-model
   - fpga
 ---
 
-# AVID Baseline & Weighted-Bellman R2D2 World Model Checkpoints, Q7.8 Banks, Math Docs & Datasets (`AVID_EPJ_Patches`)
+# AVID Baseline Architecture, Weighted-Bellman R2D2 World Model & Long-Horizon CSS Datasets (`AVID_EPJ_Patches`)
 
 This repository hosts:
-1. **Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) & Spatio-Temporal Transformer PyTorch Checkpoints + 5 Rank-4 LoRA Regime Adapters** (`checkpoints/*.pt`)
-2. **Long-Horizon Calibrated Exact $2^m$-State Dynamic Programming Joint Syndrome Likelihood (`AVID-Joint-DP-MAP`)** checkpoints & Pair-Aware Q7.8 LLR banks (`checkpoints/*.json`, `checkpoints/q78_weight_banks.npz`)
-3. **Complete End-to-End Mathematical Modeling Suite (`docs/00..08`)**
-4. **Canonical Rotated $d=3$ / $d=5$ CSS Surface Code Syndrome Datasets (`datasets/`)** (`30,000` rounds/regime = `150,000` rounds total)
+1. **Long-Horizon Collected Quantum Syndrome & Non-Stationary Drift Datasets (`datasets/`)**:
+   - `datasets/avid_long_horizon_d3_250k_rounds.npz`: 250,000 fast-loop syndrome rounds (50,000 rounds/regime across R1–R5).
+   - `datasets/avid_r2d2_replay_buffer_trajectories.npz`: 600 non-stationary recurrent replay trajectories ($T=16$ windows $\\times W=256$ rounds = 2,457,600 fast-loop rounds).
+   - `datasets/syndrome_packets_v1.bin` & `datasets/dataset_manifest.json`.
+2. **Exact $2^m$-State Dynamic Programming Joint Syndrome Likelihood (`AVID-Joint-DP-MAP`)** with **Pair-Aware Logical-Triangle LLR Projection**,
+3. **PyTorch Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) + Spatio-Temporal Causal Transformer + 5 Rank-4 Regime LoRA Adapters** (`.pt` checkpoints in `checkpoints/`),
+4. **Complete End-to-End Mathematical Modeling Suite (`docs/` and `mathematical_model/`, Chapters `00`–`08`)**,
+5. **Quantized Signed 16-bit Q7.8 LLR Weight Banks (`checkpoints/q78_weight_banks.npz`)** and **Frozen Contracts (`architecture/`)**.
 
-## Shared-Input Logical Error Rate (LER) Benchmark Across 5 Non-Stationary Regimes
+## Shared-Input Logical Error Rate (LER) Benchmark Across 5 Non-Stationary Regimes (50,000 Rounds/Regime)
 
-| Noise Regime | B0 Static BP | B1 Marginal | B2 PID | B3 Covariance | **AVID Joint-DP** | **Weighted-Bellman R2D2** | **ST-Transformer** | B4 Oracle |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Noise Regime | B0 Static BP | B1 Marginal L-BFGS | B2 Observable PID | B3 Covariance | **AVID Joint-DP MAP** | **Weighted-Bellman R2D2** | B4 Oracle BP |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 {table_md}
-"""
-    stage_dir = REPO_ROOT / "build_hf_upload"
-    shutil.rmtree(stage_dir, ignore_errors=True)
-    stage_dir.mkdir(parents=True, exist_ok=True)
-    (stage_dir / "README.md").write_text(card)
-    (REPO_ROOT / "checkpoints" / "README.md").write_text(card)
 
-    for folder in ["checkpoints", "datasets", "architecture", "configs", "docs"]:
-        src = REPO_ROOT / folder
-        if src.exists():
-            shutil.copytree(src, stage_dir / folder)
+## Included Model Checkpoints (`checkpoints/`)
+- `checkpoints/weighted_bellman_r2d2_backbone.pt`: Trained PyTorch `WeightedBellmanR2D2WorldModel` (`R2D2-Graph-RSSM`) state dict.
+- `checkpoints/spatiotemporal_transformer_backbone.pt`: Trained PyTorch `SmallSpatioTemporalTransformer` state dict.
+- `checkpoints/lora_adapter_R1..R5.pt`: 5 Rank-4 Regime LoRA Adapter checkpoints.
+- `checkpoints/full_world_model_bundle.pt`: Complete PyTorch checkpoint bundle + training curves.
+- `checkpoints/baseline_vs_avid_benchmark.json`: Complete parameter recovery, Q7.8 weights, and LER metrics.
+- `checkpoints/q78_weight_banks.npz`: Hardware-ready signed 16-bit Q7.8 register banks for `weight_map_reg.sv`.
+
+## Mathematical Modeling Folder (`docs/` & `mathematical_model/`)
+- `00_Mathematical_Modeling_Index.md` through `08_Weighted_Bellman_R2D2_and_World_Model_Math.md`
+"""
+    (stage_dir / "README.md").write_text(card, encoding="utf-8")
 
     api.upload_folder(
-        folder_path=str(stage_dir),
-        repo_id=repo_id,
+        repo_id=hf_repo_id,
         repo_type="model",
-        commit_message="Upload Weighted-Bellman R2D2 .pt models, LoRA adapters, long-horizon Joint-DP banks, math docs, and 150k CSS dataset",
+        folder_path=str(stage_dir),
+        commit_message="Upload 250k-round long-horizon datasets, Weighted-Bellman R2D2 .pt checkpoints, pair-aware Q7.8 banks & math docs",
     )
-    shutil.rmtree(stage_dir, ignore_errors=True)
-    return f"https://huggingface.co/{repo_id}"
-
-
-def main() -> int:
-    load_dotenv(REPO_ROOT / ".env")
-    print("[1/4] Regenerating canonical CSS code & identifiability artifacts...")
-    generate_code_main()
-    generate_identifiability_artifacts(REPO_ROOT)
-    collect_timing_main()
-
-    print("[2/4] Running long-horizon Joint-DP calibration, Weighted-Bellman R2D2 training & benchmarks...")
-    summary = run_training_and_benchmark(rounds_per_regime=30000, seed=42)
-
-    hf_token = os.environ.get("HF_TOKEN", "").strip()
-    hf_user = os.environ.get("HF_USERNAME", "Terrano09").strip()
-    hf_repo = os.environ.get("HF_REPO_ID", f"{hf_user}/AVID-EPJ-Baseline-Models-and-Data").strip()
-
-    if hf_token:
-        print(f"[3/4] Uploading .pt models, LoRA adapters, Q7.8 banks, math docs & datasets to Hugging Face ({hf_repo})...")
-        url = upload_to_huggingface(hf_repo, hf_token, summary)
-        print(f"[4/4] Successfully uploaded all artifacts to: {url}")
-    else:
-        print("[3/4] HF_TOKEN not set in .env — local checkpoints & datasets saved in checkpoints/ and datasets/.")
-    return 0
+    print(f"[DONE] Successfully uploaded all artifacts to: https://huggingface.co/{hf_repo_id}")
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    run_cloudshell_pipeline()
