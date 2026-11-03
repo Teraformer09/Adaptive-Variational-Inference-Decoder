@@ -1,0 +1,949 @@
+{
+  "suite_name": "AVID_Benchmark_Eval_Baseline_V0",
+  "elapsed_sec": 295.943,
+  "benchmarks": {
+    "BM1_MultiSeed_Statistical_Significance": {
+      "benchmark_id": "BM-1",
+      "title": "15-Seed Shared-Input LER & Peak-vs-Full Window Statistical Significance Benchmark",
+      "closes_issues": [
+        "Q07",
+        "Q08",
+        "Q16",
+        "Gate_7"
+      ],
+      "peer_reviewed_references": [
+        "Bausch et al. (Google DeepMind & Google Quantum AI), Nature 635, 834-840 (2024)",
+        "Spitz et al., Adv. Quantum Technol. 1, 1800012 (2018)"
+      ],
+      "n_seeds": 15,
+      "calibration_rounds_per_seed": 10000,
+      "evaluation_rounds_per_seed": 10000,
+      "elapsed_sec": 229.076,
+      "regimes": {
+        "R1_stationary_baseline": {
+          "n_seeds": 15,
+          "full_horizon_mean_ler": {
+            "B0_Static_BP": 0.05216,
+            "B1_Marginal_LBFGS": 0.05216,
+            "B2_Observable_PID": 0.05216,
+            "B3_Covariance_Tracker": 0.05216,
+            "AVID_Joint_DP_MAP": 0.05216,
+            "AVID_Weighted_Bellman_R2D2": 0.05216,
+            "B4_Oracle_BP": 0.05216
+          },
+          "full_horizon_std_ler": {
+            "B0_Static_BP": 0.0015,
+            "AVID_Joint_DP_MAP": 0.0015,
+            "AVID_Weighted_Bellman_R2D2": 0.0015
+          },
+          "peak_burst_window_mean_ler": {
+            "B0_Static_BP": 0.05753,
+            "AVID_Joint_DP_MAP": 0.05753,
+            "AVID_Weighted_Bellman_R2D2": 0.05753,
+            "B4_Oracle_BP": 0.05753
+          },
+          "paired_significance_B0_vs_WB_R2D2": {
+            "mean_ler_reduction": 0.0,
+            "relative_reduction_pct": 0.0,
+            "paired_t_stat": 0.0,
+            "paired_t_pvalue": 1.0,
+            "cohens_d": 0.0,
+            "wilcoxon_signed_rank_stat": 0.0,
+            "wilcoxon_two_sided_pvalue": 1.0
+          }
+        },
+        "R2_tls_hotspot_q4_q5": {
+          "n_seeds": 15,
+          "full_horizon_mean_ler": {
+            "B0_Static_BP": 0.05913,
+            "B1_Marginal_LBFGS": 0.05913,
+            "B2_Observable_PID": 0.05913,
+            "B3_Covariance_Tracker": 0.05913,
+            "AVID_Joint_DP_MAP": 0.06113,
+            "AVID_Weighted_Bellman_R2D2": 0.06113,
+            "B4_Oracle_BP": 0.05913
+          },
+          "full_horizon_std_ler": {
+            "B0_Static_BP": 0.00206,
+            "AVID_Joint_DP_MAP": 0.00222,
+            "AVID_Weighted_Bellman_R2D2": 0.00222
+          },
+          "peak_burst_window_mean_ler": {
+            "B0_Static_BP": 0.06541,
+            "AVID_Joint_DP_MAP": 0.06729,
+            "AVID_Weighted_Bellman_R2D2": 0.06729,
+            "B4_Oracle_BP": 0.06541
+          },
+          "paired_significance_B0_vs_WB_R2D2": {
+            "mean_ler_reduction": -0.00201,
+            "relative_reduction_pct": -3.39,
+            "paired_t_stat": -3.6138,
+            "paired_t_pvalue": 0.0028201,
+            "cohens_d": -0.9331,
+            "wilcoxon_signed_rank_stat": 7.5,
+            "wilcoxon_two_sided_pvalue": 0.0047187
+          }
+        },
+        "R3_zz_crosstalk_burst": {
+          "n_seeds": 15,
+          "full_horizon_mean_ler": {
+            "B0_Static_BP": 0.20963,
+            "B1_Marginal_LBFGS": 0.20963,
+            "B2_Observable_PID": 0.20963,
+            "B3_Covariance_Tracker": 0.20963,
+            "AVID_Joint_DP_MAP": 0.11759,
+            "AVID_Weighted_Bellman_R2D2": 0.11759,
+            "B4_Oracle_BP": 0.11759
+          },
+          "full_horizon_std_ler": {
+            "B0_Static_BP": 0.0046,
+            "AVID_Joint_DP_MAP": 0.00329,
+            "AVID_Weighted_Bellman_R2D2": 0.00329
+          },
+          "peak_burst_window_mean_ler": {
+            "B0_Static_BP": 0.22607,
+            "AVID_Joint_DP_MAP": 0.12792,
+            "AVID_Weighted_Bellman_R2D2": 0.12792,
+            "B4_Oracle_BP": 0.12792
+          },
+          "paired_significance_B0_vs_WB_R2D2": {
+            "mean_ler_reduction": 0.09205,
+            "relative_reduction_pct": 43.91,
+            "paired_t_stat": 97.2789,
+            "paired_t_pvalue": 3.2177e-21,
+            "cohens_d": 25.1173,
+            "wilcoxon_signed_rank_stat": 0.0,
+            "wilcoxon_two_sided_pvalue": 6.1035e-05
+          }
+        },
+        "R4_boundary_drift": {
+          "n_seeds": 15,
+          "full_horizon_mean_ler": {
+            "B0_Static_BP": 0.05889,
+            "B1_Marginal_LBFGS": 0.05889,
+            "B2_Observable_PID": 0.05889,
+            "B3_Covariance_Tracker": 0.05889,
+            "AVID_Joint_DP_MAP": 0.05889,
+            "AVID_Weighted_Bellman_R2D2": 0.05889,
+            "B4_Oracle_BP": 0.05889
+          },
+          "full_horizon_std_ler": {
+            "B0_Static_BP": 0.00194,
+            "AVID_Joint_DP_MAP": 0.00194,
+            "AVID_Weighted_Bellman_R2D2": 0.00194
+          },
+          "peak_burst_window_mean_ler": {
+            "B0_Static_BP": 0.06489,
+            "AVID_Joint_DP_MAP": 0.06489,
+            "AVID_Weighted_Bellman_R2D2": 0.06489,
+            "B4_Oracle_BP": 0.06489
+          },
+          "paired_significance_B0_vs_WB_R2D2": {
+            "mean_ler_reduction": 0.0,
+            "relative_reduction_pct": 0.0,
+            "paired_t_stat": 0.0,
+            "paired_t_pvalue": 1.0,
+            "cohens_d": 0.0,
+            "wilcoxon_signed_rank_stat": 0.0,
+            "wilcoxon_two_sided_pvalue": 1.0
+          }
+        },
+        "R5_combined_stress": {
+          "n_seeds": 15,
+          "full_horizon_mean_ler": {
+            "B0_Static_BP": 0.1074,
+            "B1_Marginal_LBFGS": 0.1074,
+            "B2_Observable_PID": 0.1074,
+            "B3_Covariance_Tracker": 0.1074,
+            "AVID_Joint_DP_MAP": 0.10459,
+            "AVID_Weighted_Bellman_R2D2": 0.06939,
+            "B4_Oracle_BP": 0.06147
+          },
+          "full_horizon_std_ler": {
+            "B0_Static_BP": 0.00159,
+            "AVID_Joint_DP_MAP": 0.01099,
+            "AVID_Weighted_Bellman_R2D2": 0.01606
+          },
+          "peak_burst_window_mean_ler": {
+            "B0_Static_BP": 0.11571,
+            "AVID_Joint_DP_MAP": 0.11268,
+            "AVID_Weighted_Bellman_R2D2": 0.07596,
+            "B4_Oracle_BP": 0.06759
+          },
+          "paired_significance_B0_vs_WB_R2D2": {
+            "mean_ler_reduction": 0.03801,
+            "relative_reduction_pct": 35.39,
+            "paired_t_stat": 9.4352,
+            "paired_t_pvalue": 1.9099e-07,
+            "cohens_d": 2.4362,
+            "wilcoxon_signed_rank_stat": 0.0,
+            "wilcoxon_two_sided_pvalue": 0.0014688
+          }
+        }
+      }
+    },
+    "BM2_Architectural_and_Loss_Ablation": {
+      "benchmark_id": "BM-2",
+      "title": "7-Stage Architectural & Loss Component Ablation Benchmark",
+      "closes_issues": [
+        "Q03",
+        "Q04",
+        "Q05",
+        "Q14",
+        "Q15"
+      ],
+      "peer_reviewed_references": [
+        "van den Berg et al. (IBM Quantum), Nature Physics 19, 1116-1121 (2023)",
+        "Wagner et al., Quantum 6, 809 (2022)"
+      ],
+      "elapsed_sec": 4.545,
+      "regimes": {
+        "R3_zz_crosstalk_burst": [
+          {
+            "regime": "R3_zz_crosstalk_burst",
+            "stage_id": "A0_Static_BP_B0",
+            "description": "Static uniform prior (no adaptation)",
+            "param_rmse": 0.02303,
+            "syndrome_dist_rmse": 0.04134,
+            "syndrome_kl_divergence": 0.09654,
+            "decoded_ler": 0.1934
+          },
+          {
+            "regime": "R3_zz_crosstalk_burst",
+            "stage_id": "A1_Legacy_Marginal_4Check_B1",
+            "description": "4-check marginal Bernoulli L-BFGS (rank 4)",
+            "param_rmse": 0.02262,
+            "syndrome_dist_rmse": 0.03594,
+            "syndrome_kl_divergence": 0.0789,
+            "decoded_ler": 0.1934
+          },
+          {
+            "regime": "R3_zz_crosstalk_burst",
+            "stage_id": "A2_Joint_DP_No_Pair_Projection",
+            "description": "16-state Joint-DP L-BFGS + standard XOR marginalization",
+            "param_rmse": 0.00395,
+            "syndrome_dist_rmse": 0.00146,
+            "syndrome_kl_divergence": 0.00017,
+            "decoded_ler": 0.1934
+          },
+          {
+            "regime": "R3_zz_crosstalk_burst",
+            "stage_id": "A3_AVID_Joint_DP_Pair_Aware",
+            "description": "16-state Joint-DP L-BFGS + Pair-Aware Triangle LLR Projection",
+            "param_rmse": 0.00395,
+            "syndrome_dist_rmse": 0.00146,
+            "syndrome_kl_divergence": 0.00017,
+            "decoded_ler": 0.1069
+          },
+          {
+            "regime": "R3_zz_crosstalk_burst",
+            "stage_id": "A4_R2D2_Unweighted_No_BurnIn",
+            "description": "R2D2-Graph-RSSM without Weighted-Bellman / Burn-In",
+            "param_rmse": 0.00807,
+            "syndrome_dist_rmse": 0.0145,
+            "syndrome_kl_divergence": 0.00708,
+            "decoded_ler": 0.1069
+          },
+          {
+            "regime": "R3_zz_crosstalk_burst",
+            "stage_id": "A5_Weighted_Bellman_R2D2_No_LoRA",
+            "description": "Weighted-Bellman R2D2 (T_burn=6 + L_WB-R2D2, no LoRA)",
+            "param_rmse": 0.00289,
+            "syndrome_dist_rmse": 0.00086,
+            "syndrome_kl_divergence": 0.00035,
+            "decoded_ler": 0.1069
+          },
+          {
+            "regime": "R3_zz_crosstalk_burst",
+            "stage_id": "A6_Full_WB_R2D2_plus_Rank4_LoRA",
+            "description": "Full Weighted-Bellman R2D2 + Rank-4 LoRA + Pair-Aware LLR",
+            "param_rmse": 0.00247,
+            "syndrome_dist_rmse": 0.00176,
+            "syndrome_kl_divergence": 0.00059,
+            "decoded_ler": 0.1069
+          },
+          {
+            "regime": "R3_zz_crosstalk_burst",
+            "stage_id": "A7_Oracle_BP_B4",
+            "description": "Instantaneous ground-truth parameter Oracle lower bound",
+            "param_rmse": 0.0,
+            "syndrome_dist_rmse": 0.0,
+            "syndrome_kl_divergence": 0.00035,
+            "decoded_ler": 0.1069
+          }
+        ],
+        "R5_combined_stress": [
+          {
+            "regime": "R5_combined_stress",
+            "stage_id": "A0_Static_BP_B0",
+            "description": "Static uniform prior (no adaptation)",
+            "param_rmse": 0.0293,
+            "syndrome_dist_rmse": 0.05496,
+            "syndrome_kl_divergence": 0.20829,
+            "decoded_ler": 0.1023
+          },
+          {
+            "regime": "R5_combined_stress",
+            "stage_id": "A1_Legacy_Marginal_4Check_B1",
+            "description": "4-check marginal Bernoulli L-BFGS (rank 4)",
+            "param_rmse": 0.02868,
+            "syndrome_dist_rmse": 0.04937,
+            "syndrome_kl_divergence": 0.17762,
+            "decoded_ler": 0.1023
+          },
+          {
+            "regime": "R5_combined_stress",
+            "stage_id": "A2_Joint_DP_No_Pair_Projection",
+            "description": "16-state Joint-DP L-BFGS + standard XOR marginalization",
+            "param_rmse": 0.01589,
+            "syndrome_dist_rmse": 0.00066,
+            "syndrome_kl_divergence": 0.00017,
+            "decoded_ler": 0.1023
+          },
+          {
+            "regime": "R5_combined_stress",
+            "stage_id": "A3_AVID_Joint_DP_Pair_Aware",
+            "description": "16-state Joint-DP L-BFGS + Pair-Aware Triangle LLR Projection",
+            "param_rmse": 0.01589,
+            "syndrome_dist_rmse": 0.00066,
+            "syndrome_kl_divergence": 0.00017,
+            "decoded_ler": 0.1023
+          },
+          {
+            "regime": "R5_combined_stress",
+            "stage_id": "A4_R2D2_Unweighted_No_BurnIn",
+            "description": "R2D2-Graph-RSSM without Weighted-Bellman / Burn-In",
+            "param_rmse": 0.01806,
+            "syndrome_dist_rmse": 0.01797,
+            "syndrome_kl_divergence": 0.01249,
+            "decoded_ler": 0.1023
+          },
+          {
+            "regime": "R5_combined_stress",
+            "stage_id": "A5_Weighted_Bellman_R2D2_No_LoRA",
+            "description": "Weighted-Bellman R2D2 (T_burn=6 + L_WB-R2D2, no LoRA)",
+            "param_rmse": 0.01042,
+            "syndrome_dist_rmse": 0.00032,
+            "syndrome_kl_divergence": 0.00023,
+            "decoded_ler": 0.0608
+          },
+          {
+            "regime": "R5_combined_stress",
+            "stage_id": "A6_Full_WB_R2D2_plus_Rank4_LoRA",
+            "description": "Full Weighted-Bellman R2D2 + Rank-4 LoRA + Pair-Aware LLR",
+            "param_rmse": 0.0075,
+            "syndrome_dist_rmse": 0.00048,
+            "syndrome_kl_divergence": 0.00031,
+            "decoded_ler": 0.0608
+          },
+          {
+            "regime": "R5_combined_stress",
+            "stage_id": "A7_Oracle_BP_B4",
+            "description": "Instantaneous ground-truth parameter Oracle lower bound",
+            "param_rmse": 0.0,
+            "syndrome_dist_rmse": 0.0,
+            "syndrome_kl_divergence": 0.00021,
+            "decoded_ler": 0.0593
+          }
+        ]
+      }
+    },
+    "BM3_Distance_Scaling_and_Noisy_Readout": {
+      "benchmark_id": "BM-3",
+      "title": "Code Distance Scaling (d=3 vs d=5, Lambda_{3->5}) & 25-Parameter Noisy-Readout Benchmark",
+      "closes_issues": [
+        "Q02",
+        "Q17",
+        "Q19"
+      ],
+      "peer_reviewed_references": [
+        "Google Quantum AI and Collaborators (Willow Processor), Nature 638, 920-926 (2025)",
+        "Roffe et al., Phys. Rev. Research 2, 043423 (2020)"
+      ],
+      "elapsed_sec": 10.164,
+      "distance_scaling_d3_vs_d5": [
+        {
+          "physical_error_rate_p": 0.005,
+          "d3_static_ler": 0.01067,
+          "d3_avid_adaptive_ler": 0.00833,
+          "d5_static_ler": 0.021,
+          "d5_avid_adaptive_ler": 0.015,
+          "lambda_3_to_5_static": 0.508,
+          "lambda_3_to_5_avid_adaptive": 0.556
+        },
+        {
+          "physical_error_rate_p": 0.01,
+          "d3_static_ler": 0.01967,
+          "d3_avid_adaptive_ler": 0.015,
+          "d5_static_ler": 0.05633,
+          "d5_avid_adaptive_ler": 0.04467,
+          "lambda_3_to_5_static": 0.349,
+          "lambda_3_to_5_avid_adaptive": 0.336
+        },
+        {
+          "physical_error_rate_p": 0.015,
+          "d3_static_ler": 0.03267,
+          "d3_avid_adaptive_ler": 0.03533,
+          "d5_static_ler": 0.075,
+          "d5_avid_adaptive_ler": 0.06467,
+          "lambda_3_to_5_static": 0.436,
+          "lambda_3_to_5_avid_adaptive": 0.546
+        },
+        {
+          "physical_error_rate_p": 0.02,
+          "d3_static_ler": 0.04533,
+          "d3_avid_adaptive_ler": 0.03867,
+          "d5_static_ler": 0.09433,
+          "d5_avid_adaptive_ler": 0.078,
+          "lambda_3_to_5_static": 0.481,
+          "lambda_3_to_5_avid_adaptive": 0.496
+        },
+        {
+          "physical_error_rate_p": 0.025,
+          "d3_static_ler": 0.058,
+          "d3_avid_adaptive_ler": 0.049,
+          "d5_static_ler": 0.11933,
+          "d5_avid_adaptive_ler": 0.09367,
+          "lambda_3_to_5_static": 0.486,
+          "lambda_3_to_5_avid_adaptive": 0.523
+        },
+        {
+          "physical_error_rate_p": 0.03,
+          "d3_static_ler": 0.06667,
+          "d3_avid_adaptive_ler": 0.07033,
+          "d5_static_ler": 0.12633,
+          "d5_avid_adaptive_ler": 0.10167,
+          "lambda_3_to_5_static": 0.528,
+          "lambda_3_to_5_avid_adaptive": 0.692
+        }
+      ],
+      "noisy_readout_25_parameter_evaluation": [
+        {
+          "injected_p_meas": 0.0,
+          "estimated_mean_p_meas": 0.00114,
+          "estimated_hotspot_q4": 0.07979,
+          "estimated_zz_4_5": 0.05552,
+          "fit_nll": 1.12435,
+          "parameter_rmse_25": 0.01017
+        },
+        {
+          "injected_p_meas": 0.003,
+          "estimated_mean_p_meas": 0.00123,
+          "estimated_hotspot_q4": 0.07955,
+          "estimated_zz_4_5": 0.06054,
+          "fit_nll": 1.14063,
+          "parameter_rmse_25": 0.01087
+        },
+        {
+          "injected_p_meas": 0.008,
+          "estimated_mean_p_meas": 0.00244,
+          "estimated_hotspot_q4": 0.07819,
+          "estimated_zz_4_5": 0.06199,
+          "fit_nll": 1.22135,
+          "parameter_rmse_25": 0.01249
+        },
+        {
+          "injected_p_meas": 0.015,
+          "estimated_mean_p_meas": 0.00379,
+          "estimated_hotspot_q4": 0.07998,
+          "estimated_zz_4_5": 0.06061,
+          "fit_nll": 1.26938,
+          "parameter_rmse_25": 0.01306
+        }
+      ]
+    },
+    "BM4_Window_Complexity_and_Causal_Regret": {
+      "benchmark_id": "BM-4",
+      "title": "Window-Size Sample Complexity (W) & Causal Timescale / Dynamic Regret Benchmark",
+      "closes_issues": [
+        "Q01",
+        "Q09",
+        "Q11",
+        "SF4",
+        "SF6"
+      ],
+      "peer_reviewed_references": [
+        "Harper, Flammia, & Wallman, Nature Physics 16, 1184-1188 (2020)",
+        "Wagner et al., Quantum 6, 809 (2022)"
+      ],
+      "elapsed_sec": 1.724,
+      "window_scaling_table": [
+        {
+          "window_rounds_W": 64,
+          "window_duration_us_at_1MHz": 64.0,
+          "syndrome_dist_rmse": 0.017908,
+          "theoretical_cramer_rao_inv_sqrt_W": 0.0225,
+          "parameter_rmse": 0.01585,
+          "mean_lbfgs_fit_us": 25133.36,
+          "causal_commit_round_t_commit": 25203,
+          "instantaneous_nll_regret": 0.0
+        },
+        {
+          "window_rounds_W": 128,
+          "window_duration_us_at_1MHz": 128.0,
+          "syndrome_dist_rmse": 0.018853,
+          "theoretical_cramer_rao_inv_sqrt_W": 0.01591,
+          "parameter_rmse": 0.01038,
+          "mean_lbfgs_fit_us": 25434.55,
+          "causal_commit_round_t_commit": 25568,
+          "instantaneous_nll_regret": 0.0
+        },
+        {
+          "window_rounds_W": 256,
+          "window_duration_us_at_1MHz": 256.0,
+          "syndrome_dist_rmse": 0.012171,
+          "theoretical_cramer_rao_inv_sqrt_W": 0.01125,
+          "parameter_rmse": 0.01168,
+          "mean_lbfgs_fit_us": 25091.56,
+          "causal_commit_round_t_commit": 25353,
+          "instantaneous_nll_regret": 0.0
+        },
+        {
+          "window_rounds_W": 512,
+          "window_duration_us_at_1MHz": 512.0,
+          "syndrome_dist_rmse": 0.00675,
+          "theoretical_cramer_rao_inv_sqrt_W": 0.007955,
+          "parameter_rmse": 0.00607,
+          "mean_lbfgs_fit_us": 23886.63,
+          "causal_commit_round_t_commit": 24404,
+          "instantaneous_nll_regret": 0.0
+        },
+        {
+          "window_rounds_W": 1024,
+          "window_duration_us_at_1MHz": 1024.0,
+          "syndrome_dist_rmse": 0.004216,
+          "theoretical_cramer_rao_inv_sqrt_W": 0.005625,
+          "parameter_rmse": 0.00676,
+          "mean_lbfgs_fit_us": 23500.53,
+          "causal_commit_round_t_commit": 24530,
+          "instantaneous_nll_regret": 0.0
+        },
+        {
+          "window_rounds_W": 2048,
+          "window_duration_us_at_1MHz": 2048.0,
+          "syndrome_dist_rmse": 0.004018,
+          "theoretical_cramer_rao_inv_sqrt_W": 0.003977,
+          "parameter_rmse": 0.00627,
+          "mean_lbfgs_fit_us": 23703.61,
+          "causal_commit_round_t_commit": 25757,
+          "instantaneous_nll_regret": 0.0
+        },
+        {
+          "window_rounds_W": 4096,
+          "window_duration_us_at_1MHz": 4096.0,
+          "syndrome_dist_rmse": 0.001859,
+          "theoretical_cramer_rao_inv_sqrt_W": 0.002812,
+          "parameter_rmse": 0.00612,
+          "mean_lbfgs_fit_us": 32410.76,
+          "causal_commit_round_t_commit": 36512,
+          "instantaneous_nll_regret": 0.0
+        },
+        {
+          "window_rounds_W": 10000,
+          "window_duration_us_at_1MHz": 10000.0,
+          "syndrome_dist_rmse": 0.002227,
+          "theoretical_cramer_rao_inv_sqrt_W": 0.0018,
+          "parameter_rmse": 0.00938,
+          "mean_lbfgs_fit_us": 23231.19,
+          "causal_commit_round_t_commit": 33237,
+          "instantaneous_nll_regret": 0.0
+        }
+      ],
+      "dynamic_regret_summary": {
+        "total_epochs_T": 40,
+        "total_path_variation_V_T": 0.41592,
+        "final_cumulative_regret_avid": 0.34616,
+        "final_cumulative_regret_static": 3.45075,
+        "regret_reduction_factor": 9.97,
+        "trajectory": [
+          {
+            "epoch": 1,
+            "path_variation_V_t": 0.00653,
+            "cumulative_regret_avid": 0.0005,
+            "cumulative_regret_static": 0.0005,
+            "average_regret_avid_R_t_over_t": 0.000498
+          },
+          {
+            "epoch": 2,
+            "path_variation_V_t": 0.01595,
+            "cumulative_regret_avid": 0.00415,
+            "cumulative_regret_static": 0.00108,
+            "average_regret_avid_R_t_over_t": 0.002076
+          },
+          {
+            "epoch": 3,
+            "path_variation_V_t": 0.0226,
+            "cumulative_regret_avid": 0.00759,
+            "cumulative_regret_static": 0.00233,
+            "average_regret_avid_R_t_over_t": 0.002529
+          },
+          {
+            "epoch": 4,
+            "path_variation_V_t": 0.02886,
+            "cumulative_regret_avid": 0.01919,
+            "cumulative_regret_static": 0.00464,
+            "average_regret_avid_R_t_over_t": 0.004797
+          },
+          {
+            "epoch": 5,
+            "path_variation_V_t": 0.03802,
+            "cumulative_regret_avid": 0.02693,
+            "cumulative_regret_static": 0.00884,
+            "average_regret_avid_R_t_over_t": 0.005386
+          },
+          {
+            "epoch": 6,
+            "path_variation_V_t": 0.04668,
+            "cumulative_regret_avid": 0.0299,
+            "cumulative_regret_static": 0.01624,
+            "average_regret_avid_R_t_over_t": 0.004983
+          },
+          {
+            "epoch": 7,
+            "path_variation_V_t": 0.0541,
+            "cumulative_regret_avid": 0.03547,
+            "cumulative_regret_static": 0.02315,
+            "average_regret_avid_R_t_over_t": 0.005067
+          },
+          {
+            "epoch": 8,
+            "path_variation_V_t": 0.06175,
+            "cumulative_regret_avid": 0.03924,
+            "cumulative_regret_static": 0.03302,
+            "average_regret_avid_R_t_over_t": 0.004906
+          },
+          {
+            "epoch": 9,
+            "path_variation_V_t": 0.07111,
+            "cumulative_regret_avid": 0.0427,
+            "cumulative_regret_static": 0.04039,
+            "average_regret_avid_R_t_over_t": 0.004745
+          },
+          {
+            "epoch": 10,
+            "path_variation_V_t": 0.07822,
+            "cumulative_regret_avid": 0.04851,
+            "cumulative_regret_static": 0.04661,
+            "average_regret_avid_R_t_over_t": 0.004851
+          },
+          {
+            "epoch": 11,
+            "path_variation_V_t": 0.08508,
+            "cumulative_regret_avid": 0.05311,
+            "cumulative_regret_static": 0.05326,
+            "average_regret_avid_R_t_over_t": 0.004828
+          },
+          {
+            "epoch": 12,
+            "path_variation_V_t": 0.09451,
+            "cumulative_regret_avid": 0.05863,
+            "cumulative_regret_static": 0.06319,
+            "average_regret_avid_R_t_over_t": 0.004886
+          },
+          {
+            "epoch": 13,
+            "path_variation_V_t": 0.10296,
+            "cumulative_regret_avid": 0.06031,
+            "cumulative_regret_static": 0.07776,
+            "average_regret_avid_R_t_over_t": 0.004639
+          },
+          {
+            "epoch": 14,
+            "path_variation_V_t": 0.11182,
+            "cumulative_regret_avid": 0.0668,
+            "cumulative_regret_static": 0.09457,
+            "average_regret_avid_R_t_over_t": 0.004771
+          },
+          {
+            "epoch": 15,
+            "path_variation_V_t": 0.21712,
+            "cumulative_regret_avid": 0.20673,
+            "cumulative_regret_static": 0.21172,
+            "average_regret_avid_R_t_over_t": 0.013782
+          },
+          {
+            "epoch": 16,
+            "path_variation_V_t": 0.22358,
+            "cumulative_regret_avid": 0.21456,
+            "cumulative_regret_static": 0.33147,
+            "average_regret_avid_R_t_over_t": 0.01341
+          },
+          {
+            "epoch": 17,
+            "path_variation_V_t": 0.23129,
+            "cumulative_regret_avid": 0.22205,
+            "cumulative_regret_static": 0.45565,
+            "average_regret_avid_R_t_over_t": 0.013062
+          },
+          {
+            "epoch": 18,
+            "path_variation_V_t": 0.23873,
+            "cumulative_regret_avid": 0.22438,
+            "cumulative_regret_static": 0.58049,
+            "average_regret_avid_R_t_over_t": 0.012465
+          },
+          {
+            "epoch": 19,
+            "path_variation_V_t": 0.24804,
+            "cumulative_regret_avid": 0.22654,
+            "cumulative_regret_static": 0.70059,
+            "average_regret_avid_R_t_over_t": 0.011923
+          },
+          {
+            "epoch": 20,
+            "path_variation_V_t": 0.25544,
+            "cumulative_regret_avid": 0.23103,
+            "cumulative_regret_static": 0.81949,
+            "average_regret_avid_R_t_over_t": 0.011552
+          },
+          {
+            "epoch": 21,
+            "path_variation_V_t": 0.26531,
+            "cumulative_regret_avid": 0.2356,
+            "cumulative_regret_static": 0.94231,
+            "average_regret_avid_R_t_over_t": 0.011219
+          },
+          {
+            "epoch": 22,
+            "path_variation_V_t": 0.27338,
+            "cumulative_regret_avid": 0.24168,
+            "cumulative_regret_static": 1.05819,
+            "average_regret_avid_R_t_over_t": 0.010986
+          },
+          {
+            "epoch": 23,
+            "path_variation_V_t": 0.27975,
+            "cumulative_regret_avid": 0.24653,
+            "cumulative_regret_static": 1.17882,
+            "average_regret_avid_R_t_over_t": 0.010719
+          },
+          {
+            "epoch": 24,
+            "path_variation_V_t": 0.28555,
+            "cumulative_regret_avid": 0.25669,
+            "cumulative_regret_static": 1.30402,
+            "average_regret_avid_R_t_over_t": 0.010695
+          },
+          {
+            "epoch": 25,
+            "path_variation_V_t": 0.29467,
+            "cumulative_regret_avid": 0.26144,
+            "cumulative_regret_static": 1.42962,
+            "average_regret_avid_R_t_over_t": 0.010458
+          },
+          {
+            "epoch": 26,
+            "path_variation_V_t": 0.30283,
+            "cumulative_regret_avid": 0.26436,
+            "cumulative_regret_static": 1.55069,
+            "average_regret_avid_R_t_over_t": 0.010168
+          },
+          {
+            "epoch": 27,
+            "path_variation_V_t": 0.31072,
+            "cumulative_regret_avid": 0.26967,
+            "cumulative_regret_static": 1.67213,
+            "average_regret_avid_R_t_over_t": 0.009988
+          },
+          {
+            "epoch": 28,
+            "path_variation_V_t": 0.31886,
+            "cumulative_regret_avid": 0.27292,
+            "cumulative_regret_static": 1.80451,
+            "average_regret_avid_R_t_over_t": 0.009747
+          },
+          {
+            "epoch": 29,
+            "path_variation_V_t": 0.32706,
+            "cumulative_regret_avid": 0.28443,
+            "cumulative_regret_static": 1.93949,
+            "average_regret_avid_R_t_over_t": 0.009808
+          },
+          {
+            "epoch": 30,
+            "path_variation_V_t": 0.33633,
+            "cumulative_regret_avid": 0.29032,
+            "cumulative_regret_static": 2.07381,
+            "average_regret_avid_R_t_over_t": 0.009677
+          },
+          {
+            "epoch": 31,
+            "path_variation_V_t": 0.3462,
+            "cumulative_regret_avid": 0.29897,
+            "cumulative_regret_static": 2.21289,
+            "average_regret_avid_R_t_over_t": 0.009644
+          },
+          {
+            "epoch": 32,
+            "path_variation_V_t": 0.35646,
+            "cumulative_regret_avid": 0.30449,
+            "cumulative_regret_static": 2.35426,
+            "average_regret_avid_R_t_over_t": 0.009515
+          },
+          {
+            "epoch": 33,
+            "path_variation_V_t": 0.36463,
+            "cumulative_regret_avid": 0.31501,
+            "cumulative_regret_static": 2.4978,
+            "average_regret_avid_R_t_over_t": 0.009546
+          },
+          {
+            "epoch": 34,
+            "path_variation_V_t": 0.37344,
+            "cumulative_regret_avid": 0.31869,
+            "cumulative_regret_static": 2.63964,
+            "average_regret_avid_R_t_over_t": 0.009373
+          },
+          {
+            "epoch": 35,
+            "path_variation_V_t": 0.37867,
+            "cumulative_regret_avid": 0.32323,
+            "cumulative_regret_static": 2.77937,
+            "average_regret_avid_R_t_over_t": 0.009235
+          },
+          {
+            "epoch": 36,
+            "path_variation_V_t": 0.38775,
+            "cumulative_regret_avid": 0.32576,
+            "cumulative_regret_static": 2.91739,
+            "average_regret_avid_R_t_over_t": 0.009049
+          },
+          {
+            "epoch": 37,
+            "path_variation_V_t": 0.39594,
+            "cumulative_regret_avid": 0.33227,
+            "cumulative_regret_static": 3.05173,
+            "average_regret_avid_R_t_over_t": 0.00898
+          },
+          {
+            "epoch": 38,
+            "path_variation_V_t": 0.40256,
+            "cumulative_regret_avid": 0.33469,
+            "cumulative_regret_static": 3.18767,
+            "average_regret_avid_R_t_over_t": 0.008808
+          },
+          {
+            "epoch": 39,
+            "path_variation_V_t": 0.40928,
+            "cumulative_regret_avid": 0.34403,
+            "cumulative_regret_static": 3.32158,
+            "average_regret_avid_R_t_over_t": 0.008821
+          },
+          {
+            "epoch": 40,
+            "path_variation_V_t": 0.41592,
+            "cumulative_regret_avid": 0.34616,
+            "cumulative_regret_static": 3.45075,
+            "average_regret_avid_R_t_over_t": 0.008654
+          }
+        ]
+      }
+    },
+    "BM5_Hardware_Latency_WCET_and_Fallback": {
+      "benchmark_id": "BM-5",
+      "title": "Hardware Iteration Latency (K=1..5), ARM WCET, Memory Manifest & Fault-Fallback Benchmark",
+      "closes_issues": [
+        "Q06",
+        "Q10",
+        "Q12",
+        "Q13",
+        "Q18",
+        "Q19",
+        "SF2",
+        "SF10"
+      ],
+      "peer_reviewed_references": [
+        "Barber et al. (Riverlane), Nature Electronics 8, 84-91 (2025)",
+        "Liyanage et al., PRX Quantum / USENIX (2023-2024)"
+      ],
+      "elapsed_sec": 50.391,
+      "fpga_cycle_latency_matrix": [
+        {
+          "iterations_K": 1,
+          "clock_mhz": 250.0,
+          "cycles_fused_2_plus_5K": 7,
+          "latency_ns_fused": 28.0,
+          "cycles_legacy_2_plus_6K": 8,
+          "latency_ns_legacy": 32.0,
+          "meets_1000ns_round_budget": true,
+          "syndrome_satisfaction_rate": 1.0,
+          "decoded_ler": 0.057
+        },
+        {
+          "iterations_K": 2,
+          "clock_mhz": 250.0,
+          "cycles_fused_2_plus_5K": 12,
+          "latency_ns_fused": 48.0,
+          "cycles_legacy_2_plus_6K": 14,
+          "latency_ns_legacy": 56.0,
+          "meets_1000ns_round_budget": true,
+          "syndrome_satisfaction_rate": 1.0,
+          "decoded_ler": 0.057
+        },
+        {
+          "iterations_K": 3,
+          "clock_mhz": 250.0,
+          "cycles_fused_2_plus_5K": 17,
+          "latency_ns_fused": 68.0,
+          "cycles_legacy_2_plus_6K": 20,
+          "latency_ns_legacy": 80.0,
+          "meets_1000ns_round_budget": true,
+          "syndrome_satisfaction_rate": 1.0,
+          "decoded_ler": 0.057
+        },
+        {
+          "iterations_K": 4,
+          "clock_mhz": 250.0,
+          "cycles_fused_2_plus_5K": 22,
+          "latency_ns_fused": 88.0,
+          "cycles_legacy_2_plus_6K": 26,
+          "latency_ns_legacy": 104.0,
+          "meets_1000ns_round_budget": true,
+          "syndrome_satisfaction_rate": 1.0,
+          "decoded_ler": 0.057
+        },
+        {
+          "iterations_K": 5,
+          "clock_mhz": 250.0,
+          "cycles_fused_2_plus_5K": 27,
+          "latency_ns_fused": 108.0,
+          "cycles_legacy_2_plus_6K": 32,
+          "latency_ns_legacy": 128.0,
+          "meets_1000ns_round_budget": true,
+          "syndrome_satisfaction_rate": 1.0,
+          "decoded_ler": 0.057
+        }
+      ],
+      "slow_loop_wcet_profile": {
+        "joint_dp_forward_16_state": {
+          "p50_us": 519.07,
+          "p95_us": 546.06,
+          "p99_us": 587.73,
+          "max_wcet_us": 588.03
+        },
+        "analytic_coset_gradient_21_param": {
+          "p50_us": 1149.16,
+          "p95_us": 1284.26,
+          "p99_us": 1347.58,
+          "max_wcet_us": 1438.68
+        },
+        "lbfgs_15_iter_update": {
+          "p50_us": 20589.85,
+          "p95_us": 23645.02,
+          "p99_us": 23743.15,
+          "max_wcet_us": 23767.68
+        },
+        "single_core_utilization_pct_at_10ms_period": 236.45
+      },
+      "fault_injection_and_fallback_stress": {
+        "valid_packet_accepted": true,
+        "corrupted_parity_packet_rejected": true,
+        "sequence_gap_detected": true,
+        "mid_decode_swap_blocked_when_bp_busy": true,
+        "atomic_swap_succeeded_on_bp_ready": true,
+        "fallback_reversion_to_static_b0_succeeded": true,
+        "fast_path_stalls_observed": 0
+      }
+    }
+  }
+}

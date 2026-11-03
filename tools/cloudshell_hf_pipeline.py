@@ -1132,7 +1132,7 @@ def run_cloudshell_pipeline(
         shutil.rmtree(stage_dir)
     stage_dir.mkdir(parents=True, exist_ok=True)
 
-    for folder in ["checkpoints", "datasets", "architecture", "configs", "docs", "mathematical_model"]:
+    for folder in ["checkpoints", "datasets", "architecture", "configs", "docs", "mathematical_model", "Benchmark-Eval"]:
         src = REPO_ROOT / folder
         dst = stage_dir / folder
         if src.exists():

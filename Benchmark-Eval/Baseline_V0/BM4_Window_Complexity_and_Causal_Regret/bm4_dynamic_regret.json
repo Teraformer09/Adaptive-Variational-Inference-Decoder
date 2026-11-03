@@ -1,0 +1,387 @@
+{
+  "benchmark_id": "BM-4",
+  "title": "Window-Size Sample Complexity (W) & Causal Timescale / Dynamic Regret Benchmark",
+  "closes_issues": [
+    "Q01",
+    "Q09",
+    "Q11",
+    "SF4",
+    "SF6"
+  ],
+  "peer_reviewed_references": [
+    "Harper, Flammia, & Wallman, Nature Physics 16, 1184-1188 (2020)",
+    "Wagner et al., Quantum 6, 809 (2022)"
+  ],
+  "elapsed_sec": 1.724,
+  "window_scaling_table": [
+    {
+      "window_rounds_W": 64,
+      "window_duration_us_at_1MHz": 64.0,
+      "syndrome_dist_rmse": 0.017908,
+      "theoretical_cramer_rao_inv_sqrt_W": 0.0225,
+      "parameter_rmse": 0.01585,
+      "mean_lbfgs_fit_us": 25133.36,
+      "causal_commit_round_t_commit": 25203,
+      "instantaneous_nll_regret": 0.0
+    },
+    {
+      "window_rounds_W": 128,
+      "window_duration_us_at_1MHz": 128.0,
+      "syndrome_dist_rmse": 0.018853,
+      "theoretical_cramer_rao_inv_sqrt_W": 0.01591,
+      "parameter_rmse": 0.01038,
+      "mean_lbfgs_fit_us": 25434.55,
+      "causal_commit_round_t_commit": 25568,
+      "instantaneous_nll_regret": 0.0
+    },
+    {
+      "window_rounds_W": 256,
+      "window_duration_us_at_1MHz": 256.0,
+      "syndrome_dist_rmse": 0.012171,
+      "theoretical_cramer_rao_inv_sqrt_W": 0.01125,
+      "parameter_rmse": 0.01168,
+      "mean_lbfgs_fit_us": 25091.56,
+      "causal_commit_round_t_commit": 25353,
+      "instantaneous_nll_regret": 0.0
+    },
+    {
+      "window_rounds_W": 512,
+      "window_duration_us_at_1MHz": 512.0,
+      "syndrome_dist_rmse": 0.00675,
+      "theoretical_cramer_rao_inv_sqrt_W": 0.007955,
+      "parameter_rmse": 0.00607,
+      "mean_lbfgs_fit_us": 23886.63,
+      "causal_commit_round_t_commit": 24404,
+      "instantaneous_nll_regret": 0.0
+    },
+    {
+      "window_rounds_W": 1024,
+      "window_duration_us_at_1MHz": 1024.0,
+      "syndrome_dist_rmse": 0.004216,
+      "theoretical_cramer_rao_inv_sqrt_W": 0.005625,
+      "parameter_rmse": 0.00676,
+      "mean_lbfgs_fit_us": 23500.53,
+      "causal_commit_round_t_commit": 24530,
+      "instantaneous_nll_regret": 0.0
+    },
+    {
+      "window_rounds_W": 2048,
+      "window_duration_us_at_1MHz": 2048.0,
+      "syndrome_dist_rmse": 0.004018,
+      "theoretical_cramer_rao_inv_sqrt_W": 0.003977,
+      "parameter_rmse": 0.00627,
+      "mean_lbfgs_fit_us": 23703.61,
+      "causal_commit_round_t_commit": 25757,
+      "instantaneous_nll_regret": 0.0
+    },
+    {
+      "window_rounds_W": 4096,
+      "window_duration_us_at_1MHz": 4096.0,
+      "syndrome_dist_rmse": 0.001859,
+      "theoretical_cramer_rao_inv_sqrt_W": 0.002812,
+      "parameter_rmse": 0.00612,
+      "mean_lbfgs_fit_us": 32410.76,
+      "causal_commit_round_t_commit": 36512,
+      "instantaneous_nll_regret": 0.0
+    },
+    {
+      "window_rounds_W": 10000,
+      "window_duration_us_at_1MHz": 10000.0,
+      "syndrome_dist_rmse": 0.002227,
+      "theoretical_cramer_rao_inv_sqrt_W": 0.0018,
+      "parameter_rmse": 0.00938,
+      "mean_lbfgs_fit_us": 23231.19,
+      "causal_commit_round_t_commit": 33237,
+      "instantaneous_nll_regret": 0.0
+    }
+  ],
+  "dynamic_regret_summary": {
+    "total_epochs_T": 40,
+    "total_path_variation_V_T": 0.41592,
+    "final_cumulative_regret_avid": 0.34616,
+    "final_cumulative_regret_static": 3.45075,
+    "regret_reduction_factor": 9.97,
+    "trajectory": [
+      {
+        "epoch": 1,
+        "path_variation_V_t": 0.00653,
+        "cumulative_regret_avid": 0.0005,
+        "cumulative_regret_static": 0.0005,
+        "average_regret_avid_R_t_over_t": 0.000498
+      },
+      {
+        "epoch": 2,
+        "path_variation_V_t": 0.01595,
+        "cumulative_regret_avid": 0.00415,
+        "cumulative_regret_static": 0.00108,
+        "average_regret_avid_R_t_over_t": 0.002076
+      },
+      {
+        "epoch": 3,
+        "path_variation_V_t": 0.0226,
+        "cumulative_regret_avid": 0.00759,
+        "cumulative_regret_static": 0.00233,
+        "average_regret_avid_R_t_over_t": 0.002529
+      },
+      {
+        "epoch": 4,
+        "path_variation_V_t": 0.02886,
+        "cumulative_regret_avid": 0.01919,
+        "cumulative_regret_static": 0.00464,
+        "average_regret_avid_R_t_over_t": 0.004797
+      },
+      {
+        "epoch": 5,
+        "path_variation_V_t": 0.03802,
+        "cumulative_regret_avid": 0.02693,
+        "cumulative_regret_static": 0.00884,
+        "average_regret_avid_R_t_over_t": 0.005386
+      },
+      {
+        "epoch": 6,
+        "path_variation_V_t": 0.04668,
+        "cumulative_regret_avid": 0.0299,
+        "cumulative_regret_static": 0.01624,
+        "average_regret_avid_R_t_over_t": 0.004983
+      },
+      {
+        "epoch": 7,
+        "path_variation_V_t": 0.0541,
+        "cumulative_regret_avid": 0.03547,
+        "cumulative_regret_static": 0.02315,
+        "average_regret_avid_R_t_over_t": 0.005067
+      },
+      {
+        "epoch": 8,
+        "path_variation_V_t": 0.06175,
+        "cumulative_regret_avid": 0.03924,
+        "cumulative_regret_static": 0.03302,
+        "average_regret_avid_R_t_over_t": 0.004906
+      },
+      {
+        "epoch": 9,
+        "path_variation_V_t": 0.07111,
+        "cumulative_regret_avid": 0.0427,
+        "cumulative_regret_static": 0.04039,
+        "average_regret_avid_R_t_over_t": 0.004745
+      },
+      {
+        "epoch": 10,
+        "path_variation_V_t": 0.07822,
+        "cumulative_regret_avid": 0.04851,
+        "cumulative_regret_static": 0.04661,
+        "average_regret_avid_R_t_over_t": 0.004851
+      },
+      {
+        "epoch": 11,
+        "path_variation_V_t": 0.08508,
+        "cumulative_regret_avid": 0.05311,
+        "cumulative_regret_static": 0.05326,
+        "average_regret_avid_R_t_over_t": 0.004828
+      },
+      {
+        "epoch": 12,
+        "path_variation_V_t": 0.09451,
+        "cumulative_regret_avid": 0.05863,
+        "cumulative_regret_static": 0.06319,
+        "average_regret_avid_R_t_over_t": 0.004886
+      },
+      {
+        "epoch": 13,
+        "path_variation_V_t": 0.10296,
+        "cumulative_regret_avid": 0.06031,
+        "cumulative_regret_static": 0.07776,
+        "average_regret_avid_R_t_over_t": 0.004639
+      },
+      {
+        "epoch": 14,
+        "path_variation_V_t": 0.11182,
+        "cumulative_regret_avid": 0.0668,
+        "cumulative_regret_static": 0.09457,
+        "average_regret_avid_R_t_over_t": 0.004771
+      },
+      {
+        "epoch": 15,
+        "path_variation_V_t": 0.21712,
+        "cumulative_regret_avid": 0.20673,
+        "cumulative_regret_static": 0.21172,
+        "average_regret_avid_R_t_over_t": 0.013782
+      },
+      {
+        "epoch": 16,
+        "path_variation_V_t": 0.22358,
+        "cumulative_regret_avid": 0.21456,
+        "cumulative_regret_static": 0.33147,
+        "average_regret_avid_R_t_over_t": 0.01341
+      },
+      {
+        "epoch": 17,
+        "path_variation_V_t": 0.23129,
+        "cumulative_regret_avid": 0.22205,
+        "cumulative_regret_static": 0.45565,
+        "average_regret_avid_R_t_over_t": 0.013062
+      },
+      {
+        "epoch": 18,
+        "path_variation_V_t": 0.23873,
+        "cumulative_regret_avid": 0.22438,
+        "cumulative_regret_static": 0.58049,
+        "average_regret_avid_R_t_over_t": 0.012465
+      },
+      {
+        "epoch": 19,
+        "path_variation_V_t": 0.24804,
+        "cumulative_regret_avid": 0.22654,
+        "cumulative_regret_static": 0.70059,
+        "average_regret_avid_R_t_over_t": 0.011923
+      },
+      {
+        "epoch": 20,
+        "path_variation_V_t": 0.25544,
+        "cumulative_regret_avid": 0.23103,
+        "cumulative_regret_static": 0.81949,
+        "average_regret_avid_R_t_over_t": 0.011552
+      },
+      {
+        "epoch": 21,
+        "path_variation_V_t": 0.26531,
+        "cumulative_regret_avid": 0.2356,
+        "cumulative_regret_static": 0.94231,
+        "average_regret_avid_R_t_over_t": 0.011219
+      },
+      {
+        "epoch": 22,
+        "path_variation_V_t": 0.27338,
+        "cumulative_regret_avid": 0.24168,
+        "cumulative_regret_static": 1.05819,
+        "average_regret_avid_R_t_over_t": 0.010986
+      },
+      {
+        "epoch": 23,
+        "path_variation_V_t": 0.27975,
+        "cumulative_regret_avid": 0.24653,
+        "cumulative_regret_static": 1.17882,
+        "average_regret_avid_R_t_over_t": 0.010719
+      },
+      {
+        "epoch": 24,
+        "path_variation_V_t": 0.28555,
+        "cumulative_regret_avid": 0.25669,
+        "cumulative_regret_static": 1.30402,
+        "average_regret_avid_R_t_over_t": 0.010695
+      },
+      {
+        "epoch": 25,
+        "path_variation_V_t": 0.29467,
+        "cumulative_regret_avid": 0.26144,
+        "cumulative_regret_static": 1.42962,
+        "average_regret_avid_R_t_over_t": 0.010458
+      },
+      {
+        "epoch": 26,
+        "path_variation_V_t": 0.30283,
+        "cumulative_regret_avid": 0.26436,
+        "cumulative_regret_static": 1.55069,
+        "average_regret_avid_R_t_over_t": 0.010168
+      },
+      {
+        "epoch": 27,
+        "path_variation_V_t": 0.31072,
+        "cumulative_regret_avid": 0.26967,
+        "cumulative_regret_static": 1.67213,
+        "average_regret_avid_R_t_over_t": 0.009988
+      },
+      {
+        "epoch": 28,
+        "path_variation_V_t": 0.31886,
+        "cumulative_regret_avid": 0.27292,
+        "cumulative_regret_static": 1.80451,
+        "average_regret_avid_R_t_over_t": 0.009747
+      },
+      {
+        "epoch": 29,
+        "path_variation_V_t": 0.32706,
+        "cumulative_regret_avid": 0.28443,
+        "cumulative_regret_static": 1.93949,
+        "average_regret_avid_R_t_over_t": 0.009808
+      },
+      {
+        "epoch": 30,
+        "path_variation_V_t": 0.33633,
+        "cumulative_regret_avid": 0.29032,
+        "cumulative_regret_static": 2.07381,
+        "average_regret_avid_R_t_over_t": 0.009677
+      },
+      {
+        "epoch": 31,
+        "path_variation_V_t": 0.3462,
+        "cumulative_regret_avid": 0.29897,
+        "cumulative_regret_static": 2.21289,
+        "average_regret_avid_R_t_over_t": 0.009644
+      },
+      {
+        "epoch": 32,
+        "path_variation_V_t": 0.35646,
+        "cumulative_regret_avid": 0.30449,
+        "cumulative_regret_static": 2.35426,
+        "average_regret_avid_R_t_over_t": 0.009515
+      },
+      {
+        "epoch": 33,
+        "path_variation_V_t": 0.36463,
+        "cumulative_regret_avid": 0.31501,
+        "cumulative_regret_static": 2.4978,
+        "average_regret_avid_R_t_over_t": 0.009546
+      },
+      {
+        "epoch": 34,
+        "path_variation_V_t": 0.37344,
+        "cumulative_regret_avid": 0.31869,
+        "cumulative_regret_static": 2.63964,
+        "average_regret_avid_R_t_over_t": 0.009373
+      },
+      {
+        "epoch": 35,
+        "path_variation_V_t": 0.37867,
+        "cumulative_regret_avid": 0.32323,
+        "cumulative_regret_static": 2.77937,
+        "average_regret_avid_R_t_over_t": 0.009235
+      },
+      {
+        "epoch": 36,
+        "path_variation_V_t": 0.38775,
+        "cumulative_regret_avid": 0.32576,
+        "cumulative_regret_static": 2.91739,
+        "average_regret_avid_R_t_over_t": 0.009049
+      },
+      {
+        "epoch": 37,
+        "path_variation_V_t": 0.39594,
+        "cumulative_regret_avid": 0.33227,
+        "cumulative_regret_static": 3.05173,
+        "average_regret_avid_R_t_over_t": 0.00898
+      },
+      {
+        "epoch": 38,
+        "path_variation_V_t": 0.40256,
+        "cumulative_regret_avid": 0.33469,
+        "cumulative_regret_static": 3.18767,
+        "average_regret_avid_R_t_over_t": 0.008808
+      },
+      {
+        "epoch": 39,
+        "path_variation_V_t": 0.40928,
+        "cumulative_regret_avid": 0.34403,
+        "cumulative_regret_static": 3.32158,
+        "average_regret_avid_R_t_over_t": 0.008821
+      },
+      {
+        "epoch": 40,
+        "path_variation_V_t": 0.41592,
+        "cumulative_regret_avid": 0.34616,
+        "cumulative_regret_static": 3.45075,
+        "average_regret_avid_R_t_over_t": 0.008654
+      }
+    ]
+  }
+}

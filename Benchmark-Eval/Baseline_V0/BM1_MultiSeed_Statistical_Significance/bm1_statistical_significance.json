@@ -1,0 +1,180 @@
+{
+  "benchmark_id": "BM-1",
+  "title": "15-Seed Shared-Input LER & Peak-vs-Full Window Statistical Significance Benchmark",
+  "closes_issues": [
+    "Q07",
+    "Q08",
+    "Q16",
+    "Gate_7"
+  ],
+  "peer_reviewed_references": [
+    "Bausch et al. (Google DeepMind & Google Quantum AI), Nature 635, 834-840 (2024)",
+    "Spitz et al., Adv. Quantum Technol. 1, 1800012 (2018)"
+  ],
+  "n_seeds": 15,
+  "calibration_rounds_per_seed": 10000,
+  "evaluation_rounds_per_seed": 10000,
+  "elapsed_sec": 229.076,
+  "regimes": {
+    "R1_stationary_baseline": {
+      "n_seeds": 15,
+      "full_horizon_mean_ler": {
+        "B0_Static_BP": 0.05216,
+        "B1_Marginal_LBFGS": 0.05216,
+        "B2_Observable_PID": 0.05216,
+        "B3_Covariance_Tracker": 0.05216,
+        "AVID_Joint_DP_MAP": 0.05216,
+        "AVID_Weighted_Bellman_R2D2": 0.05216,
+        "B4_Oracle_BP": 0.05216
+      },
+      "full_horizon_std_ler": {
+        "B0_Static_BP": 0.0015,
+        "AVID_Joint_DP_MAP": 0.0015,
+        "AVID_Weighted_Bellman_R2D2": 0.0015
+      },
+      "peak_burst_window_mean_ler": {
+        "B0_Static_BP": 0.05753,
+        "AVID_Joint_DP_MAP": 0.05753,
+        "AVID_Weighted_Bellman_R2D2": 0.05753,
+        "B4_Oracle_BP": 0.05753
+      },
+      "paired_significance_B0_vs_WB_R2D2": {
+        "mean_ler_reduction": 0.0,
+        "relative_reduction_pct": 0.0,
+        "paired_t_stat": 0.0,
+        "paired_t_pvalue": 1.0,
+        "cohens_d": 0.0,
+        "wilcoxon_signed_rank_stat": 0.0,
+        "wilcoxon_two_sided_pvalue": 1.0
+      }
+    },
+    "R2_tls_hotspot_q4_q5": {
+      "n_seeds": 15,
+      "full_horizon_mean_ler": {
+        "B0_Static_BP": 0.05913,
+        "B1_Marginal_LBFGS": 0.05913,
+        "B2_Observable_PID": 0.05913,
+        "B3_Covariance_Tracker": 0.05913,
+        "AVID_Joint_DP_MAP": 0.06113,
+        "AVID_Weighted_Bellman_R2D2": 0.06113,
+        "B4_Oracle_BP": 0.05913
+      },
+      "full_horizon_std_ler": {
+        "B0_Static_BP": 0.00206,
+        "AVID_Joint_DP_MAP": 0.00222,
+        "AVID_Weighted_Bellman_R2D2": 0.00222
+      },
+      "peak_burst_window_mean_ler": {
+        "B0_Static_BP": 0.06541,
+        "AVID_Joint_DP_MAP": 0.06729,
+        "AVID_Weighted_Bellman_R2D2": 0.06729,
+        "B4_Oracle_BP": 0.06541
+      },
+      "paired_significance_B0_vs_WB_R2D2": {
+        "mean_ler_reduction": -0.00201,
+        "relative_reduction_pct": -3.39,
+        "paired_t_stat": -3.6138,
+        "paired_t_pvalue": 0.0028201,
+        "cohens_d": -0.9331,
+        "wilcoxon_signed_rank_stat": 7.5,
+        "wilcoxon_two_sided_pvalue": 0.0047187
+      }
+    },
+    "R3_zz_crosstalk_burst": {
+      "n_seeds": 15,
+      "full_horizon_mean_ler": {
+        "B0_Static_BP": 0.20963,
+        "B1_Marginal_LBFGS": 0.20963,
+        "B2_Observable_PID": 0.20963,
+        "B3_Covariance_Tracker": 0.20963,
+        "AVID_Joint_DP_MAP": 0.11759,
+        "AVID_Weighted_Bellman_R2D2": 0.11759,
+        "B4_Oracle_BP": 0.11759
+      },
+      "full_horizon_std_ler": {
+        "B0_Static_BP": 0.0046,
+        "AVID_Joint_DP_MAP": 0.00329,
+        "AVID_Weighted_Bellman_R2D2": 0.00329
+      },
+      "peak_burst_window_mean_ler": {
+        "B0_Static_BP": 0.22607,
+        "AVID_Joint_DP_MAP": 0.12792,
+        "AVID_Weighted_Bellman_R2D2": 0.12792,
+        "B4_Oracle_BP": 0.12792
+      },
+      "paired_significance_B0_vs_WB_R2D2": {
+        "mean_ler_reduction": 0.09205,
+        "relative_reduction_pct": 43.91,
+        "paired_t_stat": 97.2789,
+        "paired_t_pvalue": 3.2177e-21,
+        "cohens_d": 25.1173,
+        "wilcoxon_signed_rank_stat": 0.0,
+        "wilcoxon_two_sided_pvalue": 6.1035e-05
+      }
+    },
+    "R4_boundary_drift": {
+      "n_seeds": 15,
+      "full_horizon_mean_ler": {
+        "B0_Static_BP": 0.05889,
+        "B1_Marginal_LBFGS": 0.05889,
+        "B2_Observable_PID": 0.05889,
+        "B3_Covariance_Tracker": 0.05889,
+        "AVID_Joint_DP_MAP": 0.05889,
+        "AVID_Weighted_Bellman_R2D2": 0.05889,
+        "B4_Oracle_BP": 0.05889
+      },
+      "full_horizon_std_ler": {
+        "B0_Static_BP": 0.00194,
+        "AVID_Joint_DP_MAP": 0.00194,
+        "AVID_Weighted_Bellman_R2D2": 0.00194
+      },
+      "peak_burst_window_mean_ler": {
+        "B0_Static_BP": 0.06489,
+        "AVID_Joint_DP_MAP": 0.06489,
+        "AVID_Weighted_Bellman_R2D2": 0.06489,
+        "B4_Oracle_BP": 0.06489
+      },
+      "paired_significance_B0_vs_WB_R2D2": {
+        "mean_ler_reduction": 0.0,
+        "relative_reduction_pct": 0.0,
+        "paired_t_stat": 0.0,
+        "paired_t_pvalue": 1.0,
+        "cohens_d": 0.0,
+        "wilcoxon_signed_rank_stat": 0.0,
+        "wilcoxon_two_sided_pvalue": 1.0
+      }
+    },
+    "R5_combined_stress": {
+      "n_seeds": 15,
+      "full_horizon_mean_ler": {
+        "B0_Static_BP": 0.1074,
+        "B1_Marginal_LBFGS": 0.1074,
+        "B2_Observable_PID": 0.1074,
+        "B3_Covariance_Tracker": 0.1074,
+        "AVID_Joint_DP_MAP": 0.10459,
+        "AVID_Weighted_Bellman_R2D2": 0.06939,
+        "B4_Oracle_BP": 0.06147
+      },
+      "full_horizon_std_ler": {
+        "B0_Static_BP": 0.00159,
+        "AVID_Joint_DP_MAP": 0.01099,
+        "AVID_Weighted_Bellman_R2D2": 0.01606
+      },
+      "peak_burst_window_mean_ler": {
+        "B0_Static_BP": 0.11571,
+        "AVID_Joint_DP_MAP": 0.11268,
+        "AVID_Weighted_Bellman_R2D2": 0.07596,
+        "B4_Oracle_BP": 0.06759
+      },
+      "paired_significance_B0_vs_WB_R2D2": {
+        "mean_ler_reduction": 0.03801,
+        "relative_reduction_pct": 35.39,
+        "paired_t_stat": 9.4352,
+        "paired_t_pvalue": 1.9099e-07,
+        "cohens_d": 2.4362,
+        "wilcoxon_signed_rank_stat": 0.0,
+        "wilcoxon_two_sided_pvalue": 0.0014688
+      }
+    }
+  }
+}

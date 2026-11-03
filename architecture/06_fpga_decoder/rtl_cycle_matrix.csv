@@ -1,0 +1,6 @@
+iterations_K,clock_mhz,cycles_fused_2_plus_5K,latency_ns_fused,cycles_legacy_2_plus_6K,latency_ns_legacy,meets_1000ns_round_budget,syndrome_satisfaction_rate,decoded_ler
+1,250.0,7,28.0,8,32.0,True,1.0,0.057
+2,250.0,12,48.0,14,56.0,True,1.0,0.057
+3,250.0,17,68.0,20,80.0,True,1.0,0.057
+4,250.0,22,88.0,26,104.0,True,1.0,0.057
+5,250.0,27,108.0,32,128.0,True,1.0,0.057

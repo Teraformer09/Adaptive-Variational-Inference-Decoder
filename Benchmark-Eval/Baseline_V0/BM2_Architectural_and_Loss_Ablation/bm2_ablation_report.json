@@ -1,0 +1,166 @@
+{
+  "benchmark_id": "BM-2",
+  "title": "7-Stage Architectural & Loss Component Ablation Benchmark",
+  "closes_issues": [
+    "Q03",
+    "Q04",
+    "Q05",
+    "Q14",
+    "Q15"
+  ],
+  "peer_reviewed_references": [
+    "van den Berg et al. (IBM Quantum), Nature Physics 19, 1116-1121 (2023)",
+    "Wagner et al., Quantum 6, 809 (2022)"
+  ],
+  "elapsed_sec": 4.545,
+  "regimes": {
+    "R3_zz_crosstalk_burst": [
+      {
+        "regime": "R3_zz_crosstalk_burst",
+        "stage_id": "A0_Static_BP_B0",
+        "description": "Static uniform prior (no adaptation)",
+        "param_rmse": 0.02303,
+        "syndrome_dist_rmse": 0.04134,
+        "syndrome_kl_divergence": 0.09654,
+        "decoded_ler": 0.1934
+      },
+      {
+        "regime": "R3_zz_crosstalk_burst",
+        "stage_id": "A1_Legacy_Marginal_4Check_B1",
+        "description": "4-check marginal Bernoulli L-BFGS (rank 4)",
+        "param_rmse": 0.02262,
+        "syndrome_dist_rmse": 0.03594,
+        "syndrome_kl_divergence": 0.0789,
+        "decoded_ler": 0.1934
+      },
+      {
+        "regime": "R3_zz_crosstalk_burst",
+        "stage_id": "A2_Joint_DP_No_Pair_Projection",
+        "description": "16-state Joint-DP L-BFGS + standard XOR marginalization",
+        "param_rmse": 0.00395,
+        "syndrome_dist_rmse": 0.00146,
+        "syndrome_kl_divergence": 0.00017,
+        "decoded_ler": 0.1934
+      },
+      {
+        "regime": "R3_zz_crosstalk_burst",
+        "stage_id": "A3_AVID_Joint_DP_Pair_Aware",
+        "description": "16-state Joint-DP L-BFGS + Pair-Aware Triangle LLR Projection",
+        "param_rmse": 0.00395,
+        "syndrome_dist_rmse": 0.00146,
+        "syndrome_kl_divergence": 0.00017,
+        "decoded_ler": 0.1069
+      },
+      {
+        "regime": "R3_zz_crosstalk_burst",
+        "stage_id": "A4_R2D2_Unweighted_No_BurnIn",
+        "description": "R2D2-Graph-RSSM without Weighted-Bellman / Burn-In",
+        "param_rmse": 0.00807,
+        "syndrome_dist_rmse": 0.0145,
+        "syndrome_kl_divergence": 0.00708,
+        "decoded_ler": 0.1069
+      },
+      {
+        "regime": "R3_zz_crosstalk_burst",
+        "stage_id": "A5_Weighted_Bellman_R2D2_No_LoRA",
+        "description": "Weighted-Bellman R2D2 (T_burn=6 + L_WB-R2D2, no LoRA)",
+        "param_rmse": 0.00289,
+        "syndrome_dist_rmse": 0.00086,
+        "syndrome_kl_divergence": 0.00035,
+        "decoded_ler": 0.1069
+      },
+      {
+        "regime": "R3_zz_crosstalk_burst",
+        "stage_id": "A6_Full_WB_R2D2_plus_Rank4_LoRA",
+        "description": "Full Weighted-Bellman R2D2 + Rank-4 LoRA + Pair-Aware LLR",
+        "param_rmse": 0.00247,
+        "syndrome_dist_rmse": 0.00176,
+        "syndrome_kl_divergence": 0.00059,
+        "decoded_ler": 0.1069
+      },
+      {
+        "regime": "R3_zz_crosstalk_burst",
+        "stage_id": "A7_Oracle_BP_B4",
+        "description": "Instantaneous ground-truth parameter Oracle lower bound",
+        "param_rmse": 0.0,
+        "syndrome_dist_rmse": 0.0,
+        "syndrome_kl_divergence": 0.00035,
+        "decoded_ler": 0.1069
+      }
+    ],
+    "R5_combined_stress": [
+      {
+        "regime": "R5_combined_stress",
+        "stage_id": "A0_Static_BP_B0",
+        "description": "Static uniform prior (no adaptation)",
+        "param_rmse": 0.0293,
+        "syndrome_dist_rmse": 0.05496,
+        "syndrome_kl_divergence": 0.20829,
+        "decoded_ler": 0.1023
+      },
+      {
+        "regime": "R5_combined_stress",
+        "stage_id": "A1_Legacy_Marginal_4Check_B1",
+        "description": "4-check marginal Bernoulli L-BFGS (rank 4)",
+        "param_rmse": 0.02868,
+        "syndrome_dist_rmse": 0.04937,
+        "syndrome_kl_divergence": 0.17762,
+        "decoded_ler": 0.1023
+      },
+      {
+        "regime": "R5_combined_stress",
+        "stage_id": "A2_Joint_DP_No_Pair_Projection",
+        "description": "16-state Joint-DP L-BFGS + standard XOR marginalization",
+        "param_rmse": 0.01589,
+        "syndrome_dist_rmse": 0.00066,
+        "syndrome_kl_divergence": 0.00017,
+        "decoded_ler": 0.1023
+      },
+      {
+        "regime": "R5_combined_stress",
+        "stage_id": "A3_AVID_Joint_DP_Pair_Aware",
+        "description": "16-state Joint-DP L-BFGS + Pair-Aware Triangle LLR Projection",
+        "param_rmse": 0.01589,
+        "syndrome_dist_rmse": 0.00066,
+        "syndrome_kl_divergence": 0.00017,
+        "decoded_ler": 0.1023
+      },
+      {
+        "regime": "R5_combined_stress",
+        "stage_id": "A4_R2D2_Unweighted_No_BurnIn",
+        "description": "R2D2-Graph-RSSM without Weighted-Bellman / Burn-In",
+        "param_rmse": 0.01806,
+        "syndrome_dist_rmse": 0.01797,
+        "syndrome_kl_divergence": 0.01249,
+        "decoded_ler": 0.1023
+      },
+      {
+        "regime": "R5_combined_stress",
+        "stage_id": "A5_Weighted_Bellman_R2D2_No_LoRA",
+        "description": "Weighted-Bellman R2D2 (T_burn=6 + L_WB-R2D2, no LoRA)",
+        "param_rmse": 0.01042,
+        "syndrome_dist_rmse": 0.00032,
+        "syndrome_kl_divergence": 0.00023,
+        "decoded_ler": 0.0608
+      },
+      {
+        "regime": "R5_combined_stress",
+        "stage_id": "A6_Full_WB_R2D2_plus_Rank4_LoRA",
+        "description": "Full Weighted-Bellman R2D2 + Rank-4 LoRA + Pair-Aware LLR",
+        "param_rmse": 0.0075,
+        "syndrome_dist_rmse": 0.00048,
+        "syndrome_kl_divergence": 0.00031,
+        "decoded_ler": 0.0608
+      },
+      {
+        "regime": "R5_combined_stress",
+        "stage_id": "A7_Oracle_BP_B4",
+        "description": "Instantaneous ground-truth parameter Oracle lower bound",
+        "param_rmse": 0.0,
+        "syndrome_dist_rmse": 0.0,
+        "syndrome_kl_divergence": 0.00021,
+        "decoded_ler": 0.0593
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "closes_issues": [
+    "Q05",
+    "Q10",
+    "Q12",
+    "Q15"
+  ],
+  "models": {
+    "WeightedBellmanR2D2WorldModel": {
+      "architecture": "BipartiteGraphAttention(13 nodes, d=96) + GRU(96) + StochasticRSSM(32) + ThetaHead(21) + QValueHead(1) + UncertaintyHead(1)",
+      "parameter_count": 114838,
+      "float32_weights_bytes": 459352,
+      "int8_quantized_weights_bytes": 114838,
+      "recurrent_hidden_state_bytes_float32": 512,
+      "checkpoint_path": "checkpoints/weighted_bellman_r2d2_backbone.pt",
+      "checkpoint_sha256": "61c654b3df2ecf40588e4ae08478cb719238cbe1ae70bd8b7c313b57505229c7"
+    },
+    "SmallSpatioTemporalTransformer": {
+      "architecture": "BipartiteGraphAttention(13 nodes, d=96) + CausalTransformerEncoder(2 layers, 4 heads) + ThetaHead(21)",
+      "parameter_count": 192406,
+      "float32_weights_bytes": 769624,
+      "int8_quantized_weights_bytes": 192406,
+      "checkpoint_path": "checkpoints/spatiotemporal_transformer_backbone.pt",
+      "checkpoint_sha256": "1d229696ce4b578168c49d8a0da88108b0bf193d60f5d4edbd897421695cd850"
+    },
+    "RegimeLoRAAdapter_Rank4": {
+      "architecture": "Low-Rank Adapter (d_in=128, rank=4, out_dim=21, alpha=8.0)",
+      "parameter_count_per_regime": 617,
+      "float32_weights_bytes_per_regime": 2468,
+      "int8_quantized_weights_bytes_per_regime": 617,
+      "adapter_sha256": {
+        "R1_stationary_baseline": "8bf0c4e0a41445f40a796133e9bb1b59fc7b7b450eb217dc263873c14b6f5e85",
+        "R2_tls_hotspot_q4_q5": "0883f6e7b28eababf6b6313c80e9a7cdd1dcbe39c6e20e5bb378055fb1185ff3",
+        "R3_zz_crosstalk_burst": "29f83025e0ae85a8ff442a36e882dfb58653253396da836344a35b625db6e88b",
+        "R4_boundary_drift": "c233b4ced97b057acb9a3ed95ca97cc4a578aa2145dab62a585ebebdb84c0797",
+        "R5_combined_stress": "9e79910a83421c0a2c8988c8880fb0530d63b6315131e676c9ae95037174e1c3"
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "benchmark_id": "BM-3",
+  "title": "Code Distance Scaling (d=3 vs d=5, Lambda_{3->5}) & 25-Parameter Noisy-Readout Benchmark",
+  "closes_issues": [
+    "Q02",
+    "Q17",
+    "Q19"
+  ],
+  "peer_reviewed_references": [
+    "Google Quantum AI and Collaborators (Willow Processor), Nature 638, 920-926 (2025)",
+    "Roffe et al., Phys. Rev. Research 2, 043423 (2020)"
+  ],
+  "elapsed_sec": 10.164,
+  "distance_scaling_d3_vs_d5": [
+    {
+      "physical_error_rate_p": 0.005,
+      "d3_static_ler": 0.01067,
+      "d3_avid_adaptive_ler": 0.00833,
+      "d5_static_ler": 0.021,
+      "d5_avid_adaptive_ler": 0.015,
+      "lambda_3_to_5_static": 0.508,
+      "lambda_3_to_5_avid_adaptive": 0.556
+    },
+    {
+      "physical_error_rate_p": 0.01,
+      "d3_static_ler": 0.01967,
+      "d3_avid_adaptive_ler": 0.015,
+      "d5_static_ler": 0.05633,
+      "d5_avid_adaptive_ler": 0.04467,
+      "lambda_3_to_5_static": 0.349,
+      "lambda_3_to_5_avid_adaptive": 0.336
+    },
+    {
+      "physical_error_rate_p": 0.015,
+      "d3_static_ler": 0.03267,
+      "d3_avid_adaptive_ler": 0.03533,
+      "d5_static_ler": 0.075,
+      "d5_avid_adaptive_ler": 0.06467,
+      "lambda_3_to_5_static": 0.436,
+      "lambda_3_to_5_avid_adaptive": 0.546
+    },
+    {
+      "physical_error_rate_p": 0.02,
+      "d3_static_ler": 0.04533,
+      "d3_avid_adaptive_ler": 0.03867,
+      "d5_static_ler": 0.09433,
+      "d5_avid_adaptive_ler": 0.078,
+      "lambda_3_to_5_static": 0.481,
+      "lambda_3_to_5_avid_adaptive": 0.496
+    },
+    {
+      "physical_error_rate_p": 0.025,
+      "d3_static_ler": 0.058,
+      "d3_avid_adaptive_ler": 0.049,
+      "d5_static_ler": 0.11933,
+      "d5_avid_adaptive_ler": 0.09367,
+      "lambda_3_to_5_static": 0.486,
+      "lambda_3_to_5_avid_adaptive": 0.523
+    },
+    {
+      "physical_error_rate_p": 0.03,
+      "d3_static_ler": 0.06667,
+      "d3_avid_adaptive_ler": 0.07033,
+      "d5_static_ler": 0.12633,
+      "d5_avid_adaptive_ler": 0.10167,
+      "lambda_3_to_5_static": 0.528,
+      "lambda_3_to_5_avid_adaptive": 0.692
+    }
+  ],
+  "noisy_readout_25_parameter_evaluation": [
+    {
+      "injected_p_meas": 0.0,
+      "estimated_mean_p_meas": 0.00114,
+      "estimated_hotspot_q4": 0.07979,
+      "estimated_zz_4_5": 0.05552,
+      "fit_nll": 1.12435,
+      "parameter_rmse_25": 0.01017
+    },
+    {
+      "injected_p_meas": 0.003,
+      "estimated_mean_p_meas": 0.00123,
+      "estimated_hotspot_q4": 0.07955,
+      "estimated_zz_4_5": 0.06054,
+      "fit_nll": 1.14063,
+      "parameter_rmse_25": 0.01087
+    },
+    {
+      "injected_p_meas": 0.008,
+      "estimated_mean_p_meas": 0.00244,
+      "estimated_hotspot_q4": 0.07819,
+      "estimated_zz_4_5": 0.06199,
+      "fit_nll": 1.22135,
+      "parameter_rmse_25": 0.01249
+    },
+    {
+      "injected_p_meas": 0.015,
+      "estimated_mean_p_meas": 0.00379,
+      "estimated_hotspot_q4": 0.07998,
+      "estimated_zz_4_5": 0.06061,
+      "fit_nll": 1.26938,
+      "parameter_rmse_25": 0.01306
+    }
+  ]
+}

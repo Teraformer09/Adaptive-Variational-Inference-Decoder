@@ -1,0 +1,106 @@
+{
+  "benchmark_id": "BM-5",
+  "title": "Hardware Iteration Latency (K=1..5), ARM WCET, Memory Manifest & Fault-Fallback Benchmark",
+  "closes_issues": [
+    "Q06",
+    "Q10",
+    "Q12",
+    "Q13",
+    "Q18",
+    "Q19",
+    "SF2",
+    "SF10"
+  ],
+  "peer_reviewed_references": [
+    "Barber et al. (Riverlane), Nature Electronics 8, 84-91 (2025)",
+    "Liyanage et al., PRX Quantum / USENIX (2023-2024)"
+  ],
+  "elapsed_sec": 50.391,
+  "fpga_cycle_latency_matrix": [
+    {
+      "iterations_K": 1,
+      "clock_mhz": 250.0,
+      "cycles_fused_2_plus_5K": 7,
+      "latency_ns_fused": 28.0,
+      "cycles_legacy_2_plus_6K": 8,
+      "latency_ns_legacy": 32.0,
+      "meets_1000ns_round_budget": true,
+      "syndrome_satisfaction_rate": 1.0,
+      "decoded_ler": 0.057
+    },
+    {
+      "iterations_K": 2,
+      "clock_mhz": 250.0,
+      "cycles_fused_2_plus_5K": 12,
+      "latency_ns_fused": 48.0,
+      "cycles_legacy_2_plus_6K": 14,
+      "latency_ns_legacy": 56.0,
+      "meets_1000ns_round_budget": true,
+      "syndrome_satisfaction_rate": 1.0,
+      "decoded_ler": 0.057
+    },
+    {
+      "iterations_K": 3,
+      "clock_mhz": 250.0,
+      "cycles_fused_2_plus_5K": 17,
+      "latency_ns_fused": 68.0,
+      "cycles_legacy_2_plus_6K": 20,
+      "latency_ns_legacy": 80.0,
+      "meets_1000ns_round_budget": true,
+      "syndrome_satisfaction_rate": 1.0,
+      "decoded_ler": 0.057
+    },
+    {
+      "iterations_K": 4,
+      "clock_mhz": 250.0,
+      "cycles_fused_2_plus_5K": 22,
+      "latency_ns_fused": 88.0,
+      "cycles_legacy_2_plus_6K": 26,
+      "latency_ns_legacy": 104.0,
+      "meets_1000ns_round_budget": true,
+      "syndrome_satisfaction_rate": 1.0,
+      "decoded_ler": 0.057
+    },
+    {
+      "iterations_K": 5,
+      "clock_mhz": 250.0,
+      "cycles_fused_2_plus_5K": 27,
+      "latency_ns_fused": 108.0,
+      "cycles_legacy_2_plus_6K": 32,
+      "latency_ns_legacy": 128.0,
+      "meets_1000ns_round_budget": true,
+      "syndrome_satisfaction_rate": 1.0,
+      "decoded_ler": 0.057
+    }
+  ],
+  "slow_loop_wcet_profile": {
+    "joint_dp_forward_16_state": {
+      "p50_us": 519.07,
+      "p95_us": 546.06,
+      "p99_us": 587.73,
+      "max_wcet_us": 588.03
+    },
+    "analytic_coset_gradient_21_param": {
+      "p50_us": 1149.16,
+      "p95_us": 1284.26,
+      "p99_us": 1347.58,
+      "max_wcet_us": 1438.68
+    },
+    "lbfgs_15_iter_update": {
+      "p50_us": 20589.85,
+      "p95_us": 23645.02,
+      "p99_us": 23743.15,
+      "max_wcet_us": 23767.68
+    },
+    "single_core_utilization_pct_at_10ms_period": 236.45
+  },
+  "fault_injection_and_fallback_stress": {
+    "valid_packet_accepted": true,
+    "corrupted_parity_packet_rejected": true,
+    "sequence_gap_detected": true,
+    "mid_decode_swap_blocked_when_bp_busy": true,
+    "atomic_swap_succeeded_on_bp_ready": true,
+    "fallback_reversion_to_static_b0_succeeded": true,
+    "fast_path_stalls_observed": 0
+  }
+}
