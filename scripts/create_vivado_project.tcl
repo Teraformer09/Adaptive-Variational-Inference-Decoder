@@ -23,12 +23,13 @@ set_property target_language SystemVerilog [current_project]
 # --- Add RTL ---
 set rtl_dir [file normalize "[file dirname [info script]]/../firmware/rtl"]
 add_files -fileset sources_1 [list \
-    $rtl_dir/check_node_minsum.sv \
-    $rtl_dir/axis_syndrome_rx.sv  \
-    $rtl_dir/axis_correction_tx.sv \
-    $rtl_dir/weight_map_reg.sv    \
-    $rtl_dir/bp_engine.sv         \
-    $rtl_dir/avid_top.sv        \
+    $rtl_dir/decoder/check_node_minsum.sv \
+    $rtl_dir/ingress/axis_syndrome_rx.sv  \
+    $rtl_dir/ingress/axis_ingress_tap.sv  \
+    $rtl_dir/decoder/axis_correction_tx.sv \
+    $rtl_dir/config/weight_map_reg.sv    \
+    $rtl_dir/decoder/bp_engine.sv         \
+    $rtl_dir/top/aa_qec_top.sv        \
 ]
 set_property file_type SystemVerilog [get_files *.sv]
 update_compile_order -fileset sources_1

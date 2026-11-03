@@ -21,7 +21,6 @@
 #include "ring_buffer.h"
 #include "noise_model.h"
 #include "lbfgs_optimizer.h"
-#include "weight_injector.h"
 #include "../driver/weight_reg_driver.h"
 #include "../driver/weight_bank_driver.h"
 #include "../ingress/dma_ingress_tap.h"

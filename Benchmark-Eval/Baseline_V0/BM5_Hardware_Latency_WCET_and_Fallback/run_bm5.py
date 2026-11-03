@@ -183,7 +183,7 @@ def run_bm5() -> Dict[str, object]:
     (OUT_DIR / "bm5_controller_memory_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
-    arch_04 = REPO_ROOT / "architecture" / "04_variational_estimator"
+    arch_04 = REPO_ROOT / "architecture" / "04_estimator"
     arch_04.mkdir(parents=True, exist_ok=True)
     (arch_04 / "controller_memory_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"

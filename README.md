@@ -82,11 +82,16 @@ AVID_EPJ_Patches/
 │   │   ├── control/{causal_scheduler.h/.cpp, stage_profiler.h/.cpp, fallback_fsm.h/.cpp}
 │   │   ├── custom_engine/cycle_accurate_bp_engine.h/.cpp
 │   │   ├── driver/{weight_reg_driver.h/.c, weight_bank_driver.h/.c, dma_manager.h/.c}
-│   │   └── inference/{noise_model.h/.cpp, lbfgs_optimizer.h/.cpp, weight_injector.h/.cpp, avid_daemon.cpp}
+│   │   └── inference/{noise_model.h/.cpp, lbfgs_optimizer.h/.cpp, avid_daemon.cpp}
 │   └── tests/test_baseline_suite.cpp
 ├── firmware/                              # SystemVerilog RTL & Verification Testbenches (250 MHz PL)
-│   ├── rtl/{aa_qec_top.sv, bp_engine.sv, check_node_minsum.sv, weight_map_reg.sv, axis_syndrome_rx.sv, axis_correction_tx.sv}
-│   └── tb/tb_aa_qec_top.sv
+│   ├── rtl/
+│   │   ├── config/weight_map_reg.sv
+│   │   ├── decoder/{bp_engine.sv, check_node_minsum.sv, axis_correction_tx.sv}
+│   │   ├── ingress/{axis_syndrome_rx.sv, axis_ingress_tap.sv}
+│   │   └── top/aa_qec_top.sv
+│   └── tb/{tb_aa_qec_top.sv, config/, decoder/, ingress/}
+├── Benchmark-Eval/Baseline_V0/            # 5 Peer-Reviewed Benchmarks (BM1..BM5) & Master Summary
 ├── checkpoints/                           # Trained Weighted-Bellman R2D2, Transformer, LoRA (.pt) & Q7.8 Weight Banks
 ├── datasets/                              # Dataset Manifest & 64-Bit AXI4-Stream Syndrome Packet Binary
 ├── configs/                               # d3_baseline.yaml, d5_simulation.yaml, target_board.yaml

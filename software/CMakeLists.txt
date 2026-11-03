@@ -14,7 +14,6 @@ set(AVID_CORE_SOURCES
     src/ingress/dma_ingress_tap.cpp
     src/inference/noise_model.cpp
     src/inference/lbfgs_optimizer.cpp
-    src/inference/weight_injector.cpp
     src/estimator/joint_dp_estimator.cpp
     src/estimator/lbfgs_solver.cpp
     src/estimator/llr_quantizer.cpp

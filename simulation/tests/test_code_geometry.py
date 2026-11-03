@@ -57,7 +57,7 @@ class TestCodeGeometry(unittest.TestCase):
         self.assertEqual(x_tab["CHECK_CONN"], [[0, 1, 0, 0], [1, 2, 4, 5], [3, 4, 6, 7], [7, 8, 0, 0]])
         self.assertEqual(x_tab["CHECK_ACTIVE_MASK"], [3, 15, 15, 3])
 
-        rtl_text = (REPO_ROOT / "firmware" / "rtl" / "bp_engine.sv").read_text()
+        rtl_text = (REPO_ROOT / "firmware" / "rtl" / "decoder" / "bp_engine.sv").read_text()
         self.assertIn("4'b0011, 4'b1111, 4'b1111, 4'b0011", rtl_text)
         self.assertIn("'{0, 1, 0, 0}", rtl_text)
         self.assertIn("'{7, 8, 0, 0}", rtl_text)
