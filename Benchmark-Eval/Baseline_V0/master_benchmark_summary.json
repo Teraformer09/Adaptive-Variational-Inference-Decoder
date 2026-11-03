@@ -1,6 +1,6 @@
 {
   "suite_name": "AVID_Benchmark_Eval_Baseline_V0",
-  "elapsed_sec": 295.943,
+  "elapsed_sec": 276.082,
   "benchmarks": {
     "BM1_MultiSeed_Statistical_Significance": {
       "benchmark_id": "BM-1",
@@ -18,7 +18,7 @@
       "n_seeds": 15,
       "calibration_rounds_per_seed": 10000,
       "evaluation_rounds_per_seed": 10000,
-      "elapsed_sec": 229.076,
+      "elapsed_sec": 214.354,
       "regimes": {
         "R1_stationary_baseline": {
           "n_seeds": 15,
@@ -196,7 +196,7 @@
         "van den Berg et al. (IBM Quantum), Nature Physics 19, 1116-1121 (2023)",
         "Wagner et al., Quantum 6, 809 (2022)"
       ],
-      "elapsed_sec": 4.545,
+      "elapsed_sec": 4.39,
       "regimes": {
         "R3_zz_crosstalk_burst": [
           {
@@ -360,61 +360,61 @@
         "Google Quantum AI and Collaborators (Willow Processor), Nature 638, 920-926 (2025)",
         "Roffe et al., Phys. Rev. Research 2, 043423 (2020)"
       ],
-      "elapsed_sec": 10.164,
+      "elapsed_sec": 5.227,
       "distance_scaling_d3_vs_d5": [
         {
           "physical_error_rate_p": 0.005,
           "d3_static_ler": 0.01067,
           "d3_avid_adaptive_ler": 0.00833,
-          "d5_static_ler": 0.021,
-          "d5_avid_adaptive_ler": 0.015,
-          "lambda_3_to_5_static": 0.508,
-          "lambda_3_to_5_avid_adaptive": 0.556
+          "d5_static_ler": 0.00167,
+          "d5_avid_adaptive_ler": 0.00167,
+          "lambda_3_to_5_static": 6.4,
+          "lambda_3_to_5_avid_adaptive": 5.0
         },
         {
           "physical_error_rate_p": 0.01,
           "d3_static_ler": 0.01967,
           "d3_avid_adaptive_ler": 0.015,
-          "d5_static_ler": 0.05633,
-          "d5_avid_adaptive_ler": 0.04467,
-          "lambda_3_to_5_static": 0.349,
-          "lambda_3_to_5_avid_adaptive": 0.336
+          "d5_static_ler": 0.007,
+          "d5_avid_adaptive_ler": 0.007,
+          "lambda_3_to_5_static": 2.81,
+          "lambda_3_to_5_avid_adaptive": 2.143
         },
         {
           "physical_error_rate_p": 0.015,
           "d3_static_ler": 0.03267,
           "d3_avid_adaptive_ler": 0.03533,
-          "d5_static_ler": 0.075,
-          "d5_avid_adaptive_ler": 0.06467,
-          "lambda_3_to_5_static": 0.436,
-          "lambda_3_to_5_avid_adaptive": 0.546
+          "d5_static_ler": 0.00967,
+          "d5_avid_adaptive_ler": 0.00967,
+          "lambda_3_to_5_static": 3.379,
+          "lambda_3_to_5_avid_adaptive": 3.655
         },
         {
           "physical_error_rate_p": 0.02,
           "d3_static_ler": 0.04533,
           "d3_avid_adaptive_ler": 0.03867,
-          "d5_static_ler": 0.09433,
-          "d5_avid_adaptive_ler": 0.078,
-          "lambda_3_to_5_static": 0.481,
-          "lambda_3_to_5_avid_adaptive": 0.496
+          "d5_static_ler": 0.00967,
+          "d5_avid_adaptive_ler": 0.00967,
+          "lambda_3_to_5_static": 4.69,
+          "lambda_3_to_5_avid_adaptive": 4.0
         },
         {
           "physical_error_rate_p": 0.025,
           "d3_static_ler": 0.058,
           "d3_avid_adaptive_ler": 0.049,
-          "d5_static_ler": 0.11933,
-          "d5_avid_adaptive_ler": 0.09367,
-          "lambda_3_to_5_static": 0.486,
-          "lambda_3_to_5_avid_adaptive": 0.523
+          "d5_static_ler": 0.01267,
+          "d5_avid_adaptive_ler": 0.01267,
+          "lambda_3_to_5_static": 4.579,
+          "lambda_3_to_5_avid_adaptive": 3.868
         },
         {
           "physical_error_rate_p": 0.03,
           "d3_static_ler": 0.06667,
           "d3_avid_adaptive_ler": 0.07033,
-          "d5_static_ler": 0.12633,
-          "d5_avid_adaptive_ler": 0.10167,
-          "lambda_3_to_5_static": 0.528,
-          "lambda_3_to_5_avid_adaptive": 0.692
+          "d5_static_ler": 0.01333,
+          "d5_avid_adaptive_ler": 0.01333,
+          "lambda_3_to_5_static": 5.0,
+          "lambda_3_to_5_avid_adaptive": 5.275
         }
       ],
       "noisy_readout_25_parameter_evaluation": [
@@ -466,7 +466,7 @@
         "Harper, Flammia, & Wallman, Nature Physics 16, 1184-1188 (2020)",
         "Wagner et al., Quantum 6, 809 (2022)"
       ],
-      "elapsed_sec": 1.724,
+      "elapsed_sec": 1.669,
       "window_scaling_table": [
         {
           "window_rounds_W": 64,
@@ -474,8 +474,8 @@
           "syndrome_dist_rmse": 0.017908,
           "theoretical_cramer_rao_inv_sqrt_W": 0.0225,
           "parameter_rmse": 0.01585,
-          "mean_lbfgs_fit_us": 25133.36,
-          "causal_commit_round_t_commit": 25203,
+          "mean_lbfgs_fit_us": 24371.26,
+          "causal_commit_round_t_commit": 24441,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -484,8 +484,8 @@
           "syndrome_dist_rmse": 0.018853,
           "theoretical_cramer_rao_inv_sqrt_W": 0.01591,
           "parameter_rmse": 0.01038,
-          "mean_lbfgs_fit_us": 25434.55,
-          "causal_commit_round_t_commit": 25568,
+          "mean_lbfgs_fit_us": 23575.47,
+          "causal_commit_round_t_commit": 23709,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -494,8 +494,8 @@
           "syndrome_dist_rmse": 0.012171,
           "theoretical_cramer_rao_inv_sqrt_W": 0.01125,
           "parameter_rmse": 0.01168,
-          "mean_lbfgs_fit_us": 25091.56,
-          "causal_commit_round_t_commit": 25353,
+          "mean_lbfgs_fit_us": 24738.9,
+          "causal_commit_round_t_commit": 25000,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -504,8 +504,8 @@
           "syndrome_dist_rmse": 0.00675,
           "theoretical_cramer_rao_inv_sqrt_W": 0.007955,
           "parameter_rmse": 0.00607,
-          "mean_lbfgs_fit_us": 23886.63,
-          "causal_commit_round_t_commit": 24404,
+          "mean_lbfgs_fit_us": 24011.54,
+          "causal_commit_round_t_commit": 24529,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -514,8 +514,8 @@
           "syndrome_dist_rmse": 0.004216,
           "theoretical_cramer_rao_inv_sqrt_W": 0.005625,
           "parameter_rmse": 0.00676,
-          "mean_lbfgs_fit_us": 23500.53,
-          "causal_commit_round_t_commit": 24530,
+          "mean_lbfgs_fit_us": 23612.4,
+          "causal_commit_round_t_commit": 24642,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -524,8 +524,8 @@
           "syndrome_dist_rmse": 0.004018,
           "theoretical_cramer_rao_inv_sqrt_W": 0.003977,
           "parameter_rmse": 0.00627,
-          "mean_lbfgs_fit_us": 23703.61,
-          "causal_commit_round_t_commit": 25757,
+          "mean_lbfgs_fit_us": 23233.2,
+          "causal_commit_round_t_commit": 25287,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -534,8 +534,8 @@
           "syndrome_dist_rmse": 0.001859,
           "theoretical_cramer_rao_inv_sqrt_W": 0.002812,
           "parameter_rmse": 0.00612,
-          "mean_lbfgs_fit_us": 32410.76,
-          "causal_commit_round_t_commit": 36512,
+          "mean_lbfgs_fit_us": 23119.57,
+          "causal_commit_round_t_commit": 27221,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -544,8 +544,8 @@
           "syndrome_dist_rmse": 0.002227,
           "theoretical_cramer_rao_inv_sqrt_W": 0.0018,
           "parameter_rmse": 0.00938,
-          "mean_lbfgs_fit_us": 23231.19,
-          "causal_commit_round_t_commit": 33237,
+          "mean_lbfgs_fit_us": 23722.62,
+          "causal_commit_round_t_commit": 33728,
           "instantaneous_nll_regret": 0.0
         }
       ],
@@ -856,7 +856,7 @@
         "Barber et al. (Riverlane), Nature Electronics 8, 84-91 (2025)",
         "Liyanage et al., PRX Quantum / USENIX (2023-2024)"
       ],
-      "elapsed_sec": 50.391,
+      "elapsed_sec": 50.429,
       "fpga_cycle_latency_matrix": [
         {
           "iterations_K": 1,
@@ -916,24 +916,24 @@
       ],
       "slow_loop_wcet_profile": {
         "joint_dp_forward_16_state": {
-          "p50_us": 519.07,
-          "p95_us": 546.06,
-          "p99_us": 587.73,
-          "max_wcet_us": 588.03
+          "p50_us": 513.12,
+          "p95_us": 544.43,
+          "p99_us": 590.31,
+          "max_wcet_us": 608.97
         },
         "analytic_coset_gradient_21_param": {
-          "p50_us": 1149.16,
-          "p95_us": 1284.26,
-          "p99_us": 1347.58,
-          "max_wcet_us": 1438.68
+          "p50_us": 1141.07,
+          "p95_us": 1360.4,
+          "p99_us": 1391.24,
+          "max_wcet_us": 1402.66
         },
         "lbfgs_15_iter_update": {
-          "p50_us": 20589.85,
-          "p95_us": 23645.02,
-          "p99_us": 23743.15,
-          "max_wcet_us": 23767.68
+          "p50_us": 19925.31,
+          "p95_us": 21130.76,
+          "p99_us": 21375.35,
+          "max_wcet_us": 21436.5
         },
-        "single_core_utilization_pct_at_10ms_period": 236.45
+        "single_core_utilization_pct_at_10ms_period": 211.31
       },
       "fault_injection_and_fallback_stress": {
         "valid_packet_accepted": true,

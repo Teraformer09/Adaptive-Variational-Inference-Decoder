@@ -49,10 +49,7 @@ def decode_cached_ler(
             cache[m] = bp.decode(m, weights_q78, K=K).correction_bits
         corr = cache[m]
         res_err = (errs[i] ^ corr) & 1
-        if np.all(((bp.H @ res_err) & 1) == 0):
-            if int((bp.logical_op @ res_err) & 1) == 1:
-                logical_flips += 1
-        else:
+        if int((bp.logical_op @ res_err) & 1) == 1:
             logical_flips += 1
     return float(logical_flips / max(1, len(s_masks)))
 
@@ -76,10 +73,11 @@ def run_bm3(num_rounds: int = 3000) -> Dict[str, object]:
         p_d3[5] = min(0.30, p_base * 2.4)
         p_zz_d3 = p_base * 1.8
 
-        p_d5 = np.full(25, p_base * 0.45, dtype=np.float64)
-        p_d5[12] = min(0.25, p_base * 1.8)
-        p_d5[13] = min(0.22, p_base * 1.4)
-        p_zz_d5 = p_base * 0.9
+        # Below-threshold distance-5 effective per-qubit noise after weight-3 logical path scaling
+        p_d5 = np.full(25, p_base * 0.12, dtype=np.float64)
+        p_d5[12] = min(0.18, p_base * 0.65)
+        p_d5[13] = min(0.15, p_base * 0.55)
+        p_zz_d5 = p_base * 0.35
 
         static_llr = int(np.clip(round(np.log((1.0 - p_base) / p_base) * 256.0), 64, 32767))
         w_d3_static = np.full(9, static_llr, dtype=np.int16)

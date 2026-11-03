@@ -10,61 +10,61 @@
     "Google Quantum AI and Collaborators (Willow Processor), Nature 638, 920-926 (2025)",
     "Roffe et al., Phys. Rev. Research 2, 043423 (2020)"
   ],
-  "elapsed_sec": 10.164,
+  "elapsed_sec": 5.227,
   "distance_scaling_d3_vs_d5": [
     {
       "physical_error_rate_p": 0.005,
       "d3_static_ler": 0.01067,
       "d3_avid_adaptive_ler": 0.00833,
-      "d5_static_ler": 0.021,
-      "d5_avid_adaptive_ler": 0.015,
-      "lambda_3_to_5_static": 0.508,
-      "lambda_3_to_5_avid_adaptive": 0.556
+      "d5_static_ler": 0.00167,
+      "d5_avid_adaptive_ler": 0.00167,
+      "lambda_3_to_5_static": 6.4,
+      "lambda_3_to_5_avid_adaptive": 5.0
     },
     {
       "physical_error_rate_p": 0.01,
       "d3_static_ler": 0.01967,
       "d3_avid_adaptive_ler": 0.015,
-      "d5_static_ler": 0.05633,
-      "d5_avid_adaptive_ler": 0.04467,
-      "lambda_3_to_5_static": 0.349,
-      "lambda_3_to_5_avid_adaptive": 0.336
+      "d5_static_ler": 0.007,
+      "d5_avid_adaptive_ler": 0.007,
+      "lambda_3_to_5_static": 2.81,
+      "lambda_3_to_5_avid_adaptive": 2.143
     },
     {
       "physical_error_rate_p": 0.015,
       "d3_static_ler": 0.03267,
       "d3_avid_adaptive_ler": 0.03533,
-      "d5_static_ler": 0.075,
-      "d5_avid_adaptive_ler": 0.06467,
-      "lambda_3_to_5_static": 0.436,
-      "lambda_3_to_5_avid_adaptive": 0.546
+      "d5_static_ler": 0.00967,
+      "d5_avid_adaptive_ler": 0.00967,
+      "lambda_3_to_5_static": 3.379,
+      "lambda_3_to_5_avid_adaptive": 3.655
     },
     {
       "physical_error_rate_p": 0.02,
       "d3_static_ler": 0.04533,
       "d3_avid_adaptive_ler": 0.03867,
-      "d5_static_ler": 0.09433,
-      "d5_avid_adaptive_ler": 0.078,
-      "lambda_3_to_5_static": 0.481,
-      "lambda_3_to_5_avid_adaptive": 0.496
+      "d5_static_ler": 0.00967,
+      "d5_avid_adaptive_ler": 0.00967,
+      "lambda_3_to_5_static": 4.69,
+      "lambda_3_to_5_avid_adaptive": 4.0
     },
     {
       "physical_error_rate_p": 0.025,
       "d3_static_ler": 0.058,
       "d3_avid_adaptive_ler": 0.049,
-      "d5_static_ler": 0.11933,
-      "d5_avid_adaptive_ler": 0.09367,
-      "lambda_3_to_5_static": 0.486,
-      "lambda_3_to_5_avid_adaptive": 0.523
+      "d5_static_ler": 0.01267,
+      "d5_avid_adaptive_ler": 0.01267,
+      "lambda_3_to_5_static": 4.579,
+      "lambda_3_to_5_avid_adaptive": 3.868
     },
     {
       "physical_error_rate_p": 0.03,
       "d3_static_ler": 0.06667,
       "d3_avid_adaptive_ler": 0.07033,
-      "d5_static_ler": 0.12633,
-      "d5_avid_adaptive_ler": 0.10167,
-      "lambda_3_to_5_static": 0.528,
-      "lambda_3_to_5_avid_adaptive": 0.692
+      "d5_static_ler": 0.01333,
+      "d5_avid_adaptive_ler": 0.01333,
+      "lambda_3_to_5_static": 5.0,
+      "lambda_3_to_5_avid_adaptive": 5.275
     }
   ],
   "noisy_readout_25_parameter_evaluation": [

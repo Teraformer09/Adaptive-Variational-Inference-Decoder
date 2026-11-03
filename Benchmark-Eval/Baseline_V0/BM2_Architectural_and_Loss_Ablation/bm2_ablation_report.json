@@ -12,7 +12,7 @@
     "van den Berg et al. (IBM Quantum), Nature Physics 19, 1116-1121 (2023)",
     "Wagner et al., Quantum 6, 809 (2022)"
   ],
-  "elapsed_sec": 4.545,
+  "elapsed_sec": 4.39,
   "regimes": {
     "R3_zz_crosstalk_burst": [
       {

@@ -14,7 +14,7 @@
   "n_seeds": 15,
   "calibration_rounds_per_seed": 10000,
   "evaluation_rounds_per_seed": 10000,
-  "elapsed_sec": 229.076,
+  "elapsed_sec": 214.354,
   "regimes": {
     "R1_stationary_baseline": {
       "n_seeds": 15,

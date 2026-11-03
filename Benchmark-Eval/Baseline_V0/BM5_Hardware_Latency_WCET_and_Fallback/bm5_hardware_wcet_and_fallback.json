@@ -15,7 +15,7 @@
     "Barber et al. (Riverlane), Nature Electronics 8, 84-91 (2025)",
     "Liyanage et al., PRX Quantum / USENIX (2023-2024)"
   ],
-  "elapsed_sec": 50.391,
+  "elapsed_sec": 50.429,
   "fpga_cycle_latency_matrix": [
     {
       "iterations_K": 1,
@@ -75,24 +75,24 @@
   ],
   "slow_loop_wcet_profile": {
     "joint_dp_forward_16_state": {
-      "p50_us": 519.07,
-      "p95_us": 546.06,
-      "p99_us": 587.73,
-      "max_wcet_us": 588.03
+      "p50_us": 513.12,
+      "p95_us": 544.43,
+      "p99_us": 590.31,
+      "max_wcet_us": 608.97
     },
     "analytic_coset_gradient_21_param": {
-      "p50_us": 1149.16,
-      "p95_us": 1284.26,
-      "p99_us": 1347.58,
-      "max_wcet_us": 1438.68
+      "p50_us": 1141.07,
+      "p95_us": 1360.4,
+      "p99_us": 1391.24,
+      "max_wcet_us": 1402.66
     },
     "lbfgs_15_iter_update": {
-      "p50_us": 20589.85,
-      "p95_us": 23645.02,
-      "p99_us": 23743.15,
-      "max_wcet_us": 23767.68
+      "p50_us": 19925.31,
+      "p95_us": 21130.76,
+      "p99_us": 21375.35,
+      "max_wcet_us": 21436.5
     },
-    "single_core_utilization_pct_at_10ms_period": 236.45
+    "single_core_utilization_pct_at_10ms_period": 211.31
   },
   "fault_injection_and_fallback_stress": {
     "valid_packet_accepted": true,
