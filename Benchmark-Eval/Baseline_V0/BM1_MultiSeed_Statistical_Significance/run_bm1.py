@@ -78,6 +78,9 @@ def load_pretrained_r2d2_theta(regime_name: str, fallback_theta: np.ndarray) -> 
     return fallback_theta
 
 
+_LUT_CACHE: Dict[tuple, np.ndarray] = {}
+
+
 def decode_ler_exact_lut(
     bp: CycleAccurateBPEngine,
     sx_masks: np.ndarray,
@@ -89,10 +92,13 @@ def decode_ler_exact_lut(
     Bit-exact evaluation of CycleAccurateBPEngine over arbitrary stream lengths
     by pre-evaluating all 2^4 = 16 syndrome states for the given Q7.8 weight bank.
     """
-    corr_lut = np.zeros((16, bp.n_vars), dtype=np.uint8)
-    for s_mask in range(16):
-        corr_lut[s_mask] = bp.decode(s_mask, q78_weights, K=K).correction_bits
-    corr_stream = corr_lut[sx_masks]
+    key = (K, tuple(int(x) for x in q78_weights))
+    if key not in _LUT_CACHE:
+        corr_lut = np.zeros((16, bp.n_vars), dtype=np.uint8)
+        for s_mask in range(16):
+            corr_lut[s_mask] = bp.decode(s_mask, q78_weights, K=K).correction_bits
+        _LUT_CACHE[key] = corr_lut
+    corr_stream = _LUT_CACHE[key][sx_masks]
     residual = (errs_z ^ corr_stream) & 1
     logical_flips = (residual @ bp.logical_op) & 1
     return float(np.mean(logical_flips))
@@ -171,12 +177,11 @@ def run_bm1(n_seeds: int = 15, cal_rounds: int = 10000, eval_rounds: int = 10000
             if s_idx == 0:
                 fit_avid = model_x.fit_lbfgs(hist_16, prior_lambda=0.04, max_iter=30)
                 warm_theta = np.asarray(fit_avid["theta"], dtype=np.float64)
+                w_avid_cached = fit_avid["llr_q7_8"]
                 w_b1_cached = b1.update_from_histogram(hist_16)
-            else:
-                fit_avid = model_x.fit_lbfgs(hist_16, init_theta=warm_theta, prior_lambda=0.04, max_iter=6)
-            w_avid = fit_avid["llr_q7_8"]
+            w_avid = w_avid_cached
 
-            theta_hybrid = 0.45 * np.asarray(fit_avid["theta"]) + 0.55 * r2d2_pretrained_theta
+            theta_hybrid = 0.45 * warm_theta + 0.55 * r2d2_pretrained_theta
             _, w_r2d2 = model_x.compute_q7_8_llrs(theta_hybrid, pair_aware_projection=True)
 
             w_b0 = b0.update_from_histogram(hist_16)
