@@ -6,7 +6,8 @@ Hugging Face Hub Exporter for Branch `AVID_EPJ_Patches`.
 Pipeline Stages:
   Stage 1 — Long-Term Quantum Syndrome & Non-Stationary Drift Data Collection:
     - Collects 50,000 fast-loop syndrome rounds per regime x 5 regimes = 250,000 rounds
-      on the canonical rotated d=3 [[9, 1, 3]] CSS surface code (`avid_long_horizon_d3_250k_rounds.npz`).
+      on the canonical rotated d=3 [[9, 1, 3]] CSS surface code (`avid_long_horizon_d3_250k_rounds.npz`
+      and `avid_canonical_css_regimes.npz`).
     - Collects 600 long-horizon non-stationary drift & TLS telegraph replay trajectories
       of length T = 16 slow-loop windows (T_burn = 6 + T_unroll = 10, representing
       600 x 16 x 256 = 2,457,600 underlying syndrome rounds) stored in
@@ -58,28 +59,65 @@ from simulation.reference.baselines import (
     B3CovarianceTrackerController,
     B4OracleBPController,
 )
-from simulation.stimulus.noise_generator import (
-    build_regime_schedule,
-    simulate_canonical_css_stream,
-)
-from simulation.stimulus.packet_codec import write_packet_stream_file
-from tools.generate_code_artifacts import generate_all as generate_code_artifacts
-from tools.collect_target_timing import run_timing_profile
+from simulation.stimulus.packet_codec import pack_packet_stream
+from tools.generate_code_artifacts import main as generate_code_main
+from tools.collect_target_timing import main as collect_timing_main
 
 
 def load_dotenv(env_path: Path) -> Dict[str, str]:
-    env_vars: Dict[str, str] = {}
-    if env_path.exists():
-        for raw_line in env_path.read_text(encoding="utf-8").splitlines():
-            line = raw_line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            k, v = line.split("=", 1)
-            k = k.strip()
-            v = v.strip().strip("'").strip('"')
-            env_vars[k] = v
-            os.environ.setdefault(k, v)
-    return env_vars
+    loaded: Dict[str, str] = {}
+    if not env_path.exists():
+        return loaded
+    for raw in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k = k.strip()
+        v = v.strip().strip("'").strip('"')
+        os.environ.setdefault(k, v)
+        loaded[k] = v
+    return loaded
+
+
+def build_five_noise_regimes(default_theta: np.ndarray) -> Dict[str, np.ndarray]:
+    """Define 5 physically distinct correlated quantum noise regimes for d=3."""
+    regimes: Dict[str, np.ndarray] = {}
+
+    # R1: Stationary low-noise baseline
+    r1 = default_theta.copy()
+    regimes["R1_stationary_baseline"] = r1
+
+    # R2: Center-qubit TLS hotspot (q4 and q5 elevated)
+    r2 = default_theta.copy()
+    r2[4] = 0.085
+    r2[5] = 0.055
+    regimes["R2_tls_hotspot_q4_q5"] = r2
+
+    # R3: Strong ZZ crosstalk burst on horizontal edges (0,1), (4,5), (7,8)
+    r3 = default_theta.copy()
+    r3[9 + 0] = 0.065
+    r3[9 + 3] = 0.080
+    r3[9 + 5] = 0.060
+    regimes["R3_zz_crosstalk_burst"] = r3
+
+    # R4: Boundary gradient drift (top/left qubits elevated)
+    r4 = default_theta.copy()
+    r4[0] = 0.050
+    r4[1] = 0.045
+    r4[3] = 0.055
+    r4[6] = 0.040
+    regimes["R4_boundary_drift"] = r4
+
+    # R5: Combined hotspot + ZZ crosstalk stress test
+    r5 = default_theta.copy()
+    r5[4] = 0.095
+    r5[7] = 0.065
+    r5[9 + 3] = 0.075
+    r5[9 + 9] = 0.070
+    regimes["R5_combined_stress"] = r5
+
+    return regimes
 
 
 # =============================================================================
@@ -358,17 +396,17 @@ def torch_joint_dp_distribution(theta: torch.Tensor, signatures: List[int], n_ch
 
 
 def extract_window_graph_features(
-    syndromes: np.ndarray,
+    sx_bits: np.ndarray,
     model: CorrelatedNoiseModel,
     window_size: int = 256,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Convert a syndrome stream [N, 4] into slow-loop window graph node features [T, 13, 8]
+    Convert a syndrome bit stream [N, 4] into slow-loop window graph node features [T, 13, 8]
     and empirical 16-state syndrome distributions [T, 16].
     """
-    n_rounds = syndromes.shape[0]
+    n_rounds = sx_bits.shape[0]
     n_windows = max(1, n_rounds // window_size)
-    trimmed = syndromes[: n_windows * window_size].reshape(n_windows, window_size, 4)
+    trimmed = sx_bits[: n_windows * window_size].reshape(n_windows, window_size, 4)
 
     node_feats = np.zeros((n_windows, 13, 8), dtype=np.float32)
     emp_dists = np.zeros((n_windows, 16), dtype=np.float32)
@@ -424,7 +462,8 @@ def extract_window_graph_features(
 # =============================================================================
 
 def collect_long_term_dataset(
-    model: CorrelatedNoiseModel,
+    model_x: CorrelatedNoiseModel,
+    model_z: CorrelatedNoiseModel,
     datasets_dir: Path,
     rounds_per_regime: int = 50000,
     n_trajectories_per_regime: int = 120,
@@ -436,56 +475,81 @@ def collect_long_term_dataset(
     recurrent replay buffer trajectories BEFORE model training begins.
     """
     datasets_dir.mkdir(parents=True, exist_ok=True)
-    regimes = build_regime_schedule(model.code)
+    regimes = build_five_noise_regimes(model_x.default_theta)
 
     print(
         f"[Stage 1A] Collecting {rounds_per_regime:,} fast-loop rounds/regime "
         f"({rounds_per_regime * len(regimes):,} rounds total) across 5 regimes..."
     )
+    rng_stream = np.random.default_rng(42)
     regime_streams: Dict[str, Dict[str, np.ndarray]] = {}
     dataset_npz: Dict[str, np.ndarray] = {}
-    all_packets_x: List[np.ndarray] = []
-    all_packets_z: List[np.ndarray] = []
+    all_sx: List[np.ndarray] = []
+    all_sz: List[np.ndarray] = []
+    all_regime_ids: List[np.ndarray] = []
+    all_true_theta: List[np.ndarray] = []
 
-    for idx, regime in enumerate(regimes):
+    for r_idx, (r_name, true_theta) in enumerate(regimes.items()):
         t0 = time.perf_counter()
-        sim = simulate_canonical_css_stream(
-            model.code,
-            theta_x=regime.theta_x,
-            theta_z=regime.theta_z,
-            num_rounds=rounds_per_regime,
-            seed=202600 + idx * 101,
-        )
+        p_single = true_theta[:9]
+        p_pairs = true_theta[9:21]
+
+        errs_z = rng_stream.binomial(1, p_single, size=(rounds_per_regime, 9)).astype(np.uint8)
+        for e_idx, (u, v) in enumerate(model_x.code.zz_edges):
+            pe = float(p_pairs[e_idx])
+            if pe > 0.0:
+                c_flips = rng_stream.binomial(1, pe, size=rounds_per_regime).astype(np.uint8)
+                errs_z[:, u] ^= c_flips
+                errs_z[:, v] ^= c_flips
+
+        errs_x = rng_stream.binomial(1, 0.010, size=(rounds_per_regime, 9)).astype(np.uint8)
+
+        sx_bits = (errs_z @ model_x.H.T) % 2
+        sz_bits = (errs_x @ model_z.H.T) % 2
+        sx_masks = np.sum(sx_bits * (1 << np.arange(4)), axis=1).astype(np.uint8)
+        sz_masks = np.sum(sz_bits * (1 << np.arange(4)), axis=1).astype(np.uint8)
+
         elapsed = time.perf_counter() - t0
-        regime_streams[regime.name] = {
-            "true_theta": regime.theta_x,
-            "syndrome_x": sim["syndrome_x"],
-            "syndrome_z": sim["syndrome_z"],
-            "detection_x": sim["detection_x"],
-            "data_z_faults": sim["data_z_faults"],
-            "logical_z_flips": sim["logical_z_flips"],
+        regime_streams[r_name] = {
+            "true_theta": true_theta,
+            "sx_bits": sx_bits.astype(np.uint8),
+            "sz_bits": sz_bits.astype(np.uint8),
+            "sx_masks": sx_masks,
+            "sz_masks": sz_masks,
+            "errs_z": errs_z,
         }
-        dataset_npz[f"{regime.name}_theta_x"] = regime.theta_x
-        dataset_npz[f"{regime.name}_syndrome_x"] = sim["syndrome_x"]
-        dataset_npz[f"{regime.name}_syndrome_z"] = sim["syndrome_z"]
-        dataset_npz[f"{regime.name}_detection_x"] = sim["detection_x"]
-        dataset_npz[f"{regime.name}_logical_z_flips"] = sim["logical_z_flips"]
-        all_packets_x.append(sim["syndrome_x"][:2048])
-        all_packets_z.append(sim["syndrome_z"][:2048])
+        dataset_npz[f"{r_name}_theta_x"] = true_theta
+        dataset_npz[f"{r_name}_sx_masks"] = sx_masks
+        dataset_npz[f"{r_name}_sz_masks"] = sz_masks
+        dataset_npz[f"{r_name}_errs_z"] = errs_z
+
+        all_sx.append(sx_masks)
+        all_sz.append(sz_masks)
+        all_regime_ids.append(np.full(rounds_per_regime, r_idx, dtype=np.uint8))
+        all_true_theta.append(true_theta)
         print(
-            f"  -> Collected [{regime.name}]: {rounds_per_regime:,} rounds "
-            f"(mean syndrome weight={sim['syndrome_x'].sum(axis=1).mean():.3f}, {elapsed:.2f}s)"
+            f"  -> Collected [{r_name}]: {rounds_per_regime:,} rounds "
+            f"(mean syndrome weight={sx_bits.sum(axis=1).mean():.3f}, {elapsed:.2f}s)"
         )
+
+    sx_concat = np.concatenate(all_sx)
+    sz_concat = np.concatenate(all_sz)
+    reg_concat = np.concatenate(all_regime_ids)
 
     long_horizon_path = datasets_dir / "avid_long_horizon_d3_250k_rounds.npz"
-    np.savez_compressed(long_horizon_path, **dataset_npz)
+    np.savez_compressed(
+        str(long_horizon_path),
+        s_x_masks=sx_concat,
+        s_z_masks=sz_concat,
+        regime_ids=reg_concat,
+        regime_thetas=np.stack(all_true_theta),
+        regime_names=np.array(list(regimes.keys())),
+        **dataset_npz,
+    )
     shutil.copy2(long_horizon_path, datasets_dir / "avid_canonical_css_regimes.npz")
 
-    write_packet_stream_file(
-        datasets_dir / "syndrome_packets_v1.bin",
-        np.vstack(all_packets_x),
-        np.vstack(all_packets_z),
-    )
+    raw_packets = pack_packet_stream(sx_concat[:16384].tolist(), sz_concat[:16384].tolist())
+    (datasets_dir / "syndrome_packets_v1.bin").write_bytes(raw_packets)
 
     total_replay_rounds = len(regimes) * n_trajectories_per_regime * seq_len * window_size
     print(
@@ -498,8 +562,7 @@ def collect_long_term_dataset(
     replay_data: Dict[str, Dict[str, torch.Tensor]] = {}
     replay_npz: Dict[str, np.ndarray] = {}
 
-    for _, regime in enumerate(regimes):
-        base_theta = regime.theta_x.copy()
+    for r_name, base_theta in regimes.items():
         feats_list, emp_list, theta_list, reward_list = [], [], [], []
 
         for _ in range(n_trajectories_per_regime):
@@ -520,21 +583,21 @@ def collect_long_term_dataset(
                     theta_t[4] = np.clip(theta_t[4] * 1.18, 1e-4, 0.42)
                     theta_t[9 + 3] = np.clip(theta_t[9 + 3] * 1.18, 1e-4, 0.42)
 
-                emp_t = model.joint_distribution_dp(theta_t)
+                emp_t = model_x.joint_distribution_dp(theta_t)
                 counts = rng.multinomial(window_size, emp_t).astype(np.float32)
                 emp_hat = counts / float(window_size)
 
                 bits = (((np.arange(16)[:, None] >> np.arange(4)) & 1)).astype(np.float32)
                 c_rates = emp_hat @ bits
                 cov = (bits.T * emp_hat) @ bits - np.outer(c_rates, c_rates)
-                prior_theta = model.build_context_informed_prior(emp_hat)
+                prior_theta = model_x.build_context_informed_prior(emp_hat)
 
                 x_checks = [(0, 1), (1, 2, 4, 5), (3, 4, 6, 7), (7, 8)]
                 for q in range(9):
                     inc = [c for c, qs in enumerate(x_checks) if q in qs]
                     pair_vals = [
                         prior_theta[9 + idx]
-                        for idx, (u, v) in enumerate(model.code.zz_edges)
+                        for idx, (u, v) in enumerate(model_x.code.zz_edges)
                         if u == q or v == q
                     ]
                     traj_feats[t, q, 0] = float(prior_theta[q])
@@ -571,19 +634,19 @@ def collect_long_term_dataset(
         theta_arr = np.stack(theta_list)
         reward_arr = np.stack(reward_list)
 
-        replay_data[regime.name] = {
+        replay_data[r_name] = {
             "node_feats": torch.tensor(feats_arr, dtype=torch.float32),
             "emp_dist": torch.tensor(emp_arr, dtype=torch.float32),
             "true_theta": torch.tensor(theta_arr, dtype=torch.float32),
             "reward": torch.tensor(reward_arr, dtype=torch.float32),
         }
-        replay_npz[f"{regime.name}_node_feats"] = feats_arr
-        replay_npz[f"{regime.name}_emp_dist"] = emp_arr
-        replay_npz[f"{regime.name}_true_theta"] = theta_arr
-        replay_npz[f"{regime.name}_reward"] = reward_arr
+        replay_npz[f"{r_name}_node_feats"] = feats_arr
+        replay_npz[f"{r_name}_emp_dist"] = emp_arr
+        replay_npz[f"{r_name}_true_theta"] = theta_arr
+        replay_npz[f"{r_name}_reward"] = reward_arr
 
     replay_path = datasets_dir / "avid_r2d2_replay_buffer_trajectories.npz"
-    np.savez_compressed(replay_path, **replay_npz)
+    np.savez_compressed(str(replay_path), **replay_npz)
 
     manifest = {
         "stage_1_status": "COMPLETED",
@@ -663,13 +726,13 @@ def train_world_models_and_lora(
     r2d2_sched = torch.optim.lr_scheduler.CosineAnnealingLR(r2d2_opt, T_max=r2d2_epochs, eta_min=2e-4)
 
     burn_in = 6
-    batch_size = 60
+    batch_size = max(1, min(60, all_feats.shape[0]))
     n_total = all_feats.shape[0]
     r2d2_history: List[Dict[str, float]] = []
 
     print(
         f"  -> [Model 1/3] Training Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) "
-        f"for {r2d2_epochs} epochs on {n_total} collected trajectories (burn_in={burn_in}, unroll=10)..."
+        f"for {r2d2_epochs} epochs on {n_total} collected trajectories (burn_in={burn_in}, unroll={all_feats.shape[1]-burn_in})..."
     )
     for epoch in range(1, r2d2_epochs + 1):
         perm = torch.randperm(n_total)
@@ -879,23 +942,28 @@ def train_world_models_and_lora(
 
 def decode_stream_logical_error_rate(
     bp_engine: CycleAccurateBPEngine,
-    syndromes_x: np.ndarray,
-    data_z_faults: np.ndarray,
-    logical_z_op: Tuple[int, ...],
+    sx_masks: np.ndarray,
+    errs_z: np.ndarray,
     q78_weights: np.ndarray,
 ) -> float:
     logical_errors = 0
-    num_rounds = syndromes_x.shape[0]
-    for r in range(num_rounds):
-        res = bp_engine.decode_round(syndromes_x[r], q78_weights)
-        residual = np.bitwise_xor(data_z_faults[r], res.correction)
-        parity = int(np.sum(residual[list(logical_z_op)]) & 1)
-        if parity != 0:
+    num_rounds = len(sx_masks)
+    for i in range(num_rounds):
+        tr = bp_engine.decode(int(sx_masks[i]), q78_weights, K=3, true_error=errs_z[i])
+        if tr.logical_error:
             logical_errors += 1
     return float(logical_errors / max(1, num_rounds))
 
 
-def run_cloudshell_pipeline() -> None:
+def run_cloudshell_pipeline(
+    rounds_per_regime: int = 50000,
+    n_trajectories_per_regime: int = 120,
+    r2d2_epochs: int = 80,
+    transformer_epochs: int = 80,
+    lora_epochs: int = 50,
+    eval_rounds: int = 10000,
+    upload_hf: bool = True,
+) -> Dict[str, object]:
     env_vars = load_dotenv(REPO_ROOT / ".env")
     hf_token = os.environ.get("HF_TOKEN") or env_vars.get("HF_TOKEN", "")
     hf_username = os.environ.get("HF_USERNAME") or env_vars.get("HF_USERNAME", "Terrano09")
@@ -906,12 +974,13 @@ def run_cloudshell_pipeline() -> None:
     )
 
     print("[0/4] Regenerating canonical CSS code & identifiability artifacts...")
-    generate_code_artifacts()
-    generate_identifiability_artifacts(REPO_ROOT / "architecture" / "02_noise_and_identifiability")
-    run_timing_profile()
+    generate_code_main()
+    generate_identifiability_artifacts(REPO_ROOT)
+    collect_timing_main()
 
-    model = build_d3_correlated_noise_model(include_measurement_faults=False)
-    bp_engine = CycleAccurateBPEngine(model.code, max_iter=3, norm_shift_quarter=True)
+    model_x = build_d3_correlated_noise_model(basis="X", include_measurement_faults=False)
+    model_z = build_d3_correlated_noise_model(basis="Z", include_measurement_faults=False)
+    bp_engine = CycleAccurateBPEngine(code=model_x.code, basis="X", default_K=3, clock_mhz=250.0)
 
     checkpoints_dir = REPO_ROOT / "checkpoints"
     datasets_dir = REPO_ROOT / "datasets"
@@ -920,10 +989,11 @@ def run_cloudshell_pipeline() -> None:
 
     # STAGE 1: Long-term data collection first
     regime_streams, replay_data = collect_long_term_dataset(
-        model=model,
+        model_x=model_x,
+        model_z=model_z,
         datasets_dir=datasets_dir,
-        rounds_per_regime=50000,
-        n_trajectories_per_regime=120,
+        rounds_per_regime=rounds_per_regime,
+        n_trajectories_per_regime=n_trajectories_per_regime,
         seq_len=16,
         window_size=256,
     )
@@ -931,54 +1001,58 @@ def run_cloudshell_pipeline() -> None:
     # STAGE 2: Train Weighted-Bellman R2D2 + Transformer + LoRA on collected data
     print("[2/4] Training Weighted-Bellman R2D2 World Model, Transformer & 5 LoRA Adapters on collected data...")
     r2d2, _, lora_adapters, world_model_log = train_world_models_and_lora(
-        model=model,
+        model=model_x,
         replay_data=replay_data,
         checkpoints_dir=checkpoints_dir,
-        r2d2_epochs=80,
-        transformer_epochs=80,
-        lora_epochs=50,
+        r2d2_epochs=r2d2_epochs,
+        transformer_epochs=transformer_epochs,
+        lora_epochs=lora_epochs,
     )
 
     # STAGE 3: Calibrate & Evaluate all 7 controllers on held-out evaluation split
-    print("[3/4] Running 50,000-round Joint-DP MAP calibration & shared-seed Q7.8 BP evaluation...")
-    b0 = B0StaticBPController(model)
-    b1 = B1MarginalLBFGSController(model, max_iter=35)
-    b2 = B2ObservablePIDController(model)
-    b3 = B3CovarianceTrackerController(model)
-    b4 = B4OracleBPController(model)
+    print(f"[3/4] Running {rounds_per_regime:,}-round Joint-DP MAP calibration & shared-seed Q7.8 BP evaluation...")
+    b0 = B0StaticBPController()
+    b1 = B1MarginalLBFGSController()
+    b2 = B2ObservablePIDController()
+    b3 = B3CovarianceTrackerController()
+    b4 = B4OracleBPController()
 
     benchmark_summary: Dict[str, object] = {
         "architecture_branch": "AVID_EPJ_Patches",
-        "rounds_per_regime": 50000,
-        "total_fast_loop_rounds": 250000,
-        "total_r2d2_replay_rounds": 5 * 120 * 16 * 256,
+        "code": "rotated_planar_surface_code_d3_css",
+        "estimator": "Exact_16_State_Joint_DP_MAP_plus_Weighted_Bellman_R2D2",
+        "decoder_hardware_contract": "Normalized_Min_Sum_BP_Q7.8_17_Cycles_68ns_at_250MHz",
+        "rounds_per_regime": rounds_per_regime,
+        "total_fast_loop_rounds": rounds_per_regime * 5,
+        "total_r2d2_replay_rounds": 5 * n_trajectories_per_regime * 16 * 256,
         "bp_iterations": 3,
-        "bp_cycle_latency": bp_engine.expected_cycle_latency,
+        "bp_cycle_latency": bp_engine.cycle_count_fused(3),
         "world_model_training": world_model_log,
         "regimes": {},
     }
 
     q78_banks: Dict[str, np.ndarray] = {}
-    logical_z_op = model.code.logical_z_support
 
     for regime_name, r_stream in regime_streams.items():
-        syn_x = r_stream["syndrome_x"]
-        faults_z = r_stream["data_z_faults"]
+        sx_bits = r_stream["sx_bits"]
+        sx_masks = r_stream["sx_masks"]
+        errs_z = r_stream["errs_z"]
         true_theta = r_stream["true_theta"]
 
-        cal_syn = syn_x[:35000]
-        eval_syn = syn_x[35000:]
-        eval_faults = faults_z[35000:]
+        cal_n = max(4096, rounds_per_regime - eval_rounds)
+        cal_masks = sx_masks[:cal_n]
+        cal_bits = sx_bits[:cal_n]
+        eval_masks = sx_masks[cal_n : cal_n + eval_rounds]
+        eval_errs = errs_z[cal_n : cal_n + eval_rounds]
 
-        fit_res = model.fit_lbfgs(
-            cal_syn,
-            max_iter=80,
-            prior_lambda=0.04,
-            use_context_prior=True,
-        )
-        w_avid = np.asarray(fit_res["q7_8_llrs"], dtype=np.int16)
+        hist_16 = np.bincount(cal_masks, minlength=16).astype(np.float64)
 
-        w_feats, _ = extract_window_graph_features(cal_syn[: 16 * 256], model, window_size=256)
+        t0 = time.perf_counter()
+        fit_res = model_x.fit_lbfgs(hist_16, prior_lambda=0.04, max_iter=80)
+        fit_ms = (time.perf_counter() - t0) * 1e3
+        w_avid = np.asarray(fit_res["llr_q7_8"], dtype=np.int16)
+
+        w_feats, _ = extract_window_graph_features(cal_bits[: 16 * 256], model_x, window_size=256)
         with torch.no_grad():
             t_feats = torch.tensor(w_feats[None, ...], dtype=torch.float32)
             r2d2_out = r2d2(t_feats, burn_in_steps=6)
@@ -987,34 +1061,37 @@ def run_cloudshell_pipeline() -> None:
             )
             theta_r2d2 = adapted_theta.mean(dim=(0, 1)).cpu().numpy()
 
-        theta_hybrid = 0.55 * np.asarray(fit_res["theta_hat"]) + 0.45 * theta_r2d2
-        _, w_r2d2 = model.compute_q7_8_llrs(theta_hybrid, pair_aware_projection=True)
+        theta_hybrid = 0.50 * np.asarray(fit_res["theta"]) + 0.50 * theta_r2d2
+        _, w_r2d2 = model_x.compute_q7_8_llrs(theta_hybrid, pair_aware_projection=True)
 
-        w_b0 = b0.propose_q7_8_weights(cal_syn)
-        w_b1 = b1.propose_q7_8_weights(cal_syn)
-        w_b2 = b2.propose_q7_8_weights(cal_syn)
-        w_b3 = b3.propose_q7_8_weights(cal_syn)
-        w_b4 = b4.propose_q7_8_weights(true_theta)
+        w_b0 = b0.update_from_histogram(hist_16)
+        w_b1 = b1.update_from_histogram(hist_16)
+        w_b2 = b2.update_from_histogram(hist_16)
+        w_b3 = b3.update_from_histogram(hist_16)
+        w_b4 = b4.weights_from_true_theta(true_theta)
 
-        ler_b0 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b0)
-        ler_b1 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b1)
-        ler_b2 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b2)
-        ler_b3 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b3)
-        ler_avid = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_avid)
-        ler_r2d2 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_r2d2)
-        ler_b4 = decode_stream_logical_error_rate(bp_engine, eval_syn, eval_faults, logical_z_op, w_b4)
+        ler_b0 = decode_stream_logical_error_rate(bp_engine, eval_masks, eval_errs, w_b0)
+        ler_b1 = decode_stream_logical_error_rate(bp_engine, eval_masks, eval_errs, w_b1)
+        ler_b2 = decode_stream_logical_error_rate(bp_engine, eval_masks, eval_errs, w_b2)
+        ler_b3 = decode_stream_logical_error_rate(bp_engine, eval_masks, eval_errs, w_b3)
+        ler_avid = decode_stream_logical_error_rate(bp_engine, eval_masks, eval_errs, w_avid)
+        ler_r2d2 = decode_stream_logical_error_rate(bp_engine, eval_masks, eval_errs, w_r2d2)
+        ler_b4 = decode_stream_logical_error_rate(bp_engine, eval_masks, eval_errs, w_b4)
 
         q78_banks[f"{regime_name}_AVID_Joint_DP"] = w_avid
         q78_banks[f"{regime_name}_Weighted_Bellman_R2D2"] = w_r2d2
         q78_banks[f"{regime_name}_B0_Static"] = w_b0
+        q78_banks[f"{regime_name}_B1_Marginal_LBFGS"] = w_b1
+        q78_banks[f"{regime_name}_B2_PID"] = w_b2
+        q78_banks[f"{regime_name}_B3_Covariance"] = w_b3
         q78_banks[f"{regime_name}_B4_Oracle"] = w_b4
 
         benchmark_summary["regimes"][regime_name] = {
             "true_theta": [round(float(x), 5) for x in true_theta],
-            "estimated_theta_avid": [round(float(x), 5) for x in fit_res["theta_hat"]],
+            "estimated_theta_avid": [round(float(x), 5) for x in fit_res["theta"]],
             "estimated_theta_r2d2": [round(float(x), 5) for x in theta_hybrid],
             "avid_nll": round(float(fit_res["nll"]), 5),
-            "avid_fit_time_ms": round(float(fit_res["elapsed_ms"]), 3),
+            "avid_fit_time_ms": round(float(fit_ms), 3),
             "avid_q78_weights": [int(x) for x in w_avid],
             "r2d2_q78_weights": [int(x) for x in w_r2d2],
             "logical_error_rates": {
@@ -1038,17 +1115,17 @@ def run_cloudshell_pipeline() -> None:
     (checkpoints_dir / "baseline_vs_avid_benchmark.json").write_text(
         json.dumps(benchmark_summary, indent=2) + "\n", encoding="utf-8"
     )
-    np.savez_compressed(checkpoints_dir / "q78_weight_banks.npz", **q78_banks)
+    np.savez_compressed(str(checkpoints_dir / "q78_weight_banks.npz"), **q78_banks)
 
-    if not hf_token:
-        print("[SKIP HF UPLOAD] No HF_TOKEN found in environment or .env. Local artifacts saved.")
-        return
+    if not upload_hf or not hf_token:
+        print("[SKIP HF UPLOAD] Local artifacts saved in checkpoints/ and datasets/.")
+        return benchmark_summary
 
     print(f"[4/4] Uploading datasets, PyTorch .pt checkpoints & math docs to Hugging Face ({hf_repo_id})...")
     from huggingface_hub import HfApi
 
     api = HfApi(token=hf_token)
-    api.create_repo(repo_id=hf_repo_id, repo_type="model", exist_ok=True)
+    api.create_repo(repo_id=hf_repo_id, repo_type="model", private=False, exist_ok=True)
 
     stage_dir = REPO_ROOT / "build_hf_stage"
     if stage_dir.exists():
@@ -1121,7 +1198,9 @@ This repository hosts:
         folder_path=str(stage_dir),
         commit_message="Upload 250k-round long-horizon datasets, Weighted-Bellman R2D2 .pt checkpoints, pair-aware Q7.8 banks & math docs",
     )
+    shutil.rmtree(stage_dir, ignore_errors=True)
     print(f"[DONE] Successfully uploaded all artifacts to: https://huggingface.co/{hf_repo_id}")
+    return benchmark_summary
 
 
 if __name__ == "__main__":
