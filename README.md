@@ -2,8 +2,10 @@
 ### Real-Time Variational Inference & Weighted-Bellman R2D2 World Modeling of Correlated Quantum Noise for Hardware-Accelerated Surface Codes
 
 **Target Hardware:** Xilinx Zynq-7020 / Kria K26 SOM (`250 MHz` PL Fast Loop + `ARM Cortex-A53` Slow Loop)  
-**Hugging Face Models, Checkpoints & 250k-Round Datasets:** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data)  
-**Mathematical Modeling Suite (`00`–`08`):** [**`docs/`**](docs/00_Mathematical_Modeling_Index.md) & [**`mathematical_model/`**](mathematical_model/00_Mathematical_Modeling_Index.md)
+**Hugging Face Models, Checkpoints & 250k-Round Datasets (`73 files`):** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data)  
+**Hugging Face Peer-Reviewed 5-Benchmark Suite (`30 files`):** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data/tree/main/Benchmark-Eval/Baseline_V0`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data/tree/main/Benchmark-Eval/Baseline_V0)  
+**Baseline_V0 Establishment, Q01–Q21 Closure Audit & V1/V2 Roadmap:** [**`docs/AVID_Baseline_V0_Establishment_and_V1_V2_Roadmap.md`**](docs/AVID_Baseline_V0_Establishment_and_V1_V2_Roadmap.md)  
+**Mathematical Modeling Suite (`00`–`09`):** [**`docs/`**](docs/00_Mathematical_Modeling_Index.md) & [**`mathematical_model/`**](mathematical_model/00_Mathematical_Modeling_Index.md)
 
 ---
 
@@ -104,4 +106,9 @@ PYTHONPATH=. python3 tools/validate_architecture.py
 ### Run Full Long-Horizon Data Collection, Weighted-Bellman R2D2 Training & Hugging Face Upload
 ```bash
 bash run_cloudshell.sh
+```
+
+### Run 5-Benchmark Evaluation Suite (`Benchmark-Eval/Baseline_V0/BM1..BM5`) & Hugging Face Upload
+```bash
+bash run_benchmarks_cloudshell.sh
 ```
