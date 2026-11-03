@@ -1,237 +1,107 @@
-# AVID: Adaptive Variational Inference Decoder
-### Real-Time Variational Inference of Correlated Noise for Hardware-Accelerated Surface Codes
+# AVID: Adaptive Variational Inference Decoder (`AVID_EPJ_Patches`)
+### Real-Time Variational Inference & Weighted-Bellman R2D2 World Modeling of Correlated Quantum Noise for Hardware-Accelerated Surface Codes
 
-**Target Hardware:** Xilinx Zynq-7020 / Kria K26 SOM  
-
-
----
-
-## The Problem This Solves
-
-Standard surface code decoders (MWPM, static BP) assume a **fixed noise model** calibrated at device power-up. Real superconducting and trapped-ion hardware suffers from:
-
-| Effect | Timescale | Current decoder response |
-|---|---|---|
-| Flux-bias drift (charge noise) | Hours | None — LER degrades silently |
-| Microwave crosstalk (ZZ coupling) | Milliseconds | None — frame error accumulates |
-| T₁/T₂ fluctuations | Minutes | None — static threshold |
-
-AVID solves this with a **dual-clock architecture** that separates the decode path from noise learning:
-
-- **Fast-Path (PL @ 250 MHz):** Deterministic 68 ns BP decoder, never stalled
-- **Slow-Path (ARM @ ~10ms):** HMM variational inference tracks noise drift, injects updated LLRs via AXI-Lite double-buffer
+**Target Hardware:** Xilinx Zynq-7020 / Kria K26 SOM (`250 MHz` PL Fast Loop + `ARM Cortex-A53` Slow Loop)  
+**Hugging Face Models, Checkpoints & 250k-Round Datasets:** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data)  
+**Mathematical Modeling Suite (`00`–`08`):** [**`docs/`**](docs/00_Mathematical_Modeling_Index.md) & [**`mathematical_model/`**](mathematical_model/00_Mathematical_Modeling_Index.md)
 
 ---
 
-## Architecture
+## 1. Overview & Architectural Repair Scope (`A01–A09` / `Q01–Q21`)
 
-```
-┌─────────────────────────── SLOW-PATH (ARM Linux, ~10ms) ────────────────────────────┐
-│                                                                                       │
-│  ring_buffer (W=10k)  →  NLL minimisation  →  L-BFGS (50 iter)  →  inject LLRs    │
-│  noise_model.cpp          Eigen::Matrix        lbfgs_optimizer.cpp  weight_injector │
-│                                                                     ↓               │
-│                                             weight_map_reg.shadow[9×2]  ←  /dev/mem │
-│                                                    COMMIT bit (0x048)               │
-└──────────────────────────────────────────────────┬──────────────────────────────────┘
-                                                    │ atomic swap on bp_ready=1
-┌───────────────────────── FAST-PATH (PL @ 250 MHz) ─────────────────────────────────┐
-│                                                    ↓                                │
-│  DMA MM2S ─→ axis_syndrome_rx (FIFO) ─→ [bp_engine_X ‖ bp_engine_Z]              │
-│    ↑ S_AXI_HP0                                    ↑             ↑                  │
-│    │ (zero CPU touch)                      active_x[9]   active_z[9]              │
-│    │                                             ↓             ↓                   │
-│    │                                      axis_correction_tx ─→ DMA S2MM          │
-│    │                                             ↓                                  │
-│    └──────────────────────────────── epoch_irq → ARM GIC                          │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-```
+Standard surface code decoders (MWPM, static Min-Sum BP) assume a **stationary, uncorrelated noise model** calibrated at device boot. Real superconducting transmon processors experience non-stationary flux drift, Two-Level System (TLS) telegraph defects, and dispersive $ZZ$ crosstalk during CNOT/CZ stabilizer extraction.
 
-**The architectural contract:**
-- The FPGA BP decoder runs in exactly **17 clock cycles (68 ns)** regardless of ARM load
-- Weight swaps are **atomic** (single-cycle register copy) and only occur when `bp_ready=1`
-- The ARM is **interrupted once per epoch** (TLAST), not mid-syndrome
+This branch (`AVID_EPJ_Patches`) implements the complete end-to-end **AVID Layered Architecture and Repair Plan (`A01–A09` / `Q01–Q21`)**:
+1. **Canonical Rotated CSS Surface Code Geometry (`A01 / Q02`, `A08 / Q17`)**:
+   - Canonical rotated $d=3$ (`[[9, 1, 3]]`) and $d=5$ (`[[25, 1, 5]]`) CSS parity-check matrices ($H_X H_Z^\top \equiv \mathbf{0} \pmod 2$, $\operatorname{rank}_{\mathbb{F}_2}(H_X)=\operatorname{rank}_{\mathbb{F}_2}(H_Z)=4$, $k=1$, $d_X=d_Z=3$) and degree-padded hardware Tanner tables (`CHECK_ACTIVE_MASK = {0x3, 0xF, 0xF, 0x3}`).
+2. **Exact $2^m$-State Dynamic Programming Joint Syndrome Likelihood & Analytic Coset Gradients (`A02 / Q03`)**:
+   - Replaces the rank-deficient 4-check marginal Bernoulli objective with the exact $2^m=16$-state XOR-convolution dynamic program $P^{(k)}(s) = (1-p_{e_k})P^{(k-1)}(s) + p_{e_k}P^{(k-1)}(s \oplus g_{e_k})$ ($336$ multiply-adds) and exact single-pass coset-inversion gradient $\frac{\partial P_\theta(s)}{\partial p_e} = \frac{P_\theta(s \oplus g_e) - P_\theta(s)}{1 - 2p_e}$.
+3. **Structural Identifiability & Pair-Aware Logical-Triangle LLR Projection (`A03 / Q04`)**:
+   - Full Jacobian SVD and Fisher Information rank analysis ($\operatorname{rank}(\mathcal{I}) = 9$ unregularized vs. rank $4$ in the legacy marginal model; full rank $21$, $\kappa = 234.05$ under prior-tethered MAP), plus **Pair-Aware Logical-Triangle LLR Projection** that splits joint $Z_u Z_v$ crosstalk log-likelihoods across endpoints $(u, v)$ to prevent weight-1 logical aliasing in weight-3 logical triangles $\{u, v, k\}$.
+4. **Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) + Spatio-Temporal Transformer + 5 Rank-4 LoRA Adapters**:
+   - Non-vision bipartite stabilizer-data graph attention encoder (`13` nodes: `9` data qubits + `4` checks) coupled to a Recurrent State-Space Model trained with **burn-in warmup ($T_{\text{burn}}=6$)**, **Kapturowski invertible value rescaling $h(u)$**, **3-step bootstrapped Bellman targets**, and **Uncertainty-Weighted Bellman TD Loss ($\mathcal{L}_{\text{WB-R2D2}}$)**.
+5. **17-Cycle (`68.0 ns` @ `250 MHz`) Hardware Q7.8 Min-Sum BP Engine & Atomic Double-Buffered Weight Registry (`A04 / Q01`, `A05 / Q11`, `A06 / Q06`, `A09 / Q18`)**:
+   - Fused 17-cycle $L(K) = 2 + 5K$ state machine in [`bp_engine.sv`](firmware/rtl/bp_engine.sv), `bp_ready_in`-gated atomic shadow-to-active swap in [`weight_map_reg.sv`](firmware/rtl/weight_map_reg.sv), 64-bit little-endian AXI4-Stream syndrome packet contract (`syndrome_packet_v1.yaml`), 4-state DMA ring ownership FSM, and 4-state safety fallback FSM.
 
 ---
 
-## Repository Structure
+## 2. Shared-Input Logical Error Rate (LER) Benchmark (50,000 Rounds/Regime)
 
-```
-AVID/
-├── firmware/
-│   ├── rtl/
-│   │   ├── weight_map_reg.sv      Phase 1.2 — Double-buffered AXI-Lite weight registry
-│   │   ├── bp_engine.sv           Phase 1.3 — Systolic BP decoder (dynamic LLRs)
-│   │   ├── check_node_minsum.sv   Phase 1.3 — 3-stage pipelined min-sum PE
-│   │   ├── axis_syndrome_rx.sv    Phase 1.1 — AXI-S slave with FIFO elastic buffer
-│   │   ├── axis_correction_tx.sv  Phase 1.4 — AXI-S master correction stream
-│   │   └── avid_top.sv          Top-level PS/PL integration
-│   ├── tb/
-│   │   └── tb_avid_top.sv       Testbench: latency + double-buffer atomicity proof
-│   └── constraints/
-│       └── avid.xdc             250 MHz timing constraints
-├── software/
+Evaluated across `250,000` fast-loop syndrome rounds (`50,000` rounds/regime) and `600` non-stationary R2D2 replay trajectories (`2,457,600` fast-loop rounds) using the bit-exact 17-cycle Q7.8 hardware BP execution engine ([`checkpoints/baseline_vs_avid_benchmark.json`](checkpoints/baseline_vs_avid_benchmark.json)):
+
+| Noise Regime | `B0` Static BP | `B1` Marginal L-BFGS | `B2` Observable PID | `B3` Covariance | **`AVID_Joint_DP_MAP`** | **`AVID_Weighted_Bellman_R2D2`** | `B4` Oracle BP | Key Result |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| `R1_stationary_baseline` | `0.0486` | `0.0486` | `0.0486` | `0.0486` | **`0.0486`** | **`0.0486`** | `0.0486` | Matches exact Oracle floor |
+| `R2_tls_hotspot_q4_q5` | `0.0564` | `0.0564` | `0.0564` | `0.0564` | `0.0588` | **`0.0564`** | `0.0564` | Matches exact Oracle floor |
+| `R3_zz_crosstalk_burst` | `0.1984` | `0.1984` | `0.1984` | `0.1984` | **`0.1143`** | **`0.1143`** | `0.1143` | **42.4% LER reduction (matches Oracle)** |
+| `R4_boundary_drift` | `0.0534` | `0.0534` | `0.0534` | `0.0534` | **`0.0534`** | **`0.0534`** | `0.0534` | Matches exact Oracle floor |
+| `R5_combined_stress` | `0.0970` | `0.0970` | `0.0970` | `0.0970` | `0.0970` | **`0.0544`** | `0.0517` | **43.9% LER reduction (`0.0970 -> 0.0544`)** |
+
+---
+
+## 3. End-to-End Repository Structure
+
+```text
+AVID_EPJ_Patches/
+├── architecture/                          # Frozen Contracts & Layer 1–7 Specifications
+│   ├── contracts/                         # system_timing, syndrome_packet_v1, code_layout_v1,
+│   │                                      # noise_channel_v1, llr_numeric_contract, fault_policy
+│   ├── 01_code_model/                     # Hx.json, Hz.json, coordinates.csv, logical_operators.json, tanner_tables.json
+│   ├── 02_noise_and_identifiability/      # event_signatures.json, observation_model.md, identifiability_report.md
+│   ├── 03_syndrome_transport/             # dma_topology.md, packet_layout.md, buffer_ownership.md
+│   ├── 04_variational_estimator/          # likelihood_spec.md, parameter_schema.json, estimator_io.md
+│   ├── 05_realtime_control/               # fast_slow_partition.md, deadline_contract.md, epoch_protocol.md, timing_profile_report.json
+│   ├── 06_fpga_decoder/                   # cycle_contract.md, stream_interface.md, resource_envelope.md
+│   └── 07_fault_management/               # fallback_fsm.md, fault_matrix.csv
+├── docs/ & mathematical_model/            # Complete Numbered End-to-End Mathematical Modeling Suite (00..08)
+│   ├── 00_Mathematical_Modeling_Index.md
+│   ├── 01_CSS_Surface_Code_Algebra_and_Tanner_Geometry.md
+│   ├── 02_Correlated_Fault_Channel_and_Observation_Algebra.md
+│   ├── 03_Exact_Joint_DP_Likelihood_and_Coset_Gradients.md
+│   ├── 04_Structural_Identifiability_Gauge_Orbits_and_Fisher_Rank.md
+│   ├── 05_LBFGS_Optimization_XOR_Marginalization_and_Q78_Numerics.md
+│   ├── 06_Hardware_MinSum_BP_Decoder_and_Cycle_Latency_Contract.md
+│   ├── 07_Dual_Timescale_Causal_Control_DMA_and_Baselines_B0_B4.md
+│   ├── 08_Weighted_Bellman_R2D2_and_World_Model_Math.md
+│   ├── mathematical_modeling_complete.md
+│   └── identifiability_proof.md
+├── simulation/                            # Python Reference Models, Baselines (B0–B4) & 15 Unit Tests
+│   ├── reference/
+│   │   ├── code_model/css_code_builder.py
+│   │   ├── noise_model/{joint_dp_likelihood.py, identifiability_svd.py}
+│   │   ├── syndrome_stream/causal_stream_runner.py
+│   │   └── baselines/{b0_static_bp.py .. b4_oracle_bp.py}
+│   ├── stimulus/{packet_codec.py, noise_generator.py, stim_to_bin.py}
+│   └── tests/                             # 6 test suites (15 tests) verifying Gate 0–Gate 8
+├── software/                              # C/C++ ARM PS Slow-Loop Inference & Cycle-Accurate BP Twin
 │   ├── src/
-│   │   ├── driver/
-│   │   │   ├── weight_reg_driver.h/c   Phase 2.1 — /dev/mem AXI-Lite driver
-│   │   │   └── dma_manager.h/c         Phase 2.2 — Xilinx AXI DMA driver
-│   │   └── inference/
-│   │       ├── ring_buffer.h            Phase 3.1 — W=10k syndrome history (no alloc)
-│   │       ├── noise_model.h/cpp        Phase 3.2 — HMM NLL + analytical gradient
-│   │       ├── lbfgs_optimizer.h/cpp    Phase 3.3 — L-BFGS (pre-allocated, 50-iter cap)
-│   │       ├── weight_injector.h/cpp    Phase 3.4 — LLR → Q7.8 → FPGA injection
-│   │       └── avid_daemon.cpp        Main adaptive loop daemon
-│   └── CMakeLists.txt
-├── simulation/
-│   ├── stimulus/
-│   │   ├── noise_generator.py     Phase 4.1 — 1M-round drifting + ZZ-burst scenario
-│   │   └── stim_to_bin.py         Phase 4.2 — .npz → AXI binary syndrome stream
-│   └── ablation_study.ipynb       Phase 5   — PRX Quantum validation plots
-├── docs/
-│   └── identifiability_proof.md   Mathematical proof of noise parameter identifiability
-├── scripts/
-│   └── create_vivado_project.tcl  Automated Vivado block design generation
-├── agent_profile.json             Blueprint / system prompt for agent continuations
-└── README.md
+│   │   ├── ingress/{packet_validator.h/.cpp, dma_ingress_tap.h/.cpp}
+│   │   ├── estimator/{joint_dp_estimator.h/.cpp, lbfgs_solver.h/.cpp, llr_quantizer.h/.cpp}
+│   │   ├── control/{causal_scheduler.h/.cpp, stage_profiler.h/.cpp, fallback_fsm.h/.cpp}
+│   │   ├── custom_engine/cycle_accurate_bp_engine.h/.cpp
+│   │   ├── driver/{weight_reg_driver.h/.c, weight_bank_driver.h/.c, dma_manager.h/.c}
+│   │   └── inference/{noise_model.h/.cpp, lbfgs_optimizer.h/.cpp, weight_injector.h/.cpp, avid_daemon.cpp}
+│   └── tests/test_baseline_suite.cpp
+├── firmware/                              # SystemVerilog RTL & Verification Testbenches (250 MHz PL)
+│   ├── rtl/{aa_qec_top.sv, bp_engine.sv, check_node_minsum.sv, weight_map_reg.sv, axis_syndrome_rx.sv, axis_correction_tx.sv}
+│   └── tb/tb_aa_qec_top.sv
+├── checkpoints/                           # Trained Weighted-Bellman R2D2, Transformer, LoRA (.pt) & Q7.8 Weight Banks
+├── datasets/                              # Dataset Manifest & 64-Bit AXI4-Stream Syndrome Packet Binary
+├── configs/                               # d3_baseline.yaml, d5_simulation.yaml, target_board.yaml
+├── tools/                                 # validate_architecture.py, cloudshell_hf_pipeline.py, generate_code_artifacts.py
+└── run_cloudshell.sh                      # One-Command Gate Validation + Long-Horizon Training + HF Upload
 ```
 
 ---
 
-## Key Hardware Module: `weight_map_reg.sv`
+## 4. Verification & Reproducibility
 
-The critical new component absent in static decoders.
-
-**AXI-Lite Register Map** (base address: `0x43C01000` in block design):
-
-| Offset | Name | Access | Description |
-|---|---|---|---|
-| `0x000 + 4×i` | `SHADOW_X[i]` | R/W | Shadow X-LLR for qubit i (Q7.8) |
-| `0x024 + 4×i` | `SHADOW_Z[i]` | R/W | Shadow Z-LLR for qubit i (Q7.8) |
-| `0x048` | `COMMIT` | W | Write 1 → schedule atomic swap |
-| `0x04C` | `STATUS` | R | [0]=swap_pending, [1]=bp_busy |
-| `0x050` | `EPOCH_COUNT` | R | Number of completed weight epochs |
-
-**ARM usage:**
-```c
-wrd_write_all(&wrd, llr_x, llr_z);  // 18 MMIO writes
-wrd_commit(&wrd);                    // Schedule atomic swap
-// FPGA swaps at next bp_ready=1 boundary — no polling needed
-```
-
----
-
-## Noise Model: Identifiable Parameters
-
-The AVID inference engine tracks **21 parameters** for d=3:
-
-- `p_v` (9): Single-qubit Z-error rate per qubit — detects flux-bias drift
-- `p_ij` (12): Nearest-neighbor ZZ crosstalk — detects microwave crosstalk
-
-**NOT tracked** (non-identifiable from stabilizer syndromes):
-- Coherent over-rotations — Pauli-twirled by measurement
-- Long-range correlations (|i-j| > 1) — Fisher Information → 0
-
-See `docs/identifiability_proof.md` for the full Fisher Information analysis and Cramér-Rao bounds.
-
----
-
-## Getting Started
-
-### 1. Generate Non-Markovian Syndrome Dataset
-
+### Run Full Gate Validator Locally (Python + C++ Suites)
 ```bash
-# 1M rounds with drifting flux-bias + ZZ burst at t=500k
-python simulation/stimulus/noise_generator.py \
-    --rounds 1000000 --output simulation/stimulus/syndromes.npz
-
-# Convert to AXI-Stream binary
-python simulation/stimulus/stim_to_bin.py \
-    --input simulation/stimulus/syndromes.npz \
-    --output simulation/stimulus/data.bin --verify
+PYTHONPATH=. python3 tools/validate_architecture.py
 ```
 
-### 2. Run Ablation Study (no hardware needed)
-
+### Run Full Long-Horizon Data Collection, Weighted-Bellman R2D2 Training & Hugging Face Upload
 ```bash
-jupyter notebook simulation/ablation_study.ipynb
+bash run_cloudshell.sh
 ```
-
-Produces the three PRX Quantum paper plots:
-1. **Tracking Accuracy** — Inferred `M_cross` vs. true injected noise over 1M rounds
-2. **Logical T₂ Improvement** — Static decoder LER vs. AVID LER under noise drift
-3. **Latency Distribution** — FPGA decode time flat at 68 ns regardless of ARM load
-
-### 3. Build ARM Software
-
-```bash
-cd software && mkdir build && cd build
-cmake .. && make -j4
-# Binary: build/avid_daemon
-```
-
-Cross-compile from x86 (uncomment the toolchain block in `CMakeLists.txt` first):
-```bash
-mkdir build_arm && cd build_arm
-cmake .. && make -j8
-scp avid_daemon zynq@192.168.1.100:/usr/local/bin/
-```
-
-### 4. Create Vivado Block Design
-
-```bash
-vivado -mode batch -source scripts/create_vivado_project.tcl
-```
-
-### 5. Deploy on Zynq
-
-```bash
-# 1. Flash bitfile to FPGA
-# 2. Start DMA syndrome stream
-# 3. Run adaptive daemon
-ssh zynq@192.168.1.100
-sudo avid_daemon  2>&1 | tee adaptive_log.txt
-```
-
----
-
-## Performance Metrics
-
-| Metric | Static BP | AVID | Improvement |
-|---|---|---|---|
-| Decode latency | 68 ns | 68 ns | Equal (Fast-Path unchanged) |
-| Latency jitter | 0 ns | 0 ns | Equal (deterministic FPGA) |
-| LER @ p=0.01 (t=0) | 0.3% | 0.3% | Equal |
-| LER @ p=0.05 (t=T, drift) | 2.1% | 0.4% | **5.3× improvement** |
-| LER during ZZ burst | 8.7% | 1.2% | **7.3× improvement** |
-| Noise tracking latency | N/A | ~100ms | (10 update epochs) |
-
----
-
-## The 10 Commandments (Hard Constraints)
-
-1. BP decoder executes in exactly N clock cycles — no dynamic loops in Verilog
-2. PL clock domain is 250 MHz (4.0 ns period) exclusively
-3. No floating-point arithmetic in PL — Q7.8 fixed-point only
-4. Zero-copy syndrome ingestion via S_AXI_HP DMA — ARM never touches raw syndromes
-5. Double-buffered weight registers — ARM writes shadow, FPGA reads active
-6. No VQE — classical HMM/MPS inference on ARM only
-7. Track correlated Pauli noise (ZZ, XX) and drift only — not coherent rotations
-8. Only learn identifiable parameters (distinct topological syndrome signature)
-9. No OS jitter in data path — FPGA decoder never waits for Linux scheduler
-10. Mathematical objective (ELBO/NLL) defined in comments before any inference code
-
----
-
-## References
-
-- Fowler et al., "Surface codes: Towards practical large-scale quantum computation," PRA 86, 032324 (2012)
-- Chen et al., "FPGA-based real-time decoding of surface codes," arXiv:2107.06836 (2021)
-- Harper et al., "Efficient learning of quantum noise," Nature Physics 16, 1184 (2020)
-- Nocedal & Wright, "Numerical Optimization," Springer (2006) — L-BFGS Chapter 7
-- Xilinx PG021: AXI DMA v7.1 Product Guide
-
----
-
-**Lead Architect:** NCCLab  
-**Blueprint:** AVID Master Agent Blueprint v2026.1  
-**Companion project:** [ZEPHYR](../Chronos-Zynq/) — static surface code decoder baseline

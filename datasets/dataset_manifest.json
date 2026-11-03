@@ -1,0 +1,18 @@
+{
+  "stage_1_status": "COMPLETED",
+  "fast_loop_rounds_per_regime": 50000,
+  "total_fast_loop_stream_rounds": 250000,
+  "r2d2_replay_trajectories_per_regime": 120,
+  "r2d2_total_trajectories": 600,
+  "r2d2_sequence_length_windows": 16,
+  "r2d2_burn_in_windows": 6,
+  "r2d2_unroll_windows": 10,
+  "window_size_rounds": 256,
+  "total_underlying_replay_rounds": 2457600,
+  "files": [
+    "datasets/avid_long_horizon_d3_250k_rounds.npz",
+    "datasets/avid_canonical_css_regimes.npz",
+    "datasets/avid_r2d2_replay_buffer_trajectories.npz",
+    "datasets/syndrome_packets_v1.bin"
+  ]
+}
