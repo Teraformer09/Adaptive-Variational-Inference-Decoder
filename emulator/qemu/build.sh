@@ -10,6 +10,9 @@ SW_DIR="${REPO_ROOT}/software"
 IMG_DIR="${SCRIPT_DIR}/images"
 mkdir -p "${IMG_DIR}" "${SCRIPT_DIR}/configs" "${SCRIPT_DIR}/scripts"
 
+# Always remove old binaries first so stale cross-binaries never persist across container resets
+rm -f "${IMG_DIR}/avid_daemon_cortex_a9" "${IMG_DIR}/avid_daemon_aarch64" "${IMG_DIR}/avid_daemon_x86_64"
+
 echo "[QEMU Build] Building native AVID daemon & test suite..."
 mkdir -p "${SW_DIR}/build_native"
 cmake -S "${SW_DIR}" -B "${SW_DIR}/build_native" -DCMAKE_BUILD_TYPE=Release >/dev/null

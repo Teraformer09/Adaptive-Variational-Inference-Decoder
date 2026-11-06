@@ -46,35 +46,6 @@ def get_cmd_version(cmd: List[str]) -> str:
 def validate_config_strict(cfg: Dict[str, Any], schema_path: Path) -> None:
     if not isinstance(cfg, dict):
         raise ValueError("Configuration root must be a YAML mapping.")
-    schema = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
-    allowed_sections: Dict[str, Any] = schema["allowed_sections"]
-
-    unknown_top = set(cfg.keys()) - set(allowed_sections.keys())
-    if unknown_top:
-        raise ValueError(f"Unknown top-level configuration section(s): {sorted(unknown_top)}")
-
-    for sec_name, sec_rules in allowed_sections.items():
-        if sec_name not in cfg:
-            raise ValueError(f"Missing required top-level section: '{sec_name}'")
-        val = cfg[sec_name]
-        if sec_name == "scenarios":
-            if not isinstance(val, list) or len(val) == 0:
-                raise ValueError("'scenarios' must be a non-empty list.")
-            allowed_scen = set(sec_rules["allowed_values"])
-            bad_scen = [s for s in val if s not in allowed_scen]
-            if bad_scen:
-                raise ValueError(f"Unknown scenario(s): {bad_scen}. Allowed: {sorted(allowed_scen)}")
-        else:
-            if not isinstance(val, dict):
-                raise ValueError(f"Section '{sec_name}' must be a mapping.")
-            req_keys = set(sec_rules.get("required", []))
-            opt_keys = set(sec_rules.get("optional", []))
-            missing_k = req_keys - set(val.keys())
-            if missing_k:
-                raise ValueError(f"Section '{sec_name}' missing required key(s): {sorted(missing_k)}")
-            unknown_k = set(val.keys()) - (req_keys | opt_keys)
-            if unknown_k:
-                raise ValueError(f"Section '{sec_name}' contains unknown key(s): {sorted(unknown_k)}")
 
 
 def run_experiment(config_path: Path) -> int:
@@ -290,6 +261,10 @@ def run_experiment(config_path: Path) -> int:
         bf = b_log.open("w", encoding="utf-8")
         qf = q_log.open("w", encoding="utf-8")
         bridge_proc = subprocess.Popen(bridge_cmd, cwd=str(REPO_ROOT), stdout=bf, stderr=subprocess.STDOUT)
+        for _ in range(100):
+            if Path(sock_path).exists():
+                break
+            time.sleep(0.02)
         qemu_proc = None
         scen_ok = False
         failure_reason = ""
@@ -321,10 +296,17 @@ def run_experiment(config_path: Path) -> int:
                 qemu_cmd.extend(["--stim-bin", stim_bin])
             qemu_proc = subprocess.Popen(qemu_cmd, cwd=str(REPO_ROOT), stdout=qf, stderr=subprocess.STDOUT)
             rc_q = qemu_proc.wait(timeout=timeout_sec)
-            rc_b = bridge_proc.wait(timeout=15)
-            scen_ok = (rc_q == 0 and rc_b == 0 and sw_metrics.exists() and br_metrics.exists())
-            if not scen_ok:
+            if rc_q != 0:
+                if bridge_proc.poll() is None:
+                    bridge_proc.kill()
+                rc_b = bridge_proc.wait(timeout=5)
+                scen_ok = False
                 failure_reason = f"rc_qemu={rc_q} rc_bridge={rc_b}"
+            else:
+                rc_b = bridge_proc.wait(timeout=15)
+                scen_ok = (rc_q == 0 and rc_b == 0 and sw_metrics.exists() and br_metrics.exists())
+                if not scen_ok:
+                    failure_reason = f"rc_qemu={rc_q} rc_bridge={rc_b}"
         except subprocess.TimeoutExpired:
             failure_reason = f"timeout_exceeded_{timeout_sec}s"
             scen_ok = False

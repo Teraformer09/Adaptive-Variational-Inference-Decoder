@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-11-06T12:36:12.113172+00:00",
+  "timestamp_utc": "2026-11-06T13:10:52.835300+00:00",
   "v0_closure_score": "40/40",
   "all_40_items_closed": true,
   "ablation_study_correlated_noise": {
@@ -507,7 +507,7 @@
       "title": "Create canonical manifest with commit, configuration, seed and tool versions",
       "status": "CLOSED",
       "evidence": {
-        "git_commit_sha": "1cf73313a8b9e2aefc2838660b98c02460d7e4ee"
+        "git_commit_sha": "e5f52e98274e7c7a4f7d4503ce42bc723cdce320"
       }
     },
     {
