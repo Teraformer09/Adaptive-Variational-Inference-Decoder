@@ -186,8 +186,8 @@ int main(int argc, char *argv[]) {
             uint8_t sx = compute_sx_d3(err_z);
             uint8_t sz = (uint8_t)((seq_gen % 13 == 0) ? 0x1u : 0x0u);
 
-            /* In simulation backend, stream syndrome transactions through Bridge -> Verilator RTL */
-            if (backend == AVID_HAL_BACKEND_SIMULATION && (seq_gen % 8 == 0)) {
+            /* In simulation backend, stream EVERY syndrome transaction through Bridge -> Verilator RTL */
+            if (backend == AVID_HAL_BACKEND_SIMULATION) {
                 uint16_t cx = 0, cz = 0;
                 uint32_t bp_cyc = 0;
                 bool tlast = ((seq_gen + 1) % 64 == 0);
