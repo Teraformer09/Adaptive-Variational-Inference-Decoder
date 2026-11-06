@@ -106,22 +106,22 @@ Measured in Google Cloud Shell using the **AVID V1 Two-Emulator Architecture** (
 | `reset_recovery` | `31` (2 reset drops) | `0.07019` | **`0.03455`** | **`-50.78%`** | `17.0 cyc` (`68.0 ns`) | `181,580` | Recovers cleanly after mid-flight hardware reset |
 | `busy_decoder` | `33` (0 busy overwrites) | `0.06958` | **`0.03198`** | **`-54.04%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | `bp_ready_in` lock prevents mid-packet bank corruption |
 
-### 4.2 10-Scenario V1 Dual-Emulator Integration Suite (`4 Nov – 8 Nov` Roadmap Closure)
+### 4.2 10-Scenario V1 Dual-Emulator Integration Suite (`4 Nov – 8 Nov` Roadmap Closure in Cloud Shell)
 
-Executed via `bash scripts/run_all.sh configs/v1_integration.yaml` (`15,360` rounds across `10` scenarios, with causal two-pass 16-state Joint-DP L-BFGS + 64-unit LSTM `R2D2-WB` meta-controller, dual $X/Z$ histograms, formal SystemVerilog Assertions `--assert`, and reconciled epoch/commit accounting):
+Measured in Google Cloud Shell (`avid_v1_integration_20261106_172251_s2026`) running cross-compiled `avid_daemon_cortex_a9` on `qemu-arm -cpu cortex-a9 8.2.2` against native `Verilator 5.020` (`verilator_c++_rtl` with `--assert` SVA enabled) across `15,360` syndrome rounds (`10` scenarios):
 
-| Scenario (`1,536` Rounds, `6` Epochs) | Boot + Adaptive − Reset = Commits | Reconciled | Core / Total AXI Cycles | Static `B0` LER | **AVID V1 LER** (`95% Wilson CI`) | **LER Reduction** | 9-Orbit RMSE |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `stationary_noise` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.00456` | **`0.00456`** (`[0.0022, 0.0094]`) | `0.00%` | `0.00809` |
-| `slowly_drifting_noise` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.05208` | **`0.02083`** (`[0.0148, 0.0293]`) | **`-60.00%`** | `0.01033` |
-| `correlated_noise` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.05339` | **`0.03581`** (`[0.0276, 0.0463]`) | **`-32.93%`** | `0.01177` |
-| `burst_disturbance` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.04688` | **`0.02669`** (`[0.0197, 0.0360]`) | **`-43.06%`** (`-57.14%` burst) | `0.01418` |
-| `delayed_weight_commit` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.07357` | **`0.03646`** (`[0.0282, 0.0471]`) | **`-50.44%`** | `0.01034` |
-| `reset_recovery` | `1 + 6 - 2 = 5` | `true` | `17.0` / `22.0` | `0.07031` | **`0.03581`** (`[0.0276, 0.0463]`) | **`-49.07%`** | `0.01149` |
-| `busy_decoder` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.07292` | **`0.03255`** (`[0.0248, 0.0427]`) | **`-55.36%`** | `0.00868` |
-| `variable_k_adaptation` ($K=1\dots 5$) | `1 + 6 - 0 = 7` | `true` | `17.0` (`min=7, max=27`) / `22.0` | `0.06771` | **`0.03060`** (`[0.0231, 0.0405]`) | **`-54.81%`** | `0.01071` |
-| `fallback_safety_trigger` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.07031` | **`0.04622`** (`[0.0368, 0.0579]`) | **`-34.26%`** (safe fallback) | `0.01162` |
-| `short_burst_60us_vs_10ms` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.05404` | **`0.02604`** (`[0.0192, 0.0353]`) | **`-51.81%`** | `0.01480` |
+| Scenario (`1,536` Rounds, `6` Epochs) | Active Bank Commits (`reconciled`) | Core / Total AXI Cycles | Static `B0` LER | **AVID V1 RTL LER** (`verilator_c++_rtl`) | **LER Reduction** | 9-Orbit RMSE |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `stationary_noise` | `6` (`true`) | `17.0` / `22.0` | `0.00456` | **`0.00456`** | `0.00%` (at floor) | `0.008093` |
+| `slowly_drifting_noise` | `6` (`true`) | `17.0` / `22.0` | `0.05208` | **`0.02604`** | **`-50.00%`** | `0.010331` |
+| `correlated_noise` | `6` (`true`) | `17.0` / `22.0` | `0.05339` | **`0.03646`** | **`-31.71%`** | `0.011767` |
+| `burst_disturbance` | `6` (`true`) | `17.0` / `22.0` | `0.04688` | **`0.02669`** | **`-43.06%`** (`-57.14%` burst) | `0.014177` |
+| `delayed_weight_commit` | `7` (`true`) | `17.0` / `22.0` | `0.07357` | **`0.03646`** | **`-50.44%`** | `0.010343` |
+| `reset_recovery` | `5` (`true`, 2 reset drops) | `17.0` / `22.0` | `0.07031` | **`0.04036`** | **`-42.59%`** | `0.011487` |
+| `busy_decoder` | `6` (`true`, 0 busy overwrites) | `17.0` / `22.0` | `0.07292` | **`0.04167`** | **`-42.86%`** | `0.008683` |
+| `variable_k_adaptation` ($K=1\dots 5$) | `6` (`true`) | `17.0` (`min=7, max=27`) / `22.0` | `0.06771` | **`0.03906`** | **`-42.31%`** | `0.010708` |
+| `fallback_safety_trigger` | `6` (`true`) | `17.0` / `22.0` | `0.07031` | **`0.05143`** | **`-26.85%`** (safe fallback) | `0.011615` |
+| `short_burst_60us_vs_10ms` | `6` (`true`) | `17.0` / `22.0` | `0.05404` | **`0.03190`** | **`-40.96%`** | `0.014799` |
 
 ### 4.3 Six-Way Architectural Ablation Study (`reports/v0_closure_40_40_report.json`)
 
