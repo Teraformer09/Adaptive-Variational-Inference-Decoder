@@ -4,6 +4,12 @@ __pycache__/
 *.pyc
 software/build/
 software/build_verify/
+software/build_native/
+software/build_arm64/
+emulator/bridge/build/
+emulator/bridge/build_verilator/
+emulator/qemu/images/
+emulator/verilator/models/
 build_hf_upload/
 datasets/*.bin
 datasets/*.npz

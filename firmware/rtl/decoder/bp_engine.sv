@@ -40,6 +40,7 @@ module bp_engine #(
     output logic                             bp_ready,
 
     input  logic signed [DATA_WIDTH-1:0]     channel_llr [N_DATA],
+    input  logic [3:0]                       cfg_max_iter,
 
     output logic [N_DATA-1:0]                correction,
     output logic                             correction_valid
@@ -130,8 +131,10 @@ module bp_engine #(
     } state_t;
 
     state_t state;
-    logic [$clog2(MAX_ITER+1)-1:0] iter_count;
+    logic [3:0] iter_count;
     logic [$clog2(CHECK_PIPE)-1:0] wait_count;
+    logic [3:0] active_max_iter;
+    assign active_max_iter = (cfg_max_iter >= 4'd1 && cfg_max_iter <= 4'd7) ? cfg_max_iter : 4'(MAX_ITER);
 
     assign bp_ready = (state == ST_IDLE);
 
@@ -197,10 +200,10 @@ module bp_engine #(
                         belief[v] <= acc;
                     end
                     // Fused iteration check -> exact L(K) = 2 + 5*K cycles
-                    if (iter_count == MAX_ITER[$clog2(MAX_ITER+1)-1:0] - 1) begin
+                    if (iter_count == active_max_iter - 4'd1) begin
                         state <= ST_HARD_DECIDE;
                     end else begin
-                        iter_count <= iter_count + 1'b1;
+                        iter_count <= iter_count + 4'd1;
                         state      <= ST_V2C;
                     end
                 end

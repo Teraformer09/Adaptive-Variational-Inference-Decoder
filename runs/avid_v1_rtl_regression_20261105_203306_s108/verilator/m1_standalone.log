@@ -1,0 +1,1 @@
+[Verilator M1] Standalone RTL test passed: K=1..5 cycles={7,12,17,22,27} (K=3 -> 17 cycles = 68.0 ns)

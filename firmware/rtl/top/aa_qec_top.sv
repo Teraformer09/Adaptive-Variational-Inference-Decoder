@@ -31,7 +31,7 @@
 // =============================================================================
 `timescale 1ns / 1ps
 
-module avid_top #(
+module aa_qec_top #(
     parameter int N_DATA       = 9,
     parameter int N_CHECK      = 4,
     parameter int MAX_DEG      = 4,
@@ -75,7 +75,12 @@ module avid_top #(
     input  logic                     s_axil_rready,
 
     // ---- Interrupt: epoch done → ARM GIC ----
-    output logic                     epoch_irq
+    output logic                     epoch_irq,
+
+    // ---- Cycle-Level Co-Simulation Monitor Ports ----
+    output logic                     bp_core_start_mon,
+    output logic                     bp_core_done_mon,
+    output logic                     bp_core_busy_mon
 );
 
     // =========================================================================
@@ -112,6 +117,7 @@ module avid_top #(
     logic signed [DATA_WIDTH-1:0] active_x [N_DATA];
     logic signed [DATA_WIDTH-1:0] active_z [N_DATA];
     logic [31:0]                  weight_epoch;
+    logic [3:0]                   cfg_max_iter_int;
 
     weight_map_reg #(
         .N_DATA     (N_DATA),
@@ -139,7 +145,8 @@ module avid_top #(
         .active_x        (active_x),
         .active_z        (active_z),
         .bp_ready_in     (sbu_ready_int),
-        .epoch_count     (weight_epoch)
+        .epoch_count     (weight_epoch),
+        .cfg_max_iter    (cfg_max_iter_int)
     );
 
     // =========================================================================
@@ -159,6 +166,7 @@ module avid_top #(
         .syndrome_valid   (syndrome_valid_int),
         .bp_ready         (bp_x_ready),
         .channel_llr      (active_x),     // From weight_map_reg active bank
+        .cfg_max_iter     (cfg_max_iter_int),
         .correction       (corr_x),
         .correction_valid (corr_x_valid)
     );
@@ -180,6 +188,7 @@ module avid_top #(
         .syndrome_valid   (syndrome_valid_int),
         .bp_ready         (bp_z_ready),
         .channel_llr      (active_z),     // Z-type per-qubit weights
+        .cfg_max_iter     (cfg_max_iter_int),
         .correction       (corr_z),
         .correction_valid (corr_z_valid)
     );
@@ -187,6 +196,9 @@ module avid_top #(
     // Both engines must be idle before syndrome RX feeds next word and
     // before weight_map_reg is allowed to swap
     assign sbu_ready_int = bp_x_ready & bp_z_ready;
+    assign bp_core_start_mon = syndrome_valid_int & sbu_ready_int;
+    assign bp_core_done_mon  = corr_x_valid & corr_z_valid;
+    assign bp_core_busy_mon  = !sbu_ready_int;
 
     // =========================================================================
     // Correction transmitter

@@ -1,0 +1,45 @@
+experiment:
+  name: avid_v1_rtl_regression
+  seed: 108
+  timeout_seconds: 300
+  rounds_per_scenario: 1024
+  window_rounds: 256
+
+software:
+  emulator: qemu
+  architecture: aarch64
+  boot_mode: linux
+  daemon: avid_daemon
+  hal_backend: simulation_backend
+
+rtl:
+  simulator: verilator
+  top_module: aa_qec_top
+  clock_period_ns: 4
+  reset_cycles: 10
+  bp_iterations: [1, 2, 3, 4, 5]
+  waveform: true
+
+bridge:
+  transport: unix_socket
+  protocol_version: 1
+  clock_mode: deterministic
+  transaction_timeout_ms: 5000
+
+scenarios:
+  - stationary_noise
+  - delayed_weight_commit
+  - reset_recovery
+  - busy_decoder
+
+validation:
+  assertions: true
+  fail_on_rtl_error: true
+  fail_on_timeout: true
+
+artifacts:
+  output_dir: runs
+  save_logs: true
+  save_waveforms: true
+  save_transactions: true
+  save_metrics: true

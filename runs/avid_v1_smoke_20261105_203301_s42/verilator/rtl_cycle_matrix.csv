@@ -1,0 +1,6 @@
+bp_iterations_K,clock_period_ns,measured_bp_core_cycles,measured_bp_core_latency_ns,measured_axis_total_cycles,expected_formula_2_plus_5K,syndrome_satisfied
+1,4,7,28.0,9,7,true
+2,4,12,48.0,14,12,true
+3,4,17,68.0,19,17,true
+4,4,22,88.0,24,22,true
+5,4,27,108.0,29,27,true

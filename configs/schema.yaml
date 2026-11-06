@@ -1,0 +1,36 @@
+# =============================================================================
+# configs/schema.yaml — Strict Schema Contract for AVID V1 Emulator Experiments
+# Unknown top-level or nested keys trigger an immediate validation failure.
+# =============================================================================
+schema_version: 1
+allowed_sections:
+  experiment:
+    required: [name, seed, timeout_seconds]
+    optional: [description, rounds_per_scenario, window_rounds]
+  software:
+    required: [emulator, architecture, boot_mode, daemon]
+    optional: [hal_backend]
+  rtl:
+    required: [simulator, top_module, clock_period_ns, reset_cycles, bp_iterations, waveform]
+    optional: []
+  bridge:
+    required: [transport, protocol_version, clock_mode, transaction_timeout_ms]
+    optional: []
+  scenarios:
+    allowed_values:
+      - stationary_noise
+      - slowly_drifting_noise
+      - correlated_noise
+      - correlated_pauli_events
+      - burst_disturbance
+      - delayed_weight_commit
+      - reset_recovery
+      - reset_during_operation
+      - busy_decoder
+      - invalid_configuration
+  validation:
+    required: [assertions, fail_on_rtl_error, fail_on_timeout]
+    optional: []
+  artifacts:
+    required: [output_dir, save_logs, save_waveforms, save_transactions, save_metrics]
+    optional: []

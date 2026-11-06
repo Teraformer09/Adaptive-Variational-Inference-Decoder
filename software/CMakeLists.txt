@@ -10,6 +10,8 @@ set(AVID_CORE_SOURCES
     src/driver/weight_reg_driver.c
     src/driver/weight_bank_driver.c
     src/driver/dma_manager.c
+    src/hal/physical_backend.cpp
+    src/hal/simulation_backend.cpp
     src/ingress/packet_validator.cpp
     src/ingress/dma_ingress_tap.cpp
     src/inference/noise_model.cpp

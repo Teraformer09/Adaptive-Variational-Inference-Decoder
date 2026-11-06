@@ -1,0 +1,15 @@
+{
+  "protocol_version": 1,
+  "clock_mode": "deterministic",
+  "clock_period_ns": 4,
+  "total_transactions": 24,
+  "mmio_writes": 19,
+  "mmio_reads": 3,
+  "syndrome_transfers": 1,
+  "reset_operations": 1,
+  "irq_events": 1,
+  "rejected_transactions": 0,
+  "final_sim_cycle": 93,
+  "final_sim_time_ns": 372,
+  "final_epoch_count": 1
+}

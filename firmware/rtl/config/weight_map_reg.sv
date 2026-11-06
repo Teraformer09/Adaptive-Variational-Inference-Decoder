@@ -82,9 +82,10 @@ module weight_map_reg #(
     input  logic                             bp_ready_in,  // 1 = decoder idle, safe to swap
 
     // -------------------------------------------------------------------------
-    // Epoch counter (readable via AXI-Lite at 0x050)
+    // Epoch counter (readable via AXI-Lite at 0x050) & BP max_iter (0x054)
     // -------------------------------------------------------------------------
-    output logic [31:0]                      epoch_count
+    output logic [31:0]                      epoch_count,
+    output logic [3:0]                       cfg_max_iter
 );
 
     // =========================================================================
@@ -96,6 +97,8 @@ module weight_map_reg #(
     logic signed [DATA_WIDTH-1:0] active_z_r [N_DATA];
 
     logic swap_pending;
+    logic [3:0] cfg_max_iter_r;
+    assign cfg_max_iter = cfg_max_iter_r;
 
     // =========================================================================
     // Atomic swap: one-cycle register copy, conditioned on bp_ready
@@ -143,35 +146,43 @@ module weight_map_reg #(
 
     always_ff @(posedge aclk) begin
         if (!aresetn) begin
-            s_axil_bvalid <= 1'b0;
-            aw_valid_lat  <= 1'b0;
+            s_axil_bvalid  <= 1'b0;
+            aw_valid_lat   <= 1'b0;
+            aw_addr_lat    <= 32'd0;
+            cfg_max_iter_r <= 4'd3;
         end else begin
-            // Latch write address
-            if (s_axil_awvalid)
-                aw_addr_lat <= s_axil_awaddr;
-            aw_valid_lat <= s_axil_awvalid;
+            if (s_axil_awvalid && !s_axil_wvalid) begin
+                aw_addr_lat  <= s_axil_awaddr;
+                aw_valid_lat <= 1'b1;
+            end
 
-            // Execute write when both address and data are present
-            if (aw_valid_lat && s_axil_wvalid) begin
-                automatic logic [31:0] addr = aw_addr_lat;
+            // Execute write when both address and data are present (same-cycle or split-cycle)
+            if ((s_axil_awvalid || aw_valid_lat) && s_axil_wvalid) begin
+                automatic logic [31:0] addr = s_axil_awvalid ? s_axil_awaddr : aw_addr_lat;
                 automatic int idx;
+                automatic logic [15:0] wmask = { {8{s_axil_wstrb[1]}}, {8{s_axil_wstrb[0]}} };
+                aw_valid_lat <= 1'b0;
 
                 // Shadow X-LLR bank: offset 0x000..0x023
                 if (addr < (N_DATA * 4)) begin
                     idx = int'(addr >> 2);
-                    shadow_x[idx] <= DATA_WIDTH'(s_axil_wdata[DATA_WIDTH-1:0]);
+                    shadow_x[idx] <= DATA_WIDTH'((shadow_x[idx] & ~wmask) | (s_axil_wdata[DATA_WIDTH-1:0] & wmask));
                 end
                 // Shadow Z-LLR bank: offset 0x024..0x047
                 else if (addr >= 32'h24 && addr < 32'h24 + (N_DATA * 4)) begin
                     idx = int'((addr - 32'h24) >> 2);
-                    shadow_z[idx] <= DATA_WIDTH'(s_axil_wdata[DATA_WIDTH-1:0]);
+                    shadow_z[idx] <= DATA_WIDTH'((shadow_z[idx] & ~wmask) | (s_axil_wdata[DATA_WIDTH-1:0] & wmask));
                 end
                 // COMMIT register: offset 0x048
                 else if (addr == 32'h48) begin
-                    if (s_axil_wdata[0])
+                    if (s_axil_wdata[0] && s_axil_wstrb[0])
                         swap_pending <= 1'b1;
                 end
-                // STATUS and EPOCH_COUNT are read-only — writes are silently ignored
+                // CFG_MAX_ITER register: offset 0x054
+                else if (addr == 32'h54) begin
+                    if (s_axil_wstrb[0] && s_axil_wdata[3:0] >= 4'd1 && s_axil_wdata[3:0] <= 4'd7)
+                        cfg_max_iter_r <= s_axil_wdata[3:0];
+                end
 
                 s_axil_bvalid <= 1'b1;
             end else if (s_axil_bready) begin
@@ -196,23 +207,41 @@ module weight_map_reg #(
                 automatic logic [31:0] addr = s_axil_araddr;
                 automatic int idx;
 
-                // Read shadow X-LLR
+                // Read shadow X-LLR (0x000..0x023)
                 if (addr < (N_DATA * 4)) begin
                     idx = int'(addr >> 2);
                     s_axil_rdata <= {{(32-DATA_WIDTH){1'b0}}, shadow_x[idx]};
                 end
-                // Read shadow Z-LLR
+                // Read shadow Z-LLR (0x024..0x047)
                 else if (addr >= 32'h24 && addr < 32'h24 + (N_DATA * 4)) begin
                     idx = int'((addr - 32'h24) >> 2);
                     s_axil_rdata <= {{(32-DATA_WIDTH){1'b0}}, shadow_z[idx]};
                 end
-                // STATUS
+                // COMMIT (0x048)
+                else if (addr == 32'h48) begin
+                    s_axil_rdata <= {31'b0, swap_pending};
+                end
+                // STATUS (0x04C)
                 else if (addr == 32'h4C) begin
                     s_axil_rdata <= {30'b0, !bp_ready_in, swap_pending};
                 end
-                // EPOCH_COUNT
+                // EPOCH_COUNT (0x050)
                 else if (addr == 32'h50) begin
                     s_axil_rdata <= epoch_count;
+                end
+                // CFG_MAX_ITER (0x054)
+                else if (addr == 32'h54) begin
+                    s_axil_rdata <= {28'b0, cfg_max_iter_r};
+                end
+                // Read active X-LLR (0x100..0x123)
+                else if (addr >= 32'h100 && addr < 32'h100 + (N_DATA * 4)) begin
+                    idx = int'((addr - 32'h100) >> 2);
+                    s_axil_rdata <= {{(32-DATA_WIDTH){1'b0}}, active_x_r[idx]};
+                end
+                // Read active Z-LLR (0x124..0x147)
+                else if (addr >= 32'h124 && addr < 32'h124 + (N_DATA * 4)) begin
+                    idx = int'((addr - 32'h124) >> 2);
+                    s_axil_rdata <= {{(32-DATA_WIDTH){1'b0}}, active_z_r[idx]};
                 end
                 else s_axil_rdata <= 32'hDEADBEEF;
             end else if (s_axil_rready) begin

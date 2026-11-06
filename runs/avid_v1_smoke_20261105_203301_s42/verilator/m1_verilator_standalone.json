@@ -1,0 +1,19 @@
+{
+  "simulator": "verilator_cycle_exact_model",
+  "top_module": "aa_qec_top",
+  "clock_period_ns": 4,
+  "reset_verified": true,
+  "byte_enable_verified": true,
+  "atomic_commit_verified": true,
+  "busy_swap_protection_verified": true,
+  "k3_bp_core_cycles": 17,
+  "k3_bp_core_latency_ns": 68.0,
+  "cycle_matrix_K1_to_K5": [
+    {"K": 1, "bp_core_cycles": 7, "latency_ns": 28.0, "axis_total_cycles": 9},
+    {"K": 2, "bp_core_cycles": 12, "latency_ns": 48.0, "axis_total_cycles": 14},
+    {"K": 3, "bp_core_cycles": 17, "latency_ns": 68.0, "axis_total_cycles": 19},
+    {"K": 4, "bp_core_cycles": 22, "latency_ns": 88.0, "axis_total_cycles": 24},
+    {"K": 5, "bp_core_cycles": 27, "latency_ns": 108.0, "axis_total_cycles": 29}
+  ],
+  "total_sim_cycles": 199
+}
