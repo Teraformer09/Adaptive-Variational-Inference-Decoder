@@ -93,17 +93,17 @@ Measured in Google Cloud Shell using the **AVID V1 Two-Emulator Architecture** (
 | **Total Simulated FPGA Clock Cycles** | **`1,270,428 clock cycles`** (`181,488` cycles / `725.95 µs` simulated hardware time per scenario) |
 | **Host Wall-Clock Runtime** | **`33.548 seconds`** (`overall_status: "PASS"`) |
 
-### Scenario-by-Scenario Dual-Emulator Verification Summary
+### Scenario-by-Scenario Dual-Emulator Verification Summary (`avid_v1_full_benchmark_20261106_051922_s777`)
 
-| Scenario | Syndrome Rounds | Active Bank Commits | Fast-Path BP Core Latency | Simulated FPGA Cycles | Status |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| `stationary_noise` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
-| `slowly_drifting_noise` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
-| `correlated_noise` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
-| `burst_disturbance` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
-| `delayed_weight_commit` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
-| `reset_recovery` | `8,192` | `29` (2 reset drops) | `17.0 cyc` (`68.0 ns`) | `181,500` | **PASS** |
-| `busy_decoder` | `8,192` | `31` (0 busy overwrites) | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
+| Scenario | Syndrome Rounds | Active Bank Commits | Static `B0` LER | **AVID V1 RTL LER** | **LER Reduction** | Fast-Path BP Core Latency | Simulated FPGA Cycles | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `stationary_noise` | `8,192` | `33` | `0.00745` | **`0.00745`** | `0.00%` (at floor) | `17.0 cyc` (`68.0 ns`) | `181,568` | **PASS** |
+| `slowly_drifting_noise` | `8,192` | `33` | `0.04541` | **`0.02832`** | **`-37.63%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | **PASS** |
+| `correlated_noise` | `8,192` | `33` | `0.07654` | **`0.03210`** | **`-58.05%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | **PASS** |
+| `burst_disturbance` | `8,192` | `33` | `0.04492` | **`0.01782`** | **`-60.33%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | **PASS** |
+| `delayed_weight_commit` | `8,192` | `33` | `0.07300` | **`0.03320`** | **`-54.52%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | **PASS** |
+| `reset_recovery` | `8,192` | `31` (2 reset drops) | `0.07019` | **`0.03455`** | **`-50.78%`** | `17.0 cyc` (`68.0 ns`) | `181,580` | **PASS** |
+| `busy_decoder` | `8,192` | `33` (0 busy overwrites) | `0.06958` | **`0.03198`** | **`-54.04%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | **PASS** |
 
 ---
 
