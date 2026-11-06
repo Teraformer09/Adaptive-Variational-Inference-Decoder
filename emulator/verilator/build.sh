@@ -27,7 +27,8 @@ if command -v verilator >/dev/null 2>&1; then
         -CFLAGS "-O2 -std=c++17 -DUSE_VERILATOR=1 -I${SCRIPT_DIR}/tb" \
         "${RTL_FILES[@]}" \
         "${SCRIPT_DIR}/tb/standalone_rtl_tb.cpp" \
-        -o "${MODEL_DIR}/standalone_rtl_tb" >/dev/null
+        -o standalone_rtl_tb >/dev/null
+    cp -f "${MODEL_DIR}/obj_standalone/standalone_rtl_tb" "${MODEL_DIR}/standalone_rtl_tb"
 
     verilator --cc --exe --build --trace -Wno-fatal \
         --top-module aa_qec_top \
@@ -35,7 +36,8 @@ if command -v verilator >/dev/null 2>&1; then
         -CFLAGS "-O2 -std=c++17 -DUSE_VERILATOR=1 -I${SCRIPT_DIR}/tb -I${BRIDGE_DIR}/include" \
         "${RTL_FILES[@]}" \
         "${BRIDGE_DIR}/src/cosim_bridge_main.cpp" \
-        -o "${MODEL_DIR}/avid_cosim_bridge" >/dev/null
+        -o avid_cosim_bridge >/dev/null
+    cp -f "${MODEL_DIR}/obj_bridge/avid_cosim_bridge" "${MODEL_DIR}/avid_cosim_bridge"
 
     echo "[Verilator Build] Built Verilated binaries in ${MODEL_DIR}"
 else

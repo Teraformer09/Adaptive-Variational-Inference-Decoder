@@ -391,20 +391,12 @@ public:
         top->s_axis_syndrome_tvalid = 0;
         top->s_axis_syndrome_tlast  = 0;
 
-        uint64_t core_start_cyc = 0;
-        uint64_t core_done_cyc  = 0;
-        bool saw_start = false;
-        bool saw_done  = false;
+        uint32_t busy_cycles = 0;
 
         for (int guard = 0; guard < 100; guard++) {
-            if (!saw_start && top->bp_core_start_mon) {
-                saw_start = true;
-                core_start_cyc = sim_cycle;
-            }
             step_clock(1);
-            if (saw_start && !saw_done && top->bp_core_done_mon) {
-                saw_done = true;
-                core_done_cyc = sim_cycle;
+            if (top->bp_core_busy_mon) {
+                busy_cycles++;
             }
             if (top->m_axis_correction_tvalid) {
                 uint32_t out_word = top->m_axis_correction_tdata;
@@ -416,7 +408,7 @@ public:
             }
         }
         tr.end_cycle = sim_cycle;
-        tr.bp_core_cycles = (saw_start && saw_done) ? (uint32_t)(core_done_cyc - core_start_cyc) : (2u + 5u * cfg_max_iter);
+        tr.bp_core_cycles = (busy_cycles > 0) ? busy_cycles : (2u + 5u * cfg_max_iter);
         tr.total_axis_cycles = (uint32_t)(tr.end_cycle - tr.start_cycle);
 #else
         /* Step FIFO load (1 cycle) */
@@ -476,7 +468,7 @@ public:
             step_clock(1);
             wait_c++;
         }
-        step_clock(2);
+        step_clock(3);
         uint32_t act_after = 0;
         axil_read(0x124u + 4u * 4u, &act_after, &cyc);
         uint32_t ep_after = 0;

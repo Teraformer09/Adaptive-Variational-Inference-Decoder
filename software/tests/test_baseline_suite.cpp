@@ -33,11 +33,13 @@ static void test_packet_and_dma_ring() {
     }
 
     bool pushed = avid_dma_ring_push_burst(&ring, burst, AVID_DMA_SLOT_PACKETS);
+    (void)pushed;
     assert(pushed);
     assert(ring.slots[0].state == AVID_SLOT_CPU_READY);
 
     uint32_t hx[16] = {0}, hz[16] = {0}, valid_cnt = 0;
     bool consumed = avid_dma_ring_consume_slot(&ring, hx, hz, &valid_cnt);
+    (void)consumed;
     assert(consumed);
     assert(valid_cnt == AVID_DMA_SLOT_PACKETS);
     assert(ring.slots[0].state == AVID_SLOT_FREE);
@@ -97,6 +99,7 @@ static void test_custom_bp_engine_and_weights() {
     for (int q = 0; q < 9; q++) {
         uint8_t s_mask = NM_EVENT_SIGNATURES[q];
         avid_bp_result_t r = bp.decode(s_mask, weights, 3);
+        (void)r;
         assert(r.syndrome_satisfied);
         assert(r.cycles_fused == 17);
         assert(std::abs(r.latency_ns_fused - 68.0) < 1e-9);
@@ -105,6 +108,7 @@ static void test_custom_bp_engine_and_weights() {
     /* Test double-buffered shadow/active register driver */
     wrd_handle_t wrd;
     int rc = wrd_open(&wrd, WRD_BASE_ADDR);
+    (void)rc;
     assert(rc == 0);
     uint16_t swaps = 0;
     avid_weight_bank_write_and_commit(&wrd, weights, &swaps);

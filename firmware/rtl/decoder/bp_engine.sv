@@ -4,18 +4,6 @@
 // Policy  : A01 / Q02 (Canonical CSS Rotated d=3 Geometry), A06 / Q06 (17-Cycle L(K)=2+5K)
 // Target  : Xilinx Zynq UltraScale+ / Zynq-7020 @ 250 MHz
 //
-// Canonical Rotated d=3 Planar Surface Code Stabilizers:
-//   BASIS_Z == 0 (X-stabilizer checks detecting Z data errors):
-//     c0 = {0, 1}          (weight-2 top boundary,   active_edges = 4'b0011)
-//     c1 = {1, 2, 4, 5}    (weight-4 upper-right,    active_edges = 4'b1111)
-//     c2 = {3, 4, 6, 7}    (weight-4 lower-left,     active_edges = 4'b1111)
-//     c3 = {7, 8}          (weight-2 bottom boundary,active_edges = 4'b0011)
-//   BASIS_Z == 1 (Z-stabilizer checks detecting X data errors):
-//     z0 = {0, 1, 3, 4}    (weight-4 upper-left,     active_edges = 4'b1111)
-//     z1 = {2, 5}          (weight-2 right boundary, active_edges = 4'b0011)
-//     z2 = {3, 6}          (weight-2 left boundary,  active_edges = 4'b0011)
-//     z3 = {4, 5, 7, 8}    (weight-4 lower-right,    active_edges = 4'b1111)
-//
 // Exact Cycle Contract:
 //   L(K) = 1 (ST_INIT) + K * (1 ST_V2C + 3 ST_WAIT_C2V + 1 ST_BELIEF_UPD) + 1 (ST_HARD_DECIDE)
 //        = 2 + 5*K cycles (17 cycles = 68.0 ns @ 250 MHz for K = 3).
@@ -100,6 +88,12 @@ module bp_engine #(
     logic signed [DATA_WIDTH-1:0]  cn_out   [N_CHECK][MAX_DEG];
     logic                          cn_valid [N_CHECK];
 
+    int                            q_idx_t;
+    int                            deg_v_t;
+    int                            vc_t;
+    int                            vp_t;
+    logic signed [DATA_WIDTH-1:0]  acc_t;
+
     genvar g;
     generate
         for (g = 0; g < N_CHECK; g++) begin : gen_check_nodes
@@ -169,8 +163,8 @@ module bp_engine #(
                     for (int c = 0; c < N_CHECK; c++) begin
                         cn_en[c] <= 1'b1;
                         for (int j = 0; j < MAX_DEG; j++) begin
-                            automatic int q_idx = BASIS_Z ? CHECK_CONN_Z[c][j] : CHECK_CONN_X[c][j];
-                            v2c[c][j] <= belief[q_idx] - c2v[c][j];
+                            q_idx_t = BASIS_Z ? CHECK_CONN_Z[c][j] : CHECK_CONN_X[c][j];
+                            v2c[c][j] <= belief[q_idx_t] - c2v[c][j];
                         end
                     end
                     wait_count <= '0;
@@ -187,19 +181,17 @@ module bp_engine #(
                 end
                 ST_BELIEF_UPD: begin
                     for (int v = 0; v < N_DATA; v++) begin
-                        automatic logic signed [DATA_WIDTH-1:0] acc;
-                        automatic int deg_v = BASIS_Z ? VAR_DEG_Z[v] : VAR_DEG_X[v];
-                        acc = channel_llr[v];
+                        deg_v_t = BASIS_Z ? VAR_DEG_Z[v] : VAR_DEG_X[v];
+                        acc_t = channel_llr[v];
                         for (int j = 0; j < MAX_DEG; j++) begin
-                            if (j < deg_v) begin
-                                automatic int vc = BASIS_Z ? VAR_CHECK_Z[v][j] : VAR_CHECK_X[v][j];
-                                automatic int vp = BASIS_Z ? VAR_POS_Z[v][j]   : VAR_POS_X[v][j];
-                                acc = acc + c2v[vc][vp];
+                            if (j < deg_v_t) begin
+                                vc_t = BASIS_Z ? VAR_CHECK_Z[v][j] : VAR_CHECK_X[v][j];
+                                vp_t = BASIS_Z ? VAR_POS_Z[v][j]   : VAR_POS_X[v][j];
+                                acc_t = acc_t + c2v[vc_t][vp_t];
                             end
                         end
-                        belief[v] <= acc;
+                        belief[v] <= acc_t;
                     end
-                    // Fused iteration check -> exact L(K) = 2 + 5*K cycles
                     if (iter_count == active_max_iter - 4'd1) begin
                         state <= ST_HARD_DECIDE;
                     end else begin
