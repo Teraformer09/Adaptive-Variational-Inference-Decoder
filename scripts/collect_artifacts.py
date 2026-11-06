@@ -335,6 +335,9 @@ def run_experiment(config_path: Path) -> int:
                 f"[PASS M4] Scenario '{scen}': rounds={sw_data.get('total_rounds')} "
                 f"commits={sw_data.get('weight_bank_commits')} "
                 f"bp_cycles={sw_data.get('bp_core_cycles_mean')} ({sw_data.get('bp_core_latency_ns_at_250mhz')} ns) "
+                f"static_ler={sw_data.get('static_b0_logical_error_rate')} "
+                f"avid_ler={sw_data.get('logical_error_rate')} "
+                f"(-{sw_data.get('ler_reduction_vs_static_pct')}%) "
                 f"sim_cycles={br_data.get('final_sim_cycle')}"
             )
         else:

@@ -4,30 +4,67 @@
 **Target Hardware:** Xilinx Zynq-7020 / Kria K26 SOM (`250 MHz` PL Fast Loop + `ARM Cortex-A53` Slow Loop)  
 **Hugging Face Models, Checkpoints & 250k-Round Datasets (`73 files`):** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data)  
 **Hugging Face Peer-Reviewed 5-Benchmark Suite (`30 files`):** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data/tree/main/Benchmark-Eval/Baseline_V0`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data/tree/main/Benchmark-Eval/Baseline_V0)  
+**AVID V1 Two-Emulator Architecture & System Flow:** [**`docs/AVID_V1_Two_Emulator_Architecture_and_System_Flow.md`**](docs/AVID_V1_Two_Emulator_Architecture_and_System_Flow.md)  
 **Baseline_V0 Establishment, Q01–Q21 Closure Audit & V1/V2 Roadmap:** [**`docs/AVID_Baseline_V0_Establishment_and_V1_V2_Roadmap.md`**](docs/AVID_Baseline_V0_Establishment_and_V1_V2_Roadmap.md)  
 **Mathematical Modeling Suite (`00`–`09`):** [**`docs/`**](docs/00_Mathematical_Modeling_Index.md) & [**`mathematical_model/`**](mathematical_model/00_Mathematical_Modeling_Index.md)
 
 ---
 
-## 1. Overview & Architectural Repair Scope (`A01–A09` / `Q01–Q21`)
+## 1. Short Description of the Work
 
-Standard surface code decoders (MWPM, static Min-Sum BP) assume a **stationary, uncorrelated noise model** calibrated at device boot. Real superconducting transmon processors experience non-stationary flux drift, Two-Level System (TLS) telegraph defects, and dispersive $ZZ$ crosstalk during CNOT/CZ stabilizer extraction.
+Standard quantum error correction (QEC) surface-code decoders (MWPM, static Min-Sum Belief Propagation) assume a **stationary, uncorrelated noise channel** calibrated offline before execution. Real superconducting transmon processors experience non-stationary flux drift, Two-Level System (TLS) telegraph defects, and dispersive $ZZ$ crosstalk during stabilizer extraction.
 
-This branch (`AVID_EPJ_Patches`) implements the complete end-to-end **AVID Layered Architecture and Repair Plan (`A01–A09` / `Q01–Q21`)**:
-1. **Canonical Rotated CSS Surface Code Geometry (`A01 / Q02`, `A08 / Q17`)**:
-   - Canonical rotated $d=3$ (`[[9, 1, 3]]`) and $d=5$ (`[[25, 1, 5]]`) CSS parity-check matrices ($H_X H_Z^\top \equiv \mathbf{0} \pmod 2$, $\operatorname{rank}_{\mathbb{F}_2}(H_X)=\operatorname{rank}_{\mathbb{F}_2}(H_Z)=4$, $k=1$, $d_X=d_Z=3$) and degree-padded hardware Tanner tables (`CHECK_ACTIVE_MASK = {0x3, 0xF, 0xF, 0x3}`).
-2. **Exact $2^m$-State Dynamic Programming Joint Syndrome Likelihood & Analytic Coset Gradients (`A02 / Q03`)**:
-   - Replaces the rank-deficient 4-check marginal Bernoulli objective with the exact $2^m=16$-state XOR-convolution dynamic program $P^{(k)}(s) = (1-p_{e_k})P^{(k-1)}(s) + p_{e_k}P^{(k-1)}(s \oplus g_{e_k})$ ($336$ multiply-adds) and exact single-pass coset-inversion gradient $\frac{\partial P_\theta(s)}{\partial p_e} = \frac{P_\theta(s \oplus g_e) - P_\theta(s)}{1 - 2p_e}$.
-3. **Structural Identifiability & Pair-Aware Logical-Triangle LLR Projection (`A03 / Q04`)**:
-   - Full Jacobian SVD and Fisher Information rank analysis ($\operatorname{rank}(\mathcal{I}) = 9$ unregularized vs. rank $4$ in the legacy marginal model; full rank $21$, $\kappa = 234.05$ under prior-tethered MAP), plus **Pair-Aware Logical-Triangle LLR Projection** that splits joint $Z_u Z_v$ crosstalk log-likelihoods across endpoints $(u, v)$ to prevent weight-1 logical aliasing in weight-3 logical triangles $\{u, v, k\}$.
-4. **Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) + Spatio-Temporal Transformer + 5 Rank-4 LoRA Adapters**:
-   - Non-vision bipartite stabilizer-data graph attention encoder (`13` nodes: `9` data qubits + `4` checks) coupled to a Recurrent State-Space Model trained with **burn-in warmup ($T_{\text{burn}}=6$)**, **Kapturowski invertible value rescaling $h(u)$**, **3-step bootstrapped Bellman targets**, and **Uncertainty-Weighted Bellman TD Loss ($\mathcal{L}_{\text{WB-R2D2}}$)**.
-5. **17-Cycle (`68.0 ns` @ `250 MHz`) Hardware Q7.8 Min-Sum BP Engine & Atomic Double-Buffered Weight Registry (`A04 / Q01`, `A05 / Q11`, `A06 / Q06`, `A09 / Q18`)**:
-   - Fused 17-cycle $L(K) = 2 + 5K$ state machine in [`bp_engine.sv`](firmware/rtl/bp_engine.sv), `bp_ready_in`-gated atomic shadow-to-active swap in [`weight_map_reg.sv`](firmware/rtl/weight_map_reg.sv), 64-bit little-endian AXI4-Stream syndrome packet contract (`syndrome_packet_v1.yaml`), 4-state DMA ring ownership FSM, and 4-state safety fallback FSM.
+**AVID (Adaptive Variational Inference Decoder)** decouples real-time surface-code decoding into a **Dual-Loop Hardware-Software Architecture**:
+1. **Fast Loop (`250 MHz` FPGA Programmable Logic / Verilator RTL)**: Executes a deterministic **17-cycle (`68.0 ns` at $K=3$)** Normalized Q7.8 Min-Sum Belief Propagation + 1-cycle combinational Pair-Aware OSD-0 syndrome decoder using an active register bank of Q7.8 log-likelihood ratio (LLR) priors.
+2. **Slow Loop (`ARM Cortex-A53` / `qemu-aarch64` Linux Daemon)**: Aggregates windows of $W$ syndrome packets, tracks non-stationary single-qubit and correlated $Z_u Z_v$ crosstalk probabilities via **Exact $2^m$-State Dynamic Programming MAP Estimation** and **Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) World Modeling**, and atomically commits updated Q7.8 LLR weights into a shadow register bank via AXI4-Lite without stalling the fast path.
 
 ---
 
-## 2. Shared-Input Logical Error Rate (LER) Benchmark (50,000 Rounds/Regime)
+## 2. Core Mathematical Formulation
+
+### 2.1 Rotated CSS Surface Code Commutation ($d=3$, `[[9, 1, 3]]`)
+The parity-check matrices $H_X, H_Z \in \{0,1\}^{4 \times 9}$ satisfy exact binary orthogonality and rank conditions:
+
+$$
+H_X H_Z^T \equiv \mathbf{0} \pmod 2, \qquad \text{rank}_{\mathbb{F}_2}(H_X) = \text{rank}_{\mathbb{F}_2}(H_Z) = 4, \qquad k = n - \text{rank}(H_X) - \text{rank}(H_Z) = 1
+$$
+
+### 2.2 Exact $2^m$-State Dynamic Programming Syndrome Likelihood & Coset Gradient
+Given $M = 21$ independent physical fault mechanisms $e_k \in \mathcal{E}$ (9 single-qubit faults + 12 adjacent $Z_u Z_v$ crosstalk edges) with binary detector signatures $g_{e_k} \in \{0,1\}^4$ and Bernoulli probabilities $p_{e_k} = \sigma(\theta_{e_k})$, the exact joint distribution over all $2^4 = 16$ syndromes $s \in \{0,1\}^4$ is computed via recursive XOR convolution:
+
+$$
+P^{(k)}(s) = (1 - p_{e_k}) P^{(k-1)}(s) + p_{e_k} P^{(k-1)}(s \oplus g_{e_k}), \qquad k = 1, \dots, M
+$$
+
+with exact single-pass coset-inversion gradient:
+
+$$
+\frac{\partial P_{\theta}(s)}{\partial p_e} = \frac{P_{\theta}(s \oplus g_e) - P_{\theta}(s)}{1 - 2p_e}
+$$
+
+### 2.3 Pair-Aware Logical-Triangle LLR Projection & Q7.8 Quantization
+Single-qubit marginal probabilities $\tilde{p}_i$ are folded via exact odd-parity XOR marginalization and projected across correlated logical-triangle pairs $(u, v)$ before signed 16-bit Q7.8 hardware quantization:
+
+$$
+\tilde{p}_i = \frac{1 - \prod_{e \in \mathcal{E}_i} (1 - 2p_e)}{2}, \qquad \gamma_i = \ln\left(\frac{1 - \tilde{p}_i}{\tilde{p}_i}\right), \qquad W_i^{\text{Q7.8}} = \text{clip}\left(\text{round}(256 \cdot \gamma_i), -32768, 32767\right)
+$$
+
+### 2.4 Hardware Normalized Min-Sum BP & Latency Contract
+At each BP iteration $t \in \{1, \dots, K\}$ with hardware normalization factor $\alpha = \frac{3}{4} = 0.5 + 0.25$ (implemented with right-shifts and adders, zero DSP multipliers):
+
+$$
+\mu_{c \to v}^{(t)} = \left(\prod_{v' \in \mathcal{N}(c) \setminus \{v\}} \text{sgn}(m_{v' \to c}^{(t-1)})\right) \cdot \left\lfloor \frac{3}{4} \min_{v' \in \mathcal{N}(c) \setminus \{v\}} \left|m_{v' \to c}^{(t-1)}\right| \right\rfloor, \qquad \Lambda_v^{(K)} = W_v^{\text{Q7.8}} + \sum_{c \in \mathcal{N}(v)} \mu_{c \to v}^{(K)}
+$$
+
+The deterministic hardware cycle count for $K$ iterations at $f_{\text{clk}} = 250\text{ MHz}$ ($T_{\text{clk}} = 4.0\text{ ns}$) is:
+
+$$
+L_{\text{BP}}(K) = 2 + 5K \text{ cycles} \implies L_{\text{BP}}(3) = 17 \text{ cycles} = 68.0\text{ ns}
+$$
+
+---
+
+## 3. Model Performance Details (Shared-Input 250,000-Round Benchmark)
 
 Evaluated across `250,000` fast-loop syndrome rounds (`50,000` rounds/regime) and `600` non-stationary R2D2 replay trajectories (`2,457,600` fast-loop rounds) using the bit-exact 17-cycle Q7.8 hardware BP execution engine ([`checkpoints/baseline_vs_avid_benchmark.json`](checkpoints/baseline_vs_avid_benchmark.json)):
 
@@ -41,79 +78,88 @@ Evaluated across `250,000` fast-loop syndrome rounds (`50,000` rounds/regime) an
 
 ---
 
-## 3. End-to-End Repository Structure
+## 4. Emulator Performance Details (57,344-Round Long Run in Google Cloud Shell)
+
+Measured in Google Cloud Shell using the **AVID V1 Two-Emulator Architecture** (`configs/v1_full_benchmark.yaml`, archived in [`reports/cloudshell_full_benchmark_57344_rounds_report.json`](reports/cloudshell_full_benchmark_57344_rounds_report.json)):
+
+| Metric | Measured Result in Cloud Shell |
+| :--- | :--- |
+| **Emulator 1 (Software)** | Cross-compiled `avid_daemon_aarch64` (`aarch64-linux-gnu-g++ 13.3.0`) running on `qemu-aarch64 8.2.2` |
+| **Emulator 2 (Hardware RTL)** | Native `verilator_c++_rtl` (`Verilator 5.020`) compiling [`aa_qec_top.sv`](firmware/rtl/top/aa_qec_top.sv), [`bp_engine.sv`](firmware/rtl/decoder/bp_engine.sv), [`check_node_minsum.sv`](firmware/rtl/decoder/check_node_minsum.sv), [`weight_map_reg.sv`](firmware/rtl/config/weight_map_reg.sv) |
+| **Fast-Path BP Core Latency ($K = 3$)** | **`17.0 cycles` (`min=17, max=17`) = `68.0 ns` (`0.068 µs`) @ `250 MHz`** (`22 cycles` end-to-end with AXI4-Stream RX FIFO + TX) |
+| **Measured $K = 1..5$ Cycle Matrix** | $K = 1$: `7 cyc` (`28 ns`), $K = 2$: `12 cyc` (`48 ns`), $K = 3$: `17 cyc` (`68 ns`), $K = 4$: `22 cyc` (`88 ns`), $K = 5$: `27 cyc` (`108 ns`) |
+| **Total Syndrome Rounds Decoded in RTL** | **`57,344 rounds`** (`8,192` rounds $\times$ `7` scenarios, 100% streamed through Bridge $\leftrightarrow$ Verilator RTL) |
+| **Total Bridge $\leftrightarrow$ RTL Transactions** | **`61,685 transactions`** (`57,344` syndrome transfers, `4,123` AXI-Lite MMIO writes, `217` MMIO reads, `1` reset, `0` rejected) |
+| **Total Simulated FPGA Clock Cycles** | **`1,270,428 clock cycles`** (`181,488` cycles / `725.95 µs` simulated hardware time per scenario) |
+| **Host Wall-Clock Runtime** | **`33.548 seconds`** (`overall_status: "PASS"`) |
+
+### Scenario-by-Scenario Dual-Emulator Verification Summary
+
+| Scenario | Syndrome Rounds | Active Bank Commits | Fast-Path BP Core Latency | Simulated FPGA Cycles | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| `stationary_noise` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
+| `slowly_drifting_noise` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
+| `correlated_noise` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
+| `burst_disturbance` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
+| `delayed_weight_commit` | `8,192` | `31` | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
+| `reset_recovery` | `8,192` | `29` (2 reset drops) | `17.0 cyc` (`68.0 ns`) | `181,500` | **PASS** |
+| `busy_decoder` | `8,192` | `31` (0 busy overwrites) | `17.0 cyc` (`68.0 ns`) | `181,488` | **PASS** |
+
+---
+
+## 5. End-to-End Repository Structure
 
 ```text
 AVID_EPJ_Patches/
-├── architecture/                          # Frozen Contracts & Layer 1–7 Specifications
-│   ├── contracts/                         # system_timing, syndrome_packet_v1, code_layout_v1,
-│   │                                      # noise_channel_v1, llr_numeric_contract, fault_policy
-│   ├── 01_code_model/                     # Hx.json, Hz.json, coordinates.csv, logical_operators.json, tanner_tables.json
-│   ├── 02_noise_and_identifiability/      # event_signatures.json, observation_model.md, identifiability_report.md
-│   ├── 03_syndrome_transport/             # dma_topology.md, packet_layout.md, buffer_ownership.md
-│   ├── 04_variational_estimator/          # likelihood_spec.md, parameter_schema.json, estimator_io.md
-│   ├── 05_realtime_control/               # fast_slow_partition.md, deadline_contract.md, epoch_protocol.md, timing_profile_report.json
-│   ├── 06_fpga_decoder/                   # cycle_contract.md, stream_interface.md, resource_envelope.md
-│   └── 07_fault_management/               # fallback_fsm.md, fault_matrix.csv
-├── docs/ & mathematical_model/            # Complete Numbered End-to-End Mathematical Modeling Suite (00..08)
-│   ├── 00_Mathematical_Modeling_Index.md
-│   ├── 01_CSS_Surface_Code_Algebra_and_Tanner_Geometry.md
-│   ├── 02_Correlated_Fault_Channel_and_Observation_Algebra.md
-│   ├── 03_Exact_Joint_DP_Likelihood_and_Coset_Gradients.md
-│   ├── 04_Structural_Identifiability_Gauge_Orbits_and_Fisher_Rank.md
-│   ├── 05_LBFGS_Optimization_XOR_Marginalization_and_Q78_Numerics.md
-│   ├── 06_Hardware_MinSum_BP_Decoder_and_Cycle_Latency_Contract.md
-│   ├── 07_Dual_Timescale_Causal_Control_DMA_and_Baselines_B0_B4.md
-│   ├── 08_Weighted_Bellman_R2D2_and_World_Model_Math.md
-│   ├── mathematical_modeling_complete.md
-│   └── identifiability_proof.md
+├── emulator/                              # AVID V1 Dual-Emulator Infrastructure (QEMU + Verilator + Bridge)
+│   ├── qemu/                              # Emulator 1: ARM64 Linux QEMU Cross-Build & Runner
+│   ├── verilator/                         # Emulator 2: Verilator SystemVerilog RTL Harness & Testbenches
+│   └── bridge/                            # C++ Co-Simulation Bridge (UNIX Socket IPC + Transaction Logger)
+├── configs/                               # Experiment & Emulator Configurations
+│   ├── qemu.yaml                          # Emulator 1 (QEMU ARM64) configuration
+│   ├── verilator.yaml                     # Emulator 2 (Verilator 250 MHz RTL) configuration
+│   ├── v1_smoke.yaml                      # Fast 4-scenario smoke test (4,096 rounds)
+│   ├── v1_integration.yaml                # 7-scenario integration benchmark (10,752 rounds)
+│   └── v1_full_benchmark.yaml             # 7-scenario full benchmark (57,344 rounds)
+├── scripts/                               # Cloud Shell Setup, Build, Execution & Artifact Aggregation
+│   ├── setup_cloudshell.sh                # Installs qemu-user, g++-aarch64-linux-gnu, verilator
+│   ├── build_all.sh                       # Builds ARM64 daemon, Verilator RTL binaries, and C++ Bridge
+│   ├── run_all.sh                         # Runs M1..M5 end-to-end dual-emulator benchmark
+│   ├── run_regression.sh                  # Multi-seed regression runner
+│   └── collect_artifacts.py               # Generates reports/latest_report.json & summary tables
+├── firmware/rtl/                          # Synthesizable SystemVerilog RTL (250 MHz PL Fast Path)
+│   ├── top/aa_qec_top.sv                  # Top-level QEC decoder wrapper
+│   ├── decoder/{bp_engine.sv, check_node_minsum.sv, axis_correction_tx.sv}
+│   ├── config/weight_map_reg.sv           # Atomic double-buffered Q7.8 weight register bank
+│   └── ingress/{axis_syndrome_rx.sv, axis_ingress_tap.sv}
+├── software/                              # C/C++ ARM PS Slow-Loop Inference Daemon & Drivers
 ├── simulation/                            # Python Reference Models, Baselines (B0–B4) & 15 Unit Tests
-│   ├── reference/
-│   │   ├── code_model/css_code_builder.py
-│   │   ├── noise_model/{joint_dp_likelihood.py, identifiability_svd.py}
-│   │   ├── syndrome_stream/causal_stream_runner.py
-│   │   └── baselines/{b0_static_bp.py .. b4_oracle_bp.py}
-│   ├── stimulus/{packet_codec.py, noise_generator.py, stim_to_bin.py}
-│   └── tests/                             # 6 test suites (15 tests) verifying Gate 0–Gate 8
-├── software/                              # C/C++ ARM PS Slow-Loop Inference & Cycle-Accurate BP Twin
-│   ├── src/
-│   │   ├── ingress/{packet_validator.h/.cpp, dma_ingress_tap.h/.cpp}
-│   │   ├── estimator/{joint_dp_estimator.h/.cpp, lbfgs_solver.h/.cpp, llr_quantizer.h/.cpp}
-│   │   ├── control/{causal_scheduler.h/.cpp, stage_profiler.h/.cpp, fallback_fsm.h/.cpp}
-│   │   ├── custom_engine/cycle_accurate_bp_engine.h/.cpp
-│   │   ├── driver/{weight_reg_driver.h/.c, weight_bank_driver.h/.c, dma_manager.h/.c}
-│   │   └── inference/{noise_model.h/.cpp, lbfgs_optimizer.h/.cpp, avid_daemon.cpp}
-│   └── tests/test_baseline_suite.cpp
-├── firmware/                              # SystemVerilog RTL & Verification Testbenches (250 MHz PL)
-│   ├── rtl/
-│   │   ├── config/weight_map_reg.sv
-│   │   ├── decoder/{bp_engine.sv, check_node_minsum.sv, axis_correction_tx.sv}
-│   │   ├── ingress/{axis_syndrome_rx.sv, axis_ingress_tap.sv}
-│   │   └── top/aa_qec_top.sv
-│   └── tb/{tb_aa_qec_top.sv, config/, decoder/, ingress/}
+├── architecture/                          # Frozen Contracts & Layer 1–7 Specifications
 ├── Benchmark-Eval/Baseline_V0/            # 5 Peer-Reviewed Benchmarks (BM1..BM5) & Master Summary
-├── checkpoints/                           # Trained Weighted-Bellman R2D2, Transformer, LoRA (.pt) & Q7.8 Weight Banks
-├── datasets/                              # Dataset Manifest & 64-Bit AXI4-Stream Syndrome Packet Binary
-├── configs/                               # d3_baseline.yaml, d5_simulation.yaml, target_board.yaml
-├── tools/                                 # validate_architecture.py, cloudshell_hf_pipeline.py, generate_code_artifacts.py
-└── run_cloudshell.sh                      # One-Command Gate Validation + Long-Horizon Training + HF Upload
+├── checkpoints/                           # Trained Weighted-Bellman R2D2, Transformer, LoRA (.pt) & Q7.8 Banks
+├── docs/ & mathematical_model/            # Complete Numbered Mathematical Modeling Suite (00..09)
+└── reports/                               # Archived Cloud Shell Dual-Emulator Benchmark Reports
 ```
 
 ---
 
-## 4. Verification & Reproducibility
+## 6. Reproducibility Commands (Google Cloud Shell)
 
-### Run Full Gate Validator Locally (Python + C++ Suites)
+### Build & Run Full 57,344-Round Dual-Emulator Benchmark (`QEMU ARM64` + `Verilator RTL`)
+```bash
+bash scripts/setup_cloudshell.sh
+bash scripts/build_all.sh
+bash scripts/run_all.sh configs/v1_full_benchmark.yaml
+cat reports/latest_report.json
+```
+
+### Run Smoke Test & Multi-Seed Regression Suite
+```bash
+bash scripts/run_all.sh configs/v1_smoke.yaml
+bash scripts/run_regression.sh
+```
+
+### Run Architecture Gate Validator (Python + C++ Suites)
 ```bash
 PYTHONPATH=. python3 tools/validate_architecture.py
-```
-
-### Run Full Long-Horizon Data Collection, Weighted-Bellman R2D2 Training & Hugging Face Upload
-```bash
-bash run_cloudshell.sh
-```
-
-### Run 5-Benchmark Evaluation Suite (`Benchmark-Eval/Baseline_V0/BM1..BM5`) & Hugging Face Upload
-```bash
-bash run_benchmarks_cloudshell.sh
 ```

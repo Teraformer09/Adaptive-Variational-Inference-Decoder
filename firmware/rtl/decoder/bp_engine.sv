@@ -7,6 +7,10 @@
 // Exact Cycle Contract:
 //   L(K) = 1 (ST_INIT) + K * (1 ST_V2C + 3 ST_WAIT_C2V + 1 ST_BELIEF_UPD) + 1 (ST_HARD_DECIDE)
 //        = 2 + 5*K cycles (17 cycles = 68.0 ns @ 250 MHz for K = 3).
+//   In ST_HARD_DECIDE, includes a 1-cycle Combinational Pair-Aware OSD-0
+//   Syndrome Resolver that guarantees 100% syndrome satisfaction and resolves
+//   weight-3 logical triangle aliasing (e.g., Z_3 vs Z_4 Z_5 on syndrome 0x4)
+//   using the active Q7.8 channel_llr weights from weight_map_reg.sv.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -115,6 +119,85 @@ module bp_engine #(
         end
     endgenerate
 
+    // =========================================================================
+    // 1-Cycle Combinational Pair-Aware OSD-0 Syndrome Resolver (for ST_HARD_DECIDE)
+    // =========================================================================
+    logic [N_DATA-1:0]  raw_corr_c;
+    logic [N_CHECK-1:0] raw_synd_c;
+    logic [N_DATA-1:0]  osd_corr_c;
+    logic signed [17:0] w_c [N_DATA];
+
+    always_comb begin
+        for (int v = 0; v < N_DATA; v++) begin
+            raw_corr_c[v] = belief[v][DATA_WIDTH-1];
+            w_c[v]        = (channel_llr[v] > 0) ? 18'(channel_llr[v]) : 18'd1;
+        end
+
+        if (!BASIS_Z) begin
+            raw_synd_c[0] = raw_corr_c[0] ^ raw_corr_c[1];
+            raw_synd_c[1] = raw_corr_c[1] ^ raw_corr_c[2] ^ raw_corr_c[4] ^ raw_corr_c[5];
+            raw_synd_c[2] = raw_corr_c[3] ^ raw_corr_c[4] ^ raw_corr_c[6] ^ raw_corr_c[7];
+            raw_synd_c[3] = raw_corr_c[7] ^ raw_corr_c[8];
+
+            case (syndrome_lat)
+                4'h0: osd_corr_c = 9'h000;
+                4'h1: osd_corr_c = (w_c[0] <= (w_c[1] + w_c[2])) ? 9'h001 : 9'h006;
+                4'h2: osd_corr_c = ((w_c[3] + w_c[4]) < w_c[5] && (w_c[3] + w_c[4]) < w_c[2]) ? 9'h018 :
+                                   ((w_c[2] < w_c[5]) ? 9'h004 : 9'h020);
+                4'h3: osd_corr_c = (w_c[1] <= (w_c[0] + w_c[5])) ? 9'h002 : 9'h021;
+                4'h4: osd_corr_c = ((w_c[4] + w_c[5]) < w_c[3] && (w_c[4] + w_c[5]) < w_c[6]) ? 9'h030 :
+                                   ((w_c[6] < w_c[3]) ? 9'h040 : 9'h008);
+                4'h5: osd_corr_c = ((w_c[1] + w_c[4]) < (w_c[0] + w_c[3])) ? 9'h012 : 9'h009;
+                4'h6: osd_corr_c = (w_c[4] <= (w_c[3] + w_c[5])) ? 9'h010 : 9'h028;
+                4'h7: osd_corr_c = ((w_c[0] + w_c[4]) <= (w_c[1] + w_c[3])) ? 9'h011 : 9'h00A;
+                4'h8: osd_corr_c = (w_c[8] <= (w_c[6] + w_c[7])) ? 9'h100 : 9'h0C0;
+                4'h9: osd_corr_c = 9'h101;
+                4'hA: osd_corr_c = ((w_c[4] + w_c[7]) < (w_c[5] + w_c[8])) ? 9'h090 : 9'h120;
+                4'hB: osd_corr_c = 9'h102;
+                4'hC: osd_corr_c = (w_c[7] <= (w_c[3] + w_c[8])) ? 9'h080 : 9'h108;
+                4'hD: osd_corr_c = 9'h081;
+                4'hE: osd_corr_c = ((w_c[4] + w_c[8]) <= (w_c[5] + w_c[7])) ? 9'h110 : 9'h0A0;
+                4'hF: osd_corr_c = 9'h082;
+                default: osd_corr_c = 9'h000;
+            endcase
+
+            // Use raw BP decision if it satisfies the syndrome AND no correlated pair alias dominates
+            if (raw_synd_c == syndrome_lat &&
+                syndrome_lat != 4'h4 &&
+                syndrome_lat != 4'h2) begin
+                osd_corr_c = raw_corr_c;
+            end
+        end else begin
+            raw_synd_c[0] = raw_corr_c[0] ^ raw_corr_c[1] ^ raw_corr_c[3] ^ raw_corr_c[4];
+            raw_synd_c[1] = raw_corr_c[2] ^ raw_corr_c[5];
+            raw_synd_c[2] = raw_corr_c[3] ^ raw_corr_c[6];
+            raw_synd_c[3] = raw_corr_c[4] ^ raw_corr_c[5] ^ raw_corr_c[7] ^ raw_corr_c[8];
+            if (raw_synd_c == syndrome_lat) begin
+                osd_corr_c = raw_corr_c;
+            end else begin
+                case (syndrome_lat)
+                    4'h0: osd_corr_c = 9'h000;
+                    4'h1: osd_corr_c = (w_c[0] <= w_c[1]) ? 9'h001 : 9'h002;
+                    4'h2: osd_corr_c = 9'h004;
+                    4'h3: osd_corr_c = 9'h005;
+                    4'h4: osd_corr_c = 9'h040;
+                    4'h5: osd_corr_c = 9'h008;
+                    4'h6: osd_corr_c = 9'h044;
+                    4'h7: osd_corr_c = 9'h00C;
+                    4'h8: osd_corr_c = (w_c[7] <= w_c[8]) ? 9'h080 : 9'h100;
+                    4'h9: osd_corr_c = 9'h010;
+                    4'hA: osd_corr_c = 9'h020;
+                    4'hB: osd_corr_c = 9'h021;
+                    4'hC: osd_corr_c = 9'h0C0;
+                    4'hD: osd_corr_c = 9'h088;
+                    4'hE: osd_corr_c = 9'h060;
+                    4'hF: osd_corr_c = 9'h028;
+                    default: osd_corr_c = 9'h000;
+                endcase
+            end
+        end
+    end
+
     typedef enum logic [2:0] {
         ST_IDLE        = 3'd0,
         ST_INIT        = 3'd1,
@@ -200,7 +283,7 @@ module bp_engine #(
                     end
                 end
                 ST_HARD_DECIDE: begin
-                    for (int v = 0; v < N_DATA; v++) correction[v] <= belief[v][DATA_WIDTH-1];
+                    correction       <= osd_corr_c;
                     correction_valid <= 1'b1;
                     state            <= ST_IDLE;
                 end

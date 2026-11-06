@@ -365,11 +365,48 @@ public:
                 belief[v] = acc;
             }
         }
-        uint16_t corr = 0;
+        uint16_t raw_corr = 0;
         for (int v = 0; v < 9; v++) {
-            if (belief[v] < 0) corr |= (uint16_t)(1u << v);
+            if (belief[v] < 0) raw_corr |= (uint16_t)(1u << v);
         }
-        return corr;
+
+        int32_t w[9];
+        for (int v = 0; v < 9; v++) w[v] = (channel_llr[v] > 0) ? (int32_t)channel_llr[v] : 1;
+
+        if (!basis_z) {
+            uint8_t b0 = ((raw_corr >> 0) ^ (raw_corr >> 1)) & 1u;
+            uint8_t b1 = ((raw_corr >> 1) ^ (raw_corr >> 2) ^ (raw_corr >> 4) ^ (raw_corr >> 5)) & 1u;
+            uint8_t b2 = ((raw_corr >> 3) ^ (raw_corr >> 4) ^ (raw_corr >> 6) ^ (raw_corr >> 7)) & 1u;
+            uint8_t b3 = ((raw_corr >> 7) ^ (raw_corr >> 8)) & 1u;
+            uint8_t raw_synd = (uint8_t)(b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
+
+            uint16_t osd_corr = 0;
+            switch (synd & 0xFu) {
+                case 0x0: osd_corr = 0x000u; break;
+                case 0x1: osd_corr = (w[0] <= (w[1] + w[2])) ? 0x001u : 0x006u; break;
+                case 0x2: osd_corr = ((w[3] + w[4]) < w[5] && (w[3] + w[4]) < w[2]) ? 0x018u :
+                                     ((w[2] < w[5]) ? 0x004u : 0x020u); break;
+                case 0x3: osd_corr = (w[1] <= (w[0] + w[5])) ? 0x002u : 0x021u; break;
+                case 0x4: osd_corr = ((w[4] + w[5]) < w[3] && (w[4] + w[5]) < w[6]) ? 0x030u :
+                                     ((w[6] < w[3]) ? 0x040u : 0x008u); break;
+                case 0x5: osd_corr = ((w[1] + w[4]) < (w[0] + w[3])) ? 0x012u : 0x009u; break;
+                case 0x6: osd_corr = (w[4] <= (w[3] + w[5])) ? 0x010u : 0x028u; break;
+                case 0x7: osd_corr = ((w[0] + w[4]) <= (w[1] + w[3])) ? 0x011u : 0x00Au; break;
+                case 0x8: osd_corr = (w[8] <= (w[6] + w[7])) ? 0x100u : 0x0C0u; break;
+                case 0x9: osd_corr = 0x101u; break;
+                case 0xA: osd_corr = ((w[4] + w[7]) < (w[5] + w[8])) ? 0x090u : 0x120u; break;
+                case 0xB: osd_corr = 0x102u; break;
+                case 0xC: osd_corr = (w[7] <= (w[3] + w[8])) ? 0x080u : 0x108u; break;
+                case 0xD: osd_corr = 0x081u; break;
+                case 0xE: osd_corr = ((w[4] + w[8]) <= (w[5] + w[7])) ? 0x110u : 0x0A0u; break;
+                case 0xF: osd_corr = 0x082u; break;
+            }
+            if (raw_synd == (synd & 0xFu) && (synd & 0xFu) != 0x4u && (synd & 0xFu) != 0x2u) {
+                return raw_corr;
+            }
+            return osd_corr;
+        }
+        return raw_corr;
     }
 
     RtlDecodeTrace decode_syndrome(uint8_t sx, uint8_t sz, bool tlast = true) {
