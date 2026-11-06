@@ -161,11 +161,11 @@ public:
 #if defined(USE_VERILATOR) && USE_VERILATOR
             top->aclk = 0;
             top->eval();
-            if (tfp) tfp->dump(sim_time_ns * 1000ULL);
+            if (tfp) tfp->dump(static_cast<uint64_t>(sim_time_ns * 1000u));
 
             top->aclk = 1;
             top->eval();
-            if (tfp) tfp->dump((sim_time_ns + (clock_period_ns / 2)) * 1000ULL);
+            if (tfp) tfp->dump(static_cast<uint64_t>((sim_time_ns + (clock_period_ns / 2)) * 1000u));
             bp_busy = (top->bp_core_busy_mon != 0);
             if (top->epoch_irq) last_epoch_irq = true;
 #else
