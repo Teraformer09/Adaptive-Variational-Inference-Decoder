@@ -63,6 +63,14 @@ class RotatedSurfaceCode:
     z_check_supports: List[List[int]]
     zz_edges: List[Tuple[int, int]]
 
+    @property
+    def hx(self) -> np.ndarray:
+        return self.Hx
+
+    @property
+    def hz(self) -> np.ndarray:
+        return self.Hz
+
     def build_tanner_tables(self, max_deg: int = 4, basis: str = "X") -> Dict[str, object]:
         """
         Build padded Tanner graph tables for SystemVerilog RTL and C++ engine.

@@ -7,12 +7,6 @@
 #include <algorithm>
 #include <cstring>
 
-/* Canonical rotated d=3 X-stabilizer checks (padded to 4 slots + active mask):
- *   c0 = {0, 1}       -> active_mask = 0x3
- *   c1 = {1, 2, 4, 5} -> active_mask = 0xF
- *   c2 = {3, 4, 6, 7} -> active_mask = 0xF
- *   c3 = {7, 8}       -> active_mask = 0x3
- */
 const int NM_CHECK_CONN[NM_N_CHECK][4] = {
     {0, 1, 0, 0},
     {1, 2, 4, 5},
@@ -24,7 +18,7 @@ const uint8_t NM_CHECK_ACTIVE_MASK[NM_N_CHECK] = {
     0x03u, 0x0Fu, 0x0Fu, 0x03u
 };
 
-/* Nearest-neighbor qubit pairs (grid adjacency on 3x3 layout) */
+/* Nearest-neighbor qubit pairs (frozen 21-parameter ordering 9..20) */
 const CrosstalkPair NM_CROSSTALK_PAIRS[NM_N_CROSSTALK] = {
     {0, 1}, {1, 2},
     {3, 4}, {4, 5},
@@ -34,31 +28,7 @@ const CrosstalkPair NM_CROSSTALK_PAIRS[NM_N_CROSSTALK] = {
     {2, 5}, {5, 8}
 };
 
-/* Exact 4-bit X-syndrome signatures g_e for the 21 fault events:
- * Single-qubit Z_0..Z_8:
- *   Z_0: {c0}       = 0x1
- *   Z_1: {c0, c1}   = 0x3
- *   Z_2: {c1}       = 0x2
- *   Z_3: {c2}       = 0x4
- *   Z_4: {c1, c2}   = 0x6
- *   Z_5: {c1}       = 0x2
- *   Z_6: {c2}       = 0x4
- *   Z_7: {c2, c3}   = 0xC
- *   Z_8: {c3}       = 0x8
- * Correlated pairs Z_i Z_j (g_ij = g_i ^ g_j):
- *   (0,1): 0x1 ^ 0x3 = 0x2
- *   (1,2): 0x3 ^ 0x2 = 0x1
- *   (3,4): 0x4 ^ 0x6 = 0x2
- *   (4,5): 0x6 ^ 0x2 = 0x4
- *   (6,7): 0x4 ^ 0xC = 0x8
- *   (7,8): 0xC ^ 0x8 = 0x4
- *   (0,3): 0x1 ^ 0x4 = 0x5
- *   (3,6): 0x4 ^ 0x4 = 0x0
- *   (1,4): 0x3 ^ 0x6 = 0x5
- *   (4,7): 0x6 ^ 0xC = 0xA
- *   (2,5): 0x2 ^ 0x2 = 0x0
- *   (5,8): 0x2 ^ 0x8 = 0xA
- */
+/* Exact 4-bit X-syndrome signatures g_e for the 21 Z-fault events */
 const uint8_t NM_EVENT_SIGNATURES[NM_N_PARAMS] = {
     /* 9 single-qubit Z_0..Z_8 */
     0x1u, 0x3u, 0x2u, 0x4u, 0x6u, 0x2u, 0x4u, 0xCu, 0x8u,
@@ -67,7 +37,25 @@ const uint8_t NM_EVENT_SIGNATURES[NM_N_PARAMS] = {
     0x5u, 0x0u, 0x5u, 0xAu, 0x0u, 0xAu
 };
 
-NoiseModel::NoiseModel() : prior_lambda_(0.50) {
+/* Exact 4-bit Z-syndrome signatures g_e^(Z) for the 21 X-fault events on H_Z */
+const uint8_t NM_EVENT_SIGNATURES_Z_BASIS[NM_N_PARAMS] = {
+    /* 9 single-qubit X_0..X_8 on z0={0,1,3,4}, z1={2,5}, z2={3,6}, z3={4,5,7,8} */
+    0x1u, 0x1u, 0x2u, 0x5u, 0x9u, 0xAu, 0x4u, 0x8u, 0x8u,
+    /* 12 XX pairs (g_ij = g_i ^ g_j) */
+    0x0u, 0x3u, 0xCu, 0x3u, 0xCu, 0x0u,
+    0x4u, 0x1u, 0x8u, 0x1u, 0x8u, 0x2u
+};
+
+/* The 9 non-zero observable syndrome-signature orbit codes in X-check and Z-check bases */
+const uint8_t NM_OBSERVABLE_ORBIT_CODES_X[NM_N_ORBITS] = {
+    0x1u, 0x2u, 0x3u, 0x4u, 0x5u, 0x6u, 0x8u, 0xAu, 0xCu
+};
+
+const uint8_t NM_OBSERVABLE_ORBIT_CODES_Z[NM_N_ORBITS] = {
+    0x1u, 0x2u, 0x3u, 0x4u, 0x5u, 0x8u, 0x9u, 0xAu, 0xCu
+};
+
+NoiseModel::NoiseModel() : prior_lambda_(0.05), basis_z_(false) {
     init(0.012, 0.004);
 }
 
@@ -91,13 +79,22 @@ void NoiseModel::clamp_params() {
     }
 }
 
+bool NoiseModel::validate_parameter_bounds(const ParamVec &theta) {
+    for (int i = 0; i < NM_N_PARAMS; i++) {
+        if (!std::isfinite(theta(i)) || theta(i) < 0.0 || theta(i) >= 0.5) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void NoiseModel::compute_joint_distribution() {
     p_joint_.setZero();
     p_joint_(0) = 1.0;
 
     double next_dist[NM_N_STATES];
     for (int e = 0; e < NM_N_PARAMS; e++) {
-        const uint8_t g = NM_EVENT_SIGNATURES[e];
+        const uint8_t g = event_signature(e);
         const double pe = std::clamp(theta_(e), 1e-6, 0.49);
         if (g == 0u || pe == 0.0) {
             continue;
@@ -124,24 +121,25 @@ void NoiseModel::compute_p_eff() {
     }
 }
 
-void NoiseModel::extract_histogram(const ring_buffer_t &rb, uint32_t hist_x[NM_N_STATES]) const {
-    std::memset(hist_x, 0, sizeof(uint32_t) * NM_N_STATES);
+void NoiseModel::extract_histogram(const ring_buffer_t &rb, uint32_t hist[NM_N_STATES]) const {
+    std::memset(hist, 0, sizeof(uint32_t) * NM_N_STATES);
     const int W = rb.count;
     for (int t = 0; t < W; t++) {
         const syndrome_round_t *sr = ring_at(&rb, t);
         uint8_t mask = 0;
         for (int c = 0; c < NM_N_CHECK; c++) {
-            mask |= (uint8_t)((sr->x[c] & 1u) << c);
+            uint8_t bit = basis_z_ ? (sr->z[c] & 1u) : (sr->x[c] & 1u);
+            mask |= (uint8_t)(bit << c);
         }
-        hist_x[mask & 0x0Fu]++;
+        hist[mask & 0x0Fu]++;
     }
 }
 
-double NoiseModel::compute_nll_from_histogram(const uint32_t hist_x[NM_N_STATES]) {
+double NoiseModel::compute_nll_from_histogram(const uint32_t hist[NM_N_STATES]) {
     compute_joint_distribution();
     uint64_t total = 0;
     for (int s = 0; s < NM_N_STATES; s++) {
-        total += hist_x[s];
+        total += hist[s];
     }
     if (total == 0) {
         return 0.0;
@@ -149,7 +147,7 @@ double NoiseModel::compute_nll_from_histogram(const uint32_t hist_x[NM_N_STATES]
     const double inv_total = 1.0 / (double)total;
     double nll = 0.0;
     for (int s = 0; s < NM_N_STATES; s++) {
-        const double emp_p = (double)hist_x[s] * inv_total;
+        const double emp_p = (double)hist[s] * inv_total;
         const double mod_p = std::max(p_joint_(s), 1e-15);
         nll -= emp_p * std::log(mod_p);
     }
@@ -160,19 +158,53 @@ double NoiseModel::compute_nll_from_histogram(const uint32_t hist_x[NM_N_STATES]
     return nll;
 }
 
-double NoiseModel::compute_nll(const ring_buffer_t &rb) {
-    uint32_t hist_x[NM_N_STATES];
-    extract_histogram(rb, hist_x);
-    return compute_nll_from_histogram(hist_x);
+double NoiseModel::compute_legacy_marginal_nll_from_histogram(const uint32_t hist[NM_N_STATES]) const {
+    uint64_t total = 0;
+    uint64_t check_ones[NM_N_CHECK] = {0};
+    for (int s = 0; s < NM_N_STATES; s++) {
+        total += hist[s];
+        for (int c = 0; c < NM_N_CHECK; c++) {
+            if ((s >> c) & 1) check_ones[c] += hist[s];
+        }
+    }
+    if (total == 0) return 0.0;
+    const double inv_total = 1.0 / (double)total;
+
+    /* Compute 4 independent check marginal flip probabilities from theta_ */
+    double q_check[NM_N_CHECK] = {0.0};
+    for (int c = 0; c < NM_N_CHECK; c++) {
+        double prod = 1.0;
+        for (int e = 0; e < NM_N_PARAMS; e++) {
+            uint8_t g = event_signature(e);
+            if ((g >> c) & 1u) {
+                double pe = std::clamp(theta_(e), 1e-6, 0.49);
+                prod *= (1.0 - 2.0 * pe);
+            }
+        }
+        q_check[c] = std::clamp(0.5 * (1.0 - prod), 1e-9, 1.0 - 1e-9);
+    }
+
+    double marginal_nll = 0.0;
+    for (int c = 0; c < NM_N_CHECK; c++) {
+        double emp_c = (double)check_ones[c] * inv_total;
+        marginal_nll -= emp_c * std::log(q_check[c]) + (1.0 - emp_c) * std::log(1.0 - q_check[c]);
+    }
+    return marginal_nll;
 }
 
-void NoiseModel::compute_gradient_from_histogram(const uint32_t hist_x[NM_N_STATES]) {
+double NoiseModel::compute_nll(const ring_buffer_t &rb) {
+    uint32_t hist[NM_N_STATES];
+    extract_histogram(rb, hist);
+    return compute_nll_from_histogram(hist);
+}
+
+void NoiseModel::compute_gradient_from_histogram(const uint32_t hist[NM_N_STATES]) {
     compute_joint_distribution();
     grad_.setZero();
 
     uint64_t total = 0;
     for (int s = 0; s < NM_N_STATES; s++) {
-        total += hist_x[s];
+        total += hist[s];
     }
     if (total == 0) {
         return;
@@ -181,13 +213,13 @@ void NoiseModel::compute_gradient_from_histogram(const uint32_t hist_x[NM_N_STAT
 
     double weights[NM_N_STATES];
     for (int s = 0; s < NM_N_STATES; s++) {
-        const double emp_p = (double)hist_x[s] * inv_total;
+        const double emp_p = (double)hist[s] * inv_total;
         const double mod_p = std::max(p_joint_(s), 1e-15);
         weights[s] = -(emp_p / mod_p);
     }
 
     for (int e = 0; e < NM_N_PARAMS; e++) {
-        const uint8_t g = NM_EVENT_SIGNATURES[e];
+        const uint8_t g = event_signature(e);
         if (g == 0u) {
             grad_(e) = 0.0;
             continue;
@@ -208,9 +240,42 @@ void NoiseModel::compute_gradient_from_histogram(const uint32_t hist_x[NM_N_STAT
 }
 
 void NoiseModel::compute_gradient(const ring_buffer_t &rb) {
-    uint32_t hist_x[NM_N_STATES];
-    extract_histogram(rb, hist_x);
-    compute_gradient_from_histogram(hist_x);
+    uint32_t hist[NM_N_STATES];
+    extract_histogram(rb, hist);
+    compute_gradient_from_histogram(hist);
+}
+
+void NoiseModel::compute_orbit_probabilities(const ParamVec &theta, bool basis_z, double orbit_probs[NM_N_ORBITS]) {
+    const uint8_t *codes = basis_z ? NM_OBSERVABLE_ORBIT_CODES_Z : NM_OBSERVABLE_ORBIT_CODES_X;
+    const uint8_t *sigs  = basis_z ? NM_EVENT_SIGNATURES_Z_BASIS  : NM_EVENT_SIGNATURES;
+    for (int k = 0; k < NM_N_ORBITS; k++) {
+        uint8_t code = codes[k];
+        double prod = 1.0;
+        for (int e = 0; e < NM_N_PARAMS; e++) {
+            if (sigs[e] == code) {
+                double pe = std::clamp(theta(e), 1e-6, 0.49);
+                prod *= (1.0 - 2.0 * pe);
+            }
+        }
+        orbit_probs[k] = 0.5 * (1.0 - prod);
+    }
+}
+
+double NoiseModel::compute_orbit_rmse(const ParamVec &true_theta) const {
+    double est_orb[NM_N_ORBITS], tru_orb[NM_N_ORBITS];
+    compute_orbit_probabilities(theta_, basis_z_, est_orb);
+    compute_orbit_probabilities(true_theta, basis_z_, tru_orb);
+    double sq_sum = 0.0;
+    for (int k = 0; k < NM_N_ORBITS; k++) {
+        double d = est_orb[k] - tru_orb[k];
+        sq_sum += d * d;
+    }
+    return std::sqrt(sq_sum / (double)NM_N_ORBITS);
+}
+
+double NoiseModel::compute_param_21_rmse(const ParamVec &true_theta) const {
+    ParamVec d = theta_ - true_theta;
+    return std::sqrt(d.squaredNorm() / (double)NM_N_PARAMS);
 }
 
 double NoiseModel::effective_p(int v) const {
@@ -242,5 +307,46 @@ void NoiseModel::to_q7_8_llr(int16_t llr_q78[NM_N_QUBIT]) const {
         if (scaled > 32767) scaled = 32767;
         if (scaled < -32768) scaled = -32768;
         llr_q78[v] = (int16_t)scaled;
+    }
+}
+
+void NoiseModel::to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT], const double *r2d2_gains) const {
+    for (int v = 0; v < NM_N_QUBIT; v++) {
+        double p = effective_p(v);
+        double llr = std::log((1.0 - p) / p);
+        if (r2d2_gains) llr *= r2d2_gains[v];
+        long scaled = std::lround(llr * 256.0);
+        scaled = std::clamp(scaled, 16L, 0x3FFF0L);
+        llr_q78[v] = (int16_t)std::clamp(scaled, 16L, 0x3FFFL);
+    }
+
+    if (!basis_z_) {
+        /* Causal Pair-Aware Logical-Triangle LLR Projection (Q04):
+         * In rotated d=3 X-stabilizer geometry, logical triangle {3, 4, 5} aliases
+         * single-qubit Z_3 (g_3 = 0x4) against correlated pair Z_4 Z_5 (g_{4,5} = 0x4).
+         * Compare the estimated pair probability theta_(9+3) = p_hat(Z_4 Z_5) and
+         * singleton hotspot theta_(4) = p_hat(Z_4) against theta_(3) = p_hat(Z_3). */
+        double p_q3   = theta_(3);
+        double p_q4   = theta_(4);
+        double p_zz45 = theta_(9 + 3);
+        double r2d2_boost = (r2d2_gains && r2d2_gains[4] < 0.90) ? (1.0 / std::max(0.55, r2d2_gains[4])) : 1.0;
+        double eff_zz45 = p_zz45 * r2d2_boost;
+        bool pair_dominant = (r2d2_gains != nullptr)
+            ? (eff_zz45 > p_q3 * 1.35 || (p_q4 > 0.028 && eff_zz45 > 0.020))
+            : (p_zz45 > 0.048 && p_q4 > 0.046);
+        if (pair_dominant) {
+            double p_pair = std::clamp(std::max(p_zz45, 0.85 * p_q4), 0.020, 0.35);
+            int16_t pair_half_q78 = (int16_t)std::clamp(
+                (int)std::lround(0.42 * std::log((1.0 - p_pair) / p_pair) * 256.0),
+                16, 0x01C0);
+            llr_q78[4] = std::min(llr_q78[4], pair_half_q78);
+            llr_q78[5] = std::min(llr_q78[5], pair_half_q78);
+            llr_q78[3] = std::max<int16_t>(llr_q78[3], (int16_t)(llr_q78[4] + llr_q78[5] + 0x0040));
+            llr_q78[6] = std::max<int16_t>(llr_q78[6], (int16_t)(llr_q78[3] + 0x0020));
+        } else {
+            llr_q78[3] = std::min<int16_t>(llr_q78[3], (int16_t)(llr_q78[4] + llr_q78[5] - 0x0040));
+            llr_q78[6] = std::max<int16_t>(llr_q78[6], (int16_t)(llr_q78[3] + 0x0010));
+            llr_q78[2] = std::max<int16_t>(llr_q78[2], (int16_t)(llr_q78[5] + 0x0010));
+        }
     }
 }

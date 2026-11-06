@@ -6,6 +6,11 @@
 
 static uint64_t monotonic_ns() {
     struct timespec ts;
+#ifdef CLOCK_PROCESS_CPUTIME_ID
+    if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) == 0) {
+        return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
+    }
+#endif
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
 }

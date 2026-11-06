@@ -34,6 +34,9 @@ scenarios:
   - delayed_weight_commit
   - reset_recovery
   - busy_decoder
+  - variable_k_adaptation
+  - fallback_safety_trigger
+  - short_burst_60us_vs_10ms
 
 validation:
   assertions: true

@@ -5,6 +5,7 @@
 **Hugging Face Models, Checkpoints & 250k-Round Datasets (`73 files`):** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data)  
 **Hugging Face Peer-Reviewed 5-Benchmark Suite (`30 files`):** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data/tree/main/Benchmark-Eval/Baseline_V0`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data/tree/main/Benchmark-Eval/Baseline_V0)  
 **AVID V1 Two-Emulator Architecture & System Flow:** [**`docs/AVID_V1_Two_Emulator_Architecture_and_System_Flow.md`**](docs/AVID_V1_Two_Emulator_Architecture_and_System_Flow.md)  
+**V0 (40/40) & V1 (4–8 Nov) Closure Audit Report:** [**`docs/V0_and_V1_Closure_Audit_Report.md`**](docs/V0_and_V1_Closure_Audit_Report.md) ([`reports/v0_closure_40_40_report.json`](reports/v0_closure_40_40_report.json))  
 **Baseline_V0 Establishment, Q01–Q21 Closure Audit & V1/V2 Roadmap:** [**`docs/AVID_Baseline_V0_Establishment_and_V1_V2_Roadmap.md`**](docs/AVID_Baseline_V0_Establishment_and_V1_V2_Roadmap.md)  
 **Mathematical Modeling Suite (`00`–`09`):** [**`docs/`**](docs/00_Mathematical_Modeling_Index.md) & [**`mathematical_model/`**](mathematical_model/00_Mathematical_Modeling_Index.md)
 
@@ -105,6 +106,43 @@ Measured in Google Cloud Shell using the **AVID V1 Two-Emulator Architecture** (
 | `reset_recovery` | `31` (2 reset drops) | `0.07019` | **`0.03455`** | **`-50.78%`** | `17.0 cyc` (`68.0 ns`) | `181,580` | Recovers cleanly after mid-flight hardware reset |
 | `busy_decoder` | `33` (0 busy overwrites) | `0.06958` | **`0.03198`** | **`-54.04%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | `bp_ready_in` lock prevents mid-packet bank corruption |
 
+### 4.2 10-Scenario V1 Dual-Emulator Integration Suite (`4 Nov – 8 Nov` Roadmap Closure)
+
+Executed via `bash scripts/run_all.sh configs/v1_integration.yaml` (`15,360` rounds across `10` scenarios, with causal two-pass 16-state Joint-DP L-BFGS + 64-unit LSTM `R2D2-WB` meta-controller, dual $X/Z$ histograms, formal SystemVerilog Assertions `--assert`, and reconciled epoch/commit accounting):
+
+| Scenario (`1,536` Rounds, `6` Epochs) | Boot + Adaptive − Reset = Commits | Reconciled | Core / Total AXI Cycles | Static `B0` LER | **AVID V1 LER** (`95% Wilson CI`) | **LER Reduction** | 9-Orbit RMSE |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `stationary_noise` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.00456` | **`0.00456`** (`[0.0022, 0.0094]`) | `0.00%` | `0.00809` |
+| `slowly_drifting_noise` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.05208` | **`0.02083`** (`[0.0148, 0.0293]`) | **`-60.00%`** | `0.01033` |
+| `correlated_noise` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.05339` | **`0.03581`** (`[0.0276, 0.0463]`) | **`-32.93%`** | `0.01177` |
+| `burst_disturbance` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.04688` | **`0.02669`** (`[0.0197, 0.0360]`) | **`-43.06%`** (`-57.14%` burst) | `0.01418` |
+| `delayed_weight_commit` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.07357` | **`0.03646`** (`[0.0282, 0.0471]`) | **`-50.44%`** | `0.01034` |
+| `reset_recovery` | `1 + 6 - 2 = 5` | `true` | `17.0` / `22.0` | `0.07031` | **`0.03581`** (`[0.0276, 0.0463]`) | **`-49.07%`** | `0.01149` |
+| `busy_decoder` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.07292` | **`0.03255`** (`[0.0248, 0.0427]`) | **`-55.36%`** | `0.00868` |
+| `variable_k_adaptation` ($K=1\dots 5$) | `1 + 6 - 0 = 7` | `true` | `17.0` (`min=7, max=27`) / `22.0` | `0.06771` | **`0.03060`** (`[0.0231, 0.0405]`) | **`-54.81%`** | `0.01071` |
+| `fallback_safety_trigger` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.07031` | **`0.04622`** (`[0.0368, 0.0579]`) | **`-34.26%`** (safe fallback) | `0.01162` |
+| `short_burst_60us_vs_10ms` | `1 + 6 - 0 = 7` | `true` | `17.0` / `22.0` | `0.05404` | **`0.02604`** (`[0.0192, 0.0353]`) | **`-51.81%`** | `0.01480` |
+
+### 4.3 Six-Way Architectural Ablation Study (`reports/v0_closure_40_40_report.json`)
+
+| Ablation Variant | `--controller-mode` | `--osd-mode` | BP Core / AXI Total Cycles | Logical Error Rate | LER Reduction | Architectural Attribution |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **1. Static B0** | `static` | `1` | `17.0` / `22.0` | `0.05339` | `0.00%` | Uniform prior baseline |
+| **2. Marginal L-BFGS B1** | `marginal_lbfgs` | `1` | `17.0` / `22.0` | `0.05339` | `0.00%` | Rank-4 check marginals (`NLL=0.8458` vs. `0.7511`) cannot separate $Z_4 Z_5$ from $Z_3$ |
+| **3. Joint-DP + Pure 9-Marginal-LLR BP** | `joint_dp_map` | `0` | `17.0` / `22.0` | `0.12695` | `-137.80%` | Pure 9-marginal-LLR BP without OSD-0 fails on single-check `0x2`/`0x4` weight-2 vs. weight-1 ambiguity |
+| **4. Joint-DP + Memoryless Pair Projection** | `joint_dp_proj` | `1` | `17.0` / `22.0` | `0.04492` | **`-15.85%`** | Memoryless single-window pair-aware projection |
+| **5. Full AVID (`Joint-DP + 64-Unit LSTM R2D2-WB + Inline OSD-0`)** | `avid_r2d2` | `1` | `17.0` / `22.0` | **`0.03581`** | **`-32.93%`** (`-58.05%` @ 8.1k) | 64-unit LSTM `R2D2-WB` (`25,998` params = `25.39 KB` `int8`) locks onto correlated bursts from epoch 1 |
+| **6. Full AVID (`Joint-DP + 64-Unit LSTM R2D2-WB + Post-BP OSD-0 Stage`)** | `avid_r2d2` | `2` | `19.0` / `24.0` | **`0.03581`** | **`-32.93%`** | Dedicated 2-cycle post-BP OSD-0 stage (`ST_OSD_STEP1 -> ST_OSD_STEP2`) outside the 17-cycle BP path |
+
+### 4.4 V0 40/40 Closure Tracker Summary ([`docs/V0_and_V1_Closure_Audit_Report.md`](docs/V0_and_V1_Closure_Audit_Report.md))
+
+| Category | Items | Status | Key Verified Evidence |
+| :--- | :---: | :---: | :--- |
+| **A. Mathematical Model & Identifiability** | `A01–A10` | **`10/10 CLOSED`** | 21-param ordering frozen; DP vs. $2^{12}$ enumeration diff $= 4.44 \times 10^{-16}$; coset gradient vs. FD diff $= 1.23 \times 10^{-9}$; 9 observable orbits (`rank=9`) + 12 gauge directions (`MAP rank=21/21`, $\kappa = 413.3$); 9-orbit recovery RMSE $= 7.7 \times 10^{-5}$. |
+| **B. Software Estimator & Reference Decoder** | `B01–B10` | **`10/10 CLOSED`** | Projected L-BFGS convergence $\|g_{\text{proj}}\|_\infty = 0.00178$; multi-init deviation $= 3.32 \times 10^{-6}$; dual `hist_x`/`hist_z` estimation; Q7.8 quantization error $\le 0.00169 < \text{LSB}/2$; `0` RTL-vs-reference mismatches across all 32 syndromes and OSD modes `{0,1,2}`. |
+| **C. Benchmark Validity & Attribution** | `C01–C10` | **`10/10 CLOSED`** | Shared random streams; disjoint train/eval seeds; 95% Wilson CIs & raw failure counts; 6-way ablation study; zero scenario-name shortcuts in solver (`solver_contains_scenario_conditionals = false`). |
+| **D. Evidence, Tests & Release Discipline** | `D01–D10` | **`10/10 CLOSED`** | Provenance manifests + SHA-256 checksums (`69` files/run); `SLVERR` invalid-register & 6 negative bridge protocol tests; reconciled epoch/commit accounting across all 10 scenarios. |
+
 ---
 
 ## 5. End-to-End Repository Structure
@@ -159,7 +197,8 @@ bash scripts/run_all.sh configs/v1_smoke.yaml
 bash scripts/run_regression.sh
 ```
 
-### Run Architecture Gate Validator (Python + C++ Suites)
+### Run Architecture & V0 40/40 Closure Verifiers (Python + C++ + Co-Sim Suites)
 ```bash
+PYTHONPATH=. python3 tools/verify_v0_closure_40.py
 PYTHONPATH=. python3 tools/validate_architecture.py
 ```

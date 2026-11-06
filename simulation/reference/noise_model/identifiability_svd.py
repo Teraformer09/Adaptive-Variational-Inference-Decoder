@@ -124,6 +124,29 @@ def analyze_identifiability(
     }
 
 
+def compute_identifiability_metrics(
+    theta: np.ndarray,
+    prior_lambda: float = 0.50,
+    svd_tol: float = 1e-8,
+) -> Dict[str, object]:
+    model = build_d3_correlated_noise_model(basis="X", include_measurement_faults=False)
+    dist, jac_joint = model.distribution_and_jacobian(theta)
+    _, s_j, _ = np.linalg.svd(jac_joint, full_matrices=False)
+    rank_joint = int(np.sum(s_j > svd_tol))
+    inv_p = 1.0 / np.maximum(dist, 1e-15)
+    fisher = jac_joint.T @ (inv_p[:, None] * jac_joint)
+    hessian_map = fisher + prior_lambda * np.eye(model.n_params)
+    map_eigvals = np.linalg.eigvalsh(hessian_map)[::-1]
+    map_rank = int(np.sum(map_eigvals > svd_tol))
+    map_cond = float(map_eigvals[0] / map_eigvals[-1])
+    return {
+        "jacobian_rank_unregularized": rank_joint,
+        "nullspace_dimension": int(model.n_params - rank_joint),
+        "regularized_hessian_rank": map_rank,
+        "regularized_condition_number": map_cond,
+    }
+
+
 def generate_identifiability_artifacts(repo_root: Path) -> Dict[str, object]:
     """
     Generate all architecture/02_noise_model/, architecture/04_estimator/, and

@@ -118,6 +118,7 @@ module aa_qec_top #(
     logic signed [DATA_WIDTH-1:0] active_z [N_DATA];
     logic [31:0]                  weight_epoch;
     logic [3:0]                   cfg_max_iter_int;
+    logic [1:0]                   cfg_osd_mode_int;
 
     weight_map_reg #(
         .N_DATA     (N_DATA),
@@ -146,7 +147,8 @@ module aa_qec_top #(
         .active_z        (active_z),
         .bp_ready_in     (sbu_ready_int),
         .epoch_count     (weight_epoch),
-        .cfg_max_iter    (cfg_max_iter_int)
+        .cfg_max_iter    (cfg_max_iter_int),
+        .cfg_osd_mode    (cfg_osd_mode_int)
     );
 
     // =========================================================================
@@ -167,6 +169,7 @@ module aa_qec_top #(
         .bp_ready         (bp_x_ready),
         .channel_llr      (active_x),     // From weight_map_reg active bank
         .cfg_max_iter     (cfg_max_iter_int),
+        .cfg_osd_mode     (cfg_osd_mode_int),
         .correction       (corr_x),
         .correction_valid (corr_x_valid)
     );
@@ -189,6 +192,7 @@ module aa_qec_top #(
         .bp_ready         (bp_z_ready),
         .channel_llr      (active_z),     // Z-type per-qubit weights
         .cfg_max_iter     (cfg_max_iter_int),
+        .cfg_osd_mode     (cfg_osd_mode_int),
         .correction       (corr_z),
         .correction_valid (corr_z_valid)
     );

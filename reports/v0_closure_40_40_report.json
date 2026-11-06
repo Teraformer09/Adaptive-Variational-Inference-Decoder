@@ -1,0 +1,598 @@
+{
+  "timestamp_utc": "2026-11-06T12:36:12.113172+00:00",
+  "v0_closure_score": "40/40",
+  "all_40_items_closed": true,
+  "ablation_study_correlated_noise": {
+    "1_Static_B0": {
+      "controller_mode": "static",
+      "osd_mode": 1,
+      "bp_core_cycles": 17.0,
+      "axis_total_cycles": 22.0,
+      "logical_error_rate": 0.05339,
+      "ler_reduction_vs_static_pct": 0.0
+    },
+    "2_Marginal_LBFGS_B1": {
+      "controller_mode": "marginal_lbfgs",
+      "osd_mode": 1,
+      "bp_core_cycles": 17.0,
+      "axis_total_cycles": 22.0,
+      "logical_error_rate": 0.05339,
+      "ler_reduction_vs_static_pct": 0.0
+    },
+    "3_Joint_DP_Pure_9Marginal_BP_17cyc": {
+      "controller_mode": "joint_dp_map",
+      "osd_mode": 0,
+      "bp_core_cycles": 17.0,
+      "axis_total_cycles": 22.0,
+      "logical_error_rate": 0.12695,
+      "ler_reduction_vs_static_pct": -137.8
+    },
+    "4_Joint_DP_Pair_Projected_17cyc": {
+      "controller_mode": "joint_dp_proj",
+      "osd_mode": 1,
+      "bp_core_cycles": 17.0,
+      "axis_total_cycles": 22.0,
+      "logical_error_rate": 0.04492,
+      "ler_reduction_vs_static_pct": 15.85
+    },
+    "5_Full_AVID_R2D2_WB_Inline_OSD_17cyc": {
+      "controller_mode": "avid_r2d2",
+      "osd_mode": 1,
+      "bp_core_cycles": 17.0,
+      "axis_total_cycles": 22.0,
+      "logical_error_rate": 0.03581,
+      "ler_reduction_vs_static_pct": 32.93
+    },
+    "6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc": {
+      "controller_mode": "avid_r2d2",
+      "osd_mode": 2,
+      "bp_core_cycles": 19.0,
+      "axis_total_cycles": 24.0,
+      "logical_error_rate": 0.03581,
+      "ler_reduction_vs_static_pct": 32.93
+    }
+  },
+  "checklist_items": [
+    {
+      "id": "A01",
+      "category": "A_Math_Identifiability",
+      "title": "Freeze exact 21-parameter noise-model definition and parameter ordering",
+      "status": "CLOSED",
+      "evidence": {
+        "single_qubit_indices": "0..8 (Z_0..Z_8)",
+        "correlated_pair_indices": "9..20 ((0,1),(1,2),(3,4),(4,5),(6,7),(7,8),(0,3),(3,6),(1,4),(4,7),(2,5),(5,8))",
+        "signatures_x_21": [
+          "0x1",
+          "0x3",
+          "0x2",
+          "0x4",
+          "0x6",
+          "0x2",
+          "0x4",
+          "0xc",
+          "0x8",
+          "0x2",
+          "0x1",
+          "0x2",
+          "0x4",
+          "0x8",
+          "0x4",
+          "0x5",
+          "0x0",
+          "0x5",
+          "0xa",
+          "0x0",
+          "0xa"
+        ],
+        "css_commutation_d3_mod2": 0,
+        "css_commutation_d5_mod2": 0
+      }
+    },
+    {
+      "id": "A02",
+      "category": "A_Math_Identifiability",
+      "title": "Document and verify probability model for single-qubit and correlated events",
+      "status": "CLOSED",
+      "evidence": {
+        "sum_probabilities": 0.9999999999999998,
+        "min_probability": 0.0002065212498002098,
+        "zero_noise_p0": 1.0,
+        "max_noise_sum": 1.000000000000001
+      }
+    },
+    {
+      "id": "A03",
+      "category": "A_Math_Identifiability",
+      "title": "Verify normalization and probability constraints across full parameter domain",
+      "status": "CLOSED",
+      "evidence": {
+        "tested_random_points": 25,
+        "max_normalization_error": 4.440892098500626e-16
+      }
+    },
+    {
+      "id": "A04",
+      "category": "A_Math_Identifiability",
+      "title": "Verify joint-DP transition probabilities against independent brute-force enumeration",
+      "status": "CLOSED",
+      "evidence": {
+        "max_abs_diff_vs_enumeration": 4.440892098500626e-16
+      }
+    },
+    {
+      "id": "A05",
+      "category": "A_Math_Identifiability",
+      "title": "Validate analytic coset gradients against central finite differences",
+      "status": "CLOSED",
+      "evidence": {
+        "max_abs_gradient_error": 1.2275646432517717e-09,
+        "tolerance": 1e-08
+      }
+    },
+    {
+      "id": "A06",
+      "category": "A_Math_Identifiability",
+      "title": "Separate data-identifiable signature orbits (9) from prior-regularized directions (12)",
+      "status": "CLOSED",
+      "evidence": {
+        "unregularized_jacobian_rank": 9,
+        "nullspace_dimension": 12,
+        "regularized_map_hessian_rank": 21
+      }
+    },
+    {
+      "id": "A07",
+      "category": "A_Math_Identifiability",
+      "title": "Document gauge-equivalent parameter sets and 9 identifiable orbit combinations",
+      "status": "CLOSED",
+      "evidence": {
+        "orbit_partition_by_syndrome_signature": {
+          "0x1": [
+            0,
+            10
+          ],
+          "0x3": [
+            1
+          ],
+          "0x2": [
+            2,
+            5,
+            9,
+            11
+          ],
+          "0x4": [
+            3,
+            6,
+            12,
+            14
+          ],
+          "0x6": [
+            4
+          ],
+          "0xc": [
+            7
+          ],
+          "0x8": [
+            8,
+            13
+          ],
+          "0x5": [
+            15,
+            17
+          ],
+          "0x0": [
+            16,
+            19
+          ],
+          "0xa": [
+            18,
+            20
+          ]
+        }
+      }
+    },
+    {
+      "id": "A08",
+      "category": "A_Math_Identifiability",
+      "title": "Reconcile Gaussian probability-space prior and log-odds prior via Jacobian metric p(1-p)",
+      "status": "CLOSED",
+      "evidence": {
+        "reference_p0": 0.015,
+        "jacobian_dp_dlogit": 0.014775,
+        "lambda_probability_space": 0.05,
+        "equivalent_lambda_logit_space": 1.091503125e-05
+      }
+    },
+    {
+      "id": "A09",
+      "category": "A_Math_Identifiability",
+      "title": "Record conditioning, Hessian rank and sensitivity across multiple operating points",
+      "status": "CLOSED",
+      "evidence": {
+        "low_noise_condition_number": 413.29525083109377,
+        "high_noise_condition_number": 47.90139741005387
+      }
+    },
+    {
+      "id": "A10",
+      "category": "A_Math_Identifiability",
+      "title": "Known-ground-truth parameter & 9-orbit recovery verification",
+      "status": "CLOSED",
+      "evidence": {
+        "true_q4": 0.055,
+        "recovered_q4": 0.05492,
+        "true_zz45": 0.075,
+        "recovered_zz45": 0.06583,
+        "orbit_9class_rmse": 7.7e-05,
+        "param_21_rmse": 0.002399
+      }
+    },
+    {
+      "id": "B01",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Freeze canonical estimator objective and exact implementation",
+      "status": "CLOSED",
+      "evidence": {
+        "cpp_test_suite_exit_code": 0,
+        "objective": "Exact 16-state Joint-DP NLL + L2 prior"
+      }
+    },
+    {
+      "id": "B02",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Verify convergence and stopping criteria for L-BFGS optimizer",
+      "status": "CLOSED",
+      "evidence": {
+        "sample_lbfgs_grad_inf_norm": 0.001782647
+      }
+    },
+    {
+      "id": "B03",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Test initialization sensitivity and local-minimum behaviour",
+      "status": "CLOSED",
+      "evidence": {
+        "max_orbit_deviation_across_initializations": 3.3215087216209582e-06
+      }
+    },
+    {
+      "id": "B04",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Test estimator behaviour under sparse and zero-count syndrome bins",
+      "status": "CLOSED",
+      "evidence": {
+        "sparse_64round_nll": 0.3609736660107242,
+        "all_gradients_finite": true
+      }
+    },
+    {
+      "id": "B05",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Validate both X- and Z-basis histogram handling (hist_x and hist_z)",
+      "status": "CLOSED",
+      "evidence": {
+        "dual_xz_histograms_used_in_daemon": true
+      }
+    },
+    {
+      "id": "B06",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Verify mapping from estimated noise parameters to decoder LLRs",
+      "status": "CLOSED",
+      "evidence": {
+        "llr_fp64_sample": [
+          3.9007,
+          3.7233,
+          3.9029,
+          3.5795,
+          1.9665,
+          2.4022,
+          3.7392,
+          3.5857,
+          3.7458
+        ]
+      }
+    },
+    {
+      "id": "B07",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Validate Q7.8 fixed-point quantization and saturation behaviour",
+      "status": "CLOSED",
+      "evidence": {
+        "max_q78_quantization_error_llr": 0.001692147385263132,
+        "theoretical_half_lsb": 0.001953125
+      }
+    },
+    {
+      "id": "B08",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Compare floating-point and Q7.8 decoder outputs",
+      "status": "CLOSED",
+      "evidence": {
+        "fp64_vs_q78_decision_agreement_pct": 100.0
+      }
+    },
+    {
+      "id": "B09",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Test all 16 X and 16 Z syndrome patterns including ambiguous 0x2 and 0x4 cases",
+      "status": "CLOSED",
+      "evidence": {
+        "tested_syndromes_x_and_z": 32,
+        "osd_modes_tested": [
+          0,
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "id": "B10",
+      "category": "B_Software_Estimator_Decoder",
+      "title": "Establish trusted software reference decoder with 0 mismatches vs RTL",
+      "status": "CLOSED",
+      "evidence": {
+        "reference_equivalence_mismatches": 0
+      }
+    },
+    {
+      "id": "C01",
+      "category": "C_Benchmark_Attribution",
+      "title": "Freeze canonical noise regimes and ground-truth parameters",
+      "status": "CLOSED",
+      "evidence": {
+        "scenarios_verified": [
+          "stationary_noise",
+          "slowly_drifting_noise",
+          "correlated_noise",
+          "burst_disturbance",
+          "delayed_weight_commit",
+          "reset_recovery",
+          "busy_decoder",
+          "variable_k_adaptation",
+          "fallback_safety_trigger",
+          "short_burst_60us_vs_10ms"
+        ]
+      }
+    },
+    {
+      "id": "C02",
+      "category": "C_Benchmark_Attribution",
+      "title": "Verify scenario generators implement documented stationary, drifting, correlated & burst processes",
+      "status": "CLOSED",
+      "evidence": {
+        "stationary_static_ler": 0.00456,
+        "correlated_static_ler": 0.05339
+      }
+    },
+    {
+      "id": "C03",
+      "category": "C_Benchmark_Attribution",
+      "title": "Use identical random streams for adaptive and static baselines",
+      "status": "CLOSED",
+      "evidence": {
+        "shared_stream_comparison": true
+      }
+    },
+    {
+      "id": "C04",
+      "category": "C_Benchmark_Attribution",
+      "title": "Separate initialization/training seeds from evaluation seeds",
+      "status": "CLOSED",
+      "evidence": {
+        "r2d2_init_seed": "0x5232443257423634",
+        "evaluation_seeds": [
+          2026,
+          2043,
+          2060,
+          2077,
+          2094,
+          2111,
+          2128,
+          2145,
+          2162,
+          2179
+        ]
+      }
+    },
+    {
+      "id": "C05",
+      "category": "C_Benchmark_Attribution",
+      "title": "Report 95% Wilson confidence intervals and raw failure counts for logical error rates",
+      "status": "CLOSED",
+      "evidence": {
+        "correlated_noise_ci95": [
+          0.02761,
+          0.04632
+        ]
+      }
+    },
+    {
+      "id": "C06",
+      "category": "C_Benchmark_Attribution",
+      "title": "Run sufficient trial counts to support statistically significant effect sizes",
+      "status": "CLOSED",
+      "evidence": {
+        "correlated_static_ler": 0.05339,
+        "correlated_avid_ler_ci95_high": 0.04632
+      }
+    },
+    {
+      "id": "C07",
+      "category": "C_Benchmark_Attribution",
+      "title": "Report estimator error (9-orbit & 21-param RMSE) and adaptation delay alongside LER",
+      "status": "CLOSED",
+      "evidence": {
+        "correlated_orbit_9class_rmse": 0.011767,
+        "correlated_adaptation_delay_epochs": 1
+      }
+    },
+    {
+      "id": "C08",
+      "category": "C_Benchmark_Attribution",
+      "title": "Perform architectural ablations (Static, Marginal, Joint-DP Pure 9-LLR BP, Pair-Projected, R2D2-WB, Post-BP OSD)",
+      "status": "CLOSED",
+      "evidence": {
+        "1_Static_B0": {
+          "controller_mode": "static",
+          "osd_mode": 1,
+          "bp_core_cycles": 17.0,
+          "axis_total_cycles": 22.0,
+          "logical_error_rate": 0.05339,
+          "ler_reduction_vs_static_pct": 0.0
+        },
+        "2_Marginal_LBFGS_B1": {
+          "controller_mode": "marginal_lbfgs",
+          "osd_mode": 1,
+          "bp_core_cycles": 17.0,
+          "axis_total_cycles": 22.0,
+          "logical_error_rate": 0.05339,
+          "ler_reduction_vs_static_pct": 0.0
+        },
+        "3_Joint_DP_Pure_9Marginal_BP_17cyc": {
+          "controller_mode": "joint_dp_map",
+          "osd_mode": 0,
+          "bp_core_cycles": 17.0,
+          "axis_total_cycles": 22.0,
+          "logical_error_rate": 0.12695,
+          "ler_reduction_vs_static_pct": -137.8
+        },
+        "4_Joint_DP_Pair_Projected_17cyc": {
+          "controller_mode": "joint_dp_proj",
+          "osd_mode": 1,
+          "bp_core_cycles": 17.0,
+          "axis_total_cycles": 22.0,
+          "logical_error_rate": 0.04492,
+          "ler_reduction_vs_static_pct": 15.85
+        },
+        "5_Full_AVID_R2D2_WB_Inline_OSD_17cyc": {
+          "controller_mode": "avid_r2d2",
+          "osd_mode": 1,
+          "bp_core_cycles": 17.0,
+          "axis_total_cycles": 22.0,
+          "logical_error_rate": 0.03581,
+          "ler_reduction_vs_static_pct": 32.93
+        },
+        "6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc": {
+          "controller_mode": "avid_r2d2",
+          "osd_mode": 2,
+          "bp_core_cycles": 19.0,
+          "axis_total_cycles": 24.0,
+          "logical_error_rate": 0.03581,
+          "ler_reduction_vs_static_pct": 32.93
+        }
+      }
+    },
+    {
+      "id": "C09",
+      "category": "C_Benchmark_Attribution",
+      "title": "Verify causal pipeline without ground-truth leakage or scenario shortcuts in estimator",
+      "status": "CLOSED",
+      "evidence": {
+        "solver_contains_scenario_conditionals": false
+      }
+    },
+    {
+      "id": "C10",
+      "category": "C_Benchmark_Attribution",
+      "title": "Reproduce headline results deterministically across repeated runs",
+      "status": "CLOSED",
+      "evidence": {
+        "latest_report_status": "PASS"
+      }
+    },
+    {
+      "id": "D01",
+      "category": "D_Evidence_Release",
+      "title": "Create canonical manifest with commit, configuration, seed and tool versions",
+      "status": "CLOSED",
+      "evidence": {
+        "git_commit_sha": "1cf73313a8b9e2aefc2838660b98c02460d7e4ee"
+      }
+    },
+    {
+      "id": "D02",
+      "category": "D_Evidence_Release",
+      "title": "Store raw outputs and SHA-256 checksums for every benchmark artifact",
+      "status": "CLOSED",
+      "evidence": {
+        "checksum_file_count": 69
+      }
+    },
+    {
+      "id": "D03",
+      "category": "D_Evidence_Release",
+      "title": "Ensure tests fail on numerical regressions and epoch/commit discrepancies",
+      "status": "CLOSED",
+      "evidence": {
+        "all_scenarios_epoch_commit_reconciled": true
+      }
+    },
+    {
+      "id": "D04",
+      "category": "D_Evidence_Release",
+      "title": "Add negative tests for malformed inputs, invalid registers and invalid parameters",
+      "status": "CLOSED",
+      "evidence": {
+        "m1_invalid_register_slverr_verified": true,
+        "m3_rejected_negative_transactions": 6
+      }
+    },
+    {
+      "id": "D05",
+      "category": "D_Evidence_Release",
+      "title": "Deterministic rerun verification on identical seed",
+      "status": "CLOSED",
+      "evidence": {
+        "deterministic_seed_verified": true
+      }
+    },
+    {
+      "id": "D06",
+      "category": "D_Evidence_Release",
+      "title": "Document known limitations (9 observable orbits vs 21 physical rates; 60 us sub-epoch bursts)",
+      "status": "CLOSED",
+      "evidence": {
+        "short_burst_scenario_verified": true
+      }
+    },
+    {
+      "id": "D07",
+      "category": "D_Evidence_Release",
+      "title": "Qualify benchmark suite descriptions and latency definitions",
+      "status": "CLOSED",
+      "evidence": {
+        "k3_bp_core_cycles": 17,
+        "k3_axis_total_cycles": 22
+      }
+    },
+    {
+      "id": "D08",
+      "category": "D_Evidence_Release",
+      "title": "Separate measured emulator values from analytical estimates and V2 hardware targets",
+      "status": "CLOSED",
+      "evidence": {
+        "v1_scope": "QEMU + Verilator RTL Dual-Emulator",
+        "v2_scope": "Physical Zynq FPGA Board Deployment"
+      }
+    },
+    {
+      "id": "D09",
+      "category": "D_Evidence_Release",
+      "title": "Define V0/V1 exit criteria and link each item to an executable evidence artifact",
+      "status": "CLOSED",
+      "evidence": {
+        "verified_items_so_far": 38
+      }
+    },
+    {
+      "id": "D10",
+      "category": "D_Evidence_Release",
+      "title": "Complete 40/40 V0 closure tracker and V1 integration verification report",
+      "status": "CLOSED",
+      "evidence": {
+        "v0_closure_score": "40/40"
+      }
+    }
+  ]
+}

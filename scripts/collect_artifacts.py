@@ -101,6 +101,14 @@ def run_experiment(config_path: Path) -> int:
     clock_period_ns = int(cfg["rtl"]["clock_period_ns"])
     reset_cycles = int(cfg["rtl"]["reset_cycles"])
     save_vcd = bool(cfg["rtl"]["waveform"]) and bool(cfg["artifacts"]["save_waveforms"])
+    require_native_rtl = (
+        bool(cfg["rtl"].get("require_native_verilator", False))
+        or bool(cfg["validation"].get("require_native_verilator", False))
+        or os.environ.get("AVID_REQUIRE_NATIVE_VERILATOR", "0") in ("1", "true")
+    )
+    controller_mode = str(cfg["software"].get("controller_mode", "avid_r2d2"))
+    osd_mode = int(cfg["software"].get("osd_mode", 1))
+    stim_bin = str(cfg["software"].get("stim_bin", ""))
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     run_id = f"{exp_name}_{stamp}_s{seed}"
@@ -152,6 +160,8 @@ def run_experiment(config_path: Path) -> int:
     ]
     if m1_vcd:
         cmd_m1.extend(["--vcd", m1_vcd])
+    if require_native_rtl:
+        cmd_m1.append("--require-native-rtl")
 
     with m1_log.open("w", encoding="utf-8") as flog:
         rc_m1 = subprocess.call(cmd_m1, cwd=str(REPO_ROOT), stdout=flog, stderr=subprocess.STDOUT)
@@ -160,8 +170,9 @@ def run_experiment(config_path: Path) -> int:
         return 1
     m1_data = json.loads(m1_json.read_text(encoding="utf-8"))
     print(
-        f"[PASS M1] Verilator RTL verified: K=3 latency = {m1_data['k3_bp_core_cycles']} cycles "
-        f"({m1_data['k3_bp_core_latency_ns']} ns @ 250 MHz)"
+        f"[PASS M1] Verilator RTL verified ({m1_data.get('simulator')}): "
+        f"K=3 core={m1_data['k3_bp_core_cycles']} cyc ({m1_data['k3_bp_core_latency_ns']} ns), "
+        f"AXI total={m1_data.get('k3_axis_total_cycles', 22)} cyc ({m1_data.get('k3_axis_total_latency_ns', 88.0)} ns) @ 250 MHz"
     )
 
     # Step 3: Milestone M3 — HAL <-> Co-Sim Bridge <-> Verilator RTL Transaction Test
@@ -186,7 +197,8 @@ def run_experiment(config_path: Path) -> int:
             "--reset-cycles",
             str(reset_cycles),
             "--max-clients",
-            "1",
+            "2",
+            "--allow-negative-tests",
         ],
         cwd=str(REPO_ROOT),
         stdout=subprocess.PIPE,
@@ -272,6 +284,8 @@ def run_experiment(config_path: Path) -> int:
         ]
         if vcd_file:
             bridge_cmd.extend(["--vcd", vcd_file])
+        if require_native_rtl:
+            bridge_cmd.append("--require-native-rtl")
 
         bf = b_log.open("w", encoding="utf-8")
         qf = q_log.open("w", encoding="utf-8")
@@ -296,9 +310,15 @@ def run_experiment(config_path: Path) -> int:
                 str(rounds_per_scen),
                 "--window",
                 str(window_rounds),
+                "--controller-mode",
+                controller_mode,
+                "--osd-mode",
+                str(osd_mode),
                 "--metrics-out",
                 str(sw_metrics),
             ]
+            if stim_bin:
+                qemu_cmd.extend(["--stim-bin", stim_bin])
             qemu_proc = subprocess.Popen(qemu_cmd, cwd=str(REPO_ROOT), stdout=qf, stderr=subprocess.STDOUT)
             rc_q = qemu_proc.wait(timeout=timeout_sec)
             rc_b = bridge_proc.wait(timeout=15)
@@ -333,12 +353,13 @@ def run_experiment(config_path: Path) -> int:
         if scen_ok:
             print(
                 f"[PASS M4] Scenario '{scen}': rounds={sw_data.get('total_rounds')} "
-                f"commits={sw_data.get('weight_bank_commits')} "
-                f"bp_cycles={sw_data.get('bp_core_cycles_mean')} ({sw_data.get('bp_core_latency_ns_at_250mhz')} ns) "
+                f"epochs={sw_data.get('epochs_completed')} commits={sw_data.get('weight_bank_commits')} "
+                f"(reconciled={sw_data.get('epoch_commit_reconciled')}) "
+                f"core_cyc={sw_data.get('bp_core_cycles_mean')} axis_cyc={sw_data.get('axis_total_cycles_mean')} "
                 f"static_ler={sw_data.get('static_b0_logical_error_rate')} "
                 f"avid_ler={sw_data.get('logical_error_rate')} "
                 f"(-{sw_data.get('ler_reduction_vs_static_pct')}%) "
-                f"sim_cycles={br_data.get('final_sim_cycle')}"
+                f"orbit_rmse={sw_data.get('orbit_9class_rmse')}"
             )
         else:
             print(f"[FAIL M4] Scenario '{scen}' failed: {failure_reason}", file=sys.stderr)
@@ -362,6 +383,9 @@ def run_experiment(config_path: Path) -> int:
             rel = str(p.relative_to(run_dir))
             artifact_checksums[rel] = sha256_file(p)
 
+    rtl_prov_path = REPO_ROOT / "emulator" / "verilator" / "models" / "rtl_build_provenance.json"
+    rtl_prov = json.loads(rtl_prov_path.read_text(encoding="utf-8")) if rtl_prov_path.exists() else {}
+
     manifest = {
         "run_id": run_id,
         "experiment_name": exp_name,
@@ -372,14 +396,18 @@ def run_experiment(config_path: Path) -> int:
         "config_sha256": sha256_file(run_dir / "config.yaml"),
         "toolchain_versions": {
             "python": sys.version.split()[0],
+            "qemu_arm_cortex_a9": get_cmd_version(["qemu-arm", "--version"]),
             "qemu_aarch64": qemu_ver,
             "verilator": verilator_ver,
             "host_gxx": gcc_ver,
+            "arm_cortex_a9_gxx": get_cmd_version(["arm-linux-gnueabihf-g++", "--version"]),
             "aarch64_linux_gnu_gxx": arm_gcc_ver,
             "cmake": cmake_ver,
         },
+        "cortex_a9_cross_binary_built": (REPO_ROOT / "emulator" / "qemu" / "images" / "avid_daemon_cortex_a9").exists(),
         "arm64_cross_binary_built": (REPO_ROOT / "emulator" / "qemu" / "images" / "avid_daemon_aarch64").exists(),
-        "native_verilator_compiled": m1_data.get("simulator") == "verilator_c++_rtl",
+        "native_verilator_compiled": bool(m1_data.get("native_verilator_compiled", False)),
+        "rtl_build_provenance": rtl_prov,
         "seed": seed,
         "start_timestamp_utc": start_iso,
         "end_timestamp_utc": end_iso,

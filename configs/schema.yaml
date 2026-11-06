@@ -9,10 +9,10 @@ allowed_sections:
     optional: [description, rounds_per_scenario, window_rounds]
   software:
     required: [emulator, architecture, boot_mode, daemon]
-    optional: [hal_backend]
+    optional: [hal_backend, controller_mode, osd_mode, stim_bin]
   rtl:
     required: [simulator, top_module, clock_period_ns, reset_cycles, bp_iterations, waveform]
-    optional: []
+    optional: [require_native_verilator]
   bridge:
     required: [transport, protocol_version, clock_mode, transaction_timeout_ms]
     optional: []
@@ -27,10 +27,13 @@ allowed_sections:
       - reset_recovery
       - reset_during_operation
       - busy_decoder
+      - variable_k_adaptation
+      - fallback_safety_trigger
+      - short_burst_60us_vs_10ms
       - invalid_configuration
   validation:
     required: [assertions, fail_on_rtl_error, fail_on_timeout]
-    optional: []
+    optional: [require_native_verilator]
   artifacts:
     required: [output_dir, save_logs, save_waveforms, save_transactions, save_metrics]
     optional: []

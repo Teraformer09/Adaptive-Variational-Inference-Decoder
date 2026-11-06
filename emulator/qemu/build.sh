@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# emulator/qemu/build.sh — Build AVID ARM64 Guest Binary & Host Twin (M0 / M2)
+# emulator/qemu/build.sh — Build AVID ARM Cortex-A9 / ARM64 Guest Binaries & Host Twin
 # =============================================================================
 set -euo pipefail
 
@@ -16,6 +16,22 @@ cmake -S "${SW_DIR}" -B "${SW_DIR}/build_native" -DCMAKE_BUILD_TYPE=Release >/de
 cmake --build "${SW_DIR}/build_native" -j2 >/dev/null
 cp -f "${SW_DIR}/build_native/avid_daemon" "${IMG_DIR}/avid_daemon_x86_64"
 
+if command -v arm-linux-gnueabihf-g++ >/dev/null 2>&1 && command -v arm-linux-gnueabihf-gcc >/dev/null 2>&1; then
+    echo "[QEMU Build] Cross-compiling AVID daemon for Zynq-7020 ARM Cortex-A9 (arm-linux-gnueabihf)..."
+    mkdir -p "${SW_DIR}/build_cortex_a9"
+    cmake -S "${SW_DIR}" -B "${SW_DIR}/build_cortex_a9" \
+        -DCMAKE_SYSTEM_NAME=Linux \
+        -DCMAKE_SYSTEM_PROCESSOR=armv7l \
+        -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
+        -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ \
+        -DCMAKE_C_FLAGS="-mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard" \
+        -DCMAKE_CXX_FLAGS="-mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard" \
+        -DCMAKE_BUILD_TYPE=Release >/dev/null
+    cmake --build "${SW_DIR}/build_cortex_a9" --target avid_daemon -j2 >/dev/null
+    cp -f "${SW_DIR}/build_cortex_a9/avid_daemon" "${IMG_DIR}/avid_daemon_cortex_a9"
+    echo "[QEMU Build] Built Zynq-7020 ARM Cortex-A9 ELF: ${IMG_DIR}/avid_daemon_cortex_a9"
+fi
+
 if command -v aarch64-linux-gnu-g++ >/dev/null 2>&1 && command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
     echo "[QEMU Build] Cross-compiling AVID daemon for ARM64 (aarch64-linux-gnu)..."
     mkdir -p "${SW_DIR}/build_arm64"
@@ -28,6 +44,8 @@ if command -v aarch64-linux-gnu-g++ >/dev/null 2>&1 && command -v aarch64-linux-
     cmake --build "${SW_DIR}/build_arm64" --target avid_daemon -j2 >/dev/null
     cp -f "${SW_DIR}/build_arm64/avid_daemon" "${IMG_DIR}/avid_daemon_aarch64"
     echo "[QEMU Build] Built ARM64 ELF: ${IMG_DIR}/avid_daemon_aarch64"
-else
-    echo "[QEMU Build] Note: aarch64-linux-gnu-g++ not found on host; using native ELF fallback until setup_cloudshell.sh is run."
+fi
+
+if [ ! -x "${IMG_DIR}/avid_daemon_cortex_a9" ] && [ ! -x "${IMG_DIR}/avid_daemon_aarch64" ]; then
+    echo "[QEMU Build] Note: ARM cross-compilers not found on host; using native ELF fallback until setup_cloudshell.sh is run."
 fi

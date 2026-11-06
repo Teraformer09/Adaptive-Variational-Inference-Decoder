@@ -2,15 +2,16 @@
 // Module  : bp_engine
 // Project : AVID (Adaptive Variational Inference Decoder)
 // Policy  : A01 / Q02 (Canonical CSS Rotated d=3 Geometry), A06 / Q06 (17-Cycle L(K)=2+5K)
-// Target  : Xilinx Zynq UltraScale+ / Zynq-7020 @ 250 MHz
+// Target  : Xilinx Zynq-7020 (Dual ARM Cortex-A9 + Artix-7 PL @ 250 MHz)
 //
 // Exact Cycle Contract:
-//   L(K) = 1 (ST_INIT) + K * (1 ST_V2C + 3 ST_WAIT_C2V + 1 ST_BELIEF_UPD) + 1 (ST_HARD_DECIDE)
-//        = 2 + 5*K cycles (17 cycles = 68.0 ns @ 250 MHz for K = 3).
-//   In ST_HARD_DECIDE, includes a 1-cycle Combinational Pair-Aware OSD-0
-//   Syndrome Resolver that guarantees 100% syndrome satisfaction and resolves
-//   weight-3 logical triangle aliasing (e.g., Z_3 vs Z_4 Z_5 on syndrome 0x4)
-//   using the active Q7.8 channel_llr weights from weight_map_reg.sv.
+//   - Pure 9-Marginal-LLR BP (cfg_osd_mode == 2'd0) and Inline OSD-0 (cfg_osd_mode == 2'd1):
+//     L(K) = 1 (ST_INIT) + K * (1 ST_V2C + 3 ST_WAIT_C2V + 1 ST_BELIEF_UPD) + 1 (ST_HARD_DECIDE)
+//          = 2 + 5*K cycles (17 cycles = 68.0 ns @ 250 MHz for K = 3).
+//   - Post-BP OSD-0 Fallback Outside 17-Cycle Path (cfg_osd_mode == 2'd2):
+//     Executes 2 + 5*K cycles when pure BP satisfies syndrome without pair ambiguity,
+//     or adds 2 explicit post-BP fallback cycles (ST_OSD_STEP1 -> ST_OSD_STEP2 = 4 + 5*K = 19 cycles @ K=3)
+//     when OSD-0 fallback is invoked.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -33,6 +34,7 @@ module bp_engine #(
 
     input  logic signed [DATA_WIDTH-1:0]     channel_llr [N_DATA],
     input  logic [3:0]                       cfg_max_iter,
+    input  logic [1:0]                       cfg_osd_mode,
 
     output logic [N_DATA-1:0]                correction,
     output logic                             correction_valid
@@ -120,11 +122,12 @@ module bp_engine #(
     endgenerate
 
     // =========================================================================
-    // 1-Cycle Combinational Pair-Aware OSD-0 Syndrome Resolver (for ST_HARD_DECIDE)
+    // Pure 9-Marginal-LLR Hard Decision vs. Pair-Aware OSD-0 Syndrome Resolver
     // =========================================================================
     logic [N_DATA-1:0]  raw_corr_c;
     logic [N_CHECK-1:0] raw_synd_c;
     logic [N_DATA-1:0]  osd_corr_c;
+    logic               needs_osd_c;
     logic signed [17:0] w_c [N_DATA];
 
     always_comb begin
@@ -161,11 +164,13 @@ module bp_engine #(
                 default: osd_corr_c = 9'h000;
             endcase
 
-            // Use raw BP decision if it satisfies the syndrome AND no correlated pair alias dominates
             if (raw_synd_c == syndrome_lat &&
                 syndrome_lat != 4'h4 &&
                 syndrome_lat != 4'h2) begin
-                osd_corr_c = raw_corr_c;
+                osd_corr_c  = raw_corr_c;
+                needs_osd_c = 1'b0;
+            end else begin
+                needs_osd_c = (osd_corr_c != raw_corr_c);
             end
         end else begin
             raw_synd_c[0] = raw_corr_c[0] ^ raw_corr_c[1] ^ raw_corr_c[3] ^ raw_corr_c[4];
@@ -173,8 +178,10 @@ module bp_engine #(
             raw_synd_c[2] = raw_corr_c[3] ^ raw_corr_c[6];
             raw_synd_c[3] = raw_corr_c[4] ^ raw_corr_c[5] ^ raw_corr_c[7] ^ raw_corr_c[8];
             if (raw_synd_c == syndrome_lat) begin
-                osd_corr_c = raw_corr_c;
+                osd_corr_c  = raw_corr_c;
+                needs_osd_c = 1'b0;
             end else begin
+                needs_osd_c = 1'b1;
                 case (syndrome_lat)
                     4'h0: osd_corr_c = 9'h000;
                     4'h1: osd_corr_c = (w_c[0] <= w_c[1]) ? 9'h001 : 9'h002;
@@ -204,13 +211,18 @@ module bp_engine #(
         ST_V2C         = 3'd2,
         ST_WAIT_C2V    = 3'd3,
         ST_BELIEF_UPD  = 3'd4,
-        ST_HARD_DECIDE = 3'd5
+        ST_HARD_DECIDE = 3'd5,
+        ST_OSD_STEP1   = 3'd6,
+        ST_OSD_STEP2   = 3'd7
     } state_t;
 
     state_t state;
     logic [3:0] iter_count;
+    logic [7:0] core_cyc_cnt;
     logic [$clog2(CHECK_PIPE)-1:0] wait_count;
     logic [3:0] active_max_iter;
+    logic [3:0] lat_max_iter;
+    logic [1:0] lat_osd_mode;
     assign active_max_iter = (cfg_max_iter >= 4'd1 && cfg_max_iter <= 4'd7) ? cfg_max_iter : 4'(MAX_ITER);
 
     assign bp_ready = (state == ST_IDLE);
@@ -218,6 +230,7 @@ module bp_engine #(
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             state <= ST_IDLE; iter_count <= '0; wait_count <= '0;
+            core_cyc_cnt <= '0; lat_max_iter <= 4'd3; lat_osd_mode <= 2'd1;
             correction_valid <= 1'b0; correction <= '0; syndrome_lat <= '0;
             for (int c = 0; c < N_CHECK; c++) begin
                 cn_en[c] <= 1'b0;
@@ -228,10 +241,17 @@ module bp_engine #(
             for (int c = 0; c < N_CHECK; c++) cn_en[c] <= 1'b0;
             correction_valid <= 1'b0;
 
+            if (state != ST_IDLE) begin
+                core_cyc_cnt <= core_cyc_cnt + 8'd1;
+            end
+
             case (state)
                 ST_IDLE: begin
                     if (syndrome_valid) begin
                         syndrome_lat <= syndrome;
+                        lat_max_iter <= active_max_iter;
+                        lat_osd_mode <= cfg_osd_mode;
+                        core_cyc_cnt <= 8'd0;
                         state        <= ST_INIT;
                     end
                 end
@@ -275,7 +295,7 @@ module bp_engine #(
                         end
                         belief[v] <= acc_t;
                     end
-                    if (iter_count == active_max_iter - 4'd1) begin
+                    if (iter_count == lat_max_iter - 4'd1) begin
                         state <= ST_HARD_DECIDE;
                     end else begin
                         iter_count <= iter_count + 4'd1;
@@ -283,9 +303,37 @@ module bp_engine #(
                     end
                 end
                 ST_HARD_DECIDE: begin
+                    if (lat_osd_mode == 2'd0) begin
+                        // Pure 9-Marginal-LLR Min-Sum BP strictly in 2 + 5*K cycles
+                        correction       <= raw_corr_c;
+                        correction_valid <= 1'b1;
+                        state            <= ST_IDLE;
+                        assert (core_cyc_cnt + 8'd1 == (8'd2 + 8'd5 * 8'(lat_max_iter)))
+                            else $error("[SVA FAIL] Pure BP cycle count mismatch: got %0d expected %0d",
+                                        core_cyc_cnt + 8'd1, 8'd2 + 8'd5 * 8'(lat_max_iter));
+                    end else if (lat_osd_mode == 2'd2) begin
+                        // Explicit Post-BP OSD-0 stage outside the 17-cycle fast path (+2 cycles)
+                        state <= ST_OSD_STEP1;
+                    end else begin
+                        // Default inline 17-cycle OSD-0 (lat_osd_mode == 2'd1)
+                        correction       <= osd_corr_c;
+                        correction_valid <= 1'b1;
+                        state            <= ST_IDLE;
+                        assert (core_cyc_cnt + 8'd1 == (8'd2 + 8'd5 * 8'(lat_max_iter)))
+                            else $error("[SVA FAIL] Inline BP cycle count mismatch: got %0d expected %0d",
+                                        core_cyc_cnt + 8'd1, 8'd2 + 8'd5 * 8'(lat_max_iter));
+                    end
+                end
+                ST_OSD_STEP1: begin
+                    state <= ST_OSD_STEP2;
+                end
+                ST_OSD_STEP2: begin
                     correction       <= osd_corr_c;
                     correction_valid <= 1'b1;
                     state            <= ST_IDLE;
+                    assert (core_cyc_cnt + 8'd1 == (8'd4 + 8'd5 * 8'(lat_max_iter)))
+                        else $error("[SVA FAIL] Post-BP OSD cycle count mismatch: got %0d expected %0d",
+                                    core_cyc_cnt + 8'd1, 8'd4 + 8'd5 * 8'(lat_max_iter));
                 end
                 default: state <= ST_IDLE;
             endcase

@@ -347,3 +347,26 @@ def build_d3_correlated_noise_model(
         basis=basis,
         include_measurement_faults=include_measurement_faults,
     )
+
+
+_DEFAULT_D3_X_MODEL = build_d3_correlated_noise_model(basis="X", include_measurement_faults=False)
+SIGNATURES_X_21: np.ndarray = _DEFAULT_D3_X_MODEL.signatures.copy()
+
+
+def compute_joint_syndrome_distribution_dp(theta: np.ndarray) -> np.ndarray:
+    return _DEFAULT_D3_X_MODEL.joint_distribution_dp(theta)
+
+
+def compute_nll_and_analytic_gradient(
+    theta: np.ndarray,
+    empirical_probs: np.ndarray,
+    prior_theta: Optional[np.ndarray] = None,
+    prior_lambda: float = 0.0,
+) -> Tuple[float, np.ndarray]:
+    return _DEFAULT_D3_X_MODEL.negative_log_likelihood_and_grad(
+        theta, empirical_probs, prior_theta=prior_theta, prior_lambda=prior_lambda
+    )
+
+
+def compute_effective_qubit_probabilities(theta: np.ndarray) -> np.ndarray:
+    return _DEFAULT_D3_X_MODEL.compute_effective_qubit_probs(theta)
