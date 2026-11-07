@@ -12,19 +12,37 @@
 ---
 
 ## Code ↔ Math Parity
-{Double|Column} ( 16-State Joint-DP Syndrome Distribution P(s) vs. Exact 2^M Brute-Force Enumeration Across All 16 Syndrome Bins (Max Diff = 4.44e-16) | Analytical Coset-Inversion Gradient dL/dp_e vs. Central Finite-Difference Gradient Across All 21 Fault Parameters (Max Error = 1.23e-9) ) [end]
+
+| 16-State Joint-DP vs. Exact $2^M$ Enumeration | Analytic Coset Gradient vs. Central Finite Differences |
+| :---: | :---: |
+| ![16-State Joint-DP vs Exact Enumeration](docs/figures/01a_dp_vs_enumeration.png) | ![Analytic Coset Gradient vs Central Finite Differences](docs/figures/01b_analytic_vs_fd_gradient.png) |
 
 ## Estimator Review
-{Double|Column} ( Jacobian Singular Value Spectrum: Legacy 4-Check Marginal Model (Rank 4) vs. 16-State Joint-DP (9 Observable Orbits) vs. Prior-Regularized MAP Hessian (Full Rank 21/21) | L-BFGS Convergence & Estimation Accuracy: Legacy Marginal NLL (0.8458) vs. Two-Pass 16-State Joint-DP NLL (0.7511) and 9-Orbit vs. 21-Parameter Recovery RMSE ) [end]
+
+| Jacobian Singular Value Spectrum (Rank 4 $\to$ 9 Orbits $\to$ 21 MAP) | Legacy Marginal NLL vs. 16-State Joint-DP NLL & 9-Orbit RMSE |
+| :---: | :---: |
+| ![Jacobian Singular Value Spectrum](docs/figures/02a_jacobian_svd_spectrum.png) | ![L-BFGS NLL and Orbit RMSE](docs/figures/02b_lbfgs_nll_and_orbit_rmse.png) |
 
 ## Fast-Path Correctness
-{Double|Column} ( Q7.8 Fixed-Point Hardware LLR vs. FP64 Exact LLR Transfer Curve & Residual Quantization Error (<= 0.00169 < 0.5 LSB) | Ambiguous Syndrome (0x2 / 0x4) Logical Error Comparison: Pure 9-Marginal-LLR BP (cfg_osd_mode=0, 17 cyc) vs. Inline Pair-Aware OSD-0 (mode=1, 17 cyc) vs. Post-BP OSD-0 Stage (mode=2, 19 cyc) ) [end]
+
+| Q7.8 Fixed-Point LLR vs. FP64 Exact Transfer Curve | Fast-Path Decoder Modes (`cfg_osd_mode = 0, 1, 2`) |
+| :---: | :---: |
+| ![Q7.8 Fixed-Point vs FP64 Quantization](docs/figures/03a_q78_vs_fp64_quantization.png) | ![OSD Modes Comparison](docs/figures/03b_osd_modes_comparison.png) |
 
 ## Timing / Safety
-{Double|Column} ( Hardware Latency Scaling Across K = 1..5 @ 250 MHz: Fast-Path BP Core Cycles (2+5K: 7..27 cyc / 28..108 ns) vs. Total End-to-End AXI4-Stream Cycles (7+5K: 12..32 cyc / 48..128 ns) | Slow-Loop Timescale & Fault-Containment Response: 60 us Sub-Epoch Micro-Burst vs. 10 ms Multi-Epoch Sustained Burst LER Trajectory & Fallback FSM Recovery ) [end]
+
+| Deterministic Hardware Latency Scaling ($K = 1 \dots 5$) | Hardware Timing, CDC Lock & Safety Stress Scenarios |
+| :---: | :---: |
+| ![Latency Scaling K=1..5](docs/figures/04a_latency_k1_to_k5.png) | ![Timescale and Fallback Safety](docs/figures/04b_timescale_and_fallback_safety.png) |
 
 ## RL Ablations
-{Double|Column} ( 6-Way Architectural Ablation LER Bar Chart: B0 Static BP vs. B1 Marginal L-BFGS vs. B2 Joint-DP Pure BP vs. B3 Memoryless Pair-Projection (-15.85%) vs. B4 Full AVID 64-Unit LSTM R2D2-WB (-32.93% / -58.05%) | Temporal Adaptation Trajectory Across Drifting & Correlated Bursts: Memoryless Single-Window Pair Projection vs. 64-Unit LSTM R2D2-WB Recurrent Belief State ) [end]
+
+| 6-Way Architectural & RL Controller Ablation Study | 250,000-Round Shared-Stream Model Benchmark (`R1–R5`) |
+| :---: | :---: |
+| ![6-Way Architectural Ablation Study](docs/figures/05a_rl_6way_ablation_bar.png) | ![250k Shared Stream Regimes](docs/figures/05b_shared_stream_250k_regimes.png) |
 
 ## Statistical Audit
-{Double|Column} ( 10-Scenario Dual-Emulator LER with 95% Wilson Confidence Intervals: Static B0 vs. Adaptive AVID V1 RTL (Verilator 5.020 + QEMU ARM Cortex-A9) | Whole-Run LER vs. Peak Burst-Window LER Reduction Across Stationary, Slowly Drifting, Correlated & Burst Regimes (57,344-Round Cloud Shell Benchmark) ) [end]
+
+| 10-Scenario Cloud Shell Suite with 95% Wilson CIs | 57,344-Round Cloud Shell Long-Run Benchmark |
+| :---: | :---: |
+| ![10-Scenario Cloud Shell Suite with 95% CIs](docs/figures/06a_cloudshell_10scenarios_ci95.png) | ![57,344-Round Cloud Shell Long-Run Benchmark](docs/figures/06b_cloudshell_57344_rounds_longrun.png) |
