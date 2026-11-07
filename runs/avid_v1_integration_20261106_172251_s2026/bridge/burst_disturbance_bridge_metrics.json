@@ -1,0 +1,18 @@
+{
+  "protocol_version": 1,
+  "simulator": "verilator_c++_rtl",
+  "native_verilator_compiled": true,
+  "clock_mode": "deterministic",
+  "clock_period_ns": 4,
+  "served_clients": 1,
+  "total_transactions": 1656,
+  "mmio_writes": 114,
+  "mmio_reads": 6,
+  "syndrome_transfers": 1536,
+  "reset_operations": 0,
+  "irq_events": 1536,
+  "rejected_transactions": 0,
+  "final_sim_cycle": 34056,
+  "final_sim_time_ns": 136224,
+  "final_epoch_count": 6
+}

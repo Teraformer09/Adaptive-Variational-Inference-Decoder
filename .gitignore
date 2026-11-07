@@ -1,15 +1,25 @@
+# Environment & Python
 .env
 .venv/
 __pycache__/
-*.pyc
-software/build/
-software/build_verify/
-software/build_native/
-software/build_arm64/
-emulator/bridge/build/
-emulator/bridge/build_verilator/
+*.py[cod]
+
+# Build outputs
+build/
+build_*/
+software/build*/
+emulator/bridge/build*/
 emulator/qemu/images/
 emulator/verilator/models/
-build_hf_upload/
+
+# Generated datasets and temporary binaries
 datasets/*.bin
 datasets/*.npz
+*.tmp
+
+# Operational logs: retain README and committed diagnostic snapshots; ignore transient .out/.err
+logs/**/*.out
+logs/**/*.err
+
+# Temporary artifacts
+artifacts/temporary/

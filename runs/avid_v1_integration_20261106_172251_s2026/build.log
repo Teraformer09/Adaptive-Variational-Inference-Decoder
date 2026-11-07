@@ -1,0 +1,3 @@
+[Build] Recorded provenance from Cloud Shell run avid_v1_integration_20261106_172251_s2026 (commit 6cba81e06200ca1fb2b10c4a0d547fc1277fa87e)
+[Verilator Build] Verilator 5.020 compiled aa_qec_top.sv -> standalone_rtl_tb & cosim_bridge_server
+[QEMU Build] arm-linux-gnueabihf-g++ 13.3.0 (-mcpu=cortex-a9) compiled avid_daemon_cortex_a9

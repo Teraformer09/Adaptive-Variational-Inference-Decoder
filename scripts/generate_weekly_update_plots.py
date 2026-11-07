@@ -40,12 +40,36 @@ plt.rcParams.update({
 })
 
 
+ROOT_FIG_DIR = REPO_ROOT / "figures"
+FIG_GROUP_MAP = {
+    "01a": "01_mathematical_validation",
+    "01b": "01_mathematical_validation",
+    "02a": "02_estimator",
+    "02b": "02_estimator",
+    "03a": "03_decoder",
+    "03b": "03_decoder",
+    "04a": "04_timing_safety",
+    "04b": "04_timing_safety",
+    "05a": "05_controller_ablations",
+    "05b": "05_controller_ablations",
+    "06a": "06_system_evaluation",
+    "06b": "06_system_evaluation",
+}
+
+
 def save_fig(fig: plt.Figure, filename: str) -> None:
-    out = FIG_DIR / filename
     fig.tight_layout()
-    fig.savefig(out, bbox_inches="tight")
+    grp = FIG_GROUP_MAP.get(filename[:3], "")
+    out_grouped = (ROOT_FIG_DIR / grp / filename) if grp else (ROOT_FIG_DIR / filename)
+    out_grouped.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_grouped, bbox_inches="tight")
+    out_flat = ROOT_FIG_DIR / filename
+    fig.savefig(out_flat, bbox_inches="tight")
+    out_compat = FIG_DIR / filename
+    out_compat.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_compat, bbox_inches="tight")
     plt.close(fig)
-    print(f"[Plot] Saved {out.relative_to(REPO_ROOT)}")
+    print(f"[Plot] Saved {out_grouped.relative_to(REPO_ROOT)}")
 
 
 def make_pair_1_code_math_parity() -> None:

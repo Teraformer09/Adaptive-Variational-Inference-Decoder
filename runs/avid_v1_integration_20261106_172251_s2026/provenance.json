@@ -1,0 +1,27 @@
+{
+  "run_id": "avid_v1_integration_20261106_172251_s2026",
+  "source_commit": "6cba81e06200ca1fb2b10c4a0d547fc1277fa87e",
+  "timestamp_utc": "2026-11-06T17:23:06Z",
+  "execution_environment": "Google Cloud Shell (Ubuntu 24.04 x86_64)",
+  "rtl_simulator": "verilator_c++_rtl (Verilator 5.020)",
+  "native_verilator_compiled": true,
+  "sva_assertions_enabled": true,
+  "guest_cpu_emulator": "qemu-arm -cpu cortex-a9 (version 8.2.2)",
+  "guest_cross_compiler": "arm-linux-gnueabihf-g++ 13.3.0 (-mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard)",
+  "seed": 2026,
+  "scenario_count": 10,
+  "rounds_per_scenario": 1536,
+  "window_rounds": 256,
+  "preserved_artifacts": [
+    "report.json",
+    "manifest.json",
+    "config.yaml",
+    "verilator/m1_standalone.json",
+    "bridge/m3_bridge_metrics.json",
+    "metrics/<scenario>_qemu_metrics.json (all 10 scenarios)"
+  ],
+  "missing_ephemeral_artifacts_record": {
+    "raw_vcd_waveforms": "Not committed from ephemeral Cloud Shell session due to binary VCD size; checksums recorded in manifest.json.",
+    "raw_jsonl_bridge_streams": "Per-scenario bridge transaction counts and checksums preserved in report.json and manifest.json; raw .jsonl streams omitted from Git."
+  }
+}
