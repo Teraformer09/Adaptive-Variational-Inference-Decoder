@@ -1,0 +1,72 @@
+{
+  "experiment": "V1_Shared_Stream_Fair_Baselines",
+  "seed": 2026,
+  "rounds_per_scenario": 1536,
+  "results": [
+    {
+      "scenario": "stationary_noise",
+      "rounds": 1536,
+      "seed": 2026,
+      "B0_Static_BP_LER": 0.00456,
+      "B1_Marginal_LBFGS_LER": 0.00456,
+      "B3_JointDP_Memoryless_PairProj_LER": 0.00456,
+      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.00456,
+      "AVID_vs_B0_Reduction_Pct": 0.0,
+      "AVID_Burst_Window_Reduction_Pct": 0.0,
+      "AVID_CI95_Low": 0.00221,
+      "AVID_CI95_High": 0.00938
+    },
+    {
+      "scenario": "slowly_drifting_noise",
+      "rounds": 1536,
+      "seed": 2026,
+      "B0_Static_BP_LER": 0.05013,
+      "B1_Marginal_LBFGS_LER": 0.05013,
+      "B3_JointDP_Memoryless_PairProj_LER": 0.03646,
+      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.02148,
+      "AVID_vs_B0_Reduction_Pct": 57.14,
+      "AVID_Burst_Window_Reduction_Pct": 70.91,
+      "AVID_CI95_Low": 0.01534,
+      "AVID_CI95_High": 0.03002
+    },
+    {
+      "scenario": "correlated_noise",
+      "rounds": 1536,
+      "seed": 2026,
+      "B0_Static_BP_LER": 0.06966,
+      "B1_Marginal_LBFGS_LER": 0.06966,
+      "B3_JointDP_Memoryless_PairProj_LER": 0.04622,
+      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.02865,
+      "AVID_vs_B0_Reduction_Pct": 58.88,
+      "AVID_Burst_Window_Reduction_Pct": 58.88,
+      "AVID_CI95_Low": 0.02141,
+      "AVID_CI95_High": 0.03824
+    },
+    {
+      "scenario": "burst_disturbance",
+      "rounds": 1536,
+      "seed": 2026,
+      "B0_Static_BP_LER": 0.04102,
+      "B1_Marginal_LBFGS_LER": 0.04102,
+      "B3_JointDP_Memoryless_PairProj_LER": 0.02669,
+      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.02018,
+      "AVID_vs_B0_Reduction_Pct": 50.79,
+      "AVID_Burst_Window_Reduction_Pct": 59.32,
+      "AVID_CI95_Low": 0.01425,
+      "AVID_CI95_High": 0.0285
+    },
+    {
+      "scenario": "short_burst_60us_vs_10ms",
+      "rounds": 1536,
+      "seed": 2026,
+      "B0_Static_BP_LER": 0.05859,
+      "B1_Marginal_LBFGS_LER": 0.05859,
+      "B3_JointDP_Memoryless_PairProj_LER": 0.0319,
+      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.0319,
+      "AVID_vs_B0_Reduction_Pct": 45.56,
+      "AVID_Burst_Window_Reduction_Pct": 47.67,
+      "AVID_CI95_Low": 0.02421,
+      "AVID_CI95_High": 0.04192
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+transaction_category,count,expected_status,verified
+MMIO Register Writes (0x000..0x058),19,OK (0x0),True
+MMIO Register Reads (0x000..0x058),5,OK (0x0),True
+AXI4-Stream Syndrome Transfers,1,OK (0x0),True
+Synchronous Hardware Reset Operations,1,OK (0x0),True
+Interrupt (IRQ) Completion Events,1,OK (0x0),True
+Intentional Negative-Test Malformed/SLVERR Packets,6,REJECTED (SLVERR),True
+Unexpected Protocol Rejections across 10 M4 Scenarios,0,0,True

@@ -1,1 +1,18 @@
-# Evaluation module: `V1_Scientific_Evaluation/statistical_analysis`
+# V1 Statistical Hypothesis Tests, 95% Wilson CIs & Holm–Bonferroni Multiplicity Audit
+
+| Scenario (`1,536` Rounds) | Static B0 Failures | AVID V1 Failures | 95% Wilson CI | Two-Prop $z$ | Unadjusted $p$ | Holm–Bonferroni Adjusted $p$ |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `stationary_noise` | `7/1536` (`0.00456`) | `7/1536` (**`0.00456`**) | `[0.00221, 0.00938]` | `0.00` | `1.00e+00` | `1.00e+00` |
+| `slowly_drifting_noise` | `80/1536` (`0.05208`) | `40/1536` (**`0.02604`**) | `[0.01918, 0.03527]` | `3.73` | `1.95e-04` | `1.55e-03` |
+| `correlated_noise` | `82/1536` (`0.05339`) | `56/1536` (**`0.03646`**) | `[0.02818, 0.04705]` | `2.26` | `2.35e-02` | `4.71e-02` |
+| `burst_disturbance` | `72/1536` (`0.04688`) | `41/1536` (**`0.02669`**) | `[0.01974, 0.03601]` | `2.97` | `2.96e-03` | `9.94e-03` |
+| `delayed_weight_commit` | `113/1536` (`0.07357`) | `56/1536` (**`0.03646`**) | `[0.02818, 0.04705]` | `4.51` | `6.47e-06` | `5.82e-05` |
+| `reset_recovery` | `108/1536` (`0.07031`) | `62/1536` (**`0.04036`**) | `[0.03161, 0.05141]` | `3.63` | `2.84e-04` | `1.70e-03` |
+| `busy_decoder` | `112/1536` (`0.07292`) | `64/1536` (**`0.04167`**) | `[0.03276, 0.05286]` | `3.73` | `1.94e-04` | `1.55e-03` |
+| `variable_k_adaptation` | `104/1536` (`0.06771`) | `60/1536` (**`0.03906`**) | `[0.03047, 0.04996]` | `3.53` | `4.13e-04` | `2.07e-03` |
+| `fallback_safety_trigger` | `108/1536` (`0.07031`) | `79/1536` (**`0.05143`**) | `[0.04146, 0.06364]` | `2.19` | `2.86e-02` | `4.71e-02` |
+| `short_burst_60us_vs_10ms` | `83/1536` (`0.05404`) | `49/1536` (**`0.03190`**) | `[0.02421, 0.04192]` | `3.02` | `2.49e-03` | `9.94e-03` |
+
+## Artifacts
+- [`v1_statistical_hypothesis_tests.json`](v1_statistical_hypothesis_tests.json)
+- [`v1_wilson_ci_and_pvalues.csv`](v1_wilson_ci_and_pvalues.csv)

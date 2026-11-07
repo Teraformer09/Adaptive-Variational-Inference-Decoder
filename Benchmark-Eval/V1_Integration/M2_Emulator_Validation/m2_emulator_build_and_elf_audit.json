@@ -1,0 +1,36 @@
+{
+  "milestone": "M2_Emulator_Validation",
+  "primary_v1_target": {
+    "target_id": "v1_primary_zynq7020_cortex_a9",
+    "soc_part": "xc7z020clg484-1",
+    "cpu_arch": "ARMv7-A (Cortex-A9)",
+    "compiler": "arm-linux-gnueabihf-g++ 13.3.0 (-mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard)",
+    "emulator": "qemu-arm -cpu cortex-a9 (v8.2.2)",
+    "lstm_params": 25998,
+    "int8_bytes": 25998,
+    "fp32_bytes": 103992,
+    "lbfgs_workspace_bytes": 2688,
+    "ocm_budget_bytes": 262144,
+    "fits_in_ocm": true
+  },
+  "secondary_v1_compatibility_target": {
+    "target_id": "v1_secondary_arm64_compatibility",
+    "soc_part": "xczu7ev / xck26 (V2 Transition)",
+    "cpu_arch": "ARMv8-A (aarch64 Cortex-A53)",
+    "compiler": "aarch64-linux-gnu-g++ 13.3.0",
+    "emulator": "qemu-aarch64-static (v8.2.2)",
+    "lstm_params": 25998,
+    "int8_bytes": 25998,
+    "fp32_bytes": 103992,
+    "lbfgs_workspace_bytes": 2688,
+    "ocm_budget_bytes": 262144,
+    "fits_in_ocm": true
+  },
+  "r2d2_lstm_64_memory_audit": {
+    "hidden_units": 64,
+    "total_parameters": 25998,
+    "int8_uncompressed_bytes": 25998,
+    "fp32_bytes": 103992,
+    "lbfgs_workspace_bytes": 2688
+  }
+}

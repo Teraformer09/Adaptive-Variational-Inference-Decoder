@@ -1,0 +1,596 @@
+{
+  "suite_name": "AVID_V1_Integration_Evaluation_M1_to_M6",
+  "canonical_run_id": "avid_v1_integration_20261106_172251_s2026",
+  "elapsed_sec": 0.021,
+  "milestones": {
+    "M1_RTL_Correctness": {
+      "milestone": "M1_RTL_Correctness",
+      "run_id": "avid_v1_integration_20261106_172251_s2026",
+      "simulator": "verilator_c++_rtl",
+      "native_verilator_compiled": true,
+      "sva_assertions_enabled": true,
+      "total_syndrome_mode_vectors_tested": 96,
+      "reference_equivalence_mismatches": 0,
+      "protocol_and_safety_checks": {
+        "reset_verified": true,
+        "split_aw_w_verified": true,
+        "invalid_register_slverr_verified": true,
+        "byte_enable_verified": true,
+        "atomic_commit_verified": true,
+        "busy_swap_protection_verified": true,
+        "axis_backpressure_verified": true,
+        "reset_during_decode_verified": true
+      },
+      "osd_modes_core_cycles_k3": {
+        "mode0_pure_9marginal_bp": 17,
+        "mode1_inline_osd0": 17,
+        "mode2_post_bp_osd0_outside_17cyc": 19
+      },
+      "cycle_matrix_K1_to_K5": [
+        {
+          "K": 1,
+          "bp_core_cycles": 7,
+          "bp_core_latency_ns": 28.0,
+          "axis_total_cycles": 12,
+          "axis_total_latency_ns": 48.0
+        },
+        {
+          "K": 2,
+          "bp_core_cycles": 12,
+          "bp_core_latency_ns": 48.0,
+          "axis_total_cycles": 17,
+          "axis_total_latency_ns": 68.0
+        },
+        {
+          "K": 3,
+          "bp_core_cycles": 17,
+          "bp_core_latency_ns": 68.0,
+          "axis_total_cycles": 22,
+          "axis_total_latency_ns": 88.0
+        },
+        {
+          "K": 4,
+          "bp_core_cycles": 22,
+          "bp_core_latency_ns": 88.0,
+          "axis_total_cycles": 27,
+          "axis_total_latency_ns": 108.0
+        },
+        {
+          "K": 5,
+          "bp_core_cycles": 27,
+          "bp_core_latency_ns": 108.0,
+          "axis_total_cycles": 32,
+          "axis_total_latency_ns": 128.0
+        }
+      ]
+    },
+    "M2_Emulator_Validation": {
+      "milestone": "M2_Emulator_Validation",
+      "primary_v1_target": {
+        "target_id": "v1_primary_zynq7020_cortex_a9",
+        "soc_part": "xc7z020clg484-1",
+        "cpu_arch": "ARMv7-A (Cortex-A9)",
+        "compiler": "arm-linux-gnueabihf-g++ 13.3.0 (-mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard)",
+        "emulator": "qemu-arm -cpu cortex-a9 (v8.2.2)",
+        "lstm_params": 25998,
+        "int8_bytes": 25998,
+        "fp32_bytes": 103992,
+        "lbfgs_workspace_bytes": 2688,
+        "ocm_budget_bytes": 262144,
+        "fits_in_ocm": true
+      },
+      "secondary_v1_compatibility_target": {
+        "target_id": "v1_secondary_arm64_compatibility",
+        "soc_part": "xczu7ev / xck26 (V2 Transition)",
+        "cpu_arch": "ARMv8-A (aarch64 Cortex-A53)",
+        "compiler": "aarch64-linux-gnu-g++ 13.3.0",
+        "emulator": "qemu-aarch64-static (v8.2.2)",
+        "lstm_params": 25998,
+        "int8_bytes": 25998,
+        "fp32_bytes": 103992,
+        "lbfgs_workspace_bytes": 2688,
+        "ocm_budget_bytes": 262144,
+        "fits_in_ocm": true
+      },
+      "r2d2_lstm_64_memory_audit": {
+        "hidden_units": 64,
+        "total_parameters": 25998,
+        "int8_uncompressed_bytes": 25998,
+        "fp32_bytes": 103992,
+        "lbfgs_workspace_bytes": 2688
+      }
+    },
+    "M3_Bridge_Validation": {
+      "milestone": "M3_Bridge_Validation",
+      "run_id": "avid_v1_integration_20261106_172251_s2026",
+      "bridge_metrics": {
+        "protocol_version": 1,
+        "simulator": "verilator_c++_rtl",
+        "native_verilator_compiled": true,
+        "clock_mode": "deterministic",
+        "clock_period_ns": 4,
+        "served_clients": 2,
+        "total_transactions": 32,
+        "mmio_writes": 19,
+        "mmio_reads": 5,
+        "syndrome_transfers": 1,
+        "reset_operations": 1,
+        "irq_events": 1,
+        "rejected_transactions": 6,
+        "final_sim_cycle": 110,
+        "final_sim_time_ns": 440,
+        "final_epoch_count": 1
+      },
+      "intentional_negative_test_rejections": 6,
+      "unexpected_m4_hal_rejections": 0
+    },
+    "M4_End_to_End_Scenarios": {
+      "milestone": "M4_End_to_End_Scenarios",
+      "run_id": "avid_v1_integration_20261106_172251_s2026",
+      "scenario_count": 10,
+      "total_rounds_across_suite": 15360,
+      "scenarios": [
+        {
+          "scenario": "stationary_noise",
+          "status": "PASS",
+          "seed": 2026,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 7,
+          "avid_z_failures": 7,
+          "static_b0_ler": 0.00456,
+          "avid_ler": 0.00456,
+          "ci95_low": 0.00221,
+          "ci95_high": 0.00938,
+          "whole_run_ler_reduction_pct": 0.0,
+          "burst_window_ler_reduction_pct": 0.0,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "slowly_drifting_noise",
+          "status": "PASS",
+          "seed": 2043,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 80,
+          "avid_z_failures": 40,
+          "static_b0_ler": 0.05208,
+          "avid_ler": 0.02604,
+          "ci95_low": 0.01918,
+          "ci95_high": 0.03527,
+          "whole_run_ler_reduction_pct": 50.0,
+          "burst_window_ler_reduction_pct": 66.0,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "correlated_noise",
+          "status": "PASS",
+          "seed": 2060,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 82,
+          "avid_z_failures": 56,
+          "static_b0_ler": 0.05339,
+          "avid_ler": 0.03646,
+          "ci95_low": 0.02818,
+          "ci95_high": 0.04705,
+          "whole_run_ler_reduction_pct": 31.71,
+          "burst_window_ler_reduction_pct": 31.71,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "burst_disturbance",
+          "status": "PASS",
+          "seed": 2077,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 72,
+          "avid_z_failures": 41,
+          "static_b0_ler": 0.04688,
+          "avid_ler": 0.02669,
+          "ci95_low": 0.01974,
+          "ci95_high": 0.03601,
+          "whole_run_ler_reduction_pct": 43.06,
+          "burst_window_ler_reduction_pct": 57.14,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "delayed_weight_commit",
+          "status": "PASS",
+          "seed": 2094,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 113,
+          "avid_z_failures": 56,
+          "static_b0_ler": 0.07357,
+          "avid_ler": 0.03646,
+          "ci95_low": 0.02818,
+          "ci95_high": 0.04705,
+          "whole_run_ler_reduction_pct": 50.44,
+          "burst_window_ler_reduction_pct": 50.44,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "reset_recovery",
+          "status": "PASS",
+          "seed": 2111,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 108,
+          "avid_z_failures": 62,
+          "static_b0_ler": 0.07031,
+          "avid_ler": 0.04036,
+          "ci95_low": 0.03161,
+          "ci95_high": 0.05141,
+          "whole_run_ler_reduction_pct": 42.59,
+          "burst_window_ler_reduction_pct": 42.59,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "busy_decoder",
+          "status": "PASS",
+          "seed": 2128,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 112,
+          "avid_z_failures": 64,
+          "static_b0_ler": 0.07292,
+          "avid_ler": 0.04167,
+          "ci95_low": 0.03276,
+          "ci95_high": 0.05286,
+          "whole_run_ler_reduction_pct": 42.86,
+          "burst_window_ler_reduction_pct": 42.86,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "variable_k_adaptation",
+          "status": "PASS",
+          "seed": 2145,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 104,
+          "avid_z_failures": 60,
+          "static_b0_ler": 0.06771,
+          "avid_ler": 0.03906,
+          "ci95_low": 0.03047,
+          "ci95_high": 0.04996,
+          "whole_run_ler_reduction_pct": 42.31,
+          "burst_window_ler_reduction_pct": 42.31,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "fallback_safety_trigger",
+          "status": "PASS",
+          "seed": 2162,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 108,
+          "avid_z_failures": 79,
+          "static_b0_ler": 0.07031,
+          "avid_ler": 0.05143,
+          "ci95_low": 0.04146,
+          "ci95_high": 0.06364,
+          "whole_run_ler_reduction_pct": 26.85,
+          "burst_window_ler_reduction_pct": 26.85,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        },
+        {
+          "scenario": "short_burst_60us_vs_10ms",
+          "status": "PASS",
+          "seed": 2179,
+          "total_rounds": 1536,
+          "window_rounds": 256,
+          "static_b0_failures": 83,
+          "avid_z_failures": 49,
+          "static_b0_ler": 0.05404,
+          "avid_ler": 0.0319,
+          "ci95_low": 0.02421,
+          "ci95_high": 0.04192,
+          "whole_run_ler_reduction_pct": 40.96,
+          "burst_window_ler_reduction_pct": 47.5,
+          "bp_core_cycles_mean": 17.0,
+          "axis_total_cycles_mean": 22.0
+        }
+      ]
+    },
+    "M5_Adaptive_Loop_Validation": {
+      "milestone": "M5_Adaptive_Loop_Validation",
+      "run_id": "avid_v1_integration_20261106_172251_s2026",
+      "causal_blind_estimation_audit": {
+        "solver_contains_scenario_conditionals": false,
+        "r2d2_controller_contains_scenario_conditionals": false,
+        "causal_blind_estimation_verified": true
+      },
+      "identifiability_structure": {
+        "physical_parameters_per_basis": 21,
+        "data_observable_syndrome_orbits": 9,
+        "gauge_nullspace_dimension": 12,
+        "prior_regularized_map_hessian_rank": 21
+      },
+      "scenarios": [
+        {
+          "scenario": "stationary_noise",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.521934,
+          "joint_dp_16state_nll": 0.467801,
+          "nll_improvement": 0.054133,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.001782647,
+          "orbit_9class_rmse": 0.008093,
+          "param_21_prior_regularized_rmse": 0.004592,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 6,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "slowly_drifting_noise",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.912302,
+          "joint_dp_16state_nll": 0.81628,
+          "nll_improvement": 0.096022,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.06154097,
+          "orbit_9class_rmse": 0.010331,
+          "param_21_prior_regularized_rmse": 0.00756,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 6,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "correlated_noise",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.845751,
+          "joint_dp_16state_nll": 0.751029,
+          "nll_improvement": 0.094722,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.1213634,
+          "orbit_9class_rmse": 0.011767,
+          "param_21_prior_regularized_rmse": 0.009262,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 6,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "burst_disturbance",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.437873,
+          "joint_dp_16state_nll": 0.407957,
+          "nll_improvement": 0.029916,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.03509661,
+          "orbit_9class_rmse": 0.014177,
+          "param_21_prior_regularized_rmse": 0.012377,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 6,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "delayed_weight_commit",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.849727,
+          "joint_dp_16state_nll": 0.795979,
+          "nll_improvement": 0.053748,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.03115819,
+          "orbit_9class_rmse": 0.010343,
+          "param_21_prior_regularized_rmse": 0.008112,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 6,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 7,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "reset_recovery",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.795493,
+          "joint_dp_16state_nll": 0.732225,
+          "nll_improvement": 0.063268,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.04979418,
+          "orbit_9class_rmse": 0.011487,
+          "param_21_prior_regularized_rmse": 0.009674,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 1,
+          "weight_bank_commits": 5,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "busy_decoder",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.956349,
+          "joint_dp_16state_nll": 0.876038,
+          "nll_improvement": 0.080311,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.1727612,
+          "orbit_9class_rmse": 0.008683,
+          "param_21_prior_regularized_rmse": 0.011345,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 6,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "variable_k_adaptation",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 1.069422,
+          "joint_dp_16state_nll": 0.919916,
+          "nll_improvement": 0.149506,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.03755394,
+          "orbit_9class_rmse": 0.010708,
+          "param_21_prior_regularized_rmse": 0.01,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 6,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "fallback_safety_trigger",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.964118,
+          "joint_dp_16state_nll": 0.880774,
+          "nll_improvement": 0.083344,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.04263442,
+          "orbit_9class_rmse": 0.011615,
+          "param_21_prior_regularized_rmse": 0.009191,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 6,
+          "epoch_commit_reconciled": true
+        },
+        {
+          "scenario": "short_burst_60us_vs_10ms",
+          "dual_xz_histograms_used": true,
+          "legacy_marginal_nll": 0.585317,
+          "joint_dp_16state_nll": 0.522302,
+          "nll_improvement": 0.063015,
+          "lbfgs_iterations": 20,
+          "lbfgs_grad_inf_norm": 0.01036763,
+          "orbit_9class_rmse": 0.014799,
+          "param_21_prior_regularized_rmse": 0.01026,
+          "initial_boot_commits": 1,
+          "adaptive_epoch_commits": 5,
+          "reset_cleared_commits": 0,
+          "weight_bank_commits": 6,
+          "epoch_commit_reconciled": true
+        }
+      ]
+    },
+    "M6_Performance_and_Stress": {
+      "milestone": "M6_Performance_and_Stress",
+      "cycle_matrix_K1_to_K5": [
+        {
+          "K": 1,
+          "bp_core_cycles": 7,
+          "bp_core_latency_ns": 28.0,
+          "axis_total_cycles": 12,
+          "axis_total_latency_ns": 48.0
+        },
+        {
+          "K": 2,
+          "bp_core_cycles": 12,
+          "bp_core_latency_ns": 48.0,
+          "axis_total_cycles": 17,
+          "axis_total_latency_ns": 68.0
+        },
+        {
+          "K": 3,
+          "bp_core_cycles": 17,
+          "bp_core_latency_ns": 68.0,
+          "axis_total_cycles": 22,
+          "axis_total_latency_ns": 88.0
+        },
+        {
+          "K": 4,
+          "bp_core_cycles": 22,
+          "bp_core_latency_ns": 88.0,
+          "axis_total_cycles": 27,
+          "axis_total_latency_ns": 108.0
+        },
+        {
+          "K": 5,
+          "bp_core_cycles": 27,
+          "bp_core_latency_ns": 108.0,
+          "axis_total_cycles": 32,
+          "axis_total_latency_ns": 128.0
+        }
+      ],
+      "fast_burst_detector_contract": {
+        "sliding_subwindow_rounds": 16,
+        "density_threshold": 0.35,
+        "debounce_rounds": 4,
+        "worst_case_trigger_latency_rounds": 20,
+        "verified_unit_test_lag_rounds": 9
+      },
+      "long_duration_57344_rounds_run_id": "avid_v1_full_benchmark_20261106_043920_s777",
+      "long_duration_scenarios": [
+        {
+          "scenario": "stationary_noise",
+          "rounds": 8192,
+          "epochs_completed": 32,
+          "weight_bank_commits": 31,
+          "bp_core_cycles_mean": 17.0,
+          "mean_estimator_us": 1614.05,
+          "final_rtl_cycle": 181488
+        },
+        {
+          "scenario": "slowly_drifting_noise",
+          "rounds": 8192,
+          "epochs_completed": 32,
+          "weight_bank_commits": 31,
+          "bp_core_cycles_mean": 17.0,
+          "mean_estimator_us": 1165.41,
+          "final_rtl_cycle": 181488
+        },
+        {
+          "scenario": "correlated_noise",
+          "rounds": 8192,
+          "epochs_completed": 32,
+          "weight_bank_commits": 31,
+          "bp_core_cycles_mean": 17.0,
+          "mean_estimator_us": 1320.06,
+          "final_rtl_cycle": 181488
+        },
+        {
+          "scenario": "burst_disturbance",
+          "rounds": 8192,
+          "epochs_completed": 32,
+          "weight_bank_commits": 31,
+          "bp_core_cycles_mean": 17.0,
+          "mean_estimator_us": 1532.42,
+          "final_rtl_cycle": 181488
+        },
+        {
+          "scenario": "delayed_weight_commit",
+          "rounds": 8192,
+          "epochs_completed": 32,
+          "weight_bank_commits": 31,
+          "bp_core_cycles_mean": 17.0,
+          "mean_estimator_us": 1500.07,
+          "final_rtl_cycle": 181488
+        },
+        {
+          "scenario": "reset_recovery",
+          "rounds": 8192,
+          "epochs_completed": 32,
+          "weight_bank_commits": 30,
+          "bp_core_cycles_mean": 17.0,
+          "mean_estimator_us": 1335.98,
+          "final_rtl_cycle": 181500
+        },
+        {
+          "scenario": "busy_decoder",
+          "rounds": 8192,
+          "epochs_completed": 32,
+          "weight_bank_commits": 31,
+          "bp_core_cycles_mean": 17.0,
+          "mean_estimator_us": 1523.83,
+          "final_rtl_cycle": 181488
+        }
+      ]
+    }
+  }
+}

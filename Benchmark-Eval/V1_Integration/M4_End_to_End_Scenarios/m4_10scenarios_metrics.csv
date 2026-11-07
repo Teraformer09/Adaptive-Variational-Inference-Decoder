@@ -1,0 +1,11 @@
+scenario,status,seed,total_rounds,window_rounds,static_b0_failures,avid_z_failures,static_b0_ler,avid_ler,ci95_low,ci95_high,whole_run_ler_reduction_pct,burst_window_ler_reduction_pct,bp_core_cycles_mean,axis_total_cycles_mean
+stationary_noise,PASS,2026,1536,256,7,7,0.00456,0.00456,0.00221,0.00938,0.0,0.0,17.0,22.0
+slowly_drifting_noise,PASS,2043,1536,256,80,40,0.05208,0.02604,0.01918,0.03527,50.0,66.0,17.0,22.0
+correlated_noise,PASS,2060,1536,256,82,56,0.05339,0.03646,0.02818,0.04705,31.71,31.71,17.0,22.0
+burst_disturbance,PASS,2077,1536,256,72,41,0.04688,0.02669,0.01974,0.03601,43.06,57.14,17.0,22.0
+delayed_weight_commit,PASS,2094,1536,256,113,56,0.07357,0.03646,0.02818,0.04705,50.44,50.44,17.0,22.0
+reset_recovery,PASS,2111,1536,256,108,62,0.07031,0.04036,0.03161,0.05141,42.59,42.59,17.0,22.0
+busy_decoder,PASS,2128,1536,256,112,64,0.07292,0.04167,0.03276,0.05286,42.86,42.86,17.0,22.0
+variable_k_adaptation,PASS,2145,1536,256,104,60,0.06771,0.03906,0.03047,0.04996,42.31,42.31,17.0,22.0
+fallback_safety_trigger,PASS,2162,1536,256,108,79,0.07031,0.05143,0.04146,0.06364,26.85,26.85,17.0,22.0
+short_burst_60us_vs_10ms,PASS,2179,1536,256,83,49,0.05404,0.0319,0.02421,0.04192,40.96,47.5,17.0,22.0

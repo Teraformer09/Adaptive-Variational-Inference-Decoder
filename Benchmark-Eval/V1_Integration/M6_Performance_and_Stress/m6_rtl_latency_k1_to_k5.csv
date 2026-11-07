@@ -1,0 +1,6 @@
+K,bp_core_cycles,bp_core_latency_ns,axis_total_cycles,axis_total_latency_ns
+1,7,28.0,12,48.0
+2,12,48.0,17,68.0
+3,17,68.0,22,88.0
+4,22,88.0,27,108.0
+5,27,108.0,32,128.0

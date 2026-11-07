@@ -1,0 +1,8 @@
+scenario,rounds,epochs_completed,weight_bank_commits,bp_core_cycles_mean,mean_estimator_us,final_rtl_cycle
+stationary_noise,8192,32,31,17.0,1614.05,181488
+slowly_drifting_noise,8192,32,31,17.0,1165.41,181488
+correlated_noise,8192,32,31,17.0,1320.06,181488
+burst_disturbance,8192,32,31,17.0,1532.42,181488
+delayed_weight_commit,8192,32,31,17.0,1500.07,181488
+reset_recovery,8192,32,30,17.0,1335.98,181500
+busy_decoder,8192,32,31,17.0,1523.83,181488

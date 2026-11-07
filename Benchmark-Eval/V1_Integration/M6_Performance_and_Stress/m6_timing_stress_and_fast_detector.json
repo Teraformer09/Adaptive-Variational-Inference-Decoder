@@ -1,0 +1,113 @@
+{
+  "milestone": "M6_Performance_and_Stress",
+  "cycle_matrix_K1_to_K5": [
+    {
+      "K": 1,
+      "bp_core_cycles": 7,
+      "bp_core_latency_ns": 28.0,
+      "axis_total_cycles": 12,
+      "axis_total_latency_ns": 48.0
+    },
+    {
+      "K": 2,
+      "bp_core_cycles": 12,
+      "bp_core_latency_ns": 48.0,
+      "axis_total_cycles": 17,
+      "axis_total_latency_ns": 68.0
+    },
+    {
+      "K": 3,
+      "bp_core_cycles": 17,
+      "bp_core_latency_ns": 68.0,
+      "axis_total_cycles": 22,
+      "axis_total_latency_ns": 88.0
+    },
+    {
+      "K": 4,
+      "bp_core_cycles": 22,
+      "bp_core_latency_ns": 88.0,
+      "axis_total_cycles": 27,
+      "axis_total_latency_ns": 108.0
+    },
+    {
+      "K": 5,
+      "bp_core_cycles": 27,
+      "bp_core_latency_ns": 108.0,
+      "axis_total_cycles": 32,
+      "axis_total_latency_ns": 128.0
+    }
+  ],
+  "fast_burst_detector_contract": {
+    "sliding_subwindow_rounds": 16,
+    "density_threshold": 0.35,
+    "debounce_rounds": 4,
+    "worst_case_trigger_latency_rounds": 20,
+    "verified_unit_test_lag_rounds": 9
+  },
+  "long_duration_57344_rounds_run_id": "avid_v1_full_benchmark_20261106_043920_s777",
+  "long_duration_scenarios": [
+    {
+      "scenario": "stationary_noise",
+      "rounds": 8192,
+      "epochs_completed": 32,
+      "weight_bank_commits": 31,
+      "bp_core_cycles_mean": 17.0,
+      "mean_estimator_us": 1614.05,
+      "final_rtl_cycle": 181488
+    },
+    {
+      "scenario": "slowly_drifting_noise",
+      "rounds": 8192,
+      "epochs_completed": 32,
+      "weight_bank_commits": 31,
+      "bp_core_cycles_mean": 17.0,
+      "mean_estimator_us": 1165.41,
+      "final_rtl_cycle": 181488
+    },
+    {
+      "scenario": "correlated_noise",
+      "rounds": 8192,
+      "epochs_completed": 32,
+      "weight_bank_commits": 31,
+      "bp_core_cycles_mean": 17.0,
+      "mean_estimator_us": 1320.06,
+      "final_rtl_cycle": 181488
+    },
+    {
+      "scenario": "burst_disturbance",
+      "rounds": 8192,
+      "epochs_completed": 32,
+      "weight_bank_commits": 31,
+      "bp_core_cycles_mean": 17.0,
+      "mean_estimator_us": 1532.42,
+      "final_rtl_cycle": 181488
+    },
+    {
+      "scenario": "delayed_weight_commit",
+      "rounds": 8192,
+      "epochs_completed": 32,
+      "weight_bank_commits": 31,
+      "bp_core_cycles_mean": 17.0,
+      "mean_estimator_us": 1500.07,
+      "final_rtl_cycle": 181488
+    },
+    {
+      "scenario": "reset_recovery",
+      "rounds": 8192,
+      "epochs_completed": 32,
+      "weight_bank_commits": 30,
+      "bp_core_cycles_mean": 17.0,
+      "mean_estimator_us": 1335.98,
+      "final_rtl_cycle": 181500
+    },
+    {
+      "scenario": "busy_decoder",
+      "rounds": 8192,
+      "epochs_completed": 32,
+      "weight_bank_commits": 31,
+      "bp_core_cycles_mean": 17.0,
+      "mean_estimator_us": 1523.83,
+      "final_rtl_cycle": 181488
+    }
+  ]
+}
