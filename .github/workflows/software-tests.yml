@@ -2,13 +2,18 @@ name: Software & Mathematical Unit Tests
 on:
   push:
     branches: [ main, AVID_EPJ_Patches ]
+  pull_request:
+    branches: [ main, AVID_EPJ_Patches ]
 jobs:
   software-tests:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Build and test C++ software suite
+      - name: Install Python test dependencies
+        run: pip install numpy scipy pyyaml pytest matplotlib
+      - name: Build and test C++ software & Python mathematical suites
         run: |
           bash emulator/qemu/build.sh
           ./software/build_native/test_baseline_suite
-          pytest -q simulation/tests/
+          pytest -q simulation/tests/ tests/
+          bash scripts/clean_generated_files.sh

@@ -129,6 +129,7 @@ static void test_fast_burst_detector_16round() {
     /* 32 quiet rounds -> 0 triggers */
     for (uint64_t r = 0; r < 32; r++) {
         bool trig = avid_fast_detector_step(&det, r, 0u, 0u);
+        (void)trig;
         assert(!trig);
     }
     assert(det.trigger_count == 0u);
