@@ -8,3 +8,23 @@
 | **7 Nov — Fast-Path Correctness** | **A:** Define decoder syndrome and logical-failure correctness assertions.<br>**B:** Test corrected Tanner connectivity (weight-2 boundaries + weight-4 bulk), Q7.8 rounding, and RTL-vs-reference outputs across all 16 $X$ and 16 $Z$ syndromes; separate pure 9-LLR BP (`cfg_osd_mode=0`, `17 cyc`), inline OSD-0 (`mode=1`, `17 cyc`), and post-BP OSD-0 outside the 17-cycle path (`mode=2`, `19 cyc`). | **DONE** — `bp_engine.sv`, `weight_map_reg.sv`, `standalone_rtl_tb.cpp`. Verified `0` RTL-vs-reference mismatches across all 32 syndromes and OSD modes `{0, 1, 2}`. |
 | **8 Nov — Timing / Safety** | **A:** Approve latency claims for variable $K = 1 \dots 5$ ($L(K) = 2 + 5K$ core cycles; $7 + 5K$ total AXI cycles) and `60 µs` vs. `10 ms` slow-loop timescale.<br>**B:** Simulate $K = 1 \dots 5$, formal SystemVerilog Assertions (`--assert`) for shadow write/commit races (`bp_ready_in`), fallback FSM triggers, and 64-unit LSTM memory (`25,998` params $= 25.39\text{ KB}$ `int8`) & CPU profiler audit. | **DONE** — `aa_qec_top.sv`, `r2d2_lstm_controller.h`, `v1_integration.yaml`. All 10 scenarios passed in Google Cloud Shell (`Verilator 5.020` + `qemu-arm`). |
 | **9–11 Nov — Fair Baselines, RL Ablations & Statistical Audit (Emulator Scope)** | Run `B0` static BP, `B1` marginal L-BFGS, `B2` exact Joint-DP MAP + pure BP, `B3` Joint-DP + memoryless pair projection, and `B4` full AVID + 64-unit LSTM `R2D2-WB` on shared noise streams; report 95% Wilson CIs, raw failure counts, whole-run vs. burst-window LER, and adaptation delay. | **DONE** — `v0_closure_40_40_report.json` (`40/40 CLOSED`) and `cloudshell_full_benchmark_57344_rounds_report.json`. |
+
+---
+
+## Code ↔ Math Parity
+{Double|Column} ( 16-State Joint-DP Syndrome Distribution P(s) vs. Exact 2^M Brute-Force Enumeration Across All 16 Syndrome Bins (Max Diff = 4.44e-16) | Analytical Coset-Inversion Gradient dL/dp_e vs. Central Finite-Difference Gradient Across All 21 Fault Parameters (Max Error = 1.23e-9) ) [end]
+
+## Estimator Review
+{Double|Column} ( Jacobian Singular Value Spectrum: Legacy 4-Check Marginal Model (Rank 4) vs. 16-State Joint-DP (9 Observable Orbits) vs. Prior-Regularized MAP Hessian (Full Rank 21/21) | L-BFGS Convergence & Estimation Accuracy: Legacy Marginal NLL (0.8458) vs. Two-Pass 16-State Joint-DP NLL (0.7511) and 9-Orbit vs. 21-Parameter Recovery RMSE ) [end]
+
+## Fast-Path Correctness
+{Double|Column} ( Q7.8 Fixed-Point Hardware LLR vs. FP64 Exact LLR Transfer Curve & Residual Quantization Error (<= 0.00169 < 0.5 LSB) | Ambiguous Syndrome (0x2 / 0x4) Logical Error Comparison: Pure 9-Marginal-LLR BP (cfg_osd_mode=0, 17 cyc) vs. Inline Pair-Aware OSD-0 (mode=1, 17 cyc) vs. Post-BP OSD-0 Stage (mode=2, 19 cyc) ) [end]
+
+## Timing / Safety
+{Double|Column} ( Hardware Latency Scaling Across K = 1..5 @ 250 MHz: Fast-Path BP Core Cycles (2+5K: 7..27 cyc / 28..108 ns) vs. Total End-to-End AXI4-Stream Cycles (7+5K: 12..32 cyc / 48..128 ns) | Slow-Loop Timescale & Fault-Containment Response: 60 us Sub-Epoch Micro-Burst vs. 10 ms Multi-Epoch Sustained Burst LER Trajectory & Fallback FSM Recovery ) [end]
+
+## RL Ablations
+{Double|Column} ( 6-Way Architectural Ablation LER Bar Chart: B0 Static BP vs. B1 Marginal L-BFGS vs. B2 Joint-DP Pure BP vs. B3 Memoryless Pair-Projection (-15.85%) vs. B4 Full AVID 64-Unit LSTM R2D2-WB (-32.93% / -58.05%) | Temporal Adaptation Trajectory Across Drifting & Correlated Bursts: Memoryless Single-Window Pair Projection vs. 64-Unit LSTM R2D2-WB Recurrent Belief State ) [end]
+
+## Statistical Audit
+{Double|Column} ( 10-Scenario Dual-Emulator LER with 95% Wilson Confidence Intervals: Static B0 vs. Adaptive AVID V1 RTL (Verilator 5.020 + QEMU ARM Cortex-A9) | Whole-Run LER vs. Peak Burst-Window LER Reduction Across Stationary, Slowly Drifting, Correlated & Burst Regimes (57,344-Round Cloud Shell Benchmark) ) [end]
