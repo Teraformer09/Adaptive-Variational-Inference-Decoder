@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-11-06T13:10:52.835300+00:00",
+  "timestamp_utc": "2026-11-06T17:23:13.774202+00:00",
   "v0_closure_score": "40/40",
   "all_40_items_closed": true,
   "ablation_study_correlated_noise": {
@@ -125,7 +125,7 @@
       "title": "Validate analytic coset gradients against central finite differences",
       "status": "CLOSED",
       "evidence": {
-        "max_abs_gradient_error": 1.2275646432517717e-09,
+        "max_abs_gradient_error": 1.2275646974618803e-09,
         "tolerance": 1e-08
       }
     },
@@ -209,8 +209,8 @@
       "title": "Record conditioning, Hessian rank and sensitivity across multiple operating points",
       "status": "CLOSED",
       "evidence": {
-        "low_noise_condition_number": 413.29525083109377,
-        "high_noise_condition_number": 47.90139741005387
+        "low_noise_condition_number": 413.2952508310954,
+        "high_noise_condition_number": 47.90139741005351
       }
     },
     {
@@ -252,7 +252,7 @@
       "title": "Test initialization sensitivity and local-minimum behaviour",
       "status": "CLOSED",
       "evidence": {
-        "max_orbit_deviation_across_initializations": 3.3215087216209582e-06
+        "max_orbit_deviation_across_initializations": 3.3215088560689665e-06
       }
     },
     {
@@ -299,7 +299,7 @@
       "title": "Validate Q7.8 fixed-point quantization and saturation behaviour",
       "status": "CLOSED",
       "evidence": {
-        "max_q78_quantization_error_llr": 0.001692147385263132,
+        "max_q78_quantization_error_llr": 0.0016921474384761215,
         "theoretical_half_lsb": 0.001953125
       }
     },
@@ -402,8 +402,8 @@
       "status": "CLOSED",
       "evidence": {
         "correlated_noise_ci95": [
-          0.02761,
-          0.04632
+          0.02818,
+          0.04705
         ]
       }
     },
@@ -414,7 +414,7 @@
       "status": "CLOSED",
       "evidence": {
         "correlated_static_ler": 0.05339,
-        "correlated_avid_ler_ci95_high": 0.04632
+        "correlated_avid_ler_ci95_high": 0.04705
       }
     },
     {
@@ -507,7 +507,7 @@
       "title": "Create canonical manifest with commit, configuration, seed and tool versions",
       "status": "CLOSED",
       "evidence": {
-        "git_commit_sha": "e5f52e98274e7c7a4f7d4503ce42bc723cdce320"
+        "git_commit_sha": "6cba81e0b8ea0e55f9308bb1df1046fec9b59631"
       }
     },
     {
