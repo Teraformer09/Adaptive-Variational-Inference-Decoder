@@ -5,7 +5,7 @@ Verifies:
   1. Single-qubit Z_i signature g_i matches column i of H_X
   2. Correlated pair Z_i Z_j signature equals bitwise XOR g_ij = g_i ^ g_j
   3. Measurement fault signature equals unit bitmask (1 << c)
-  4. Event signatures in `architecture/02_noise_model/event_signatures.json` match
+  4. Event signatures in `architecture/noise_model/event_signatures.json` match
      both the Python model and C++ `NM_EVENT_SIGNATURES[21]`
 """
 
@@ -42,7 +42,7 @@ class TestEventSignatures(unittest.TestCase):
             self.assertEqual(ev.signature_mask, 1 << c)
 
     def test_json_artifact_consistency(self) -> None:
-        sig_path = REPO_ROOT / "architecture" / "02_noise_model" / "event_signatures.json"
+        sig_path = REPO_ROOT / "architecture" / "noise_model" / "event_signatures.json"
         self.assertTrue(sig_path.exists())
         payload = json.loads(sig_path.read_text())
         masks_from_json = [e["signature_mask"] for e in payload["events_21_param"]]

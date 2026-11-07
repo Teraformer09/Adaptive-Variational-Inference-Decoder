@@ -99,8 +99,8 @@ def run_bm5() -> Dict[str, object]:
         writer.writeheader()
         writer.writerows(cycle_rows)
 
-    # Also copy to architecture/06_fpga_decoder/rtl_cycle_matrix.csv
-    arch_06 = REPO_ROOT / "architecture" / "06_fpga_decoder"
+    # Also copy to architecture/fpga_decoder/rtl_cycle_matrix.csv
+    arch_06 = REPO_ROOT / "architecture" / "fpga_decoder"
     arch_06.mkdir(parents=True, exist_ok=True)
     (arch_06 / "rtl_cycle_matrix.csv").write_text(csv_path.read_text(encoding="utf-8"), encoding="utf-8")
 
@@ -168,7 +168,7 @@ def run_bm5() -> Dict[str, object]:
                 "float32_weights_bytes_per_regime": lora_params * 4,
                 "int8_quantized_weights_bytes_per_regime": lora_params * 1,
                 "adapter_sha256": {
-                    r: sha256_file(ckpt_dir / f"lora_adapter_{r}.pt")
+                    r: sha256_file(ckpt_dir / f"lora_adapters/{r}.pt")
                     for r in [
                         "R1_stationary_baseline",
                         "R2_tls_hotspot_q4_q5",
@@ -183,7 +183,7 @@ def run_bm5() -> Dict[str, object]:
     (OUT_DIR / "bm5_controller_memory_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
-    arch_04 = REPO_ROOT / "architecture" / "04_estimator"
+    arch_04 = REPO_ROOT / "architecture" / "estimator"
     arch_04.mkdir(parents=True, exist_ok=True)
     (arch_04 / "controller_memory_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"

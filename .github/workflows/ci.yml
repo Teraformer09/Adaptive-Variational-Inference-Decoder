@@ -1,0 +1,17 @@
+name: AVID CI Suite
+on:
+  push:
+    branches: [ main, AVID_EPJ_Patches ]
+  pull_request:
+    branches: [ main, AVID_EPJ_Patches ]
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: pip install numpy scipy pyyaml pytest matplotlib
+      - name: Validate repository structure and architecture contracts
+        run: |
+          python3 tools/validate_architecture.py
+          python3 tools/validate_repository.py

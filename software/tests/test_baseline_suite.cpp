@@ -17,6 +17,7 @@
 #include "../src/estimator/lbfgs_solver.h"
 #include "../src/estimator/llr_quantizer.h"
 #include "../src/control/fallback_fsm.h"
+#include "../src/control/causal_scheduler.h"
 #include "../src/driver/weight_reg_driver.h"
 #include "../src/driver/weight_bank_driver.h"
 #include "../src/custom_engine/cycle_accurate_bp_engine.h"
@@ -119,10 +120,37 @@ static void test_custom_bp_engine_and_weights() {
     printf("[PASS] C++ Cycle-Accurate Q7.8 BP Engine (17 cycles = 68 ns @ K=3) & Weight Bank Test\n");
 }
 
+static void test_fast_burst_detector_16round() {
+    avid_fast_burst_detector_t det;
+    avid_fast_detector_init(&det, 0.35, 4u);
+    assert(det.subwindow_rounds == 16u);
+    assert(det.worst_case_trigger_latency_rounds == 20u);
+
+    /* 32 quiet rounds -> 0 triggers */
+    for (uint64_t r = 0; r < 32; r++) {
+        bool trig = avid_fast_detector_step(&det, r, 0u, 0u);
+        assert(!trig);
+    }
+    assert(det.trigger_count == 0u);
+
+    /* Inject burst starting at round 32 -> must trigger within <= 20 rounds */
+    int trigger_lag = -1;
+    for (uint64_t r = 32; r < 64; r++) {
+        bool trig = avid_fast_detector_step(&det, r, 0x2u, 0x0u);
+        if (trig && trigger_lag < 0) {
+            trigger_lag = (int)(r - 32u) + 1;
+        }
+    }
+    assert(det.trigger_count == 1u);
+    assert(trigger_lag > 0 && trigger_lag <= 20);
+    printf("[PASS] C++ 16-Round Sliding-Subwindow Fast Burst Detector (lag=%d <= 20 rounds)\n", trigger_lag);
+}
+
 int main() {
     test_packet_and_dma_ring();
     test_joint_dp_gradient_exactness();
     test_custom_bp_engine_and_weights();
+    test_fast_burst_detector_16round();
     printf("[ALL C++ BASELINE TESTS PASSED]\n");
     return 0;
 }

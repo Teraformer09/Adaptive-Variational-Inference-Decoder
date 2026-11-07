@@ -1,0 +1,6 @@
+contract_id: weight_commit_protocol_v1
+banks: 2
+commit_trigger: "Write 0x1 to 0x048 (commit_reg)"
+cdc_atomicity_condition: "Swap bank_sel <= ~bank_sel only when bp_ready_in == 1"
+busy_behavior: "Latch commit_pending (status_reg[1] = 1) until current decode finishes"
+epoch_accounting_invariant: "initial_boot_commits + adaptive_epoch_commits - reset_cleared_commits == weight_bank_commits"

@@ -50,7 +50,7 @@ class TestCodeGeometry(unittest.TestCase):
         self.assertTrue(res["all_checks_passed"])
 
     def test_artifacts_and_rtl_consistency(self) -> None:
-        tanner_path = REPO_ROOT / "architecture" / "01_code_model" / "tanner_tables.json"
+        tanner_path = REPO_ROOT / "architecture" / "code_model" / "tanner_tables.json"
         self.assertTrue(tanner_path.exists())
         data = json.loads(tanner_path.read_text())
         x_tab = data["d3"]["X_basis"]

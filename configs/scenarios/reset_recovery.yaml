@@ -1,0 +1,8 @@
+scenario:
+  name: "reset_recovery"
+  description: "Mid-run synchronous hardware reset and recovery verification"
+  total_rounds: 1536
+  window_rounds: 256
+  fast_burst_detector_subwindow: 16
+  fast_burst_detector_threshold: 0.35
+  fast_burst_detector_debounce: 4

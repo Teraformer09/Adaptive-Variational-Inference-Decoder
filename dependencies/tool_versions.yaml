@@ -1,0 +1,7 @@
+verilator: "5.020"
+qemu_arm: "8.2.2"
+gcc_host: "13.3.0"
+gcc_arm_gnueabihf: "13.3.0"
+gcc_aarch64_linux_gnu: "13.3.0"
+cmake: "3.28.3"
+python: "3.12"

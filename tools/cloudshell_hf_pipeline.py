@@ -911,7 +911,7 @@ def train_world_models_and_lora(
     torch.save(r2d2.state_dict(), checkpoints_dir / "weighted_bellman_r2d2_backbone.pt")
     torch.save(transformer.state_dict(), checkpoints_dir / "spatiotemporal_transformer_backbone.pt")
     for regime_name, adapter in lora_adapters.items():
-        torch.save(adapter.state_dict(), checkpoints_dir / f"lora_adapter_{regime_name}.pt")
+        torch.save(adapter.state_dict(), checkpoints_dir / f"lora_adapters/{regime_name}.pt")
 
     torch.save(
         {

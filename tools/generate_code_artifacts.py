@@ -2,11 +2,11 @@
 """
 Single-Source-of-Truth Code Artifact Generator (Policy Item A01 / Checklist Q02).
 Generates:
-  - architecture/01_code_model/Hx.json
-  - architecture/01_code_model/Hz.json
-  - architecture/01_code_model/coordinates.csv
-  - architecture/01_code_model/logical_operators.json
-  - architecture/01_code_model/tanner_tables.json
+  - architecture/code_model/Hx.json
+  - architecture/code_model/Hz.json
+  - architecture/code_model/coordinates.csv
+  - architecture/code_model/logical_operators.json
+  - architecture/code_model/tanner_tables.json
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from simulation.reference.code_model.css_code_builder import (
 
 
 def main() -> int:
-    out_dir = REPO_ROOT / "architecture" / "01_code_model"
+    out_dir = REPO_ROOT / "architecture" / "code_model"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     d3 = build_rotated_d3_code()
@@ -129,7 +129,7 @@ def main() -> int:
         },
     }
     (out_dir / "tanner_tables.json").write_text(json.dumps(tanner_payload, indent=2) + "\n")
-    print("[OK] Generated all canonical CSS code artifacts in architecture/01_code_model/")
+    print("[OK] Generated all canonical CSS code artifacts in architecture/code_model/")
     return 0
 
 

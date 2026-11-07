@@ -1,0 +1,8 @@
+schema_version: 1
+v1_exit_criteria:
+  v0_closure_items_closed: "40/40"
+  native_verilator_compiled: true
+  guest_cpu_target: "arm-linux-gnueabihf (cortex-a9)"
+  m1_reference_mismatches: 0
+  m4_scenarios_passed: "10/10"
+  solver_contains_scenario_conditionals: false

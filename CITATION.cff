@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software or hardware architecture, please cite it as below."
+title: "AVID: Adaptive Variational Inference Decoder for Fault-Tolerant Quantum Error Correction"
+authors:
+  - family-names: "Haque"
+    given-names: "Tirtha"
+version: "1.0.0"
+date-released: "2026-11-07"
+license: "Apache-2.0"
+repository-code: "https://github.com/Teraformer09/Adaptive-Variational-Inference-Decoder"

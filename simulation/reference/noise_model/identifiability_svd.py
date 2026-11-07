@@ -149,20 +149,20 @@ def compute_identifiability_metrics(
 
 def generate_identifiability_artifacts(repo_root: Path) -> Dict[str, object]:
     """
-    Generate all architecture/02_noise_model/, architecture/04_estimator/, and
-    docs/identifiability_proof.md artifacts.
+    Generate all architecture/noise_model/, architecture/estimator/, and
+    mathematical_model/proofs/identifiability_proof.md artifacts.
     """
     model_21 = build_d3_correlated_noise_model(basis="X", include_measurement_faults=False)
     model_25 = build_d3_correlated_noise_model(basis="X", include_measurement_faults=True)
     report_21 = analyze_identifiability(model_21)
     report_25 = analyze_identifiability(model_25)
 
-    dir_02 = repo_root / "architecture" / "02_noise_model"
-    dir_04 = repo_root / "architecture" / "04_estimator"
+    dir_02 = repo_root / "architecture" / "noise_model"
+    dir_04 = repo_root / "architecture" / "estimator"
     dir_02.mkdir(parents=True, exist_ok=True)
     dir_04.mkdir(parents=True, exist_ok=True)
 
-    # 1. architecture/02_noise_model/event_signatures.json
+    # 1. architecture/noise_model/event_signatures.json
     sig_payload = {
         "contract_id": "AVID-NOISE-CHANNEL-V1",
         "code": "rotated_planar_surface_code_d3",
@@ -192,7 +192,7 @@ def generate_identifiability_artifacts(repo_root: Path) -> Dict[str, object]:
     }
     (dir_02 / "event_signatures.json").write_text(json.dumps(sig_payload, indent=2) + "\n")
 
-    # 2. architecture/02_noise_model/observation_model.md
+    # 2. architecture/noise_model/observation_model.md
     obs_md = f"""# Correlated Quantum Syndrome Observation Model (`A02 / Q03`, `A08 / Q17`)
 
 ## 1. Physical Fault Mechanisms on the Canonical $d=3$ Rotated Surface Code
@@ -222,7 +222,7 @@ $$\\frac{{\\partial P(s)}}{{\\partial p_e}} = \\frac{{P(s \\oplus g_e) - P(s)}}{
 """
     (dir_02 / "observation_model.md").write_text(obs_md)
 
-    # 3. architecture/02_noise_model/identifiability_report.md & docs/identifiability_proof.md
+    # 3. architecture/noise_model/identifiability_report.md & mathematical_model/proofs/identifiability_proof.md
     ident_md = f"""# Structural Identifiability & Jacobian SVD Rank Report (`A03 / Q04`)
 
 ## 1. Executive Summary of Rank Deficiency in the Legacy Marginal Model
@@ -258,7 +258,7 @@ Across the 21 fault events (9 single-qubit $Z_i$ + 12 nearest-neighbor $Z_i Z_j$
     docs_dir.mkdir(parents=True, exist_ok=True)
     (docs_dir / "identifiability_proof.md").write_text(ident_md)
 
-    # 4. architecture/04_estimator/parameter_schema.json
+    # 4. architecture/estimator/parameter_schema.json
     param_schema = {
         "schema_version": "1.0.0",
         "contract_id": "AVID-ESTIMATOR-PARAMETER-SCHEMA-V1",
@@ -281,7 +281,7 @@ Across the 21 fault events (9 single-qubit $Z_i$ + 12 nearest-neighbor $Z_i Z_j$
     }
     (dir_04 / "parameter_schema.json").write_text(json.dumps(param_schema, indent=2) + "\n")
 
-    # 5. architecture/04_estimator/likelihood_spec.md
+    # 5. architecture/estimator/likelihood_spec.md
     lik_md = """# Exact Joint Correlated Likelihood Specification (`A02 / Q03`)
 
 ## 1. Objective Function
@@ -300,7 +300,7 @@ where $P_\\theta(s)$ is computed by the 16-state XOR-convolution dynamic program
 """
     (dir_04 / "likelihood_spec.md").write_text(lik_md)
 
-    # 6. architecture/04_estimator/estimator_io.md
+    # 6. architecture/estimator/estimator_io.md
     est_io_md = """# Estimator Input/Output & Q7.8 Quantization Interface (`SF4`, `SF8`)
 
 ## 1. Estimator Inputs

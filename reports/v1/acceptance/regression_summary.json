@@ -1,0 +1,34 @@
+{
+  "suite": "AVID_V1_Two_Emulator_Regression",
+  "total_runs": 3,
+  "all_passed": true,
+  "runs": [
+    {
+      "run_id": "avid_v1_integration_20261105_203308_s2026",
+      "overall_status": "PASS",
+      "host_wall_clock_seconds": 3.708,
+      "k3_bp_core_cycles": 17,
+      "k3_bp_core_latency_ns": 68.0,
+      "m3_transactions": 24,
+      "scenario_count": 7
+    },
+    {
+      "run_id": "avid_v1_rtl_regression_20261105_203306_s108",
+      "overall_status": "PASS",
+      "host_wall_clock_seconds": 2.269,
+      "k3_bp_core_cycles": 17,
+      "k3_bp_core_latency_ns": 68.0,
+      "m3_transactions": 24,
+      "scenario_count": 4
+    },
+    {
+      "run_id": "avid_v1_smoke_20261105_203301_s42",
+      "overall_status": "PASS",
+      "host_wall_clock_seconds": 4.138,
+      "k3_bp_core_cycles": 17,
+      "k3_bp_core_latency_ns": 68.0,
+      "m3_transactions": 24,
+      "scenario_count": 4
+    }
+  ]
+}

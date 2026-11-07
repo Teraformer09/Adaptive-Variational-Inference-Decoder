@@ -1,0 +1,7 @@
+emulator:
+  name: "qemu-aarch64-static"
+  role: "secondary_v2_compatibility_emulator"
+  arch: "aarch64"
+  cpu: "cortex-a53"
+  sysroot: "/usr/aarch64-linux-gnu"
+  binary: "emulator/qemu/images/avid_daemon_aarch64"

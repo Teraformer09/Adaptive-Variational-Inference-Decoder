@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AVID Experiment Provenance Schema",
+  "type": "object",
+  "required": [
+    "run_id",
+    "overall_status",
+    "m1_verilator_standalone_rtl",
+    "m3_bridge_transaction_test",
+    "m4_scenarios"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "overall_status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    }
+  }
+}

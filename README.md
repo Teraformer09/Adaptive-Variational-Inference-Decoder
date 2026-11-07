@@ -1,204 +1,112 @@
-# AVID: Adaptive Variational Inference Decoder (`AVID_EPJ_Patches`)
-### Real-Time Variational Inference & Weighted-Bellman R2D2 World Modeling of Correlated Quantum Noise for Hardware-Accelerated Surface Codes
+# AVID: Adaptive Variational Inference Decoder for Fault-Tolerant Quantum Error Correction
 
-**Target Hardware:** Xilinx Zynq-7020 / Kria K26 SOM (`250 MHz` PL Fast Loop + `ARM Cortex-A53` Slow Loop)  
-**Hugging Face Models, Checkpoints & 250k-Round Datasets (`73 files`):** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data)  
-**Hugging Face Peer-Reviewed 5-Benchmark Suite (`30 files`):** [**`Terrano09/AVID-EPJ-Baseline-Models-and-Data/tree/main/Benchmark-Eval/Baseline_V0`**](https://huggingface.co/Terrano09/AVID-EPJ-Baseline-Models-and-Data/tree/main/Benchmark-Eval/Baseline_V0)  
-**AVID V1 Two-Emulator Architecture & System Flow:** [**`docs/AVID_V1_Two_Emulator_Architecture_and_System_Flow.md`**](docs/AVID_V1_Two_Emulator_Architecture_and_System_Flow.md)  
-**V0 (40/40) & V1 (4–8 Nov) Closure Audit Report:** [**`docs/V0_and_V1_Closure_Audit_Report.md`**](docs/V0_and_V1_Closure_Audit_Report.md) ([`reports/v0_closure_40_40_report.json`](reports/v0_closure_40_40_report.json))  
-**Baseline_V0 Establishment, Q01–Q21 Closure Audit & V1/V2 Roadmap:** [**`docs/AVID_Baseline_V0_Establishment_and_V1_V2_Roadmap.md`**](docs/AVID_Baseline_V0_Establishment_and_V1_V2_Roadmap.md)  
-**Mathematical Modeling Suite (`00`–`09`):** [**`docs/`**](docs/00_Mathematical_Modeling_Index.md) & [**`mathematical_model/`**](mathematical_model/00_Mathematical_Modeling_Index.md)
+**AVID** is a hardware/software co-designed real-time quantum error correction (QEC) decoding architecture for the rotated $d=3$ CSS surface code (`[[9, 1, 3]]`). It pairs a deterministic `250 MHz` SystemVerilog Min-Sum Belief Propagation + OSD-0 fast path (`firmware/rtl/`) with a causal two-pass 16-state Joint-DP L-BFGS estimator and 64-unit `int8` LSTM Weighted-Bellman R2D2 controller (`software/src/`).
 
 ---
 
-## 1. Short Description of the Work
+## 1. Declared Hardware Targets (V1 Emulation vs. V2 Physical Scope)
 
-Standard quantum error correction (QEC) surface-code decoders (MWPM, static Min-Sum Belief Propagation) assume a **stationary, uncorrelated noise channel** calibrated offline before execution. Real superconducting transmon processors experience non-stationary flux drift, Two-Level System (TLS) telegraph defects, and dispersive $ZZ$ crosstalk during stabilizer extraction.
+To avoid conflating emulation targets with future board deployments, AVID declares explicit platform identities (see [`architecture/hardware/target_platforms.yaml`](architecture/hardware/target_platforms.yaml)):
 
-**AVID (Adaptive Variational Inference Decoder)** decouples real-time surface-code decoding into a **Dual-Loop Hardware-Software Architecture**:
-1. **Fast Loop (`250 MHz` FPGA Programmable Logic / Verilator RTL)**: Executes a deterministic **17-cycle (`68.0 ns` at $K=3$)** Normalized Q7.8 Min-Sum Belief Propagation + 1-cycle combinational Pair-Aware OSD-0 syndrome decoder using an active register bank of Q7.8 log-likelihood ratio (LLR) priors.
-2. **Slow Loop (`ARM Cortex-A53` / `qemu-aarch64` Linux Daemon)**: Aggregates windows of $W$ syndrome packets, tracks non-stationary single-qubit and correlated $Z_u Z_v$ crosstalk probabilities via **Exact $2^m$-State Dynamic Programming MAP Estimation** and **Weighted-Bellman R2D2 (`R2D2-Graph-RSSM`) World Modeling**, and atomically commits updated Q7.8 LLR weights into a shadow register bank via AXI4-Lite without stalling the fast path.
-
----
-
-## 2. Core Mathematical Formulation
-
-### 2.1 Rotated CSS Surface Code Commutation ($d=3$, `[[9, 1, 3]]`)
-The parity-check matrices $H_X, H_Z \in \{0,1\}^{4 \times 9}$ satisfy exact binary orthogonality and rank conditions:
-
-$$
-H_X H_Z^T \equiv \mathbf{0} \pmod 2, \qquad \text{rank}_{\mathbb{F}_2}(H_X) = \text{rank}_{\mathbb{F}_2}(H_Z) = 4, \qquad k = n - \text{rank}(H_X) - \text{rank}(H_Z) = 1
-$$
-
-### 2.2 Exact $2^m$-State Dynamic Programming Syndrome Likelihood & Coset Gradient
-Given $M = 21$ independent physical fault mechanisms $e_k \in \mathcal{E}$ (9 single-qubit faults + 12 adjacent $Z_u Z_v$ crosstalk edges) with binary detector signatures $g_{e_k} \in \{0,1\}^4$ and Bernoulli probabilities $p_{e_k} = \sigma(\theta_{e_k})$, the exact joint distribution over all $2^4 = 16$ syndromes $s \in \{0,1\}^4$ is computed via recursive XOR convolution:
-
-$$
-P^{(k)}(s) = (1 - p_{e_k}) P^{(k-1)}(s) + p_{e_k} P^{(k-1)}(s \oplus g_{e_k}), \qquad k = 1, \dots, M
-$$
-
-with exact single-pass coset-inversion gradient:
-
-$$
-\frac{\partial P_{\theta}(s)}{\partial p_e} = \frac{P_{\theta}(s \oplus g_e) - P_{\theta}(s)}{1 - 2p_e}
-$$
-
-### 2.3 Pair-Aware Logical-Triangle LLR Projection & Q7.8 Quantization
-Single-qubit marginal probabilities $\tilde{p}_i$ are folded via exact odd-parity XOR marginalization and projected across correlated logical-triangle pairs $(u, v)$ before signed 16-bit Q7.8 hardware quantization:
-
-$$
-\tilde{p}_i = \frac{1 - \prod_{e \in \mathcal{E}_i} (1 - 2p_e)}{2}, \qquad \gamma_i = \ln\left(\frac{1 - \tilde{p}_i}{\tilde{p}_i}\right), \qquad W_i^{\text{Q7.8}} = \text{clip}\left(\text{round}(256 \cdot \gamma_i), -32768, 32767\right)
-$$
-
-### 2.4 Hardware Normalized Min-Sum BP & Latency Contract
-At each BP iteration $t \in \{1, \dots, K\}$ with hardware normalization factor $\alpha = \frac{3}{4} = 0.5 + 0.25$ (implemented with right-shifts and adders, zero DSP multipliers):
-
-$$
-\mu_{c \to v}^{(t)} = \left(\prod_{v' \in \mathcal{N}(c) \setminus \{v\}} \text{sgn}(m_{v' \to c}^{(t-1)})\right) \cdot \left\lfloor \frac{3}{4} \min_{v' \in \mathcal{N}(c) \setminus \{v\}} \left|m_{v' \to c}^{(t-1)}\right| \right\rfloor, \qquad \Lambda_v^{(K)} = W_v^{\text{Q7.8}} + \sum_{c \in \mathcal{N}(v)} \mu_{c \to v}^{(K)}
-$$
-
-The deterministic hardware cycle count for $K$ iterations at $f_{\text{clk}} = 250\text{ MHz}$ ($T_{\text{clk}} = 4.0\text{ ns}$) is:
-
-$$
-L_{\text{BP}}(K) = 2 + 5K \text{ cycles} \implies L_{\text{BP}}(3) = 17 \text{ cycles} = 68.0\text{ ns}
-$$
+| Scope | Target Platform | Processing System (PS) | Programmable Logic (PL) | Verification Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **V1 Primary Emulation Target** | **Xilinx Zynq-7020 SoC (`xc7z020clg484-1`)** | Dual-core **ARM Cortex-A9** (`ARMv7-A`, `arm-linux-gnueabihf-g++ -mcpu=cortex-a9` + `qemu-arm -cpu cortex-a9`) | Artix-7 FPGA fabric @ `250 MHz` (`4.0 ns`) simulated via native **`Verilator 5.020`** (`verilator_c++_rtl`) | **Implemented & Verified** (`avid_v1_integration_20261106_172251_s2026`) |
+| **V1 Secondary Compatibility Build** | **ARM64 Linux Guest (`aarch64`)** | `aarch64-linux-gnu-g++` + `qemu-aarch64-static` | Same Verilator RTL bridge | **Implemented & Verified** (`avid_v1_full_benchmark_20261105_223251_s777`) |
+| **V2 Intended Physical Target** | **Xilinx Zynq UltraScale+ MPSoC (`ZCU104` `xczu7ev` / `Kria K26` `xck26`)** | Quad-core **ARM Cortex-A53** (`ARMv8-A` @ `1.2 GHz`) | UltraScale+ FPGA fabric @ `250 MHz` | **Planned V2 Physical Board Scope** |
 
 ---
 
-## 3. Model Performance Details (Shared-Input 250,000-Round Benchmark)
+## 2. Three-Tier Causal Timing & Latency Contract
 
-Evaluated across `250,000` fast-loop syndrome rounds (`50,000` rounds/regime) and `600` non-stationary R2D2 replay trajectories (`2,457,600` fast-loop rounds) using the bit-exact 17-cycle Q7.8 hardware BP execution engine ([`checkpoints/baseline_vs_avid_benchmark.json`](checkpoints/baseline_vs_avid_benchmark.json)):
+All timing claims are governed by [`architecture/contracts/system_timing.yaml`](architecture/contracts/system_timing.yaml) and [`architecture/control/fast_slow_partition.md`](architecture/control/fast_slow_partition.md):
 
-| Noise Regime | `B0` Static BP | `B1` Marginal L-BFGS | `B2` Observable PID | `B3` Covariance | **`AVID_Joint_DP_MAP`** | **`AVID_Weighted_Bellman_R2D2`** | `B4` Oracle BP | Key Result |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| `R1_stationary_baseline` | `0.0486` | `0.0486` | `0.0486` | `0.0486` | **`0.0486`** | **`0.0486`** | `0.0486` | Matches exact Oracle floor |
-| `R2_tls_hotspot_q4_q5` | `0.0564` | `0.0564` | `0.0564` | `0.0564` | `0.0588` | **`0.0564`** | `0.0564` | Matches exact Oracle floor |
-| `R3_zz_crosstalk_burst` | `0.1984` | `0.1984` | `0.1984` | `0.1984` | **`0.1143`** | **`0.1143`** | `0.1143` | **42.4% LER reduction (matches Oracle)** |
-| `R4_boundary_drift` | `0.0534` | `0.0534` | `0.0534` | `0.0534` | **`0.0534`** | **`0.0534`** | `0.0534` | Matches exact Oracle floor |
-| `R5_combined_stress` | `0.0970` | `0.0970` | `0.0970` | `0.0970` | `0.0970` | **`0.0544`** | `0.0517` | **43.9% LER reduction (`0.0970 -> 0.0544`)** |
+### 2.1 Tier 1 — Fast-Path Hardware Decoder Latency (`250 MHz`, `4.0 ns` clock)
+The RTL decoder supports three configurable OSD modes via MMIO register `0x058` (`cfg_osd_mode`) across $K \in \{1 \dots 5\}$ BP iterations (`0x04C`), with `3` AXI4-Stream ingress cycles and `2` egress cycles (`5` cycles stream overhead):
 
----
+| Iteration Count $K$ | OSD Mode (`0x058`) | BP Core Cycles $L_{\mathrm{core}}(K)$ | BP Core Latency (`ns`) | Total AXI4-Stream Cycles $L_{\mathrm{AXI}}(K)$ | Total AXI4-Stream Latency (`ns`) |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| $K = 1$ | Mode `0` / `1` | `7` (`2 + 5K`) | `28.0 ns` | `12` (`7 + 5K`) | `48.0 ns` |
+| $K = 2$ | Mode `0` / `1` | `12` (`2 + 5K`) | `48.0 ns` | `17` (`7 + 5K`) | `68.0 ns` |
+| **$K = 3$ (Default)** | **Mode `0` (Pure 9-LLR BP) / Mode `1` (Inline OSD-0)** | **`17` (`2 + 5K`)** | **`68.0 ns`** | **`22` (`7 + 5K`)** | **`88.0 ns`** |
+| **$K = 3$** | **Mode `2` (Post-BP OSD-0 Stage)** | **`19` (`4 + 5K`)** | **`76.0 ns`** | **`24` (`9 + 5K`)** | **`96.0 ns`** |
+| $K = 4$ | Mode `0` / `1` | `22` (`2 + 5K`) | `88.0 ns` | `27` (`7 + 5K`) | `108.0 ns` |
+| $K = 5$ | Mode `0` / `1` | `27` (`2 + 5K`) | `108.0 ns` | `32` (`7 + 5K`) | `128.0 ns` |
 
-## 4. Emulator Performance Details (57,344-Round Long Run in Google Cloud Shell)
+### 2.2 Tier 2 — Fast 16-Round Sliding-Subwindow Burst Detector
+Implemented in [`software/src/control/causal_scheduler.cpp`](software/src/control/causal_scheduler.cpp) (`avid_fast_detector_step`) and executed every round in [`software/src/inference/avid_daemon.cpp`](software/src/inference/avid_daemon.cpp):
+- Monitors a **16-round sliding subwindow** (`16 µs` @ `1 MHz`) with a syndrome-density threshold of **`0.35`** and a **`4`-round debounce**, achieving a worst-case detection latency of **`20` rounds (`20 µs`)** inside a `60 µs` burst.
 
-Measured in Google Cloud Shell using the **AVID V1 Two-Emulator Architecture** (`configs/v1_full_benchmark.yaml`, archived in [`reports/cloudshell_full_benchmark_57344_rounds_report.json`](reports/cloudshell_full_benchmark_57344_rounds_report.json)):
-
-| Metric | Measured Result in Cloud Shell |
-| :--- | :--- |
-| **Emulator 1 (Software)** | Cross-compiled `avid_daemon_aarch64` (`aarch64-linux-gnu-g++ 13.3.0`) running on `qemu-aarch64 8.2.2` |
-| **Emulator 2 (Hardware RTL)** | Native `verilator_c++_rtl` (`Verilator 5.020`) compiling [`aa_qec_top.sv`](firmware/rtl/top/aa_qec_top.sv), [`bp_engine.sv`](firmware/rtl/decoder/bp_engine.sv), [`check_node_minsum.sv`](firmware/rtl/decoder/check_node_minsum.sv), [`weight_map_reg.sv`](firmware/rtl/config/weight_map_reg.sv) |
-| **Fast-Path BP Core Latency ($K = 3$)** | **`17.0 cycles` (`min=17, max=17`) = `68.0 ns` (`0.068 µs`) @ `250 MHz`** (`22 cycles` end-to-end with AXI4-Stream RX FIFO + TX) |
-| **Measured $K = 1..5$ Cycle Matrix** | $K = 1$: `7 cyc` (`28 ns`), $K = 2$: `12 cyc` (`48 ns`), $K = 3$: `17 cyc` (`68 ns`), $K = 4$: `22 cyc` (`88 ns`), $K = 5$: `27 cyc` (`108 ns`) |
-| **Total Syndrome Rounds Decoded in RTL** | **`57,344 rounds`** (`8,192` rounds $\times$ `7` scenarios, 100% streamed through Bridge $\leftrightarrow$ Verilator RTL) |
-| **Total Bridge $\leftrightarrow$ RTL Transactions** | **`61,685 transactions`** (`57,344` syndrome transfers, `4,123` AXI-Lite MMIO writes, `217` MMIO reads, `1` reset, `0` rejected) |
-| **Total Simulated FPGA Clock Cycles** | **`1,270,428 clock cycles`** (`181,488` cycles / `725.95 µs` simulated hardware time per scenario) |
-| **Host Wall-Clock Runtime** | **`33.548 seconds`** (`overall_status: "PASS"`) |
-
-### Scenario-by-Scenario Dual-Emulator Verification Summary (`avid_v1_full_benchmark_20261106_051922_s777`) vs. `Thesis_AdaptiveHardwareQEC_Final.pdf`
-
-| Scenario (`8,192` Rounds Each) | Active Bank Commits | Static `B0` LER | **AVID V1 RTL LER** | **LER Reduction** | Fast-Path BP Core Latency | Simulated FPGA Cycles | Comparison vs. `Thesis_AdaptiveHardwareQEC_Final.pdf` |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| `stationary_noise` | `33` | `0.00745` | **`0.00745`** | `0.00%` (at floor) | `17.0 cyc` (`68.0 ns`) | `181,568` | **Beats `0.0110` thesis LER (`32.3%` lower error floor)** |
-| `slowly_drifting_noise` | `33` | `0.04541` | **`0.02832`** | **`-37.63%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | Tracks sinusoidal drift across 33 active bank commits |
-| `correlated_noise` | `33` | `0.07654` | **`0.03210`** | **`-58.05%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | **Exceeds `-43.2%` thesis claim by `+14.85` percentage points** |
-| `burst_disturbance` | `33` | `0.04492` | **`0.01782`** | **`-60.33%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | **Exceeds `-43.2%` thesis claim (`2.52x` lower LER)** |
-| `delayed_weight_commit` | `33` | `0.07300` | **`0.03320`** | **`-54.52%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | Zero fast-path stalls under delayed slow-loop commit |
-| `reset_recovery` | `31` (2 reset drops) | `0.07019` | **`0.03455`** | **`-50.78%`** | `17.0 cyc` (`68.0 ns`) | `181,580` | Recovers cleanly after mid-flight hardware reset |
-| `busy_decoder` | `33` (0 busy overwrites) | `0.06958` | **`0.03198`** | **`-54.04%`** | `17.0 cyc` (`68.0 ns`) | `181,568` | `bp_ready_in` lock prevents mid-packet bank corruption |
-
-### 4.2 10-Scenario V1 Dual-Emulator Integration Suite (`4 Nov – 8 Nov` Roadmap Closure in Cloud Shell)
-
-Measured in Google Cloud Shell (`avid_v1_integration_20261106_172251_s2026`) running cross-compiled `avid_daemon_cortex_a9` on `qemu-arm -cpu cortex-a9 8.2.2` against native `Verilator 5.020` (`verilator_c++_rtl` with `--assert` SVA enabled) across `15,360` syndrome rounds (`10` scenarios):
-
-| Scenario (`1,536` Rounds, `6` Epochs) | Active Bank Commits (`reconciled`) | Core / Total AXI Cycles | Static `B0` LER | **AVID V1 RTL LER** (`verilator_c++_rtl`) | **LER Reduction** | 9-Orbit RMSE |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| `stationary_noise` | `6` (`true`) | `17.0` / `22.0` | `0.00456` | **`0.00456`** | `0.00%` (at floor) | `0.008093` |
-| `slowly_drifting_noise` | `6` (`true`) | `17.0` / `22.0` | `0.05208` | **`0.02604`** | **`-50.00%`** | `0.010331` |
-| `correlated_noise` | `6` (`true`) | `17.0` / `22.0` | `0.05339` | **`0.03646`** | **`-31.71%`** | `0.011767` |
-| `burst_disturbance` | `6` (`true`) | `17.0` / `22.0` | `0.04688` | **`0.02669`** | **`-43.06%`** (`-57.14%` burst) | `0.014177` |
-| `delayed_weight_commit` | `7` (`true`) | `17.0` / `22.0` | `0.07357` | **`0.03646`** | **`-50.44%`** | `0.010343` |
-| `reset_recovery` | `5` (`true`, 2 reset drops) | `17.0` / `22.0` | `0.07031` | **`0.04036`** | **`-42.59%`** | `0.011487` |
-| `busy_decoder` | `6` (`true`, 0 busy overwrites) | `17.0` / `22.0` | `0.07292` | **`0.04167`** | **`-42.86%`** | `0.008683` |
-| `variable_k_adaptation` ($K=1\dots 5$) | `6` (`true`) | `17.0` (`min=7, max=27`) / `22.0` | `0.06771` | **`0.03906`** | **`-42.31%`** | `0.010708` |
-| `fallback_safety_trigger` | `6` (`true`) | `17.0` / `22.0` | `0.07031` | **`0.05143`** | **`-26.85%`** (safe fallback) | `0.011615` |
-| `short_burst_60us_vs_10ms` | `6` (`true`) | `17.0` / `22.0` | `0.05404` | **`0.03190`** | **`-40.96%`** | `0.014799` |
-
-### 4.3 Six-Way Architectural Ablation Study (`reports/v0_closure_40_40_report.json`)
-
-| Ablation Variant | `--controller-mode` | `--osd-mode` | BP Core / AXI Total Cycles | Logical Error Rate | LER Reduction | Architectural Attribution |
-| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **1. Static B0** | `static` | `1` | `17.0` / `22.0` | `0.05339` | `0.00%` | Uniform prior baseline |
-| **2. Marginal L-BFGS B1** | `marginal_lbfgs` | `1` | `17.0` / `22.0` | `0.05339` | `0.00%` | Rank-4 check marginals (`NLL=0.8458` vs. `0.7511`) cannot separate $Z_4 Z_5$ from $Z_3$ |
-| **3. Joint-DP + Pure 9-Marginal-LLR BP** | `joint_dp_map` | `0` | `17.0` / `22.0` | `0.12695` | `-137.80%` | Pure 9-marginal-LLR BP without OSD-0 fails on single-check `0x2`/`0x4` weight-2 vs. weight-1 ambiguity |
-| **4. Joint-DP + Memoryless Pair Projection** | `joint_dp_proj` | `1` | `17.0` / `22.0` | `0.04492` | **`-15.85%`** | Memoryless single-window pair-aware projection |
-| **5. Full AVID (`Joint-DP + 64-Unit LSTM R2D2-WB + Inline OSD-0`)** | `avid_r2d2` | `1` | `17.0` / `22.0` | **`0.03581`** | **`-32.93%`** (`-58.05%` @ 8.1k) | 64-unit LSTM `R2D2-WB` (`25,998` params = `25.39 KB` `int8`) locks onto correlated bursts from epoch 1 |
-| **6. Full AVID (`Joint-DP + 64-Unit LSTM R2D2-WB + Post-BP OSD-0 Stage`)** | `avid_r2d2` | `2` | `19.0` / `24.0` | **`0.03581`** | **`-32.93%`** | Dedicated 2-cycle post-BP OSD-0 stage (`ST_OSD_STEP1 -> ST_OSD_STEP2`) outside the 17-cycle BP path |
-
-### 4.4 V0 40/40 Closure Tracker Summary ([`docs/V0_and_V1_Closure_Audit_Report.md`](docs/V0_and_V1_Closure_Audit_Report.md))
-
-| Category | Items | Status | Key Verified Evidence |
-| :--- | :---: | :---: | :--- |
-| **A. Mathematical Model & Identifiability** | `A01–A10` | **`10/10 CLOSED`** | 21-param ordering frozen; DP vs. $2^{12}$ enumeration diff $= 4.44 \times 10^{-16}$; coset gradient vs. FD diff $= 1.23 \times 10^{-9}$; 9 observable orbits (`rank=9`) + 12 gauge directions (`MAP rank=21/21`, $\kappa = 413.3$); 9-orbit recovery RMSE $= 7.7 \times 10^{-5}$. |
-| **B. Software Estimator & Reference Decoder** | `B01–B10` | **`10/10 CLOSED`** | Projected L-BFGS convergence $\|g_{\text{proj}}\|_\infty = 0.00178$; multi-init deviation $= 3.32 \times 10^{-6}$; dual `hist_x`/`hist_z` estimation; Q7.8 quantization error $\le 0.00169 < \text{LSB}/2$; `0` RTL-vs-reference mismatches across all 32 syndromes and OSD modes `{0,1,2}`. |
-| **C. Benchmark Validity & Attribution** | `C01–C10` | **`10/10 CLOSED`** | Shared random streams; disjoint train/eval seeds; 95% Wilson CIs & raw failure counts; 6-way ablation study; zero scenario-name shortcuts in solver (`solver_contains_scenario_conditionals = false`). |
-| **D. Evidence, Tests & Release Discipline** | `D01–D10` | **`10/10 CLOSED`** | Provenance manifests + SHA-256 checksums (`69` files/run); `SLVERR` invalid-register & 6 negative bridge protocol tests; reconciled epoch/commit accounting across all 10 scenarios. |
+### 2.3 Tier 3 — Slow-Loop MAP Estimation & R2D2-WB Weight Adaptation
+- **V1 Emulation Window**: `window_rounds = 256` (`256 µs` syndrome window) for accelerated multi-epoch co-simulation (`configs/system/v1_integration.yaml`).
+- **V2 Production Period**: `10,000` rounds (`10.0 ms` period @ `1 MHz`). Under `qemu-arm -cpu cortex-a9`, the two-pass 16-state Joint-DP L-BFGS + 64-unit LSTM R2D2-WB update completes in **`6.02 ms` mean** (`60.17%` of the `10 ms` budget).
 
 ---
 
-## 5. End-to-End Repository Structure
+## 3. Structural Identifiability vs. Prior-Regularized MAP Estimation
 
-```text
-AVID_EPJ_Patches/
-├── emulator/                              # AVID V1 Dual-Emulator Infrastructure (QEMU + Verilator + Bridge)
-│   ├── qemu/                              # Emulator 1: ARM64 Linux QEMU Cross-Build & Runner
-│   ├── verilator/                         # Emulator 2: Verilator SystemVerilog RTL Harness & Testbenches
-│   └── bridge/                            # C++ Co-Simulation Bridge (UNIX Socket IPC + Transaction Logger)
-├── configs/                               # Experiment & Emulator Configurations
-│   ├── qemu.yaml                          # Emulator 1 (QEMU ARM64) configuration
-│   ├── verilator.yaml                     # Emulator 2 (Verilator 250 MHz RTL) configuration
-│   ├── v1_smoke.yaml                      # Fast 4-scenario smoke test (4,096 rounds)
-│   ├── v1_integration.yaml                # 7-scenario integration benchmark (10,752 rounds)
-│   └── v1_full_benchmark.yaml             # 7-scenario full benchmark (57,344 rounds)
-├── scripts/                               # Cloud Shell Setup, Build, Execution & Artifact Aggregation
-│   ├── setup_cloudshell.sh                # Installs qemu-user, g++-aarch64-linux-gnu, verilator
-│   ├── build_all.sh                       # Builds ARM64 daemon, Verilator RTL binaries, and C++ Bridge
-│   ├── run_all.sh                         # Runs M1..M5 end-to-end dual-emulator benchmark
-│   ├── run_regression.sh                  # Multi-seed regression runner
-│   └── collect_artifacts.py               # Generates reports/latest_report.json & summary tables
-├── firmware/rtl/                          # Synthesizable SystemVerilog RTL (250 MHz PL Fast Path)
-│   ├── top/aa_qec_top.sv                  # Top-level QEC decoder wrapper
-│   ├── decoder/{bp_engine.sv, check_node_minsum.sv, axis_correction_tx.sv}
-│   ├── config/weight_map_reg.sv           # Atomic double-buffered Q7.8 weight register bank
-│   └── ingress/{axis_syndrome_rx.sv, axis_ingress_tap.sv}
-├── software/                              # C/C++ ARM PS Slow-Loop Inference Daemon & Drivers
-├── simulation/                            # Python Reference Models, Baselines (B0–B4) & 15 Unit Tests
-├── architecture/                          # Frozen Contracts & Layer 1–7 Specifications
-├── Benchmark-Eval/Baseline_V0/            # 5 Peer-Reviewed Benchmarks (BM1..BM5) & Master Summary
-├── checkpoints/                           # Trained Weighted-Bellman R2D2, Transformer, LoRA (.pt) & Q7.8 Banks
-├── docs/ & mathematical_model/            # Complete Numbered Mathematical Modeling Suite (00..09)
-└── reports/                               # Archived Cloud Shell Dual-Emulator Benchmark Reports
-```
+As proven in [`mathematical_model/proofs/identifiability_proof.md`](mathematical_model/proofs/identifiability_proof.md) and [`architecture/noise_model/identifiability_report.md`](architecture/noise_model/identifiability_report.md):
+1. **Data-Identifiable Syndrome Orbits (`rank(J) = 9`)**: Out of the 21 physical fault parameters per basis (9 single-qubit + 12 adjacent correlated pairs), single-window syndrome statistics independently identify **9 non-zero syndrome signature orbits** (`{0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x8, 0xA, 0xC}`). The remaining **12 directions** lie in the gauge/collision nullspace ($\dim\ker(J) = 12$).
+2. **Prior-Regularized MAP Hessian (`rank(H_MAP) = 21/21`)**: The Gaussian prior $rac{\lambda}{2}\|	heta - 	heta_{\mathrm{prior}}\|_2^2$ makes the MAP Hessian strictly positive-definite (`rank = 21/21`), selecting a unique canonical point within each gauge coset.
+3. **Metric Interpretation**: `orbit_9class_rmse` (`0.0081–0.0148`) measures data-driven syndrome-orbit recovery; `param_21_rmse` (`0.0046–0.0086`) reflects prior-anchored selection along the 12 null directions and does **not** imply prior-free independent observability of all 21 physical rates.
 
 ---
 
-## 6. Reproducibility Commands (Google Cloud Shell)
+## 4. Verified Experimental Evidence (Separated by Experiment Scope)
 
-### Build & Run Full 57,344-Round Dual-Emulator Benchmark (`QEMU ARM64` + `Verilator RTL`)
+### Experiment Set A — V1 10-Scenario Dual-Emulator Integration Suite
+- **Run ID**: `avid_v1_integration_20261106_172251_s2026` ([`reports/v1/integration/cloudshell_v1_integration_10scenarios_report.json`](reports/v1/integration/cloudshell_v1_integration_10scenarios_report.json))
+- **Environment**: Native `Verilator 5.020` (`verilator_c++_rtl`) + `qemu-arm -cpu cortex-a9`, `seed = 2026`, `1,536` rounds/scenario (`15,360` total rounds), `window_rounds = 256`.
+
+| Scenario (`1,536` rounds) | Static B0 LER | AVID V1 RTL LER | 95% Wilson CI | Whole-Run LER Reduction | Burst-Window LER Reduction | Marginal NLL $	o$ Joint-DP NLL | 9-Orbit RMSE |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `stationary_noise` | `0.00456` | `0.00456` | `[0.00221, 0.00938]` | `0.00%` | `0.00%` | `0.5219 -> 0.4678` | `0.0081` |
+| `slowly_drifting_noise` | `0.05208` | `0.02604` | `[0.01918, 0.03527]` | **`-50.00%`** | **`-50.00%`** | `1.0860 -> 0.9872` | `0.0103` |
+| `correlated_noise` | `0.05339` | `0.03646` | `[0.02819, 0.04704]` | **`-31.71%`** | **`-31.71%`** | `0.8458 -> 0.7511` | `0.0118` |
+| `burst_disturbance` | `0.04688` | `0.02669` | `[0.01973, 0.03601]` | **`-43.06%`** | **`-56.25%`** | `0.4422 -> 0.4135` | `0.0142` |
+| `delayed_weight_commit` | `0.07357` | `0.03646` | `[0.02819, 0.04704]` | **`-50.44%`** | **`-50.44%`** | `0.8663 -> 0.8230` | `0.0103` |
+| `reset_recovery` | `0.07031` | `0.04036` | `[0.03162, 0.05140]` | **`-42.59%`** | **`-42.59%`** | `1.1322 -> 0.9963` | `0.0148` |
+| `busy_decoder` | `0.07292` | `0.04167` | `[0.03276, 0.05286]` | **`-42.86%`** | **`-42.86%`** | `0.9564 -> 0.8760` | `0.0087` |
+| `variable_k_adaptation` | `0.06771` | `0.03906` | `[0.03047, 0.04995]` | **`-42.31%`** | **`-42.31%`** | `0.8753 -> 0.8081` | `0.0100` |
+| `fallback_safety_trigger` | `0.07031` | `0.05143` | `[0.04147, 0.06363]` | **`-26.85%`** | **`-26.85%`** | `0.9854 -> 0.8966` | `0.0091` |
+| `short_burst_60us_vs_10ms` | `0.05404` | `0.03190` | `[0.02422, 0.04191]` | **`-40.96%`** | **`-45.45%`** | `0.4678 -> 0.4137` | `0.0102` |
+
+### Experiment Set B — V1 6-Way C++ Runtime & RTL Decoder Ablation
+- **Report**: [`reports/v0/closure/v0_closure_40_40_report.json`](reports/v0/closure/v0_closure_40_40_report.json) (`correlated_noise`, `1,536` rounds, `seed = 2026`):
+  1. `1_Static_B0` (`controller_mode=static`, `osd_mode=1`, `17` core cyc): `LER = 0.05339` (`0.0%`)
+  2. `2_Marginal_LBFGS_B1` (`controller_mode=marginal_lbfgs`, `osd_mode=1`, `17` core cyc): `LER = 0.05339` (`0.0%`)
+  3. `3_Joint_DP_Pure_9Marginal_BP_17cyc` (`controller_mode=joint_dp_map`, `osd_mode=0`, `17` core cyc): `LER = 0.12695` (`+137.8%` degradation when correlated pairs are mapped naively to 9 single-qubit marginals without OSD-0)
+  4. `4_Joint_DP_Pair_Projected_17cyc` (`controller_mode=joint_dp_proj`, `osd_mode=1`, `17` core cyc): `LER = 0.04492` (`-15.85%`)
+  5. `5_Full_AVID_R2D2_WB_Inline_OSD_17cyc` (`controller_mode=avid_r2d2`, `osd_mode=1`, `17` core cyc): `LER = 0.03581` (**`-32.93%`**)
+  6. `6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc` (`controller_mode=avid_r2d2`, `osd_mode=2`, `19` core cyc): `LER = 0.03581` (**`-32.93%`**)
+
+### Experiment Set C — V1 7-Scenario Long-Run Native Verilator Benchmark
+- **Run ID**: `avid_v1_full_benchmark_20261105_223251_s777` ([`reports/v1/performance/cloudshell_full_benchmark_57344_rounds_report.json`](reports/v1/performance/cloudshell_full_benchmark_57344_rounds_report.json))
+- **Scope**: 7 scenarios $	imes$ `8,192` rounds = `57,344` rounds under native `Verilator 5.020` + `qemu-aarch64-static`.
+
+### Experiment Set D — V0 Offline Reference-Model Benchmarks (`Benchmark-Eval/Baseline_V0/`)
+- **Report**: [`reports/v0/benchmark_summary.json`](reports/v0/benchmark_summary.json) & [`checkpoints/baseline_vs_avid_benchmark.json`](checkpoints/baseline_vs_avid_benchmark.json)
+- **Scope**: Python/PyTorch reference model evaluations (`BM1` 15-seed significance, `BM2` 8-variant `A0..A7` offline World-Model/LoRA ablation, `BM3` $d=3 	o d=5$ simulation scaling, `BM4` window complexity, `BM5` analytical/emulated timing models, and the 250,000-round `R1–R5` model benchmark).
+
+---
+
+## 5. Quick Start & Reproducibility
+
 ```bash
-bash scripts/setup_cloudshell.sh
+# 1. Install toolchains (Ubuntu 24.04 / Google Cloud Shell)
+bash scripts/setup_environment.sh
+
+# 2. Validate architecture contracts, repository structure & provenance
+python3 tools/validate_architecture.py
+python3 tools/validate_repository.py
+python3 tools/verify_provenance.py
+python3 tools/verify_requirements.py
+
+# 3. Build Verilator RTL, C++ co-simulation bridge, and ARM Cortex-A9 / ARM64 guests
 bash scripts/build_all.sh
-bash scripts/run_all.sh configs/v1_full_benchmark.yaml
-cat reports/latest_report.json
-```
 
-### Run Smoke Test & Multi-Seed Regression Suite
-```bash
-bash scripts/run_all.sh configs/v1_smoke.yaml
-bash scripts/run_regression.sh
-```
+# 4. Run the V1 10-scenario dual-emulator integration suite
+bash scripts/run_all.sh configs/system/v1_integration.yaml
 
-### Run Architecture & V0 40/40 Closure Verifiers (Python + C++ + Co-Sim Suites)
-```bash
-PYTHONPATH=. python3 tools/verify_v0_closure_40.py
-PYTHONPATH=. python3 tools/validate_architecture.py
+# 5. Run the 40/40 V0 closure & 6-way runtime ablation verifier
+python3 tools/verify_v0_closure_40.py
 ```

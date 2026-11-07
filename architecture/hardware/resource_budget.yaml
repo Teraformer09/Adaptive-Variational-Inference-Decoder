@@ -1,0 +1,17 @@
+schema_version: 1
+v1_target_part: "xc7z020clg484-1"
+pl_resource_budget:
+  lut_used_estimate: 1420
+  lut_available: 53200
+  ff_used_estimate: 980
+  ff_available: 106400
+  bram_36k_used: 2
+  bram_36k_available: 140
+  dsp48e1_used: 0
+  dsp48e1_available: 220
+ps_memory_budget_bytes:
+  r2d2_lstm_64_int8_bytes: 25998
+  r2d2_lstm_64_fp32_bytes: 103992
+  lbfgs_workspace_bytes: 2688
+  dma_ring_buffer_bytes: 65536
+  zynq7020_ocm_limit_bytes: 262144

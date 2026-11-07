@@ -1,0 +1,1 @@
+arm-linux-gnueabihf-g++ -mcpu=cortex-a9 / qemu-arm -cpu cortex-a9

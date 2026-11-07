@@ -1,0 +1,8 @@
+emulator:
+  name: "qemu-arm"
+  role: "canonical_v1_emulation_target"
+  arch: "armv7l"
+  cpu: "cortex-a9"
+  sysroot: "/usr/arm-linux-gnueabihf"
+  compiler_flags: "-mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard"
+  binary: "emulator/qemu/images/avid_daemon_cortex_a9"

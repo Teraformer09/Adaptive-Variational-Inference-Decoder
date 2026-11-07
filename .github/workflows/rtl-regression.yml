@@ -1,0 +1,15 @@
+name: RTL Verilator Regression
+on:
+  push:
+    branches: [ main, AVID_EPJ_Patches ]
+jobs:
+  rtl-regression:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Verilator
+        run: sudo apt-get update && sudo apt-get install -y verilator cmake g++
+      - name: Build and run standalone RTL testbench
+        run: |
+          bash emulator/verilator/build.sh
+          bash emulator/verilator/run.sh

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "canonical_reports": [
+    {
+      "report_id": "v1_cloudshell_10scenario_integration",
+      "run_id": "avid_v1_integration_20261106_172251_s2026",
+      "scope": "V1_Dual_Emulator_Integration",
+      "simulator": "verilator_c++_rtl (Verilator 5.020)",
+      "guest_cpu": "qemu-arm -cpu cortex-a9 (arm-linux-gnueabihf)",
+      "scenarios": 10,
+      "rounds_per_scenario": 1536,
+      "total_rounds": 15360,
+      "path": "reports/v1/integration/cloudshell_v1_integration_10scenarios_report.json"
+    },
+    {
+      "report_id": "v1_cloudshell_7scenario_longrun",
+      "run_id": "avid_v1_full_benchmark_20261105_223251_s777",
+      "scope": "V1_Dual_Emulator_LongRun",
+      "simulator": "verilator_c++_rtl (Verilator 5.020)",
+      "guest_cpu": "qemu-aarch64-static",
+      "scenarios": 7,
+      "rounds_per_scenario": 8192,
+      "total_rounds": 57344,
+      "path": "reports/v1/performance/cloudshell_full_benchmark_57344_rounds_report.json"
+    },
+    {
+      "report_id": "v0_closure_40_40_and_6way_ablation",
+      "run_id": "v0_closure_20261106_172313",
+      "scope": "V0_Closure_and_V1_Runtime_6Way_Ablation",
+      "path": "reports/v0/closure/v0_closure_40_40_report.json"
+    },
+    {
+      "report_id": "v0_baseline_bm1_to_bm5",
+      "run_id": "v0_master_benchmark_suite",
+      "scope": "V0_Python_Reference_Model_Suite",
+      "path": "reports/v0/benchmark_summary.json"
+    }
+  ]
+}

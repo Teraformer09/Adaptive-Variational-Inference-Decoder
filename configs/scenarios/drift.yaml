@@ -1,0 +1,8 @@
+scenario:
+  name: "slowly_drifting_noise"
+  description: "Continuous sinusoidal/linear drift in q4 hotspot and ZZ(4,5)"
+  total_rounds: 1536
+  window_rounds: 256
+  fast_burst_detector_subwindow: 16
+  fast_burst_detector_threshold: 0.35
+  fast_burst_detector_debounce: 4

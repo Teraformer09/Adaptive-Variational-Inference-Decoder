@@ -1,0 +1,22 @@
+schema_version: 1
+requirements:
+  - id: REQ-MATH-01
+    description: "16-state Joint-DP distribution matches 2^M enumeration within 1e-12"
+    implementation: "software/src/inference/noise_model.cpp"
+    verification: "simulation/tests/test_joint_likelihood.py"
+    evidence: "reports/v0/closure/v0_closure_40_40_report.json"
+  - id: REQ-MATH-02
+    description: "Distinguish 9 observable signature orbits from 12 gauge null directions"
+    implementation: "simulation/reference/noise_model/identifiability_svd.py"
+    verification: "simulation/tests/test_identifiability.py"
+    evidence: "architecture/noise_model/identifiability_report.md"
+  - id: REQ-RTL-01
+    description: "Deterministic BP core latency 2+5K cycles (modes 0/1) and 4+5K cycles (mode 2)"
+    implementation: "firmware/rtl/decoder/bp_engine.sv"
+    verification: "emulator/verilator/tb/standalone_rtl_tb.cpp"
+    evidence: "architecture/fpga_decoder/rtl_cycle_matrix.csv"
+  - id: REQ-CTRL-01
+    description: "16-round sliding-subwindow fast burst detector with <=20-round trigger bound"
+    implementation: "software/src/control/causal_scheduler.cpp"
+    verification: "software/tests/test_baseline_suite.cpp"
+    evidence: "reports/v1/integration/cloudshell_v1_integration_10scenarios_report.json"

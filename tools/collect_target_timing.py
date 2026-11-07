@@ -77,7 +77,7 @@ def main() -> int:
         },
     }
 
-    out_path = REPO_ROOT / "architecture" / "05_realtime_control" / "timing_profile_report.json"
+    out_path = REPO_ROOT / "architecture" / "control" / "timing_profile_report.json"
     out_path.write_text(json.dumps(report, indent=2) + "\n")
     print(f"[OK] Saved timing profile report -> {out_path}")
     return 0

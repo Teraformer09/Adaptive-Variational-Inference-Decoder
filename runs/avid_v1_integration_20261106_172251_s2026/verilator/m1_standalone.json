@@ -1,0 +1,65 @@
+{
+  "simulator": "verilator_c++_rtl",
+  "native_verilator_compiled": true,
+  "top_module": "aa_qec_top",
+  "clock_period_ns": 4,
+  "reset_verified": true,
+  "split_aw_w_verified": true,
+  "invalid_register_slverr_verified": true,
+  "byte_enable_verified": true,
+  "atomic_commit_verified": true,
+  "busy_swap_protection_verified": true,
+  "axis_backpressure_verified": true,
+  "reset_during_decode_verified": true,
+  "sva_assertions_enabled": true,
+  "reference_equivalence_mismatches": 0,
+  "osd_modes_core_cycles_k3": {
+    "mode0_pure_9marginal_bp": 17,
+    "mode1_inline_osd0": 17,
+    "mode2_post_bp_osd0_outside_17cyc": 19
+  },
+  "k3_bp_core_cycles": 17,
+  "k3_bp_core_latency_ns": 68.0,
+  "k3_axi_ingress_cycles": 3,
+  "k3_axi_egress_cycles": 2,
+  "k3_axis_total_cycles": 22,
+  "k3_axis_total_latency_ns": 88.0,
+  "cycle_matrix_K1_to_K5": [
+    {
+      "K": 1,
+      "bp_core_cycles": 7,
+      "bp_core_latency_ns": 28.0,
+      "axis_total_cycles": 12,
+      "axis_total_latency_ns": 48.0
+    },
+    {
+      "K": 2,
+      "bp_core_cycles": 12,
+      "bp_core_latency_ns": 48.0,
+      "axis_total_cycles": 17,
+      "axis_total_latency_ns": 68.0
+    },
+    {
+      "K": 3,
+      "bp_core_cycles": 17,
+      "bp_core_latency_ns": 68.0,
+      "axis_total_cycles": 22,
+      "axis_total_latency_ns": 88.0
+    },
+    {
+      "K": 4,
+      "bp_core_cycles": 22,
+      "bp_core_latency_ns": 88.0,
+      "axis_total_cycles": 27,
+      "axis_total_latency_ns": 108.0
+    },
+    {
+      "K": 5,
+      "bp_core_cycles": 27,
+      "bp_core_latency_ns": 108.0,
+      "axis_total_cycles": 32,
+      "axis_total_latency_ns": 128.0
+    }
+  ],
+  "total_sim_cycles": 1476
+}

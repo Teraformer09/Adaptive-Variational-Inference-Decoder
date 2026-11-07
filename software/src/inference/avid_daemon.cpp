@@ -33,11 +33,13 @@
 #include "../estimator/llr_quantizer.h"
 #include "../control/stage_profiler.h"
 #include "../control/fallback_fsm.h"
+#include "../control/causal_scheduler.h"
 #include "../control/r2d2_lstm_controller.h"
 
 static NoiseModel             g_model_z; /* Fits hist_x (X-checks) -> Z-error weights active_z */
 static NoiseModel             g_model_x; /* Fits hist_z (Z-checks) -> X-error weights active_x */
 static HistogramLBFGSSolver   g_solver;
+static avid_fast_burst_detector_t g_fast_detector;
 static AvidR2D2LSTMController g_r2d2;
 static avid_hal_t             g_hal;
 static avid_dma_ring_t        g_dma_ring;
@@ -255,6 +257,7 @@ int main(int argc, char *argv[]) {
 
     NoiseModel::ParamVec true_theta_z;
     true_theta_z.setZero();
+    avid_fast_detector_init(&g_fast_detector, 0.35, 4u);
 
     uint64_t rng_state = (seed == 0) ? 0xCAFEBABE12345678ULL : (seed ^ 0x9E3779B97F4A7C15ULL);
 
@@ -342,6 +345,9 @@ int main(int argc, char *argv[]) {
                 burst_rounds++;
                 if (static_fail) burst_static_failures++;
             }
+
+            /* Step 16-round sliding-subwindow fast burst detector (<= 20-round trigger bound) */
+            (void)avid_fast_detector_step(&g_fast_detector, (uint64_t)seq_gen, sx, sz);
 
             if (backend == AVID_HAL_BACKEND_SIMULATION) {
                 uint16_t cx = 0, cz = 0;
@@ -586,6 +592,14 @@ int main(int argc, char *argv[]) {
                 "  \"burst_window_static_ler\": %.5f,\n"
                 "  \"burst_window_avid_ler\": %.5f,\n"
                 "  \"burst_window_ler_reduction_pct\": %.2f,\n"
+                "  \"fast_burst_detector\": {\n"
+                "    \"subwindow_rounds\": %u,\n"
+                "    \"density_threshold\": %.2f,\n"
+                "    \"debounce_rounds\": %u,\n"
+                "    \"worst_case_trigger_latency_rounds\": %u,\n"
+                "    \"trigger_count\": %u,\n"
+                "    \"peak_density\": %.4f\n"
+                "  },\n"
                 "  \"hal_total_transactions\": %llu,\n"
                 "  \"hal_mmio_writes\": %llu,\n"
                 "  \"hal_mmio_reads\": %llu,\n"
@@ -644,6 +658,12 @@ int main(int argc, char *argv[]) {
                 burst_static_ler,
                 burst_avid_ler,
                 burst_red_pct,
+                g_fast_detector.subwindow_rounds,
+                g_fast_detector.density_threshold,
+                g_fast_detector.debounce_rounds,
+                g_fast_detector.worst_case_trigger_latency_rounds,
+                g_fast_detector.trigger_count,
+                g_fast_detector.peak_density,
                 (unsigned long long)g_hal.stats.total_transactions,
                 (unsigned long long)g_hal.stats.mmio_writes,
                 (unsigned long long)g_hal.stats.mmio_reads,

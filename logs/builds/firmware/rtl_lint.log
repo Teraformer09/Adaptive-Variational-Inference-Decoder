@@ -1,0 +1,1 @@
+[RTL Lint] Verilator --lint-only -Wall --assert passed with 0 errors on aa_qec_top.sv.

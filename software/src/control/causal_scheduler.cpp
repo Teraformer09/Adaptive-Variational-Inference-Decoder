@@ -34,3 +34,43 @@ bool avid_scheduler_poll_commit_ready(avid_causal_scheduler_t *sched,
     }
     return false;
 }
+
+void avid_fast_detector_init(avid_fast_burst_detector_t *det,
+                             double density_threshold,
+                             uint32_t debounce_rounds) {
+    memset(det, 0, sizeof(*det));
+    det->subwindow_rounds  = 16u;
+    det->density_threshold = (density_threshold > 0.0) ? density_threshold : 0.35;
+    det->debounce_rounds   = (debounce_rounds > 0u) ? debounce_rounds : 4u;
+    det->worst_case_trigger_latency_rounds = det->subwindow_rounds + det->debounce_rounds;
+}
+
+bool avid_fast_detector_step(avid_fast_burst_detector_t *det,
+                             uint64_t round_idx,
+                             uint8_t sx,
+                             uint8_t sz) {
+    uint32_t slot = (uint32_t)(round_idx & 15u);
+    uint8_t old_v = det->ring_nonzero[slot];
+    uint8_t new_v = (((sx & 0xFu) != 0u) || ((sz & 0xFu) != 0u)) ? 1u : 0u;
+    det->ring_nonzero[slot] = new_v;
+    det->ring_sum = det->ring_sum - (uint32_t)old_v + (uint32_t)new_v;
+
+    uint32_t valid_len = (round_idx < 15u) ? (uint32_t)(round_idx + 1u) : 16u;
+    double density = (double)det->ring_sum / (double)valid_len;
+    if (density > det->peak_density) {
+        det->peak_density = density;
+    }
+
+    if (round_idx >= 15u && density >= det->density_threshold) {
+        det->debounce_counter++;
+        if (det->debounce_counter == det->debounce_rounds) {
+            det->trigger_count++;
+            det->burst_active = true;
+            return true;
+        }
+    } else {
+        det->debounce_counter = 0u;
+        det->burst_active     = false;
+    }
+    return false;
+}

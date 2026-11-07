@@ -1,0 +1,14 @@
+name: Software & Mathematical Unit Tests
+on:
+  push:
+    branches: [ main, AVID_EPJ_Patches ]
+jobs:
+  software-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test C++ software suite
+        run: |
+          bash emulator/qemu/build.sh
+          ./software/build_native/test_baseline_suite
+          pytest -q simulation/tests/

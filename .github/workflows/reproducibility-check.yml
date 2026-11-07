@@ -1,0 +1,13 @@
+name: Reproducibility & Provenance Check
+on:
+  push:
+    branches: [ main, AVID_EPJ_Patches ]
+jobs:
+  reproducibility:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify provenance and requirements traceability
+        run: |
+          python3 tools/verify_provenance.py
+          python3 tools/verify_requirements.py

@@ -1,0 +1,8 @@
+scenario:
+  name: "burst_disturbance"
+  description: "Sudden high-intensity correlated burst across middle epochs"
+  total_rounds: 1536
+  window_rounds: 256
+  fast_burst_detector_subwindow: 16
+  fast_burst_detector_threshold: 0.35
+  fast_burst_detector_debounce: 4

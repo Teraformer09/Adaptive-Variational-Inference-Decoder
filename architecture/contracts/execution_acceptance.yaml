@@ -1,0 +1,14 @@
+contract_id: execution_acceptance_v1
+mandatory_checks:
+  m1_rtl_standalone:
+    reference_equivalence_mismatches: 0
+    sva_assertions_enabled: true
+    invalid_register_slverr_verified: true
+    busy_swap_protection_verified: true
+  m3_bridge_protocol:
+    unexpected_rejected_transactions: 0
+    intentional_negative_test_rejections: 6
+  m4_end_to_end_scenarios:
+    scenario_count: 10
+    hal_rejected_transactions: 0
+    epoch_commit_reconciled: true

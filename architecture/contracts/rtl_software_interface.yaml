@@ -1,0 +1,11 @@
+contract_id: rtl_software_interface_v1
+protocol_version: 1
+mmio_weight_registers_x: 9
+mmio_weight_registers_z: 9
+fixed_point_format: "signed_Q7.8_int16"
+commit_register_offset: "0x048"
+max_iter_register_offset: "0x04C"
+epoch_counter_offset: "0x050"
+status_register_offset: "0x054"
+osd_mode_register_offset: "0x058"
+unmapped_register_response: "AXI_SLVERR_0x2"
