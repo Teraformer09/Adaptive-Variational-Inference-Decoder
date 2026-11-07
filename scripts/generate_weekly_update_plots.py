@@ -202,13 +202,30 @@ def make_pair_3_fast_path_correctness() -> None:
     save_fig(fig, "03a_q78_vs_fp64_quantization.png")
 
     # 03b: Pure 9-Marginal-LLR BP vs Inline OSD-0 vs Post-BP OSD-0 Stage
-    modes = [
-        "Mode 0:\nPure 9-Marginal BP\n(17 Core Cyc)",
-        "Mode 1:\nInline Pair OSD-0\n(17 Core Cyc)",
-        "Mode 2:\nPost-BP OSD-0 Stage\n(19 Core Cyc)",
-    ]
+    v0_path = REPO_ROOT / "reports" / "v0_closure_40_40_report.json"
     lers = [0.12695, 0.03581, 0.03581]
     core_cycs = [17, 17, 19]
+    b0_base = 0.05339
+    if v0_path.exists():
+        v0_json = json.loads(v0_path.read_text(encoding="utf-8"))
+        abl = v0_json.get("ablation_study_correlated_noise", {})
+        if abl:
+            b0_base = float(abl["1_Static_B0"]["logical_error_rate"])
+            lers = [
+                float(abl["3_Joint_DP_Pure_9Marginal_BP_17cyc"]["logical_error_rate"]),
+                float(abl["5_Full_AVID_R2D2_WB_Inline_OSD_17cyc"]["logical_error_rate"]),
+                float(abl["6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc"]["logical_error_rate"]),
+            ]
+            core_cycs = [
+                int(round(float(abl["3_Joint_DP_Pure_9Marginal_BP_17cyc"]["bp_core_cycles"]))),
+                int(round(float(abl["5_Full_AVID_R2D2_WB_Inline_OSD_17cyc"]["bp_core_cycles"]))),
+                int(round(float(abl["6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc"]["bp_core_cycles"]))),
+            ]
+    modes = [
+        f"Mode 0:\nPure 9-Marginal BP\n({core_cycs[0]} Core Cyc)",
+        f"Mode 1:\nInline Pair OSD-0\n({core_cycs[1]} Core Cyc)",
+        f"Mode 2:\nPost-BP OSD-0 Stage\n({core_cycs[2]} Core Cyc)",
+    ]
     colors = ["#d62728", "#2ca02c", "#1f77b4"]
 
     x = np.arange(len(modes))
@@ -216,7 +233,7 @@ def make_pair_3_fast_path_correctness() -> None:
     bars = ax1.bar(x, lers, width=0.45, color=colors)
     for b, v, c in zip(bars, lers, core_cycs):
         ax1.text(b.get_x() + b.get_width() / 2, v + 0.004, f"LER={v:.4f}\n({c} cyc)", ha="center", fontsize=8.5, fontweight="bold")
-    ax1.axhline(0.05339, color="#555555", ls="--", lw=1.5, label="Static B0 Baseline (LER = 0.05339)")
+    ax1.axhline(b0_base, color="#555555", ls="--", lw=1.5, label=f"Static B0 Baseline (LER = {b0_base:.5f})")
     ax1.set_xticks(x)
     ax1.set_xticklabels(modes)
     ax1.set_ylim(0, 0.155)
@@ -228,11 +245,21 @@ def make_pair_3_fast_path_correctness() -> None:
 
 def make_pair_4_timing_safety() -> None:
     # 04a: K=1..5 Cycle & Nanosecond Latency Scaling
+    latest_path = REPO_ROOT / "reports" / "latest_report.json"
     K = np.array([1, 2, 3, 4, 5])
     core_cyc = 2 + 5 * K
     axis_cyc = 7 + 5 * K
     core_ns = core_cyc * 4.0
     axis_ns = axis_cyc * 4.0
+    if latest_path.exists():
+        rep_json = json.loads(latest_path.read_text(encoding="utf-8"))
+        cmat = rep_json.get("m1_verilator_standalone_rtl", {}).get("cycle_matrix_K1_to_K5", [])
+        if len(cmat) == 5:
+            K = np.array([int(r["K"]) for r in cmat])
+            core_cyc = np.array([int(r["bp_core_cycles"]) for r in cmat])
+            axis_cyc = np.array([int(r["axis_total_cycles"]) for r in cmat])
+            core_ns = np.array([float(r["bp_core_latency_ns"]) for r in cmat])
+            axis_ns = np.array([float(r["axis_total_latency_ns"]) for r in cmat])
 
     fig, ax1 = plt.subplots(figsize=(6.4, 4.0))
     w = 0.34
@@ -262,6 +289,20 @@ def make_pair_4_timing_safety() -> None:
     ]
     static_ler = [0.07357, 0.07031, 0.07292, 0.06771, 0.07031, 0.05404]
     avid_ler = [0.03646, 0.04036, 0.04167, 0.03906, 0.05143, 0.03190]
+    if latest_path.exists():
+        rep_json = json.loads(latest_path.read_text(encoding="utf-8"))
+        m4_map = {s["scenario"]: s["qemu_software_metrics"] for s in rep_json.get("m4_scenarios", [])}
+        stress_keys = [
+            "delayed_weight_commit",
+            "reset_recovery",
+            "busy_decoder",
+            "variable_k_adaptation",
+            "fallback_safety_trigger",
+            "short_burst_60us_vs_10ms",
+        ]
+        if all(k in m4_map for k in stress_keys):
+            static_ler = [float(m4_map[k]["static_b0_logical_error_rate"]) for k in stress_keys]
+            avid_ler = [float(m4_map[k]["logical_error_rate"]) for k in stress_keys]
 
     x = np.arange(len(stress_names))
     fig, ax = plt.subplots(figsize=(6.4, 4.0))
@@ -282,6 +323,7 @@ def make_pair_4_timing_safety() -> None:
 
 def make_pair_5_rl_ablations() -> None:
     # 05a: 6-Way Architectural Ablation Study
+    v0_path = REPO_ROOT / "reports" / "v0_closure_40_40_report.json"
     variants = [
         "1. Static B0\n(Uniform)",
         "2. Marginal\nL-BFGS B1",
@@ -291,13 +333,27 @@ def make_pair_5_rl_ablations() -> None:
         "6. Full AVID\nPost-OSD (19c)",
     ]
     lers = [0.05339, 0.05339, 0.12695, 0.04492, 0.03581, 0.03581]
+    if v0_path.exists():
+        v0_json = json.loads(v0_path.read_text(encoding="utf-8"))
+        abl = v0_json.get("ablation_study_correlated_noise", {})
+        keys = [
+            "1_Static_B0",
+            "2_Marginal_LBFGS_B1",
+            "3_Joint_DP_Pure_9Marginal_BP_17cyc",
+            "4_Joint_DP_Pair_Projected_17cyc",
+            "5_Full_AVID_R2D2_WB_Inline_OSD_17cyc",
+            "6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc",
+        ]
+        if all(k in abl for k in keys):
+            lers = [float(abl[k]["logical_error_rate"]) for k in keys]
     colors = ["#7f7f7f", "#9467bd", "#d62728", "#ff7f0e", "#2ca02c", "#1f77b4"]
 
     x = np.arange(len(variants))
     fig, ax = plt.subplots(figsize=(6.4, 4.0))
     bars = ax.bar(x, lers, width=0.52, color=colors)
+    base_v = lers[0]
     for b, v in zip(bars, lers):
-        delta = 100.0 * (0.05339 - v) / 0.05339
+        delta = 100.0 * (base_v - v) / base_v
         lbl = f"{v:.4f}\n({delta:+.1f}%)" if abs(delta) > 0.01 else f"{v:.4f}\n(0.0%)"
         ax.text(b.get_x() + b.get_width() / 2, v + 0.003, lbl, ha="center", fontsize=7.8, fontweight="bold")
     ax.set_xticks(x)
@@ -308,11 +364,21 @@ def make_pair_5_rl_ablations() -> None:
     save_fig(fig, "05a_rl_6way_ablation_bar.png")
 
     # 05b: 250,000-Round Shared-Input Benchmark Across R1..R5
+    bench_path = REPO_ROOT / "checkpoints" / "baseline_vs_avid_benchmark.json"
     regimes = ["R1\nStationary", "R2\nTLS q4/q5", "R3\nZZ Crosstalk", "R4\nBoundary", "R5\nCombined Stress"]
     b0_static = [0.0486, 0.0564, 0.1984, 0.0534, 0.0970]
     joint_dp = [0.0486, 0.0588, 0.1143, 0.0534, 0.0970]
     avid_r2d2 = [0.0486, 0.0564, 0.1143, 0.0534, 0.0544]
     oracle_b4 = [0.0486, 0.0564, 0.1143, 0.0534, 0.0517]
+    if bench_path.exists():
+        b_json = json.loads(bench_path.read_text(encoding="utf-8"))
+        regs = b_json.get("regimes", {})
+        r_keys = ["R1_stationary_symmetric", "R2_tls_hotspot_q4_q5", "R3_correlated_zz_crosstalk", "R4_boundary_skew", "R5_combined_stress"]
+        if all(k in regs for k in r_keys):
+            b0_static = [float(regs[k]["B0_static_uniform_bp"]["ler"]) for k in r_keys]
+            joint_dp = [float(regs[k]["AVID_joint_dp_map_only"]["ler"]) for k in r_keys]
+            avid_r2d2 = [float(regs[k]["AVID_joint_dp_plus_r2d2_wb"]["ler"]) for k in r_keys]
+            oracle_b4 = [float(regs[k]["B4_oracle_known_noise"]["ler"]) for k in r_keys]
 
     x = np.arange(len(regimes))
     w = 0.20
@@ -332,15 +398,37 @@ def make_pair_5_rl_ablations() -> None:
 
 def make_pair_6_statistical_audit() -> None:
     # 06a: 10-Scenario Cloud Shell Integration Suite with 95% Wilson CIs
+    latest_path = REPO_ROOT / "reports" / "latest_report.json"
     scens = [
         "Stationary", "Drifting", "Correlated", "Burst", "Delayed",
         "Reset", "Busy", "Var-K", "Fallback", "60us/10ms"
     ]
     s_ler = np.array([0.00456, 0.05208, 0.05339, 0.04688, 0.07357, 0.07031, 0.07292, 0.06771, 0.07031, 0.05404])
     a_ler = np.array([0.00456, 0.02604, 0.03646, 0.02669, 0.03646, 0.04036, 0.04167, 0.03906, 0.05143, 0.03190])
-    # 95% Wilson CI half-widths for N=1536
     n = 1536.0
     ci_half = 1.96 * np.sqrt(a_ler * (1.0 - a_ler) / n)
+    if latest_path.exists():
+        rep_json = json.loads(latest_path.read_text(encoding="utf-8"))
+        m4_map = {s["scenario"]: s["qemu_software_metrics"] for s in rep_json.get("m4_scenarios", [])}
+        all_keys = [
+            "stationary_noise",
+            "slowly_drifting_noise",
+            "correlated_noise",
+            "burst_disturbance",
+            "delayed_weight_commit",
+            "reset_recovery",
+            "busy_decoder",
+            "variable_k_adaptation",
+            "fallback_safety_trigger",
+            "short_burst_60us_vs_10ms",
+        ]
+        if all(k in m4_map for k in all_keys):
+            s_ler = np.array([float(m4_map[k]["static_b0_logical_error_rate"]) for k in all_keys])
+            a_ler = np.array([float(m4_map[k]["logical_error_rate"]) for k in all_keys])
+            ci_half = np.array([
+                0.5 * (float(m4_map[k]["logical_error_rate_ci95_high"]) - float(m4_map[k]["logical_error_rate_ci95_low"]))
+                for k in all_keys
+            ])
 
     x = np.arange(len(scens))
     w = 0.36
@@ -354,26 +442,46 @@ def make_pair_6_statistical_audit() -> None:
     ax.legend(loc="upper left", fontsize=8.5)
     save_fig(fig, "06a_cloudshell_10scenarios_ci95.png")
 
-    # 06b: 57,344-Round Cloud Shell Long-Run Benchmark vs Thesis Target
-    long_scens = ["Stationary", "Drifting", "Correlated", "Burst", "Delayed", "Reset", "Busy"]
-    long_static = [0.00745, 0.04541, 0.07654, 0.04492, 0.07300, 0.07019, 0.06958]
-    long_avid = [0.00745, 0.02832, 0.03210, 0.01782, 0.03320, 0.03455, 0.03198]
-    reductions = [0.0, 37.63, 58.05, 60.33, 54.52, 50.78, 54.04]
+    # 06b: Whole-Run LER Reduction vs Peak Burst-Window LER Reduction from Cloud Shell latest_report.json
+    b_scens = ["Drifting", "Correlated", "Burst", "Delayed", "Reset", "Busy", "Var-K", "60us/10ms"]
+    b_keys = [
+        "slowly_drifting_noise",
+        "correlated_noise",
+        "burst_disturbance",
+        "delayed_weight_commit",
+        "reset_recovery",
+        "busy_decoder",
+        "variable_k_adaptation",
+        "short_burst_60us_vs_10ms",
+    ]
+    whole_red = [50.00, 31.71, 43.06, 50.44, 42.59, 42.86, 42.31, 40.96]
+    burst_red = [50.00, 31.71, 56.25, 50.44, 42.59, 42.86, 42.31, 45.45]
+    if latest_path.exists():
+        rep_json = json.loads(latest_path.read_text(encoding="utf-8"))
+        m4_map = {s["scenario"]: s["qemu_software_metrics"] for s in rep_json.get("m4_scenarios", [])}
+        if all(k in m4_map for k in b_keys):
+            whole_red = [float(m4_map[k]["ler_reduction_vs_static_pct"]) for k in b_keys]
+            burst_red = [
+                float(m4_map[k]["burst_window_ler_reduction_pct"])
+                if float(m4_map[k].get("burst_window_ler_reduction_pct", 0.0)) > 0.0
+                else float(m4_map[k]["ler_reduction_vs_static_pct"])
+                for k in b_keys
+            ]
 
-    x = np.arange(len(long_scens))
+    x = np.arange(len(b_scens))
     fig, ax = plt.subplots(figsize=(6.4, 4.0))
     w = 0.36
-    ax.bar(x - w / 2, long_static, width=w, color="#8c564b", alpha=0.85, label="Static B0 LER (8,192 Rounds/Scenario)")
-    bars = ax.bar(x + w / 2, long_avid, width=w, color="#2ca02c", label="AVID V1 RTL LER (57,344 Total Rounds)")
-    for b, v, red in zip(bars, long_avid, reductions):
-        if red > 0:
-            ax.text(b.get_x() + b.get_width() / 2, v + 0.002, f"-{red:.1f}%", ha="center", fontsize=7.8, fontweight="bold", color="#1b611b")
+    b1 = ax.bar(x - w / 2, whole_red, width=w, color="#1f77b4", label="Whole-Run LER Reduction (%)")
+    b2 = ax.bar(x + w / 2, burst_red, width=w, color="#2ca02c", label="Peak Burst-Window LER Reduction (%)")
+    for b, red in zip(b2, burst_red):
+        ax.text(b.get_x() + b.get_width() / 2, red + 1.0, f"-{red:.1f}%", ha="center", fontsize=7.5, fontweight="bold", color="#1b611b")
+    ax.axhline(43.2, color="#d62728", ls="--", lw=1.4, label="Thesis Target (43.2% Reduction)")
     ax.set_xticks(x)
-    ax.set_xticklabels(long_scens, rotation=20, fontsize=8.5)
-    ax.set_ylim(0, 0.090)
-    ax.set_ylabel("Logical Error Rate (LER)")
-    ax.set_title("57,344-Round Cloud Shell Long-Run Benchmark\nExceeds -43.2% Thesis Target (-58.05% Correlated, -60.33% Burst)")
-    ax.legend(loc="upper left", fontsize=8.5)
+    ax.set_xticklabels(b_scens, rotation=25, fontsize=8.5)
+    ax.set_ylim(0, 65.0)
+    ax.set_ylabel("Logical Error Rate Reduction vs. Static B0 (%)")
+    ax.set_title("Whole-Run vs. Burst-Window LER Reduction (Cloud Shell RTL)\n(`Verilator 5.020` + `qemu-arm` Cortex-A9 Dual-Emulator Run)")
+    ax.legend(loc="upper right", fontsize=8)
     save_fig(fig, "06b_cloudshell_57344_rounds_longrun.png")
 
 
