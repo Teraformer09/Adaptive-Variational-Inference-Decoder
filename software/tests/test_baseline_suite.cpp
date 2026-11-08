@@ -1,15 +1,20 @@
 /* ===========================================================================
- * test_baseline_suite.cpp — C++ Unit & Integration Test Suite for AVID Baseline
+ * test_baseline_suite.cpp — C++ Unit & Integration Test Suite for AVID Baseline & V1
  * Verifies:
  *   1. 64-bit packet pack/unpack & DMA 4-state slot ownership FSM (A05 / Q11)
  *   2. Exact 16-state Joint-DP likelihood & coset-inversion gradient vs finite diff (A02 / Q03)
  *   3. Cycle-accurate Q7.8 Min-Sum BP custom execution engine (A01 / Q02, A06 / Q06)
  *   4. Shadow/Active atomic weight bank swap & 4-state fallback FSM (SF5, A09 / Q18)
+ *   5. 16-round sliding-subwindow fast burst detector (<= 20-round trigger bound)
+ *   6. Trained 64-unit Dueling LSTM R2D2 checkpoint loading, multi-action selection,
+ *      and Python-to-C++ numerical parity (--parity-csv mode).
  * =========================================================================*/
 #include <cstdio>
 #include <cmath>
 #include <cassert>
 #include <cstring>
+#include <cstdlib>
+#include <set>
 
 #include "../src/ingress/packet_validator.h"
 #include "../src/ingress/dma_ingress_tap.h"
@@ -18,6 +23,7 @@
 #include "../src/estimator/llr_quantizer.h"
 #include "../src/control/fallback_fsm.h"
 #include "../src/control/causal_scheduler.h"
+#include "../src/control/r2d2_lstm_controller.h"
 #include "../src/driver/weight_reg_driver.h"
 #include "../src/driver/weight_bank_driver.h"
 #include "../src/custom_engine/cycle_accurate_bp_engine.h"
@@ -147,11 +153,86 @@ static void test_fast_burst_detector_16round() {
     printf("[PASS] C++ 16-Round Sliding-Subwindow Fast Burst Detector (lag=%d <= 20 rounds)\n", trigger_lag);
 }
 
-int main() {
+static void test_trained_r2d2_checkpoint_and_actions() {
+    AvidR2D2LSTMController ctrl;
+    assert(ctrl.is_checkpoint_loaded());
+
+    const double regime_features[6][8] = {
+        /* a0: calm stationary independent */
+        {0.014, 0.016, 0.006, 0.009, 0.055, 0.015, 0.002, 0.05},
+        /* a1: moderate correlated drift */
+        {0.018, 0.024, 0.016, 0.045, 0.085, 0.055, 0.006, 0.08},
+        /* a2: strong pair crosstalk */
+        {0.022, 0.034, 0.022, 0.092, 0.115, 0.105, 0.008, 0.10},
+        /* a3: elevated independent noise */
+        {0.032, 0.036, 0.007, 0.010, 0.095, 0.018, 0.004, 0.06},
+        /* a4: abrupt burst / regime shift */
+        {0.036, 0.052, 0.026, 0.095, 0.145, 0.115, 0.048, 0.82},
+        /* a5: unphysical / corrupted estimate fallback */
+        {0.210, 0.250, 0.125, 0.160, 0.550, 0.250, 0.090, 0.15},
+    };
+
+    std::set<int> actions_seen;
+    std::set<uint32_t> k_seen;
+    for (int r = 0; r < 6; ++r) {
+        ctrl.reset_hidden();
+        AvidR2D2ControlDecision dec{};
+        for (int step = 0; step < 3; ++step) {
+            dec = ctrl.step_from_features(regime_features[r]);
+        }
+        actions_seen.insert(dec.action_id);
+        k_seen.insert(dec.bp_iterations);
+    }
+    assert(actions_seen.size() >= 4u);
+    assert(k_seen.size() >= 2u);
+    printf("[PASS] C++ Trained R2D2 Checkpoint Loaded (%zu distinct actions across regimes)\n",
+           actions_seen.size());
+}
+
+static int run_parity_csv_mode(const char* in_csv, const char* out_csv) {
+    avid::deployment::R2D2Runtime rt;
+    std::string err;
+    if (!rt.load_default_checkpoint(&err)) {
+        fprintf(stderr, "Failed to load default checkpoint: %s\n", err.c_str());
+        return 1;
+    }
+
+    FILE* fin = std::fopen(in_csv, "r");
+    if (!fin) return 1;
+    FILE* fout = std::fopen(out_csv, "w");
+    if (!fout) {
+        std::fclose(fin);
+        return 1;
+    }
+
+    double f[8];
+    while (std::fscanf(fin, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",
+                       &f[0], &f[1], &f[2], &f[3], &f[4], &f[5], &f[6], &f[7]) == 8) {
+        avid::deployment::R2D2InferenceOutput out = rt.step(f);
+        std::fprintf(fout, "%d,%.15e,%.15e,%d",
+                     out.action_id, out.state_value, out.pair_weight_scale, out.bp_iterations);
+        for (int a = 0; a < 6; ++a) {
+            std::fprintf(fout, ",%.15e", out.q_values[a]);
+        }
+        for (int q = 0; q < 9; ++q) {
+            std::fprintf(fout, ",%.15e", out.qubit_gains[q]);
+        }
+        std::fprintf(fout, "\n");
+    }
+    std::fclose(fin);
+    std::fclose(fout);
+    return 0;
+}
+
+int main(int argc, char* argv[]) {
+    if (argc == 4 && std::strcmp(argv[1], "--parity-csv") == 0) {
+        return run_parity_csv_mode(argv[2], argv[3]);
+    }
     test_packet_and_dma_ring();
     test_joint_dp_gradient_exactness();
     test_custom_bp_engine_and_weights();
     test_fast_burst_detector_16round();
+    test_trained_r2d2_checkpoint_and_actions();
     printf("[ALL C++ BASELINE TESTS PASSED]\n");
     return 0;
 }

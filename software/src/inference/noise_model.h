@@ -129,12 +129,14 @@ public:
     void to_q7_8_llr(int16_t llr_q78[NM_N_QUBIT]) const;
 
     /**
-     * to_pair_projected_q7_8_llr() — Causal Pair-Aware Logical-Triangle LLR Projection (Q04):
-     * Projects estimated correlated pair probabilities theta_[9..20] across logical-triangle
-     * endpoints (e.g. (4,5) vs q3 on syndrome 0x4, (3,4) vs q5 on syndrome 0x2)
-     * strictly from the estimated parameter vector theta_ without any scenario shortcut.
+     * to_pair_projected_q7_8_llr() — General 12-Pair Syndrome-Alias MAP LLR Projection:
+     * Projects estimated correlated pair probabilities theta_[9..20] across all 12
+     * nearest-neighbor pairs in NM_CROSSTALK_PAIRS whose syndrome signature g_{u,v}
+     * aliases with a single-qubit signature g_w, modulated by pair_weight_scale.
      */
-    void to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT], const double *r2d2_gains = nullptr) const;
+    void to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT],
+                                    const double *qubit_gains = nullptr,
+                                    double pair_weight_scale = 1.0) const;
 
     /** Clamp parameters to valid interior range [1e-5, 0.45] */
     void clamp_params();

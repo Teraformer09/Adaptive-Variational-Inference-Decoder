@@ -306,7 +306,7 @@ public:
         return valid_write && (last_bresp == 0u);
     }
 
-    /* Split AW and W channel handshake test (Section 2.2 AXI-Lite verification) */
+    /* Split AW and W channel handshake test: AW-before-W (Section 2.2 AXI-Lite verification) */
     bool axil_write_split_aw_w(uint32_t addr, uint32_t data, uint8_t byte_enable,
                                uint32_t aw_to_w_delay_cycles, uint64_t *accepted_cycle) {
         uint16_t wmask = 0;
@@ -341,6 +341,46 @@ public:
 #else
         last_bresp = 0u;
         step_clock(2 + aw_to_w_delay_cycles);
+#endif
+        if (accepted_cycle) *accepted_cycle = sim_cycle;
+        return (last_bresp == 0u);
+    }
+
+    /* Split W-before-AW channel handshake test (Verifies w_data_lat / w_valid_lat buffering) */
+    bool axil_write_split_w_aw(uint32_t addr, uint32_t data, uint8_t byte_enable,
+                               uint32_t w_to_aw_delay_cycles, uint64_t *accepted_cycle) {
+        uint16_t wmask = 0;
+        if (byte_enable & 0x1u) wmask |= 0x00FFu;
+        if (byte_enable & 0x2u) wmask |= 0xFF00u;
+
+        if (addr < 36u && (addr % 4 == 0)) {
+            int idx = (int)(addr >> 2);
+            uint16_t cur = (uint16_t)shadow_x[idx];
+            shadow_x[idx] = (int16_t)((cur & ~wmask) | ((uint16_t)data & wmask));
+        } else if (addr >= 0x24u && addr < 0x48u && (addr % 4 == 0)) {
+            int idx = (int)((addr - 0x24u) >> 2);
+            uint16_t cur = (uint16_t)shadow_z[idx];
+            shadow_z[idx] = (int16_t)((cur & ~wmask) | ((uint16_t)data & wmask));
+        }
+
+#if defined(USE_VERILATOR) && USE_VERILATOR
+        top->s_axil_wdata   = data;
+        top->s_axil_wstrb   = byte_enable & 0xFu;
+        top->s_axil_wvalid  = 1;
+        top->s_axil_awvalid = 0;
+        step_clock(1);
+        top->s_axil_wvalid  = 0;
+        if (w_to_aw_delay_cycles > 0) step_clock(w_to_aw_delay_cycles);
+        top->s_axil_awaddr  = addr;
+        top->s_axil_awvalid = 1;
+        top->s_axil_bready  = 1;
+        step_clock(1);
+        last_bresp = (uint8_t)top->s_axil_bresp;
+        top->s_axil_awvalid = 0;
+        step_clock(1);
+#else
+        last_bresp = 0u;
+        step_clock(2 + w_to_aw_delay_cycles);
 #endif
         if (accepted_cycle) *accepted_cycle = sim_cycle;
         return (last_bresp == 0u);
@@ -464,8 +504,12 @@ public:
         }
 
         int32_t w[9];
-        for (int v = 0; v < 9; v++) w[v] = (channel_llr[v] > 0) ? (int32_t)channel_llr[v] : 1;
+        for (int v = 0; v < 9; v++) {
+            int32_t post_w = (int32_t)channel_llr[v] + ((int32_t)belief[v] >> 3);
+            w[v] = (post_w > 0) ? post_w : 1;
+        }
 
+        uint8_t s_code = synd & 0xFu;
         if (!basis_z) {
             uint8_t b0 = ((raw_corr >> 0) ^ (raw_corr >> 1)) & 1u;
             uint8_t b1 = ((raw_corr >> 1) ^ (raw_corr >> 2) ^ (raw_corr >> 4) ^ (raw_corr >> 5)) & 1u;
@@ -474,18 +518,34 @@ public:
             uint8_t raw_synd = (uint8_t)(b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
 
             uint16_t osd_corr = 0;
-            switch (synd & 0xFu) {
+            switch (s_code) {
                 case 0x0: osd_corr = 0x000u; break;
-                case 0x1: osd_corr = (w[0] <= (w[1] + w[2])) ? 0x001u : 0x006u; break;
-                case 0x2: osd_corr = ((w[3] + w[4]) < w[5] && (w[3] + w[4]) < w[2]) ? 0x018u :
-                                     ((w[2] < w[5]) ? 0x004u : 0x020u); break;
+                case 0x1: osd_corr = ((w[1] + w[2]) < w[0]) ? 0x006u : 0x001u; break;
+                case 0x2:
+                    if ((w[0] + w[1]) <= (w[3] + w[4]) && (w[0] + w[1]) < w[2] && (w[0] + w[1]) < w[5])
+                        osd_corr = 0x003u;
+                    else if ((w[3] + w[4]) < w[2] && (w[3] + w[4]) < w[5])
+                        osd_corr = 0x018u;
+                    else if (w[2] <= w[5])
+                        osd_corr = 0x004u;
+                    else
+                        osd_corr = 0x020u;
+                    break;
                 case 0x3: osd_corr = (w[1] <= (w[0] + w[5])) ? 0x002u : 0x021u; break;
-                case 0x4: osd_corr = ((w[4] + w[5]) < w[3] && (w[4] + w[5]) < w[6]) ? 0x030u :
-                                     ((w[6] < w[3]) ? 0x040u : 0x008u); break;
+                case 0x4:
+                    if ((w[4] + w[5]) <= (w[7] + w[8]) && (w[4] + w[5]) < w[3] && (w[4] + w[5]) < w[6])
+                        osd_corr = 0x030u;
+                    else if ((w[7] + w[8]) < w[3] && (w[7] + w[8]) < w[6])
+                        osd_corr = 0x180u;
+                    else if (w[6] < w[3])
+                        osd_corr = 0x040u;
+                    else
+                        osd_corr = 0x008u;
+                    break;
                 case 0x5: osd_corr = ((w[1] + w[4]) < (w[0] + w[3])) ? 0x012u : 0x009u; break;
                 case 0x6: osd_corr = (w[4] <= (w[3] + w[5])) ? 0x010u : 0x028u; break;
                 case 0x7: osd_corr = ((w[0] + w[4]) <= (w[1] + w[3])) ? 0x011u : 0x00Au; break;
-                case 0x8: osd_corr = (w[8] <= (w[6] + w[7])) ? 0x100u : 0x0C0u; break;
+                case 0x8: osd_corr = ((w[6] + w[7]) < w[8]) ? 0x0C0u : 0x100u; break;
                 case 0x9: osd_corr = 0x101u; break;
                 case 0xA: osd_corr = ((w[4] + w[7]) < (w[5] + w[8])) ? 0x090u : 0x120u; break;
                 case 0xB: osd_corr = 0x102u; break;
@@ -494,7 +554,7 @@ public:
                 case 0xE: osd_corr = ((w[4] + w[8]) <= (w[5] + w[7])) ? 0x110u : 0x0A0u; break;
                 case 0xF: osd_corr = 0x082u; break;
             }
-            if (raw_synd == (synd & 0xFu) && (synd & 0xFu) != 0x4u && (synd & 0xFu) != 0x2u) {
+            if (raw_synd == s_code && s_code != 0x1u && s_code != 0x2u && s_code != 0x4u && s_code != 0x8u) {
                 return raw_corr;
             }
             return osd_corr;
@@ -504,25 +564,48 @@ public:
             uint8_t b2 = ((raw_corr >> 3) ^ (raw_corr >> 6)) & 1u;
             uint8_t b3 = ((raw_corr >> 4) ^ (raw_corr >> 5) ^ (raw_corr >> 7) ^ (raw_corr >> 8)) & 1u;
             uint8_t raw_synd = (uint8_t)(b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
-            if (raw_synd == (synd & 0xFu)) return raw_corr;
-            switch (synd & 0xFu) {
-                case 0x0: return 0x000u;
-                case 0x1: return (w[0] <= w[1]) ? 0x001u : 0x002u;
-                case 0x2: return 0x004u;
-                case 0x3: return 0x005u;
-                case 0x4: return 0x040u;
-                case 0x5: return 0x008u;
-                case 0x6: return 0x044u;
-                case 0x7: return 0x00Cu;
-                case 0x8: return (w[7] <= w[8]) ? 0x080u : 0x100u;
-                case 0x9: return 0x010u;
-                case 0xA: return 0x020u;
-                case 0xB: return 0x021u;
-                case 0xC: return 0x0C0u;
-                case 0xD: return 0x088u;
-                case 0xE: return 0x060u;
-                case 0xF: return 0x028u;
+
+            uint16_t osd_corr = 0;
+            switch (s_code) {
+                case 0x0: osd_corr = 0x000u; break;
+                case 0x1:
+                    if ((w[3] + w[6]) <= (w[4] + w[7]) && (w[3] + w[6]) < w[0] && (w[3] + w[6]) < w[1])
+                        osd_corr = 0x048u;
+                    else if ((w[4] + w[7]) < w[0] && (w[4] + w[7]) < w[1])
+                        osd_corr = 0x090u;
+                    else if (w[0] <= w[1])
+                        osd_corr = 0x001u;
+                    else
+                        osd_corr = 0x002u;
+                    break;
+                case 0x2: osd_corr = ((w[5] + w[8]) < w[2]) ? 0x120u : 0x004u; break;
+                case 0x3: osd_corr = 0x005u; break;
+                case 0x4: osd_corr = ((w[0] + w[3]) < w[6]) ? 0x009u : 0x040u; break;
+                case 0x5: osd_corr = 0x008u; break;
+                case 0x6: osd_corr = 0x044u; break;
+                case 0x7: osd_corr = 0x00Cu; break;
+                case 0x8:
+                    if ((w[1] + w[4]) <= (w[2] + w[5]) && (w[1] + w[4]) < w[7] && (w[1] + w[4]) < w[8])
+                        osd_corr = 0x012u;
+                    else if ((w[2] + w[5]) < w[7] && (w[2] + w[5]) < w[8])
+                        osd_corr = 0x024u;
+                    else if (w[7] <= w[8])
+                        osd_corr = 0x080u;
+                    else
+                        osd_corr = 0x100u;
+                    break;
+                case 0x9: osd_corr = 0x010u; break;
+                case 0xA: osd_corr = 0x020u; break;
+                case 0xB: osd_corr = 0x021u; break;
+                case 0xC: osd_corr = 0x0C0u; break;
+                case 0xD: osd_corr = 0x088u; break;
+                case 0xE: osd_corr = 0x060u; break;
+                case 0xF: osd_corr = 0x028u; break;
             }
+            if (raw_synd == s_code && s_code != 0x1u && s_code != 0x2u && s_code != 0x4u && s_code != 0x8u) {
+                return raw_corr;
+            }
+            return osd_corr;
         }
         return raw_corr;
     }

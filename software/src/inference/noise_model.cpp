@@ -310,43 +310,82 @@ void NoiseModel::to_q7_8_llr(int16_t llr_q78[NM_N_QUBIT]) const {
     }
 }
 
-void NoiseModel::to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT], const double *r2d2_gains) const {
+void NoiseModel::to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT],
+                                            const double *qubit_gains,
+                                            double pair_weight_scale) const {
     for (int v = 0; v < NM_N_QUBIT; v++) {
         double p = effective_p(v);
         double llr = std::log((1.0 - p) / p);
-        if (r2d2_gains) llr *= r2d2_gains[v];
+        if (qubit_gains) {
+            llr *= qubit_gains[v];
+        }
         long scaled = std::lround(llr * 256.0);
-        scaled = std::clamp(scaled, 16L, 0x3FFF0L);
         llr_q78[v] = (int16_t)std::clamp(scaled, 16L, 0x3FFFL);
     }
 
-    if (!basis_z_) {
-        /* Causal Pair-Aware Logical-Triangle LLR Projection (Q04):
-         * In rotated d=3 X-stabilizer geometry, logical triangle {3, 4, 5} aliases
-         * single-qubit Z_3 (g_3 = 0x4) against correlated pair Z_4 Z_5 (g_{4,5} = 0x4).
-         * Compare the estimated pair probability theta_(9+3) = p_hat(Z_4 Z_5) and
-         * singleton hotspot theta_(4) = p_hat(Z_4) against theta_(3) = p_hat(Z_3). */
-        double p_q3   = theta_(3);
-        double p_q4   = theta_(4);
-        double p_zz45 = theta_(9 + 3);
-        double r2d2_boost = (r2d2_gains && r2d2_gains[4] < 0.90) ? (1.0 / std::max(0.55, r2d2_gains[4])) : 1.0;
-        double eff_zz45 = p_zz45 * r2d2_boost;
-        bool pair_dominant = (r2d2_gains != nullptr)
-            ? (eff_zz45 > p_q3 * 1.35 || (p_q4 > 0.028 && eff_zz45 > 0.020))
-            : (p_zz45 > 0.048 && p_q4 > 0.046);
-        if (pair_dominant) {
-            double p_pair = std::clamp(std::max(p_zz45, 0.85 * p_q4), 0.020, 0.35);
+    if (pair_weight_scale <= 0.0) {
+        return;
+    }
+
+    /* General 12-Pair Syndrome-Alias MAP Log-Odds Projection:
+     * Iterates over every non-zero syndrome signature g in 1..15 and identifies
+     * all nearest-neighbor pairs k in 0..11 whose syndrome signature g_{u,v} == g
+     * aliases with one or more single-qubit signatures g_w == g.
+     * Zero hardcoded qubit or pair indices; works identically across all 6 horizontal
+     * Z-error pairs and all 6 vertical X-error pairs. */
+    for (uint8_t g = 1u; g < NM_N_STATES; g++) {
+        int best_pair_k = -1;
+        double best_pair_score = -1.0;
+
+        for (int k = 0; k < NM_N_CROSSTALK; k++) {
+            uint8_t g_pair = event_signature(NM_N_QUBIT + k);
+            int u = NM_CROSSTALK_PAIRS[k].i;
+            int v = NM_CROSSTALK_PAIRS[k].j;
+            if (g_pair == g && event_signature(u) != event_signature(v)) {
+                double score = theta_(NM_N_QUBIT + k) + 0.5 * (theta_(u) + theta_(v));
+                if (score > best_pair_score) {
+                    best_pair_score = score;
+                    best_pair_k = k;
+                }
+            }
+        }
+        if (best_pair_k < 0) {
+            continue;
+        }
+
+        int aliased_singles[NM_N_QUBIT];
+        int n_aliased = 0;
+        for (int w = 0; w < NM_N_QUBIT; w++) {
+            if (event_signature(w) == g) {
+                aliased_singles[n_aliased++] = w;
+            }
+        }
+        if (n_aliased == 0) {
+            continue;
+        }
+
+        int u = NM_CROSSTALK_PAIRS[best_pair_k].i;
+        int v = NM_CROSSTALK_PAIRS[best_pair_k].j;
+        double p_pair       = theta_(NM_N_QUBIT + best_pair_k);
+        double p_end_max    = std::max(theta_(u), theta_(v));
+        double p_base_prior = prior_theta_(aliased_singles[0]);
+
+        /* Bayesian syndrome-alias dominance condition modulated by pair_weight_scale */
+        double pair_evidence = pair_weight_scale * (p_pair + 0.5 * std::max(0.0, p_end_max - p_base_prior));
+        if (pair_evidence > p_base_prior + 0.008) {
+            double p_eff_pair = std::clamp(std::max(p_pair, 0.65 * p_end_max), 0.015, 0.38);
+            double scale_inv  = 1.0 / std::clamp(pair_weight_scale, 0.5, 2.0);
             int16_t pair_half_q78 = (int16_t)std::clamp(
-                (int)std::lround(0.42 * std::log((1.0 - p_pair) / p_pair) * 256.0),
-                16, 0x01C0);
-            llr_q78[4] = std::min(llr_q78[4], pair_half_q78);
-            llr_q78[5] = std::min(llr_q78[5], pair_half_q78);
-            llr_q78[3] = std::max<int16_t>(llr_q78[3], (int16_t)(llr_q78[4] + llr_q78[5] + 0x0040));
-            llr_q78[6] = std::max<int16_t>(llr_q78[6], (int16_t)(llr_q78[3] + 0x0020));
-        } else {
-            llr_q78[3] = std::min<int16_t>(llr_q78[3], (int16_t)(llr_q78[4] + llr_q78[5] - 0x0040));
-            llr_q78[6] = std::max<int16_t>(llr_q78[6], (int16_t)(llr_q78[3] + 0x0010));
-            llr_q78[2] = std::max<int16_t>(llr_q78[2], (int16_t)(llr_q78[5] + 0x0010));
+                (long)std::lround(0.45 * scale_inv * std::log((1.0 - p_eff_pair) / p_eff_pair) * 256.0),
+                16L, 0x0200L);
+            llr_q78[u] = std::min(llr_q78[u], pair_half_q78);
+            llr_q78[v] = std::min(llr_q78[v], pair_half_q78);
+
+            int16_t pair_sum = (int16_t)(llr_q78[u] + llr_q78[v]);
+            for (int idx = 0; idx < n_aliased; idx++) {
+                int w = aliased_singles[idx];
+                llr_q78[w] = std::max<int16_t>(llr_q78[w], (int16_t)(pair_sum + 0x0020));
+            }
         }
     }
 }

@@ -2,6 +2,8 @@ name: RTL Verilator Regression
 on:
   push:
     branches: [ main, AVID_EPJ_Patches ]
+  pull_request:
+    branches: [ main, AVID_EPJ_Patches ]
 jobs:
   rtl-regression:
     runs-on: ubuntu-24.04

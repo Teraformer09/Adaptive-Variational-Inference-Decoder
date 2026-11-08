@@ -8,10 +8,10 @@
 //   - Pure 9-Marginal-LLR BP (cfg_osd_mode == 2'd0) and Inline OSD-0 (cfg_osd_mode == 2'd1):
 //     L(K) = 1 (ST_INIT) + K * (1 ST_V2C + 3 ST_WAIT_C2V + 1 ST_BELIEF_UPD) + 1 (ST_HARD_DECIDE)
 //          = 2 + 5*K cycles (17 cycles = 68.0 ns @ 250 MHz for K = 3).
-//   - Post-BP OSD-0 Fallback Outside 17-Cycle Path (cfg_osd_mode == 2'd2):
-//     Executes 2 + 5*K cycles when pure BP satisfies syndrome without pair ambiguity,
-//     or adds 2 explicit post-BP fallback cycles (ST_OSD_STEP1 -> ST_OSD_STEP2 = 4 + 5*K = 19 cycles @ K=3)
-//     when OSD-0 fallback is invoked.
+//   - Post-BP OSD-0 Stage Outside 17-Cycle Path (cfg_osd_mode == 2'd2):
+//     Adds 2 explicit post-BP stages (ST_OSD_STEP1 -> ST_OSD_STEP2 = 4 + 5*K = 19 cycles @ K=3).
+//   - Post-BP OSD-0 weights w_c[v] combine channel_llr[v] and post-BP soft belief[v]
+//     across all 12 nearest-neighbor pairs in both X-check and Z-check bases.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -122,18 +122,20 @@ module bp_engine #(
     endgenerate
 
     // =========================================================================
-    // Pure 9-Marginal-LLR Hard Decision vs. Pair-Aware OSD-0 Syndrome Resolver
+    // Pure 9-Marginal-LLR Hard Decision vs. Post-BP Soft-Belief OSD-0 Resolver
     // =========================================================================
     logic [N_DATA-1:0]  raw_corr_c;
     logic [N_CHECK-1:0] raw_synd_c;
     logic [N_DATA-1:0]  osd_corr_c;
     logic               needs_osd_c;
-    logic signed [17:0] w_c [N_DATA];
+    logic signed [17:0] post_w_c [N_DATA];
+    logic signed [17:0] w_c      [N_DATA];
 
     always_comb begin
         for (int v = 0; v < N_DATA; v++) begin
             raw_corr_c[v] = belief[v][DATA_WIDTH-1];
-            w_c[v]        = (channel_llr[v] > 0) ? 18'(channel_llr[v]) : 18'd1;
+            post_w_c[v]   = 18'(channel_llr[v]) + (18'(belief[v]) >>> 3);
+            w_c[v]        = (post_w_c[v] > 18'sd0) ? post_w_c[v] : 18'sd1;
         end
 
         if (!BASIS_Z) begin
@@ -142,18 +144,38 @@ module bp_engine #(
             raw_synd_c[2] = raw_corr_c[3] ^ raw_corr_c[4] ^ raw_corr_c[6] ^ raw_corr_c[7];
             raw_synd_c[3] = raw_corr_c[7] ^ raw_corr_c[8];
 
+            // Symmetric OSD-0 candidate selection across all 6 horizontal pairs:
+            // (0,1)->0x2, (1,2)->0x1, (3,4)->0x2, (4,5)->0x4, (6,7)->0x8, (7,8)->0x4
             case (syndrome_lat)
                 4'h0: osd_corr_c = 9'h000;
-                4'h1: osd_corr_c = (w_c[0] <= (w_c[1] + w_c[2])) ? 9'h001 : 9'h006;
-                4'h2: osd_corr_c = ((w_c[3] + w_c[4]) < w_c[5] && (w_c[3] + w_c[4]) < w_c[2]) ? 9'h018 :
-                                   ((w_c[2] < w_c[5]) ? 9'h004 : 9'h020);
+                4'h1: osd_corr_c = ((w_c[1] + w_c[2]) < w_c[0]) ? 9'h006 : 9'h001;
+                4'h2: begin
+                    if ((w_c[0] + w_c[1]) <= (w_c[3] + w_c[4]) &&
+                        (w_c[0] + w_c[1]) < w_c[2] && (w_c[0] + w_c[1]) < w_c[5])
+                        osd_corr_c = 9'h003;
+                    else if ((w_c[3] + w_c[4]) < w_c[2] && (w_c[3] + w_c[4]) < w_c[5])
+                        osd_corr_c = 9'h018;
+                    else if (w_c[2] <= w_c[5])
+                        osd_corr_c = 9'h004;
+                    else
+                        osd_corr_c = 9'h020;
+                end
                 4'h3: osd_corr_c = (w_c[1] <= (w_c[0] + w_c[5])) ? 9'h002 : 9'h021;
-                4'h4: osd_corr_c = ((w_c[4] + w_c[5]) < w_c[3] && (w_c[4] + w_c[5]) < w_c[6]) ? 9'h030 :
-                                   ((w_c[6] < w_c[3]) ? 9'h040 : 9'h008);
+                4'h4: begin
+                    if ((w_c[4] + w_c[5]) <= (w_c[7] + w_c[8]) &&
+                        (w_c[4] + w_c[5]) < w_c[3] && (w_c[4] + w_c[5]) < w_c[6])
+                        osd_corr_c = 9'h030;
+                    else if ((w_c[7] + w_c[8]) < w_c[3] && (w_c[7] + w_c[8]) < w_c[6])
+                        osd_corr_c = 9'h180;
+                    else if (w_c[6] < w_c[3])
+                        osd_corr_c = 9'h040;
+                    else
+                        osd_corr_c = 9'h008;
+                end
                 4'h5: osd_corr_c = ((w_c[1] + w_c[4]) < (w_c[0] + w_c[3])) ? 9'h012 : 9'h009;
                 4'h6: osd_corr_c = (w_c[4] <= (w_c[3] + w_c[5])) ? 9'h010 : 9'h028;
                 4'h7: osd_corr_c = ((w_c[0] + w_c[4]) <= (w_c[1] + w_c[3])) ? 9'h011 : 9'h00A;
-                4'h8: osd_corr_c = (w_c[8] <= (w_c[6] + w_c[7])) ? 9'h100 : 9'h0C0;
+                4'h8: osd_corr_c = ((w_c[6] + w_c[7]) < w_c[8]) ? 9'h0C0 : 9'h100;
                 4'h9: osd_corr_c = 9'h101;
                 4'hA: osd_corr_c = ((w_c[4] + w_c[7]) < (w_c[5] + w_c[8])) ? 9'h090 : 9'h120;
                 4'hB: osd_corr_c = 9'h102;
@@ -165,8 +187,10 @@ module bp_engine #(
             endcase
 
             if (raw_synd_c == syndrome_lat &&
+                syndrome_lat != 4'h1 &&
+                syndrome_lat != 4'h2 &&
                 syndrome_lat != 4'h4 &&
-                syndrome_lat != 4'h2) begin
+                syndrome_lat != 4'h8) begin
                 osd_corr_c  = raw_corr_c;
                 needs_osd_c = 1'b0;
             end else begin
@@ -177,30 +201,58 @@ module bp_engine #(
             raw_synd_c[1] = raw_corr_c[2] ^ raw_corr_c[5];
             raw_synd_c[2] = raw_corr_c[3] ^ raw_corr_c[6];
             raw_synd_c[3] = raw_corr_c[4] ^ raw_corr_c[5] ^ raw_corr_c[7] ^ raw_corr_c[8];
-            if (raw_synd_c == syndrome_lat) begin
+
+            // Symmetric OSD-0 candidate selection across all 6 vertical pairs:
+            // (0,3)->0x4, (3,6)->0x1, (1,4)->0x8, (4,7)->0x1, (2,5)->0x8, (5,8)->0x2
+            case (syndrome_lat)
+                4'h0: osd_corr_c = 9'h000;
+                4'h1: begin
+                    if ((w_c[3] + w_c[6]) <= (w_c[4] + w_c[7]) &&
+                        (w_c[3] + w_c[6]) < w_c[0] && (w_c[3] + w_c[6]) < w_c[1])
+                        osd_corr_c = 9'h048;
+                    else if ((w_c[4] + w_c[7]) < w_c[0] && (w_c[4] + w_c[7]) < w_c[1])
+                        osd_corr_c = 9'h090;
+                    else if (w_c[0] <= w_c[1])
+                        osd_corr_c = 9'h001;
+                    else
+                        osd_corr_c = 9'h002;
+                end
+                4'h2: osd_corr_c = ((w_c[5] + w_c[8]) < w_c[2]) ? 9'h120 : 9'h004;
+                4'h3: osd_corr_c = 9'h005;
+                4'h4: osd_corr_c = ((w_c[0] + w_c[3]) < w_c[6]) ? 9'h009 : 9'h040;
+                4'h5: osd_corr_c = 9'h008;
+                4'h6: osd_corr_c = 9'h044;
+                4'h7: osd_corr_c = 9'h00C;
+                4'h8: begin
+                    if ((w_c[1] + w_c[4]) <= (w_c[2] + w_c[5]) &&
+                        (w_c[1] + w_c[4]) < w_c[7] && (w_c[1] + w_c[4]) < w_c[8])
+                        osd_corr_c = 9'h012;
+                    else if ((w_c[2] + w_c[5]) < w_c[7] && (w_c[2] + w_c[5]) < w_c[8])
+                        osd_corr_c = 9'h024;
+                    else if (w_c[7] <= w_c[8])
+                        osd_corr_c = 9'h080;
+                    else
+                        osd_corr_c = 9'h100;
+                end
+                4'h9: osd_corr_c = 9'h010;
+                4'hA: osd_corr_c = 9'h020;
+                4'hB: osd_corr_c = 9'h021;
+                4'hC: osd_corr_c = 9'h0C0;
+                4'hD: osd_corr_c = 9'h088;
+                4'hE: osd_corr_c = 9'h060;
+                4'hF: osd_corr_c = 9'h028;
+                default: osd_corr_c = 9'h000;
+            endcase
+
+            if (raw_synd_c == syndrome_lat &&
+                syndrome_lat != 4'h1 &&
+                syndrome_lat != 4'h2 &&
+                syndrome_lat != 4'h4 &&
+                syndrome_lat != 4'h8) begin
                 osd_corr_c  = raw_corr_c;
                 needs_osd_c = 1'b0;
             end else begin
-                needs_osd_c = 1'b1;
-                case (syndrome_lat)
-                    4'h0: osd_corr_c = 9'h000;
-                    4'h1: osd_corr_c = (w_c[0] <= w_c[1]) ? 9'h001 : 9'h002;
-                    4'h2: osd_corr_c = 9'h004;
-                    4'h3: osd_corr_c = 9'h005;
-                    4'h4: osd_corr_c = 9'h040;
-                    4'h5: osd_corr_c = 9'h008;
-                    4'h6: osd_corr_c = 9'h044;
-                    4'h7: osd_corr_c = 9'h00C;
-                    4'h8: osd_corr_c = (w_c[7] <= w_c[8]) ? 9'h080 : 9'h100;
-                    4'h9: osd_corr_c = 9'h010;
-                    4'hA: osd_corr_c = 9'h020;
-                    4'hB: osd_corr_c = 9'h021;
-                    4'hC: osd_corr_c = 9'h0C0;
-                    4'hD: osd_corr_c = 9'h088;
-                    4'hE: osd_corr_c = 9'h060;
-                    4'hF: osd_corr_c = 9'h028;
-                    default: osd_corr_c = 9'h000;
-                endcase
+                needs_osd_c = (osd_corr_c != raw_corr_c);
             end
         end
     end

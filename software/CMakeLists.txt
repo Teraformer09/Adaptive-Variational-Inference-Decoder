@@ -23,6 +23,8 @@ set(AVID_CORE_SOURCES
     src/control/stage_profiler.cpp
     src/control/fallback_fsm.cpp
     src/custom_engine/cycle_accurate_bp_engine.cpp
+    ${CMAKE_SOURCE_DIR}/../deployment/cpp/model_loader.cpp
+    ${CMAKE_SOURCE_DIR}/../deployment/cpp/r2d2_runtime.cpp
 )
 
 add_executable(avid_daemon
@@ -36,14 +38,14 @@ add_executable(test_baseline_suite
 )
 
 if(Eigen3_FOUND)
-    target_include_directories(avid_daemon PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(avid_daemon PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/..)
     target_link_libraries(avid_daemon PRIVATE Eigen3::Eigen)
-    target_include_directories(test_baseline_suite PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(test_baseline_suite PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/..)
     target_link_libraries(test_baseline_suite PRIVATE Eigen3::Eigen)
 else()
     message(STATUS "System Eigen3 not found — using built-in zero-allocation Eigen/Dense header")
-    target_include_directories(avid_daemon PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include)
-    target_include_directories(test_baseline_suite PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include)
+    target_include_directories(avid_daemon PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/..)
+    target_include_directories(test_baseline_suite PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/..)
 endif()
 
 target_compile_options(avid_daemon PRIVATE -O3 -Wall)

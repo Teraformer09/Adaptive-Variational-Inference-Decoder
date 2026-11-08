@@ -100,23 +100,40 @@ def run_daemon_bridge_pair(
 
 def run_step_1_baselines(daemon_bin: Path, bridge_bin: Path) -> dict:
     base_dir = V1_SCI_DIR / "baselines"
-    scenarios = ["stationary_noise", "slowly_drifting_noise", "correlated_noise", "burst_disturbance", "short_burst_60us_vs_10ms"]
+    scenarios = [
+        "stationary_noise",
+        "slowly_drifting_noise",
+        "correlated_noise",
+        "burst_disturbance",
+        "short_burst_60us_vs_10ms",
+        "heldout_multi_pair_12_67",
+        "heldout_spatial_3qubit_streak",
+        "heldout_phenomenological_readout",
+    ]
     rows = []
     md_rows = []
     for scen in scenarios:
         m_static = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "static", 1)
+        m_tuned = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "tuned_static", 1)
         m_marg = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "marginal_lbfgs", 1)
+        m_pid = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "b2_pid", 1)
+        m_cov = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "b3_covariance", 1)
         m_proj = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "joint_dp_proj", 1)
         m_avid = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "avid_r2d2", 1)
+        m_orac = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "b4_oracle", 1)
 
         row = {
             "scenario": scen,
             "rounds": 1536,
             "seed": 2026,
             "B0_Static_BP_LER": m_static["logical_error_rate"],
+            "Tuned_Static_BP_LER": m_tuned["logical_error_rate"],
             "B1_Marginal_LBFGS_LER": m_marg["logical_error_rate"],
+            "B2_PID_Threshold_LER": m_pid["logical_error_rate"],
+            "B3_Covariance_Tracker_LER": m_cov["logical_error_rate"],
             "B3_JointDP_Memoryless_PairProj_LER": m_proj["logical_error_rate"],
             "B4_Full_AVID_LSTM64_R2D2_WB_LER": m_avid["logical_error_rate"],
+            "B5_Oracle_TrueTheta_LER": m_orac["logical_error_rate"],
             "AVID_vs_B0_Reduction_Pct": m_avid["ler_reduction_vs_static_pct"],
             "AVID_Burst_Window_Reduction_Pct": m_avid["burst_window_ler_reduction_pct"],
             "AVID_CI95_Low": m_avid["logical_error_rate_ci95_low"],
@@ -124,9 +141,9 @@ def run_step_1_baselines(daemon_bin: Path, bridge_bin: Path) -> dict:
         }
         rows.append(row)
         md_rows.append(
-            f"| `{scen}` | `{row['B0_Static_BP_LER']:.5f}` | `{row['B1_Marginal_LBFGS_LER']:.5f}` | "
-            f"`{row['B3_JointDP_Memoryless_PairProj_LER']:.5f}` | **`{row['B4_Full_AVID_LSTM64_R2D2_WB_LER']:.5f}`** | "
-            f"**`-{row['AVID_vs_B0_Reduction_Pct']:.2f}%`** | **`-{row['AVID_Burst_Window_Reduction_Pct']:.2f}%`** |"
+            f"| `{scen}` | `{row['B0_Static_BP_LER']:.5f}` | `{row['Tuned_Static_BP_LER']:.5f}` | `{row['B1_Marginal_LBFGS_LER']:.5f}` | "
+            f"`{row['B2_PID_Threshold_LER']:.5f}` | `{row['B3_JointDP_Memoryless_PairProj_LER']:.5f}` | **`{row['B4_Full_AVID_LSTM64_R2D2_WB_LER']:.5f}`** | "
+            f"`{row['B5_Oracle_TrueTheta_LER']:.5f}` | **`-{row['AVID_vs_B0_Reduction_Pct']:.2f}%`** |"
         )
 
     with (base_dir / "v1_shared_stream_baselines.csv").open("w", newline="", encoding="utf-8") as f:
@@ -137,9 +154,9 @@ def run_step_1_baselines(daemon_bin: Path, bridge_bin: Path) -> dict:
     out = {"experiment": "V1_Shared_Stream_Fair_Baselines", "seed": 2026, "rounds_per_scenario": 1536, "results": rows}
     (base_dir / "v1_shared_stream_baselines.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     (base_dir / "README.md").write_text(
-        "# V1 Fair Shared-Stream Baseline Comparison (`B0`, `B1`, `Memoryless Joint-DP`, `Full AVID R2D2-WB`)\n\n"
-        "| Scenario (`1,536` Rounds, `seed=2026`) | `B0` Static BP LER | `B1` 4-Marginal L-BFGS LER | `Joint-DP` Memoryless Pair-Proj LER | **Full AVID V1 (`LSTM-64 R2D2-WB`) LER** | Whole-Run Reduction | Burst-Window Reduction |\n"
-        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: |\n"
+        "# V1 Fair Shared-Stream Baseline Comparison (`B0`, `Tuned Static`, `B1`, `B2 PID`, `Joint-DP`, `Full AVID R2D2-WB`, `B4 Oracle`)\n\n"
+        "| Scenario (`1,536` Rounds, `seed=2026`) | `B0` Static | `Tuned Static` | `B1` Marginal | `B2` PID | `Joint-DP` Pair-Proj | **Full AVID V1 (`R2D2`)** | `B4` Oracle | Whole-Run Reduction |\n"
+        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n"
         + "\n".join(md_rows)
         + "\n\n## Artifacts\n"
         "- [`v1_shared_stream_baselines.json`](v1_shared_stream_baselines.json)\n"

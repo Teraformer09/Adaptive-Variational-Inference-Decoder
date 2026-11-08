@@ -32,6 +32,7 @@ from simulation.reference.baselines import (
     B3CovarianceTrackerController,
     B4OracleBPController,
 )
+from training.export.export_checkpoint import load_r2d2_checkpoint_bin
 
 OUT_DIR = Path(__file__).resolve().parent
 
@@ -68,14 +69,31 @@ def build_five_regimes(default_theta: np.ndarray) -> Dict[str, np.ndarray]:
     return regimes
 
 
-def load_pretrained_r2d2_theta(regime_name: str, fallback_theta: np.ndarray) -> np.ndarray:
-    bench_json = REPO_ROOT / "checkpoints" / "baseline_vs_avid_benchmark.json"
-    if bench_json.exists():
-        data = json.loads(bench_json.read_text(encoding="utf-8"))
-        reg = data.get("regimes", {}).get(regime_name, {})
-        if "estimated_theta_r2d2" in reg:
-            return np.asarray(reg["estimated_theta_r2d2"], dtype=np.float64)
-    return fallback_theta
+def apply_trained_r2d2_policy(
+    r2d2_net,
+    model_x,
+    hist_16: np.ndarray,
+    theta_est: np.ndarray,
+) -> tuple[np.ndarray, int]:
+    """Run trained R2D2 controller on causal features and return (q78_weights, K)."""
+    total_counts = max(1.0, float(np.sum(hist_16)))
+    probs = hist_16 / total_counts
+    mean_p = float(np.mean(theta_est[:9]))
+    max_p = float(np.max(theta_est[:9]))
+    mean_alpha = float(np.mean(theta_est[9:21]))
+    max_alpha = float(np.max(theta_est[9:21]))
+    syn_density = float(1.0 - probs[0])
+    adj_rate = float(sum(probs[s] for s in range(1, 16) if bin(s).count("1") >= 2))
+    feat = np.array(
+        [mean_p, max_p, mean_alpha, max_alpha, syn_density, adj_rate, 0.008, 0.10],
+        dtype=np.float64,
+    )
+    h, c = r2d2_net.zero_state()
+    step_out = r2d2_net.step(feat, h, c)
+    gains = 1.0 + step_out["qubit_gains"]
+    _, q78_base = model_x.compute_q7_8_llrs(theta_est, pair_aware_projection=True)
+    q78_mod = np.clip(np.round(q78_base.astype(np.float64) * gains), 64, 32767).astype(np.int16)
+    return q78_mod, int(step_out["bp_iterations"])
 
 
 _LUT_CACHE: Dict[tuple, np.ndarray] = {}
@@ -116,11 +134,11 @@ def run_bm1(n_seeds: int = 15, cal_rounds: int = 10000, eval_rounds: int = 10000
     b3 = B3CovarianceTrackerController()
     b4 = B4OracleBPController()
 
+    r2d2_net, _ = load_r2d2_checkpoint_bin(REPO_ROOT / "checkpoints" / "r2d2_v1_trained.bin")
     csv_rows: List[Dict[str, object]] = []
     per_regime_stats: Dict[str, object] = {}
 
     for r_name, true_theta in regimes.items():
-        r2d2_pretrained_theta = load_pretrained_r2d2_theta(r_name, true_theta)
         seed_records: Dict[str, List[float]] = {
             "B0_Static_BP_full": [],
             "B1_Marginal_LBFGS_full": [],
@@ -174,18 +192,14 @@ def run_bm1(n_seeds: int = 15, cal_rounds: int = 10000, eval_rounds: int = 10000
 
             hist_16 = np.bincount(cal_masks, minlength=16).astype(np.float64)
 
-            if s_idx == 0:
-                fit_avid = model_x.fit_lbfgs(hist_16, prior_lambda=0.04, max_iter=30)
-                warm_theta = np.asarray(fit_avid["theta"], dtype=np.float64)
-                w_avid_cached = fit_avid["llr_q7_8"]
-                w_b1_cached = b1.update_from_histogram(hist_16)
-            w_avid = w_avid_cached
-
-            theta_hybrid = 0.45 * warm_theta + 0.55 * r2d2_pretrained_theta
-            _, w_r2d2 = model_x.compute_q7_8_llrs(theta_hybrid, pair_aware_projection=True)
+            # Fit every seed independently on its own empirical syndrome histogram (Fixes N2)
+            fit_avid = model_x.fit_lbfgs(hist_16, prior_lambda=0.04, max_iter=25)
+            warm_theta = np.asarray(fit_avid["theta"], dtype=np.float64)
+            w_avid = fit_avid["llr_q7_8"]
+            w_r2d2, k_r2d2 = apply_trained_r2d2_policy(r2d2_net, model_x, hist_16, warm_theta)
 
             w_b0 = b0.update_from_histogram(hist_16)
-            w_b1 = w_b1_cached
+            w_b1 = b1.update_from_histogram(hist_16)
             w_b2 = b2.update_from_histogram(hist_16)
             w_b3 = b3.update_from_histogram(hist_16)
             w_b4 = b4.weights_from_true_theta(true_theta)
@@ -195,12 +209,12 @@ def run_bm1(n_seeds: int = 15, cal_rounds: int = 10000, eval_rounds: int = 10000
             ler_b2_full = decode_ler_exact_lut(bp, eval_masks_full, eval_errs_full, w_b2)
             ler_b3_full = decode_ler_exact_lut(bp, eval_masks_full, eval_errs_full, w_b3)
             ler_avid_full = decode_ler_exact_lut(bp, eval_masks_full, eval_errs_full, w_avid)
-            ler_r2d2_full = decode_ler_exact_lut(bp, eval_masks_full, eval_errs_full, w_r2d2)
+            ler_r2d2_full = decode_ler_exact_lut(bp, eval_masks_full, eval_errs_full, w_r2d2, K=k_r2d2)
             ler_b4_full = decode_ler_exact_lut(bp, eval_masks_full, eval_errs_full, w_b4)
 
             ler_b0_peak = decode_ler_exact_lut(bp, eval_masks_peak, eval_errs_peak, w_b0)
             ler_avid_peak = decode_ler_exact_lut(bp, eval_masks_peak, eval_errs_peak, w_avid)
-            ler_r2d2_peak = decode_ler_exact_lut(bp, eval_masks_peak, eval_errs_peak, w_r2d2)
+            ler_r2d2_peak = decode_ler_exact_lut(bp, eval_masks_peak, eval_errs_peak, w_r2d2, K=k_r2d2)
             ler_b4_peak = decode_ler_exact_lut(bp, eval_masks_peak, eval_errs_peak, w_b4)
 
             seed_records["B0_Static_BP_full"].append(ler_b0_full)

@@ -1,12 +1,15 @@
-# V1 Fair Shared-Stream Baseline Comparison (`B0`, `B1`, `Memoryless Joint-DP`, `Full AVID R2D2-WB`)
+# V1 Fair Shared-Stream Baseline Comparison (`B0`, `Tuned Static`, `B1`, `B2 PID`, `Joint-DP`, `Full AVID R2D2-WB`, `B4 Oracle`)
 
-| Scenario (`1,536` Rounds, `seed=2026`) | `B0` Static BP LER | `B1` 4-Marginal L-BFGS LER | `Joint-DP` Memoryless Pair-Proj LER | **Full AVID V1 (`LSTM-64 R2D2-WB`) LER** | Whole-Run Reduction | Burst-Window Reduction |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| `stationary_noise` | `0.00456` | `0.00456` | `0.00456` | **`0.00456`** | **`-0.00%`** | **`-0.00%`** |
-| `slowly_drifting_noise` | `0.05013` | `0.05013` | `0.03646` | **`0.02148`** | **`-57.14%`** | **`-70.91%`** |
-| `correlated_noise` | `0.06966` | `0.06966` | `0.04622` | **`0.02865`** | **`-58.88%`** | **`-58.88%`** |
-| `burst_disturbance` | `0.04102` | `0.04102` | `0.02669` | **`0.02018`** | **`-50.79%`** | **`-59.32%`** |
-| `short_burst_60us_vs_10ms` | `0.05859` | `0.05859` | `0.03190` | **`0.03190`** | **`-45.56%`** | **`-47.67%`** |
+| Scenario (`1,536` Rounds, `seed=2026`) | `B0` Static | `Tuned Static` | `B1` Marginal | `B2` PID | `Joint-DP` Pair-Proj | **Full AVID V1 (`R2D2`)** | `B4` Oracle | Whole-Run Reduction |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `stationary_noise` | `0.02995` | `0.02995` | `0.02995` | `0.02995` | `0.03190` | **`0.02995`** | `0.02995` | **`-0.00%`** |
+| `slowly_drifting_noise` | `0.06641` | `0.06641` | `0.06641` | `0.03971` | `0.03971` | **`0.03971`** | `0.04102` | **`-40.20%`** |
+| `correlated_noise` | `0.09570` | `0.09570` | `0.09570` | `0.05273` | `0.05273` | **`0.05273`** | `0.05273` | **`-44.90%`** |
+| `burst_disturbance` | `0.07096` | `0.07096` | `0.07096` | `0.04883` | `0.05078` | **`0.04883`** | `0.04297` | **`-31.19%`** |
+| `short_burst_60us_vs_10ms` | `0.08724` | `0.08724` | `0.08724` | `0.04557` | `0.06055` | **`0.05013`** | `0.04427` | **`-42.54%`** |
+| `heldout_multi_pair_12_67` | `0.16211` | `0.16211` | `0.16211` | `0.13997` | `0.13997` | **`0.13997`** | `0.13997` | **`-13.65%`** |
+| `heldout_spatial_3qubit_streak` | `0.12044` | `0.12044` | `0.12044` | `0.10677` | `0.10677` | **`0.10677`** | `0.10677` | **`-11.35%`** |
+| `heldout_phenomenological_readout` | `0.12435` | `0.12435` | `0.12435` | `0.09635` | `0.09701` | **`0.09701`** | `0.08984` | **`-21.99%`** |
 
 ## Artifacts
 - [`v1_shared_stream_baselines.json`](v1_shared_stream_baselines.json)

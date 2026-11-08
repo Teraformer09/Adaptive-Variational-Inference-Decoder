@@ -1,7 +1,7 @@
 {
   "suite_name": "AVID_V1_Integration_Evaluation_M1_to_M6",
   "canonical_run_id": "avid_v1_integration_20261106_172251_s2026",
-  "elapsed_sec": 0.021,
+  "elapsed_sec": 0.024,
   "milestones": {
     "M1_RTL_Correctness": {
       "milestone": "M1_RTL_Correctness",

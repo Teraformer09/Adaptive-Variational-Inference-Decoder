@@ -12,7 +12,7 @@
     "van den Berg et al. (IBM Quantum), Nature Physics 19, 1116-1121 (2023)",
     "Wagner et al., Quantum 6, 809 (2022)"
   ],
-  "elapsed_sec": 4.39,
+  "elapsed_sec": 4.434,
   "regimes": {
     "R3_zz_crosstalk_burst": [
       {
@@ -37,8 +37,8 @@
         "regime": "R3_zz_crosstalk_burst",
         "stage_id": "A2_Joint_DP_No_Pair_Projection",
         "description": "16-state Joint-DP L-BFGS + standard XOR marginalization",
-        "param_rmse": 0.00395,
-        "syndrome_dist_rmse": 0.00146,
+        "param_rmse": 0.00991,
+        "syndrome_dist_rmse": 0.00148,
         "syndrome_kl_divergence": 0.00017,
         "decoded_ler": 0.1934
       },
@@ -46,37 +46,37 @@
         "regime": "R3_zz_crosstalk_burst",
         "stage_id": "A3_AVID_Joint_DP_Pair_Aware",
         "description": "16-state Joint-DP L-BFGS + Pair-Aware Triangle LLR Projection",
-        "param_rmse": 0.00395,
-        "syndrome_dist_rmse": 0.00146,
+        "param_rmse": 0.00991,
+        "syndrome_dist_rmse": 0.00148,
         "syndrome_kl_divergence": 0.00017,
-        "decoded_ler": 0.1069
+        "decoded_ler": 0.1934
       },
       {
         "regime": "R3_zz_crosstalk_burst",
         "stage_id": "A4_R2D2_Unweighted_No_BurnIn",
         "description": "R2D2-Graph-RSSM without Weighted-Bellman / Burn-In",
-        "param_rmse": 0.00807,
-        "syndrome_dist_rmse": 0.0145,
-        "syndrome_kl_divergence": 0.00708,
-        "decoded_ler": 0.1069
+        "param_rmse": 0.01296,
+        "syndrome_dist_rmse": 0.01425,
+        "syndrome_kl_divergence": 0.00681,
+        "decoded_ler": 0.1934
       },
       {
         "regime": "R3_zz_crosstalk_burst",
         "stage_id": "A5_Weighted_Bellman_R2D2_No_LoRA",
         "description": "Weighted-Bellman R2D2 (T_burn=6 + L_WB-R2D2, no LoRA)",
-        "param_rmse": 0.00289,
-        "syndrome_dist_rmse": 0.00086,
-        "syndrome_kl_divergence": 0.00035,
-        "decoded_ler": 0.1069
+        "param_rmse": 0.00991,
+        "syndrome_dist_rmse": 0.00148,
+        "syndrome_kl_divergence": 0.00017,
+        "decoded_ler": 0.1934
       },
       {
         "regime": "R3_zz_crosstalk_burst",
         "stage_id": "A6_Full_WB_R2D2_plus_Rank4_LoRA",
         "description": "Full Weighted-Bellman R2D2 + Rank-4 LoRA + Pair-Aware LLR",
-        "param_rmse": 0.00247,
-        "syndrome_dist_rmse": 0.00176,
-        "syndrome_kl_divergence": 0.00059,
-        "decoded_ler": 0.1069
+        "param_rmse": 0.00991,
+        "syndrome_dist_rmse": 0.00148,
+        "syndrome_kl_divergence": 0.00017,
+        "decoded_ler": 0.1934
       },
       {
         "regime": "R3_zz_crosstalk_burst",
@@ -111,8 +111,8 @@
         "regime": "R5_combined_stress",
         "stage_id": "A2_Joint_DP_No_Pair_Projection",
         "description": "16-state Joint-DP L-BFGS + standard XOR marginalization",
-        "param_rmse": 0.01589,
-        "syndrome_dist_rmse": 0.00066,
+        "param_rmse": 0.01428,
+        "syndrome_dist_rmse": 0.00064,
         "syndrome_kl_divergence": 0.00017,
         "decoded_ler": 0.1023
       },
@@ -120,36 +120,36 @@
         "regime": "R5_combined_stress",
         "stage_id": "A3_AVID_Joint_DP_Pair_Aware",
         "description": "16-state Joint-DP L-BFGS + Pair-Aware Triangle LLR Projection",
-        "param_rmse": 0.01589,
-        "syndrome_dist_rmse": 0.00066,
+        "param_rmse": 0.01428,
+        "syndrome_dist_rmse": 0.00064,
         "syndrome_kl_divergence": 0.00017,
-        "decoded_ler": 0.1023
+        "decoded_ler": 0.0608
       },
       {
         "regime": "R5_combined_stress",
         "stage_id": "A4_R2D2_Unweighted_No_BurnIn",
         "description": "R2D2-Graph-RSSM without Weighted-Bellman / Burn-In",
-        "param_rmse": 0.01806,
-        "syndrome_dist_rmse": 0.01797,
-        "syndrome_kl_divergence": 0.01249,
+        "param_rmse": 0.01695,
+        "syndrome_dist_rmse": 0.01798,
+        "syndrome_kl_divergence": 0.0125,
         "decoded_ler": 0.1023
       },
       {
         "regime": "R5_combined_stress",
         "stage_id": "A5_Weighted_Bellman_R2D2_No_LoRA",
         "description": "Weighted-Bellman R2D2 (T_burn=6 + L_WB-R2D2, no LoRA)",
-        "param_rmse": 0.01042,
-        "syndrome_dist_rmse": 0.00032,
-        "syndrome_kl_divergence": 0.00023,
+        "param_rmse": 0.01428,
+        "syndrome_dist_rmse": 0.00064,
+        "syndrome_kl_divergence": 0.00017,
         "decoded_ler": 0.0608
       },
       {
         "regime": "R5_combined_stress",
         "stage_id": "A6_Full_WB_R2D2_plus_Rank4_LoRA",
         "description": "Full Weighted-Bellman R2D2 + Rank-4 LoRA + Pair-Aware LLR",
-        "param_rmse": 0.0075,
-        "syndrome_dist_rmse": 0.00048,
-        "syndrome_kl_divergence": 0.00031,
+        "param_rmse": 0.01428,
+        "syndrome_dist_rmse": 0.00064,
+        "syndrome_kl_divergence": 0.00017,
         "decoded_ler": 0.0608
       },
       {

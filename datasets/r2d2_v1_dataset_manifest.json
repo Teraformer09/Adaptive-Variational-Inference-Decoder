@@ -1,0 +1,27 @@
+{
+  "dataset_name": "AVID_V1_R2D2_Sequence_Replay_Dataset",
+  "num_replay_segments": 1200,
+  "sequence_length": 11,
+  "burn_in_steps": 4,
+  "unroll_steps": 4,
+  "n_step_td": 3,
+  "train_seed_range": [
+    1000,
+    1039
+  ],
+  "val_seed_range": [
+    1500,
+    1514
+  ],
+  "heldout_test_seed_range": [
+    2026,
+    2099
+  ],
+  "families": [
+    "stationary_independent",
+    "pair_correlated_crosstalk",
+    "smooth_sinusoidal_drift",
+    "abrupt_regime_switch",
+    "burst_intermittency_r2d2"
+  ]
+}

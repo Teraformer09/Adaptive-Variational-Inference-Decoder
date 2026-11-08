@@ -1,0 +1,62 @@
+{
+  "model_name": "AVID_R2D2_Dueling_LSTM_V1",
+  "version": "1.0.0",
+  "architecture": {
+    "input_dim": 8,
+    "hidden_dim": 64,
+    "num_actions": 6,
+    "num_qubits": 9,
+    "gain_clip": 0.30,
+    "value_rescaling_eps": 0.001
+  },
+  "feature_spec": [
+    {"index": 0, "name": "mean_p", "description": "Spatial mean of estimated per-qubit depolarization p_hat", "scale": 20.0, "offset": -0.35},
+    {"index": 1, "name": "max_p", "description": "Spatial maximum of estimated per-qubit depolarization p_hat", "scale": 15.0, "offset": -0.45},
+    {"index": 2, "name": "mean_alpha", "description": "Mean estimated neighbour pair correlation alpha_hat", "scale": 20.0, "offset": -0.30},
+    {"index": 3, "name": "max_alpha", "description": "Maximum estimated neighbour pair correlation alpha_hat", "scale": 15.0, "offset": -0.60},
+    {"index": 4, "name": "syndrome_density", "description": "Observed syndrome excitation density in current window", "scale": 4.0, "offset": -0.70},
+    {"index": 5, "name": "adjacent_pair_rate", "description": "Observed adjacent-check co-excitation rate", "scale": 6.0, "offset": -0.35},
+    {"index": 6, "name": "innovation_norm", "description": "Temporal innovation norm ||theta_t - theta_{t-1}||_2", "scale": 15.0, "offset": -0.25},
+    {"index": 7, "name": "burst_score", "description": "Fast detector CUSUM/EWMA normalized burst score", "scale": 1.0, "offset": -0.50}
+  ],
+  "action_space": [
+    {"action_id": 0, "name": "STATIC_PRIOR_K3", "pair_weight_scale": 0.0, "bp_iterations": 3, "recalibrate": false, "fallback": false},
+    {"action_id": 1, "name": "ADAPTIVE_PAIR_K5", "pair_weight_scale": 1.0, "bp_iterations": 5, "recalibrate": false, "fallback": false},
+    {"action_id": 2, "name": "AGGRESSIVE_PAIR_K7", "pair_weight_scale": 1.35, "bp_iterations": 7, "recalibrate": false, "fallback": false},
+    {"action_id": 3, "name": "DAMPED_PRIOR_K4", "pair_weight_scale": 0.85, "bp_iterations": 4, "recalibrate": false, "fallback": false},
+    {"action_id": 4, "name": "FAST_RECALIBRATE_K7", "pair_weight_scale": 1.15, "bp_iterations": 7, "recalibrate": true, "fallback": false},
+    {"action_id": 5, "name": "CONSERVATIVE_FALLBACK_K3", "pair_weight_scale": 0.0, "bp_iterations": 3, "recalibrate": false, "fallback": true}
+  ],
+  "training": {
+    "burn_in_steps": 4,
+    "unroll_steps": 4,
+    "n_step_td": 3,
+    "gamma": 0.96,
+    "priority_eta": 0.9,
+    "priority_alpha": 0.6,
+    "priority_beta_start": 0.4,
+    "priority_beta_end": 1.0,
+    "learning_rate": 0.0025,
+    "batch_size": 16,
+    "num_updates": 320,
+    "target_sync_interval": 25,
+    "grad_clip_norm": 5.0
+  },
+  "dataset_splits": {
+    "train_seeds": [1000, 1039],
+    "val_seeds": [1500, 1514],
+    "heldout_test_seeds": [2026, 2099],
+    "train_families": [
+      "stationary_independent",
+      "pair_correlated_crosstalk",
+      "smooth_sinusoidal_drift",
+      "abrupt_regime_switch",
+      "burst_intermittency_r2d2"
+    ],
+    "heldout_families": [
+      "heldout_multi_pair_12_67",
+      "heldout_spatial_3qubit_streak",
+      "heldout_phenomenological_readout"
+    ]
+  }
+}

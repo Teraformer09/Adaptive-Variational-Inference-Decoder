@@ -1,8 +1,8 @@
 // =============================================================================
 // Module  : axis_correction_tx
 // Project : AVID (Adaptive Variational Inference Decoder)
-// Identical to ZEPHYR/axis_correction_tx.sv.  See that module for full docs.
 // Streams packed X+Z correction word to DMA S2MM.  TLAST triggers ARM IRQ.
+// Supports zero-idle-cycle back-to-back streaming when m_axis_tready == 1.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -24,16 +24,22 @@ module axis_correction_tx #(
 );
     always_ff @(posedge aclk) begin
         if (!aresetn) begin
-            m_axis_tdata <= '0; m_axis_tvalid <= 1'b0;
-            m_axis_tlast <= 1'b0; busy <= 1'b0;
+            m_axis_tdata  <= '0;
+            m_axis_tvalid <= 1'b0;
+            m_axis_tlast  <= 1'b0;
+            busy          <= 1'b0;
         end else begin
-            if (corr_valid && !m_axis_tvalid) begin
+            if (corr_valid && (!m_axis_tvalid || m_axis_tready)) begin
                 m_axis_tdata <= '0;
                 m_axis_tdata[N_DATA_X-1:0] <= corr_x;
                 m_axis_tdata[N_DATA_X+N_DATA_Z-1:N_DATA_X] <= corr_z;
-                m_axis_tvalid <= 1'b1; m_axis_tlast <= 1'b1; busy <= 1'b1;
+                m_axis_tvalid <= 1'b1;
+                m_axis_tlast  <= 1'b1;
+                busy          <= 1'b1;
             end else if (m_axis_tvalid && m_axis_tready) begin
-                m_axis_tvalid <= 1'b0; m_axis_tlast <= 1'b0; busy <= 1'b0;
+                m_axis_tvalid <= 1'b0;
+                m_axis_tlast  <= 1'b0;
+                busy          <= 1'b0;
             end
         end
     end

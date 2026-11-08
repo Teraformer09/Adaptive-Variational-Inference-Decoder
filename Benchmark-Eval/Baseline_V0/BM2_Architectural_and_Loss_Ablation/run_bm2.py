@@ -29,6 +29,7 @@ from simulation.reference.baselines import (
     B1MarginalLBFGSController,
     B4OracleBPController,
 )
+from training.export.export_checkpoint import load_r2d2_checkpoint_bin
 
 OUT_DIR = Path(__file__).resolve().parent
 
@@ -123,18 +124,33 @@ def run_bm2(cal_rounds: int = 20000, eval_rounds: int = 10000) -> Dict[str, obje
         _, w_a2 = model.compute_q7_8_llrs(theta_dp, pair_aware_projection=False)
         _, w_a3 = model.compute_q7_8_llrs(theta_dp, pair_aware_projection=True)
 
-        r2d2_saved = np.asarray(
-            saved_bench.get("regimes", {}).get(r_name, {}).get("estimated_theta_r2d2", theta_dp),
+        # Load trained R2D2 policy checkpoint (Fixes N3)
+        r2d2_net, _ = load_r2d2_checkpoint_bin(REPO_ROOT / "checkpoints" / "r2d2_v1_trained.bin")
+        feat = np.array(
+            [
+                float(np.mean(theta_dp[:9])),
+                float(np.max(theta_dp[:9])),
+                float(np.mean(theta_dp[9:21])),
+                float(np.max(theta_dp[9:21])),
+                float(1.0 - emp_probs[0]),
+                float(sum(emp_probs[s] for s in range(1, 16) if bin(s).count("1") >= 2)),
+                0.008,
+                0.10,
+            ],
             dtype=np.float64,
         )
+        h0, c0 = r2d2_net.zero_state()
+        r2d2_out = r2d2_net.step(feat, h0, c0)
+        gains = 1.0 + r2d2_out["qubit_gains"]
+
         theta_a4 = 0.65 * theta_dp + 0.35 * model.default_theta
         _, w_a4 = model.compute_q7_8_llrs(theta_a4, pair_aware_projection=True)
 
-        theta_a5 = 0.35 * theta_dp + 0.65 * r2d2_saved
-        _, w_a5 = model.compute_q7_8_llrs(theta_a5, pair_aware_projection=True)
+        theta_a5 = theta_dp.copy()
+        w_a5 = np.clip(np.round(w_a3.astype(np.float64) * (1.0 + 0.5 * r2d2_out["qubit_gains"])), 64, 32767).astype(np.int16)
 
-        theta_a6 = r2d2_saved
-        _, w_a6 = model.compute_q7_8_llrs(theta_a6, pair_aware_projection=True)
+        theta_a6 = theta_dp.copy()
+        w_a6 = np.clip(np.round(w_a3.astype(np.float64) * gains), 64, 32767).astype(np.int16)
 
         theta_a7 = true_theta
         w_a7 = b4.weights_from_true_theta(true_theta)

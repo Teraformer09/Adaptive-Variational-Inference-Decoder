@@ -4,8 +4,8 @@
 // Target  : Xilinx Zynq-7020 (Dual ARM Cortex-A9 + Artix-7 PL @ 250 MHz)
 //
 // AXI4-Lite SLAVE + Double-Buffered Weight Registry (Shadow + Active Banks)
-// Includes Formal SystemVerilog Assertions (SVA) for CDC / Commit-Lock Safety
-// and Invalid Register Access Protection.
+// Supports independent AW-before-W, W-before-AW, and simultaneous AW+W
+// handshakes, BVALID/RVALID backpressure stall protection, and Formal SVA.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -64,10 +64,19 @@ module weight_map_reg #(
     logic [1:0]  cfg_osd_mode_r;
     logic [31:0] aw_addr_lat;
     logic        aw_valid_lat;
+    logic [31:0] w_data_lat;
+    logic [3:0]  w_strb_lat;
+    logic        w_valid_lat;
     logic [1:0]  bresp_r;
     logic [1:0]  rresp_r;
 
+    logic        aw_hs_c;
+    logic        w_hs_c;
+    logic        have_aw_c;
+    logic        have_w_c;
     logic [31:0] wr_addr_c;
+    logic [31:0] wr_data_c;
+    logic [3:0]  wr_strb_c;
     logic [15:0] wr_mask_c;
     logic        wr_fire_c;
     int          wr_idx_t;
@@ -78,15 +87,22 @@ module weight_map_reg #(
     assign active_x       = active_x_r;
     assign active_z       = active_z_r;
 
-    assign s_axil_awready = 1'b1;
-    assign s_axil_wready  = 1'b1;
+    assign s_axil_awready = !aw_valid_lat && (!s_axil_bvalid || s_axil_bready);
+    assign s_axil_wready  = !w_valid_lat  && (!s_axil_bvalid || s_axil_bready);
     assign s_axil_bresp   = bresp_r;
-    assign s_axil_arready = 1'b1;
+    assign s_axil_arready = (!s_axil_rvalid || s_axil_rready);
     assign s_axil_rresp   = rresp_r;
 
-    assign wr_fire_c = (s_axil_awvalid || aw_valid_lat) && s_axil_wvalid;
-    assign wr_addr_c = s_axil_awvalid ? s_axil_awaddr : aw_addr_lat;
-    assign wr_mask_c = { {8{s_axil_wstrb[1]}}, {8{s_axil_wstrb[0]}} };
+    assign aw_hs_c   = s_axil_awvalid && s_axil_awready;
+    assign w_hs_c    = s_axil_wvalid  && s_axil_wready;
+    assign have_aw_c = aw_hs_c || aw_valid_lat;
+    assign have_w_c  = w_hs_c  || w_valid_lat;
+    assign wr_fire_c = have_aw_c && have_w_c;
+
+    assign wr_addr_c = aw_valid_lat ? aw_addr_lat : s_axil_awaddr;
+    assign wr_data_c = w_valid_lat  ? w_data_lat  : s_axil_wdata;
+    assign wr_strb_c = w_valid_lat  ? w_strb_lat  : s_axil_wstrb;
+    assign wr_mask_c = { {8{wr_strb_c[1]}}, {8{wr_strb_c[0]}} };
 
     // =========================================================================
     // Unified Write & Atomic Swap State Machine (Single Driver for all regs)
@@ -99,8 +115,11 @@ module weight_map_reg #(
             bresp_r        <= 2'b00;
             aw_valid_lat   <= 1'b0;
             aw_addr_lat    <= 32'd0;
+            w_valid_lat    <= 1'b0;
+            w_data_lat     <= 32'd0;
+            w_strb_lat     <= 4'd0;
             cfg_max_iter_r <= 4'd3;
-            cfg_osd_mode_r <= 2'd1; // Default 1: inline 17-cyc OSD-0; 0: pure 9-LLR BP; 2: post-BP +2 cyc OSD
+            cfg_osd_mode_r <= 2'd1;
             for (int i = 0; i < N_DATA; i++) begin
                 active_x_r[i] <= LLR_DEFAULT;
                 active_z_r[i] <= LLR_DEFAULT;
@@ -118,53 +137,57 @@ module weight_map_reg #(
                 epoch_count  <= epoch_count + 32'd1;
             end
 
-            // 2. Latch split AXI-Lite write address if data not yet valid
-            if (s_axil_awvalid && !s_axil_wvalid) begin
+            // 2. Latch split AXI-Lite AW-before-W or W-before-AW beats
+            if (aw_hs_c && !have_w_c) begin
                 aw_addr_lat  <= s_axil_awaddr;
                 aw_valid_lat <= 1'b1;
             end
+            if (w_hs_c && !have_aw_c) begin
+                w_data_lat   <= s_axil_wdata;
+                w_strb_lat   <= s_axil_wstrb;
+                w_valid_lat  <= 1'b1;
+            end
 
-            // 3. Execute AXI-Lite write
+            // 3. Execute AXI-Lite write when both AW and W have been received
             if (wr_fire_c) begin
                 aw_valid_lat <= 1'b0;
+                w_valid_lat  <= 1'b0;
                 bresp_r      <= 2'b00;
 
                 if ((wr_addr_c & 32'h3) != 32'd0) begin
-                    // Unaligned write rejected with SLVERR
                     bresp_r <= 2'b10;
                 end else if (wr_addr_c < (N_DATA * 4)) begin
                     wr_idx_t = int'(wr_addr_c >> 2);
-                    shadow_x[wr_idx_t] <= DATA_WIDTH'((shadow_x[wr_idx_t] & ~wr_mask_c) | (s_axil_wdata[DATA_WIDTH-1:0] & wr_mask_c));
+                    shadow_x[wr_idx_t] <= DATA_WIDTH'((shadow_x[wr_idx_t] & ~wr_mask_c) | (wr_data_c[DATA_WIDTH-1:0] & wr_mask_c));
                 end else if (wr_addr_c >= 32'h24 && wr_addr_c < 32'h24 + (N_DATA * 4)) begin
                     wr_idx_t = int'((wr_addr_c - 32'h24) >> 2);
-                    shadow_z[wr_idx_t] <= DATA_WIDTH'((shadow_z[wr_idx_t] & ~wr_mask_c) | (s_axil_wdata[DATA_WIDTH-1:0] & wr_mask_c));
+                    shadow_z[wr_idx_t] <= DATA_WIDTH'((shadow_z[wr_idx_t] & ~wr_mask_c) | (wr_data_c[DATA_WIDTH-1:0] & wr_mask_c));
                 end else if (wr_addr_c == 32'h48) begin
-                    if (s_axil_wdata[0] && s_axil_wstrb[0])
+                    if (wr_data_c[0] && wr_strb_c[0])
                         swap_pending <= 1'b1;
                 end else if (wr_addr_c == 32'h54) begin
-                    if (s_axil_wstrb[0] && s_axil_wdata[3:0] >= 4'd1 && s_axil_wdata[3:0] <= 4'd7)
-                        cfg_max_iter_r <= s_axil_wdata[3:0];
+                    if (wr_strb_c[0] && wr_data_c[3:0] >= 4'd1 && wr_data_c[3:0] <= 4'd7)
+                        cfg_max_iter_r <= wr_data_c[3:0];
                     else
                         bresp_r <= 2'b10;
                 end else if (wr_addr_c == 32'h58) begin
-                    if (s_axil_wstrb[0] && s_axil_wdata[1:0] <= 2'd2)
-                        cfg_osd_mode_r <= s_axil_wdata[1:0];
+                    if (wr_strb_c[0] && wr_data_c[1:0] <= 2'd2 && wr_data_c <= 32'd2)
+                        cfg_osd_mode_r <= wr_data_c[1:0];
                     else
                         bresp_r <= 2'b10;
                 end else begin
-                    // Read-only or unmapped register write rejected with SLVERR
                     bresp_r <= 2'b10;
                 end
 
                 s_axil_bvalid <= 1'b1;
-            end else if (s_axil_bready) begin
+            end else if (s_axil_bvalid && s_axil_bready) begin
                 s_axil_bvalid <= 1'b0;
             end
         end
     end
 
     // =========================================================================
-    // AXI4-Lite Read Path
+    // AXI4-Lite Read Path (Gated by s_axil_arready)
     // =========================================================================
     always_ff @(posedge aclk) begin
         if (!aresetn) begin
@@ -172,7 +195,7 @@ module weight_map_reg #(
             s_axil_rdata  <= 32'd0;
             rresp_r       <= 2'b00;
         end else begin
-            if (s_axil_arvalid) begin
+            if (s_axil_arvalid && s_axil_arready) begin
                 s_axil_rvalid <= 1'b1;
                 rresp_r       <= 2'b00;
 
@@ -205,7 +228,7 @@ module weight_map_reg #(
                     s_axil_rdata <= 32'hDEADBEEF;
                     rresp_r      <= 2'b10;
                 end
-            end else if (s_axil_rready) begin
+            end else if (s_axil_rvalid && s_axil_rready) begin
                 s_axil_rvalid <= 1'b0;
             end
         end

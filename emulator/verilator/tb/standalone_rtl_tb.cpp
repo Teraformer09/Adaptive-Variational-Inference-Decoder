@@ -76,10 +76,13 @@ int main(int argc, char **argv) {
     CHECK_M1(rtl.axil_read(0x050u, &rdata, &cyc));
     CHECK_M1(rdata == 0u);
 
-    /* 2. Verify split AW/W channel handshake & byte-enable write */
+    /* 2. Verify split AW-before-W AND W-before-AW channel handshakes & byte-enable write */
     CHECK_M1(rtl.axil_write_split_aw_w(0x024u + 4u * 4u, 0xABCD0180u, 0x3u, 3u, &cyc));
     CHECK_M1(rtl.axil_read(0x024u + 4u * 4u, &rdata, &cyc));
     CHECK_M1((rdata & 0xFFFFu) == 0x0180u);
+    CHECK_M1(rtl.axil_write_split_w_aw(0x024u + 4u * 5u, 0x12340198u, 0x3u, 3u, &cyc));
+    CHECK_M1(rtl.axil_read(0x024u + 4u * 5u, &rdata, &cyc));
+    CHECK_M1((rdata & 0xFFFFu) == 0x0198u);
     CHECK_M1(rtl.axil_read(0x124u + 4u * 4u, &rdata, &cyc));
     CHECK_M1((rdata & 0xFFFFu) == 0x0232u); /* Active bank unchanged before COMMIT */
 

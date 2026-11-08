@@ -11,9 +11,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Python test dependencies
         run: pip install numpy scipy pyyaml pytest matplotlib
-      - name: Build and test C++ software & Python mathematical suites
+      - name: Build and test C++ software, RTL bridge & Python mathematical/verification suites
         run: |
           bash emulator/qemu/build.sh
+          bash emulator/verilator/build.sh
           ./software/build_native/test_baseline_suite
           pytest -q simulation/tests/ tests/
           bash scripts/clean_generated_files.sh

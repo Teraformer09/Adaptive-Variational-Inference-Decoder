@@ -10,7 +10,7 @@
     "Google Quantum AI and Collaborators (Willow Processor), Nature 638, 920-926 (2025)",
     "Roffe et al., Phys. Rev. Research 2, 043423 (2020)"
   ],
-  "elapsed_sec": 5.227,
+  "elapsed_sec": 5.205,
   "distance_scaling_d3_vs_d5": [
     {
       "physical_error_rate_p": 0.005,
@@ -70,35 +70,35 @@
   "noisy_readout_25_parameter_evaluation": [
     {
       "injected_p_meas": 0.0,
-      "estimated_mean_p_meas": 0.00114,
-      "estimated_hotspot_q4": 0.07979,
-      "estimated_zz_4_5": 0.05552,
-      "fit_nll": 1.12435,
-      "parameter_rmse_25": 0.01017
+      "estimated_mean_p_meas": 0.00202,
+      "estimated_hotspot_q4": 0.0798,
+      "estimated_zz_4_5": 0.03433,
+      "fit_nll": 1.12425,
+      "parameter_rmse_25": 0.0083
     },
     {
       "injected_p_meas": 0.003,
-      "estimated_mean_p_meas": 0.00123,
-      "estimated_hotspot_q4": 0.07955,
-      "estimated_zz_4_5": 0.06054,
-      "fit_nll": 1.14063,
-      "parameter_rmse_25": 0.01087
+      "estimated_mean_p_meas": 0.00223,
+      "estimated_hotspot_q4": 0.07956,
+      "estimated_zz_4_5": 0.03823,
+      "fit_nll": 1.14053,
+      "parameter_rmse_25": 0.0083
     },
     {
       "injected_p_meas": 0.008,
-      "estimated_mean_p_meas": 0.00244,
-      "estimated_hotspot_q4": 0.07819,
-      "estimated_zz_4_5": 0.06199,
-      "fit_nll": 1.22135,
-      "parameter_rmse_25": 0.01249
+      "estimated_mean_p_meas": 0.00327,
+      "estimated_hotspot_q4": 0.07813,
+      "estimated_zz_4_5": 0.03919,
+      "fit_nll": 1.22126,
+      "parameter_rmse_25": 0.00883
     },
     {
       "injected_p_meas": 0.015,
-      "estimated_mean_p_meas": 0.00379,
-      "estimated_hotspot_q4": 0.07998,
-      "estimated_zz_4_5": 0.06061,
-      "fit_nll": 1.26938,
-      "parameter_rmse_25": 0.01306
+      "estimated_mean_p_meas": 0.00426,
+      "estimated_hotspot_q4": 0.08002,
+      "estimated_zz_4_5": 0.03777,
+      "fit_nll": 1.26929,
+      "parameter_rmse_25": 0.00989
     }
   ]
 }

@@ -267,31 +267,23 @@ class CorrelatedNoiseModel:
 
     def build_context_informed_prior(self, empirical_counts: np.ndarray) -> np.ndarray:
         """
-        Construct a spatial-context-informed prior theta_prior from empirical check
-        co-activation rates so that degenerate gauge orbits (e.g. O_0x2 = {Z_2, Z_5, ZZ_0,1, ZZ_3,4}
-        and O_0x4 = {Z_3, Z_6, ZZ_4,5, ZZ_7,8}) attribute probability mass to correlated ZZ
-        pairs whenever multi-check pair signatures (0x5, 0xA) or adjacent bulk checks are active.
+        Construct a general syndrome-signature-informed prior theta_prior from empirical
+        syndrome probabilities symmetrically across all 12 correlated pairs (zero hardcoded
+        pair indices). For each pair edge e=(u, v) with non-zero syndrome signature g_e,
+        the prior attributes probability proportional to the empirical rate of g_e.
         """
         prior = self.default_theta.copy()
         total = max(1.0, float(np.sum(empirical_counts)))
         probs = np.asarray(empirical_counts, dtype=np.float64) / total
 
-        # Check marginal firing rates
-        q_c = np.zeros(self.n_checks, dtype=np.float64)
-        for s in range(self.n_states):
-            for c in range(self.n_checks):
-                if (s >> c) & 1:
-                    q_c[c] += probs[s]
-
-        # Multi-check syndrome signatures indicative of correlated crosstalk vs boundary drift
-        corr_indicator = float(probs[0x5] + probs[0xA] + probs[0x3] + probs[0xC])
-        bulk_ratio = float((q_c[1] + q_c[2]) / max(1e-6, q_c[0] + q_c[3] + q_c[1] + q_c[2]))
-
-        if bulk_ratio > 0.62 and corr_indicator < 0.08:
-            # Strong horizontal ZZ crosstalk signature on bulk checks c1, c2 without boundary c0, c3
-            prior[9 + 0] = max(prior[9 + 0], 0.45 * q_c[1])  # ZZ_(0,1)
-            prior[9 + 3] = max(prior[9 + 3], 0.55 * q_c[2])  # ZZ_(4,5)
-            prior[9 + 5] = max(prior[9 + 5], 0.45 * q_c[2])  # ZZ_(7,8)
+        for idx in range(len(self.code.zz_edges)):
+            param_idx = self.n_vars + idx
+            sig = int(self.signatures[param_idx])
+            if sig != 0 and sig < self.n_states:
+                obs_sig_prob = float(probs[sig])
+                # Symmetrically lift pair prior when its syndrome signature is elevated
+                if obs_sig_prob > 0.015:
+                    prior[param_idx] = max(prior[param_idx], 0.45 * obs_sig_prob)
 
         return np.clip(prior, 1e-5, 0.40)
 
