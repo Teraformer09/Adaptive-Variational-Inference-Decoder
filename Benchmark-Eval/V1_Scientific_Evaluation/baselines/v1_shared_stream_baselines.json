@@ -30,12 +30,12 @@
       "B2_PID_Threshold_LER": 0.03971,
       "B3_Covariance_Tracker_LER": 0.03971,
       "B3_JointDP_Memoryless_PairProj_LER": 0.03971,
-      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.03971,
+      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.04948,
       "B5_Oracle_TrueTheta_LER": 0.04102,
-      "AVID_vs_B0_Reduction_Pct": 40.2,
-      "AVID_Burst_Window_Reduction_Pct": 54.67,
-      "AVID_CI95_Low": 0.03104,
-      "AVID_CI95_High": 0.05068
+      "AVID_vs_B0_Reduction_Pct": 25.49,
+      "AVID_Burst_Window_Reduction_Pct": 34.67,
+      "AVID_CI95_Low": 0.03971,
+      "AVID_CI95_High": 0.06149
     },
     {
       "scenario": "correlated_noise",
@@ -115,12 +115,12 @@
       "B2_PID_Threshold_LER": 0.10677,
       "B3_Covariance_Tracker_LER": 0.10677,
       "B3_JointDP_Memoryless_PairProj_LER": 0.10677,
-      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.10677,
+      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.11003,
       "B5_Oracle_TrueTheta_LER": 0.10677,
-      "AVID_vs_B0_Reduction_Pct": 11.35,
-      "AVID_Burst_Window_Reduction_Pct": 11.35,
-      "AVID_CI95_Low": 0.0923,
-      "AVID_CI95_High": 0.12321
+      "AVID_vs_B0_Reduction_Pct": 8.65,
+      "AVID_Burst_Window_Reduction_Pct": 8.65,
+      "AVID_CI95_Low": 0.09534,
+      "AVID_CI95_High": 0.12666
     },
     {
       "scenario": "heldout_phenomenological_readout",
@@ -132,12 +132,12 @@
       "B2_PID_Threshold_LER": 0.09635,
       "B3_Covariance_Tracker_LER": 0.09701,
       "B3_JointDP_Memoryless_PairProj_LER": 0.09701,
-      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.09701,
+      "B4_Full_AVID_LSTM64_R2D2_WB_LER": 0.11003,
       "B5_Oracle_TrueTheta_LER": 0.08984,
-      "AVID_vs_B0_Reduction_Pct": 21.99,
-      "AVID_Burst_Window_Reduction_Pct": 21.99,
-      "AVID_CI95_Low": 0.08319,
-      "AVID_CI95_High": 0.11283
+      "AVID_vs_B0_Reduction_Pct": 11.52,
+      "AVID_Burst_Window_Reduction_Pct": 11.52,
+      "AVID_CI95_Low": 0.09534,
+      "AVID_CI95_High": 0.12666
     }
   ]
 }

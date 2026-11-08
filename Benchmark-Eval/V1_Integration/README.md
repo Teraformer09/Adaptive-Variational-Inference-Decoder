@@ -1,6 +1,6 @@
 # AVID V1 Dual-Emulator Integration Evaluation Suite (`M1–M6`)
 
-- **Canonical Run ID**: `avid_v1_integration_20261106_172251_s2026` (`Verilator 5.020` `verilator_c++_rtl` + `qemu-arm -cpu cortex-a9`)
+- **Canonical Run ID**: `avid_v1_integration_20261108_083417_s2026` (`Verilator 5.020` `verilator_c++_rtl` + `qemu-arm -cpu cortex-a9`)
 - **[`M1_RTL_Correctness/`](M1_RTL_Correctness/README.md)**: 96 syndrome $\times$ OSD-mode vectors (`0` mismatches), SVA assertions, `SLVERR` invalid-offset rejection.
 - **[`M2_Emulator_Validation/`](M2_Emulator_Validation/README.md)**: Zynq-7020 ARM Cortex-A9 primary target & ARM64 secondary target, 64-unit `int8` LSTM memory audit (`25.39 KB`).
 - **[`M3_Bridge_Validation/`](M3_Bridge_Validation/README.md)**: Lockstep transaction audit (`0` unexpected rejections across `16,560` scenario transactions).

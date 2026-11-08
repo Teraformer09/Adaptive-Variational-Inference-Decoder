@@ -12,7 +12,7 @@
     "Harper, Flammia, & Wallman, Nature Physics 16, 1184-1188 (2020)",
     "Wagner et al., Quantum 6, 809 (2022)"
   ],
-  "elapsed_sec": 1.673,
+  "elapsed_sec": 0.519,
   "window_scaling_table": [
     {
       "window_rounds_W": 64,
@@ -20,8 +20,8 @@
       "syndrome_dist_rmse": 0.017776,
       "theoretical_cramer_rao_inv_sqrt_W": 0.0225,
       "parameter_rmse": 0.01432,
-      "mean_lbfgs_fit_us": 26267.48,
-      "causal_commit_round_t_commit": 26337,
+      "mean_lbfgs_fit_us": 7210.41,
+      "causal_commit_round_t_commit": 7280,
       "instantaneous_nll_regret": 0.0
     },
     {
@@ -30,8 +30,8 @@
       "syndrome_dist_rmse": 0.018884,
       "theoretical_cramer_rao_inv_sqrt_W": 0.01591,
       "parameter_rmse": 0.0104,
-      "mean_lbfgs_fit_us": 23883.24,
-      "causal_commit_round_t_commit": 24017,
+      "mean_lbfgs_fit_us": 6941.25,
+      "causal_commit_round_t_commit": 7075,
       "instantaneous_nll_regret": 0.0
     },
     {
@@ -40,8 +40,8 @@
       "syndrome_dist_rmse": 0.012173,
       "theoretical_cramer_rao_inv_sqrt_W": 0.01125,
       "parameter_rmse": 0.0117,
-      "mean_lbfgs_fit_us": 25158.57,
-      "causal_commit_round_t_commit": 25420,
+      "mean_lbfgs_fit_us": 7327.19,
+      "causal_commit_round_t_commit": 7589,
       "instantaneous_nll_regret": 0.0
     },
     {
@@ -50,8 +50,8 @@
       "syndrome_dist_rmse": 0.006704,
       "theoretical_cramer_rao_inv_sqrt_W": 0.007955,
       "parameter_rmse": 0.00602,
-      "mean_lbfgs_fit_us": 23712.95,
-      "causal_commit_round_t_commit": 24230,
+      "mean_lbfgs_fit_us": 6883.87,
+      "causal_commit_round_t_commit": 7401,
       "instantaneous_nll_regret": 0.0
     },
     {
@@ -60,8 +60,8 @@
       "syndrome_dist_rmse": 0.004216,
       "theoretical_cramer_rao_inv_sqrt_W": 0.005625,
       "parameter_rmse": 0.0051,
-      "mean_lbfgs_fit_us": 23276.61,
-      "causal_commit_round_t_commit": 24306,
+      "mean_lbfgs_fit_us": 6781.57,
+      "causal_commit_round_t_commit": 7811,
       "instantaneous_nll_regret": 0.0
     },
     {
@@ -70,8 +70,8 @@
       "syndrome_dist_rmse": 0.004081,
       "theoretical_cramer_rao_inv_sqrt_W": 0.003977,
       "parameter_rmse": 0.00416,
-      "mean_lbfgs_fit_us": 23237.66,
-      "causal_commit_round_t_commit": 25291,
+      "mean_lbfgs_fit_us": 6846.7,
+      "causal_commit_round_t_commit": 8900,
       "instantaneous_nll_regret": 0.0
     },
     {
@@ -80,8 +80,8 @@
       "syndrome_dist_rmse": 0.001783,
       "theoretical_cramer_rao_inv_sqrt_W": 0.002812,
       "parameter_rmse": 0.00419,
-      "mean_lbfgs_fit_us": 23134.11,
-      "causal_commit_round_t_commit": 27236,
+      "mean_lbfgs_fit_us": 8735.36,
+      "causal_commit_round_t_commit": 12837,
       "instantaneous_nll_regret": 0.0
     },
     {
@@ -90,8 +90,8 @@
       "syndrome_dist_rmse": 0.002177,
       "theoretical_cramer_rao_inv_sqrt_W": 0.0018,
       "parameter_rmse": 0.00531,
-      "mean_lbfgs_fit_us": 23539.57,
-      "causal_commit_round_t_commit": 33545,
+      "mean_lbfgs_fit_us": 6801.08,
+      "causal_commit_round_t_commit": 16807,
       "instantaneous_nll_regret": 0.0
     }
   ],

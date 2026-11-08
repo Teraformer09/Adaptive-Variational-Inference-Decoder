@@ -10,7 +10,7 @@
     "Google Quantum AI and Collaborators (Willow Processor), Nature 638, 920-926 (2025)",
     "Roffe et al., Phys. Rev. Research 2, 043423 (2020)"
   ],
-  "elapsed_sec": 5.205,
+  "elapsed_sec": 0.96,
   "distance_scaling_d3_vs_d5": [
     {
       "physical_error_rate_p": 0.005,

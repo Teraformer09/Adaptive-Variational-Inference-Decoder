@@ -1,6 +1,6 @@
 {
   "suite_name": "AVID_Benchmark_Eval_Baseline_V0",
-  "elapsed_sec": 179.088,
+  "elapsed_sec": 39.573,
   "benchmarks": {
     "BM1_MultiSeed_Statistical_Significance": {
       "benchmark_id": "BM-1",
@@ -18,7 +18,7 @@
       "n_seeds": 15,
       "calibration_rounds_per_seed": 10000,
       "evaluation_rounds_per_seed": 10000,
-      "elapsed_sec": 117.124,
+      "elapsed_sec": 27.303,
       "regimes": {
         "R1_stationary_baseline": {
           "n_seeds": 15,
@@ -196,7 +196,7 @@
         "van den Berg et al. (IBM Quantum), Nature Physics 19, 1116-1121 (2023)",
         "Wagner et al., Quantum 6, 809 (2022)"
       ],
-      "elapsed_sec": 4.434,
+      "elapsed_sec": 1.177,
       "regimes": {
         "R3_zz_crosstalk_burst": [
           {
@@ -360,7 +360,7 @@
         "Google Quantum AI and Collaborators (Willow Processor), Nature 638, 920-926 (2025)",
         "Roffe et al., Phys. Rev. Research 2, 043423 (2020)"
       ],
-      "elapsed_sec": 5.205,
+      "elapsed_sec": 0.96,
       "distance_scaling_d3_vs_d5": [
         {
           "physical_error_rate_p": 0.005,
@@ -466,7 +466,7 @@
         "Harper, Flammia, & Wallman, Nature Physics 16, 1184-1188 (2020)",
         "Wagner et al., Quantum 6, 809 (2022)"
       ],
-      "elapsed_sec": 1.673,
+      "elapsed_sec": 0.519,
       "window_scaling_table": [
         {
           "window_rounds_W": 64,
@@ -474,8 +474,8 @@
           "syndrome_dist_rmse": 0.017776,
           "theoretical_cramer_rao_inv_sqrt_W": 0.0225,
           "parameter_rmse": 0.01432,
-          "mean_lbfgs_fit_us": 26267.48,
-          "causal_commit_round_t_commit": 26337,
+          "mean_lbfgs_fit_us": 7210.41,
+          "causal_commit_round_t_commit": 7280,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -484,8 +484,8 @@
           "syndrome_dist_rmse": 0.018884,
           "theoretical_cramer_rao_inv_sqrt_W": 0.01591,
           "parameter_rmse": 0.0104,
-          "mean_lbfgs_fit_us": 23883.24,
-          "causal_commit_round_t_commit": 24017,
+          "mean_lbfgs_fit_us": 6941.25,
+          "causal_commit_round_t_commit": 7075,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -494,8 +494,8 @@
           "syndrome_dist_rmse": 0.012173,
           "theoretical_cramer_rao_inv_sqrt_W": 0.01125,
           "parameter_rmse": 0.0117,
-          "mean_lbfgs_fit_us": 25158.57,
-          "causal_commit_round_t_commit": 25420,
+          "mean_lbfgs_fit_us": 7327.19,
+          "causal_commit_round_t_commit": 7589,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -504,8 +504,8 @@
           "syndrome_dist_rmse": 0.006704,
           "theoretical_cramer_rao_inv_sqrt_W": 0.007955,
           "parameter_rmse": 0.00602,
-          "mean_lbfgs_fit_us": 23712.95,
-          "causal_commit_round_t_commit": 24230,
+          "mean_lbfgs_fit_us": 6883.87,
+          "causal_commit_round_t_commit": 7401,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -514,8 +514,8 @@
           "syndrome_dist_rmse": 0.004216,
           "theoretical_cramer_rao_inv_sqrt_W": 0.005625,
           "parameter_rmse": 0.0051,
-          "mean_lbfgs_fit_us": 23276.61,
-          "causal_commit_round_t_commit": 24306,
+          "mean_lbfgs_fit_us": 6781.57,
+          "causal_commit_round_t_commit": 7811,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -524,8 +524,8 @@
           "syndrome_dist_rmse": 0.004081,
           "theoretical_cramer_rao_inv_sqrt_W": 0.003977,
           "parameter_rmse": 0.00416,
-          "mean_lbfgs_fit_us": 23237.66,
-          "causal_commit_round_t_commit": 25291,
+          "mean_lbfgs_fit_us": 6846.7,
+          "causal_commit_round_t_commit": 8900,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -534,8 +534,8 @@
           "syndrome_dist_rmse": 0.001783,
           "theoretical_cramer_rao_inv_sqrt_W": 0.002812,
           "parameter_rmse": 0.00419,
-          "mean_lbfgs_fit_us": 23134.11,
-          "causal_commit_round_t_commit": 27236,
+          "mean_lbfgs_fit_us": 8735.36,
+          "causal_commit_round_t_commit": 12837,
           "instantaneous_nll_regret": 0.0
         },
         {
@@ -544,8 +544,8 @@
           "syndrome_dist_rmse": 0.002177,
           "theoretical_cramer_rao_inv_sqrt_W": 0.0018,
           "parameter_rmse": 0.00531,
-          "mean_lbfgs_fit_us": 23539.57,
-          "causal_commit_round_t_commit": 33545,
+          "mean_lbfgs_fit_us": 6801.08,
+          "causal_commit_round_t_commit": 16807,
           "instantaneous_nll_regret": 0.0
         }
       ],
@@ -856,7 +856,7 @@
         "Barber et al. (Riverlane), Nature Electronics 8, 84-91 (2025)",
         "Liyanage et al., PRX Quantum / USENIX (2023-2024)"
       ],
-      "elapsed_sec": 50.642,
+      "elapsed_sec": 9.606,
       "fpga_cycle_latency_matrix": [
         {
           "iterations_K": 1,
@@ -916,24 +916,24 @@
       ],
       "slow_loop_wcet_profile": {
         "joint_dp_forward_16_state": {
-          "p50_us": 517.5,
-          "p95_us": 550.11,
-          "p99_us": 567.47,
-          "max_wcet_us": 844.18
+          "p50_us": 73.58,
+          "p95_us": 174.88,
+          "p99_us": 214.58,
+          "max_wcet_us": 224.46
         },
         "analytic_coset_gradient_21_param": {
-          "p50_us": 1153.32,
-          "p95_us": 1302.19,
-          "p99_us": 1398.89,
-          "max_wcet_us": 1435.34
+          "p50_us": 173.48,
+          "p95_us": 424.0,
+          "p99_us": 503.3,
+          "max_wcet_us": 523.81
         },
         "lbfgs_15_iter_update": {
-          "p50_us": 20061.71,
-          "p95_us": 21075.12,
-          "p99_us": 21210.06,
-          "max_wcet_us": 21243.8
+          "p50_us": 5991.39,
+          "p95_us": 6800.61,
+          "p99_us": 7359.08,
+          "max_wcet_us": 7498.7
         },
-        "single_core_utilization_pct_at_10ms_period": 210.75
+        "single_core_utilization_pct_at_10ms_period": 68.01
       },
       "fault_injection_and_fallback_stress": {
         "valid_packet_accepted": true,

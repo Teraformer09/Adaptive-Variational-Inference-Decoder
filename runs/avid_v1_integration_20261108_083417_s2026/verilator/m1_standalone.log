@@ -1,0 +1,1 @@
+[Verilator M1] Standalone RTL test passed (verilator_c++_rtl): K=1..5 core={7,12,17,22,27} axis={12,17,22,27,32} (K=3 -> 17 core / 22 AXI cycles, ref_mismatches=0)

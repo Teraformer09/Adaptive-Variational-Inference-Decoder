@@ -1,7 +1,7 @@
 # M1: Standalone SystemVerilog RTL Correctness & SVA Verification
 
 ## Provenance
-- **Run ID**: `avid_v1_integration_20261106_172251_s2026`
+- **Run ID**: `avid_v1_integration_20261108_083417_s2026`
 - **Simulator**: `verilator_c++_rtl` (`native_verilator_compiled = True`, `--assert` enabled)
 - **Top Module**: `aa_qec_top` (`firmware/rtl/top/aa_qec_top.sv`)
 
