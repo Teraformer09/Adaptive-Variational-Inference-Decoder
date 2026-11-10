@@ -8,6 +8,10 @@
 # =============================================================================
 set -euo pipefail
 
+if [[ -d "${HOME}/.local/verilator/bin" ]]; then
+    export PATH="${HOME}/.local/verilator/bin:${PATH}"
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 MODEL_DIR="${SCRIPT_DIR}/models"

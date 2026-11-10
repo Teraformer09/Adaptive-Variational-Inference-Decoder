@@ -1,33 +1,15 @@
 // =============================================================================
-// Module  : avid_top
+// Module  : aa_qec_top
 // Project : AVID (Adaptive Variational Inference Decoder)
 // Target  : Xilinx Zynq-7020 / Kria K26  @250 MHz
 //
 // Top-Level Integration.  Enforces THE FUNDAMENTAL ARCHITECTURAL CONTRACT:
-//
-//   ┌─────────────────────────── SLOW-PATH (ARM PS) ──────────────────────────┐
-//   │ avid_daemon  →  L-BFGS  →  LLR injection  →  AXI-Lite write           │
-//   │                                      ↓                                   │
-//   │              weight_map_reg.shadow[N_DATA × 2]                          │
-//   │                      COMMIT bit (0x048)                                 │
-//   └────────────────────────────────────────┬────────────────────────────────┘
-//                                            │  (atomic swap when bp_ready=1)
-//   ┌─────────────────────── FAST-PATH (PL @ 250 MHz) ────────────────────────┐
-//   │  DMA MM2S → axis_syndrome_rx → [bp_engine_x ‖ bp_engine_z]             │
-//   │              ↑                      ↑         ↑                          │
-//   │         FIFO (depth 4)     active_x[9]  active_z[9]  ← weight_map_reg  │
-//   │                                      ↓         ↓                          │
-//   │                         axis_correction_tx → DMA S2MM                  │
-//   │                                      ↓                                   │
-//   │                         epoch_irq → ARM GIC                             │
-//   └─────────────────────────────────────────────────────────────────────────┘
-//
-//   GUARANTEE: bp_engine runs in exactly 17 clock cycles (68 ns).
-//              weight_map_reg never swaps mid-decode.
-//              ARM PS never stalls the decoding path.
-//
-// AXI-Lite base address (from Vivado block design): 0x43C0_1000
-//   Decoder weight registers  0x43C0_1000 + offset (see weight_map_reg.sv)
+//   - bp_engine runs in 2 + 5*K cycles (17 cycles = 68 ns @ K=3).
+//   - weight_map_reg never swaps mid-decode and locks shadow bank while
+//     swap_pending == 1 so torn shadow weights can never be committed.
+//   - axis_syndrome_rx (16-deep FIFO) + axis_correction_tx (16-deep FIFO)
+//     guarantee zero dropped corrections under egress backpressure and
+//     propagate s_axis_syndrome_tlast -> m_axis_correction_tlast -> epoch_irq.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -84,18 +66,20 @@ module aa_qec_top #(
 );
 
     // =========================================================================
-    // Syndrome receiver (with FIFO elastic buffer)
+    // Syndrome receiver (with 16-deep FIFO elastic buffer)
     // =========================================================================
     logic [N_CHECK-1:0] syndrome_x_bits, syndrome_z_bits;
     logic               syndrome_valid_int, syndrome_last_int;
     logic               sbu_ready_int;
+    logic               bp_idle_int;
+    logic               corr_tx_ready_int;
     logic [31:0]        epoch_count_rx;
 
     axis_syndrome_rx #(
         .DATA_WIDTH (AXIS_S_WIDTH),
         .N_CHECK_X  (N_CHECK),
         .N_CHECK_Z  (N_CHECK),
-        .FIFO_DEPTH (4)
+        .FIFO_DEPTH (16)
     ) u_syndrome_rx (
         .aclk           (aclk),
         .aresetn        (aresetn),
@@ -145,7 +129,7 @@ module aa_qec_top #(
         .s_axil_rready   (s_axil_rready),
         .active_x        (active_x),
         .active_z        (active_z),
-        .bp_ready_in     (sbu_ready_int),
+        .bp_ready_in     (bp_idle_int),
         .epoch_count     (weight_epoch),
         .cfg_max_iter    (cfg_max_iter_int),
         .cfg_osd_mode    (cfg_osd_mode_int)
@@ -156,22 +140,25 @@ module aa_qec_top #(
     // =========================================================================
     logic [N_DATA-1:0] corr_x;
     logic              corr_x_valid;
+    logic              corr_x_last;
     logic              bp_x_ready;
 
     bp_engine #(
         .N_DATA(N_DATA), .N_CHECK(N_CHECK), .MAX_DEG(MAX_DEG),
         .MAX_ITER(MAX_ITER), .DATA_WIDTH(DATA_WIDTH), .BASIS_Z(1'b1)
     ) u_bp_x (
-        .clk              (aclk),
-        .rst_n            (aresetn),
-        .syndrome         (syndrome_z_bits),
-        .syndrome_valid   (syndrome_valid_int),
-        .bp_ready         (bp_x_ready),
-        .channel_llr      (active_x),     // From weight_map_reg active bank
-        .cfg_max_iter     (cfg_max_iter_int),
-        .cfg_osd_mode     (cfg_osd_mode_int),
-        .correction       (corr_x),
-        .correction_valid (corr_x_valid)
+        .clk                 (aclk),
+        .rst_n               (aresetn),
+        .syndrome            (syndrome_z_bits),
+        .syndrome_valid      (syndrome_valid_int),
+        .syndrome_last_in    (syndrome_last_int),
+        .bp_ready            (bp_x_ready),
+        .channel_llr         (active_x),     // From weight_map_reg active bank
+        .cfg_max_iter        (cfg_max_iter_int),
+        .cfg_osd_mode        (cfg_osd_mode_int),
+        .correction          (corr_x),
+        .correction_valid    (corr_x_valid),
+        .correction_last_out (corr_x_last)
     );
 
     // =========================================================================
@@ -179,43 +166,48 @@ module aa_qec_top #(
     // =========================================================================
     logic [N_DATA-1:0] corr_z;
     logic              corr_z_valid;
+    logic              corr_z_last;
     logic              bp_z_ready;
 
     bp_engine #(
         .N_DATA(N_DATA), .N_CHECK(N_CHECK), .MAX_DEG(MAX_DEG),
         .MAX_ITER(MAX_ITER), .DATA_WIDTH(DATA_WIDTH), .BASIS_Z(1'b0)
     ) u_bp_z (
-        .clk              (aclk),
-        .rst_n            (aresetn),
-        .syndrome         (syndrome_x_bits),
-        .syndrome_valid   (syndrome_valid_int),
-        .bp_ready         (bp_z_ready),
-        .channel_llr      (active_z),     // Z-type per-qubit weights
-        .cfg_max_iter     (cfg_max_iter_int),
-        .cfg_osd_mode     (cfg_osd_mode_int),
-        .correction       (corr_z),
-        .correction_valid (corr_z_valid)
+        .clk                 (aclk),
+        .rst_n               (aresetn),
+        .syndrome            (syndrome_x_bits),
+        .syndrome_valid      (syndrome_valid_int),
+        .syndrome_last_in    (syndrome_last_int),
+        .bp_ready            (bp_z_ready),
+        .channel_llr         (active_z),     // Z-type per-qubit weights
+        .cfg_max_iter        (cfg_max_iter_int),
+        .cfg_osd_mode        (cfg_osd_mode_int),
+        .correction          (corr_z),
+        .correction_valid    (corr_z_valid),
+        .correction_last_out (corr_z_last)
     );
 
-    // Both engines must be idle before syndrome RX feeds next word and
-    // before weight_map_reg is allowed to swap
-    assign sbu_ready_int = bp_x_ready & bp_z_ready;
-    assign bp_core_start_mon = syndrome_valid_int & sbu_ready_int;
+    // Both engines must be idle AND TX FIFO must have space before RX feeds next word
+    assign bp_idle_int       = bp_x_ready & bp_z_ready;
+    assign sbu_ready_int     = bp_idle_int & corr_tx_ready_int;
+    assign bp_core_start_mon = syndrome_valid_int & bp_idle_int;
     assign bp_core_done_mon  = corr_x_valid & corr_z_valid;
-    assign bp_core_busy_mon  = !sbu_ready_int;
+    assign bp_core_busy_mon  = !bp_idle_int;
 
     // =========================================================================
-    // Correction transmitter
+    // Correction transmitter (16-deep elastic FIFO)
     // =========================================================================
     logic busy_int;
     axis_correction_tx #(
-        .N_DATA_X(N_DATA), .N_DATA_Z(N_DATA), .DATA_WIDTH(AXIS_M_WIDTH)
+        .N_DATA_X(N_DATA), .N_DATA_Z(N_DATA), .DATA_WIDTH(AXIS_M_WIDTH), .FIFO_DEPTH(16)
     ) u_corr_tx (
         .aclk           (aclk),
         .aresetn        (aresetn),
         .corr_x         (corr_x),
         .corr_z         (corr_z),
         .corr_valid     (corr_x_valid & corr_z_valid),
+        .corr_last      (corr_x_last | corr_z_last),
+        .corr_ready     (corr_tx_ready_int),
         .m_axis_tdata   (m_axis_correction_tdata),
         .m_axis_tvalid  (m_axis_correction_tvalid),
         .m_axis_tready  (m_axis_correction_tready),

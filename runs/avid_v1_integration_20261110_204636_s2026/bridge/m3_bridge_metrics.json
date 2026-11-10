@@ -1,0 +1,18 @@
+{
+  "protocol_version": 1,
+  "simulator": "cpp_cycle_exact_reference_fallback",
+  "native_verilator_compiled": false,
+  "clock_mode": "deterministic",
+  "clock_period_ns": 4,
+  "served_clients": 2,
+  "total_transactions": 32,
+  "mmio_writes": 19,
+  "mmio_reads": 5,
+  "syndrome_transfers": 1,
+  "reset_operations": 1,
+  "irq_events": 1,
+  "rejected_transactions": 6,
+  "final_sim_cycle": 104,
+  "final_sim_time_ns": 416,
+  "final_epoch_count": 1
+}

@@ -10,8 +10,8 @@ pl_resource_budget:
   dsp48e1_used: 0
   dsp48e1_available: 220
 ps_memory_budget_bytes:
-  r2d2_lstm_64_int8_bytes: 25998
-  r2d2_lstm_64_fp32_bytes: 103992
+  r2d2_lstm_64_int8_bytes: 19744
+  r2d2_lstm_64_fp32_bytes: 78976
   lbfgs_workspace_bytes: 2688
   dma_ring_buffer_bytes: 65536
   zynq7020_ocm_limit_bytes: 262144

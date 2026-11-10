@@ -63,13 +63,16 @@ def main() -> int:
     if (REPO_ROOT / "docs" / "AVID_EPJ_Weekly_Update.md").exists():
         errors.append("Duplicate weekly update found at docs/AVID_EPJ_Weekly_Update.md")
 
-    # Ensure no machine-specific file:///home/ links exist in tracked Markdown files
+    # Ensure no machine-specific file:///home/ links or accidental LaTeX control characters exist in tracked Markdown files
     for md in REPO_ROOT.rglob("*.md"):
         if ".git" in md.parts:
             continue
         txt = md.read_text(encoding="utf-8", errors="ignore")
         if "file:///home/" in txt:
             errors.append(f"Machine-specific file:///home/ link found in {md.relative_to(REPO_ROOT)}")
+        bad_ctrl = sorted({repr(c) for c in txt if ord(c) < 32 and c not in ("\n",)})
+        if bad_ctrl:
+            errors.append(f"Unescaped control character(s) {bad_ctrl} found in {md.relative_to(REPO_ROOT)}")
 
     if errors:
         for e in errors:

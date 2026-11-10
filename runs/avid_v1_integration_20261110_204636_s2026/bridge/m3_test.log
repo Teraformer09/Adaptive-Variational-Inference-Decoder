@@ -1,0 +1,1 @@
+[Bridge M3] HAL <-> Bridge <-> RTL positive, chunked-I/O, negative & reconnect tests passed (bp_cycles=17, axis_cycles=22, final_cycle=104)

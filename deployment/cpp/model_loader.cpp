@@ -1,8 +1,10 @@
 #include "deployment/cpp/model_loader.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <unistd.h>
 #include <vector>
 
 namespace avid {
@@ -17,6 +19,24 @@ bool check_all_finite(const double* data, size_t count) {
         }
     }
     return true;
+}
+
+void append_exe_relative_candidates(std::vector<std::string>& out_paths) {
+    char exe_buf[4096];
+    const ssize_t len = ::readlink("/proc/self/exe", exe_buf, sizeof(exe_buf) - 1);
+    if (len <= 0) {
+        return;
+    }
+    exe_buf[len] = '\0';
+    std::string dir(exe_buf);
+    for (int depth = 0; depth < 6; ++depth) {
+        const size_t slash = dir.find_last_of('/');
+        if (slash == std::string::npos || slash == 0) {
+            break;
+        }
+        dir.resize(slash);
+        out_paths.push_back(dir + "/checkpoints/r2d2_v1_trained.bin");
+    }
 }
 
 }  // namespace
@@ -109,12 +129,17 @@ bool load_r2d2_binary_checkpoint(
 bool load_default_r2d2_checkpoint(
     R2D2ModelWeights& out_weights,
     std::string* err_msg) {
-    const std::vector<std::string> candidate_paths = {
-        "checkpoints/r2d2_v1_trained.bin",
-        "../checkpoints/r2d2_v1_trained.bin",
-        "../../checkpoints/r2d2_v1_trained.bin",
-        "/home/tirtha/AVID_EPJ_Patches/checkpoints/r2d2_v1_trained.bin",
-    };
+    std::vector<std::string> candidate_paths;
+    if (const char* env_path = std::getenv("AVID_CHECKPOINT_PATH")) {
+        if (env_path[0] != '\0') {
+            candidate_paths.emplace_back(env_path);
+        }
+    }
+    candidate_paths.emplace_back("checkpoints/r2d2_v1_trained.bin");
+    candidate_paths.emplace_back("../checkpoints/r2d2_v1_trained.bin");
+    candidate_paths.emplace_back("../../checkpoints/r2d2_v1_trained.bin");
+    candidate_paths.emplace_back("../../../checkpoints/r2d2_v1_trained.bin");
+    append_exe_relative_candidates(candidate_paths);
 
     std::string last_err;
     for (const auto& candidate : candidate_paths) {

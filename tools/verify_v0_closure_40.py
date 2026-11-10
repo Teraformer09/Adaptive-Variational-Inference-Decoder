@@ -428,9 +428,10 @@ def run_v0_40_verification() -> Dict[str, Any]:
         },
     )
 
-    # C08: Run live C++ daemon architectural ablations on identical correlated_noise stream (1536 rounds, seed 2060)
+    # C08: Run live C++ daemon architectural ablations on identical correlated_noise stream (1536 rounds, seed 2026)
     daemon_bin = REPO_ROOT / "emulator" / "qemu" / "images" / "avid_daemon_x86_64"
     bridge_bin = REPO_ROOT / "emulator" / "verilator" / "models" / "avid_cosim_bridge"
+    ckpt_bin = REPO_ROOT / "checkpoints" / "r2d2_v1_trained.bin"
     ablation_results = {}
     for ab_name, ctrl_m, osd_m in [
         ("1_Static_B0", "static", 1),
@@ -452,9 +453,10 @@ def run_v0_40_verification() -> Dict[str, Any]:
         try:
             subprocess.check_call([
                 str(daemon_bin), "--backend", "sim", "--socket", sock_ab,
-                "--scenario", "correlated_noise", "--seed", "2060",
+                "--scenario", "correlated_noise", "--seed", "2026",
                 "--rounds", "1536", "--window", "256",
                 "--controller-mode", ctrl_m, "--osd-mode", str(osd_m),
+                "--checkpoint", str(ckpt_bin),
                 "--metrics-out", str(out_ab)
             ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
             b_p.wait(timeout=5)
@@ -464,6 +466,7 @@ def run_v0_40_verification() -> Dict[str, Any]:
                 "osd_mode": osd_m,
                 "bp_core_cycles": ab_d["bp_core_cycles_mean"],
                 "axis_total_cycles": ab_d["axis_total_cycles_mean"],
+                "raw_z_failures": ab_d["raw_avid_z_failures"],
                 "logical_error_rate": ab_d["logical_error_rate"],
                 "ler_reduction_vs_static_pct": ab_d["ler_reduction_vs_static_pct"],
             }
@@ -576,6 +579,9 @@ def run_v0_40_verification() -> Dict[str, Any]:
     }
     out_path = REPO_ROOT / "reports" / "v0_closure_40_40_report.json"
     out_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    v0_sub_path = REPO_ROOT / "reports" / "v0" / "closure" / "v0_closure_40_40_report.json"
+    v0_sub_path.parent.mkdir(parents=True, exist_ok=True)
+    v0_sub_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(f"[PASS V0 40/40] All {len(checklist)}/40 V0 closure items verified and saved to {out_path}")
     return summary
 

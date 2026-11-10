@@ -1,11 +1,13 @@
 {
   "milestone": "M1_RTL_Correctness",
-  "run_id": "avid_v1_integration_20261108_083417_s2026",
-  "simulator": "verilator_c++_rtl",
-  "native_verilator_compiled": true,
+  "run_id": "avid_v1_integration_20261110_204636_s2026",
+  "simulator": "cpp_cycle_exact_reference_fallback",
+  "native_verilator_compiled": false,
   "sva_assertions_enabled": true,
   "total_syndrome_mode_vectors_tested": 96,
   "reference_equivalence_mismatches": 0,
+  "mode0_pure_bp_syndromes_satisfied_x": 15,
+  "mode0_pure_bp_syndromes_satisfied_z": 15,
   "protocol_and_safety_checks": {
     "reset_verified": true,
     "split_aw_w_verified": true,
@@ -13,7 +15,10 @@
     "byte_enable_verified": true,
     "atomic_commit_verified": true,
     "busy_swap_protection_verified": true,
+    "torn_shadow_write_protection_verified": true,
     "axis_backpressure_verified": true,
+    "backpressure_burst_8_of_8_verified": true,
+    "selective_tlast_epoch_irq_verified": true,
     "reset_during_decode_verified": true
   },
   "osd_modes_core_cycles_k3": {

@@ -1,7 +1,7 @@
 variant_id,controller_mode,osd_mode,bp_core_cycles,axis_total_cycles,raw_z_failures,logical_error_rate,ci95_low,ci95_high,ler_reduction_vs_static_pct,description
 1_Static_B0,static,1,17.0,22.0,147,0.0957,0.08198,0.11144,0.0,Uniform prior weights + Inline OSD-0 (17 core cyc)
-2_Marginal_LBFGS_B1,marginal_lbfgs,1,17.0,22.0,147,0.0957,0.08198,0.11144,0.0,4-check independent marginal L-BFGS + Inline OSD-0 (17 core cyc)
-3_Joint_DP_Pure_9Marginal_BP_17cyc,joint_dp_map,0,17.0,22.0,300,0.19531,0.17626,0.21589,-104.09,16-state Joint-DP MAP mapped naively to 9 single-qubit LLRs without OSD-0 (17 core cyc)
-4_Joint_DP_Pair_Projected_17cyc,joint_dp_proj,1,17.0,22.0,81,0.05273,0.04263,0.06507,44.9,16-state Joint-DP MAP + memoryless pair-aware triangle projection + Inline OSD-0 (17 core cyc)
-5_Full_AVID_R2D2_WB_Inline_OSD_17cyc,avid_r2d2,1,33.67,38.67,81,0.05273,0.04263,0.06507,44.9,16-state Joint-DP MAP + 64-unit int8 LSTM R2D2-WB + Inline OSD-0 (17 core cyc)
-6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc,avid_r2d2,2,35.67,40.67,81,0.05273,0.04263,0.06507,44.9,16-state Joint-DP MAP + 64-unit int8 LSTM R2D2-WB + Post-BP OSD-0 Stage (19 core cyc)
+2_Marginal_LBFGS_B1,marginal_lbfgs,1,17.0,22.0,155,0.10091,0.08683,0.11698,-5.44,4-check independent marginal L-BFGS + Inline OSD-0 (17 core cyc)
+3_Joint_DP_Pure_9Marginal_BP_17cyc,joint_dp_map,0,17.0,22.0,153,0.09961,0.08562,0.1156,-4.09,16-state Joint-DP MAP mapped naively to 9 single-qubit LLRs without OSD-0 (17 core cyc)
+4_Joint_DP_Pair_Projected_17cyc,joint_dp_proj,1,17.0,22.0,79,0.05143,0.04146,0.06364,46.26,16-state Joint-DP MAP + memoryless pair-aware triangle projection + Inline OSD-0 (17 core cyc)
+5_Full_AVID_R2D2_WB_Inline_OSD_17cyc,avid_r2d2,1,24.5,29.5,79,0.05143,0.04146,0.06364,46.26,16-state Joint-DP MAP + 64-unit int8 LSTM R2D2-WB + Inline OSD-0 (17 core cyc)
+6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc,avid_r2d2,2,26.5,31.5,79,0.05143,0.04146,0.06364,46.26,16-state Joint-DP MAP + 64-unit int8 LSTM R2D2-WB + Post-BP OSD-0 Stage (19 core cyc)

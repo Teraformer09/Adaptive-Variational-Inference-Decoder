@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-11-06T17:23:13.774202+00:00",
+  "timestamp_utc": "2026-11-10T20:49:58.355731+00:00",
   "v0_closure_score": "40/40",
   "all_40_items_closed": true,
   "ablation_study_correlated_noise": {
@@ -8,7 +8,8 @@
       "osd_mode": 1,
       "bp_core_cycles": 17.0,
       "axis_total_cycles": 22.0,
-      "logical_error_rate": 0.05339,
+      "raw_z_failures": 147,
+      "logical_error_rate": 0.0957,
       "ler_reduction_vs_static_pct": 0.0
     },
     "2_Marginal_LBFGS_B1": {
@@ -16,40 +17,45 @@
       "osd_mode": 1,
       "bp_core_cycles": 17.0,
       "axis_total_cycles": 22.0,
-      "logical_error_rate": 0.05339,
-      "ler_reduction_vs_static_pct": 0.0
+      "raw_z_failures": 155,
+      "logical_error_rate": 0.10091,
+      "ler_reduction_vs_static_pct": -5.44
     },
     "3_Joint_DP_Pure_9Marginal_BP_17cyc": {
       "controller_mode": "joint_dp_map",
       "osd_mode": 0,
       "bp_core_cycles": 17.0,
       "axis_total_cycles": 22.0,
-      "logical_error_rate": 0.12695,
-      "ler_reduction_vs_static_pct": -137.8
+      "raw_z_failures": 153,
+      "logical_error_rate": 0.09961,
+      "ler_reduction_vs_static_pct": -4.08
     },
     "4_Joint_DP_Pair_Projected_17cyc": {
       "controller_mode": "joint_dp_proj",
       "osd_mode": 1,
       "bp_core_cycles": 17.0,
       "axis_total_cycles": 22.0,
-      "logical_error_rate": 0.04492,
-      "ler_reduction_vs_static_pct": 15.85
+      "raw_z_failures": 79,
+      "logical_error_rate": 0.05143,
+      "ler_reduction_vs_static_pct": 46.26
     },
     "5_Full_AVID_R2D2_WB_Inline_OSD_17cyc": {
       "controller_mode": "avid_r2d2",
       "osd_mode": 1,
-      "bp_core_cycles": 17.0,
-      "axis_total_cycles": 22.0,
-      "logical_error_rate": 0.03581,
-      "ler_reduction_vs_static_pct": 32.93
+      "bp_core_cycles": 24.5,
+      "axis_total_cycles": 29.5,
+      "raw_z_failures": 79,
+      "logical_error_rate": 0.05143,
+      "ler_reduction_vs_static_pct": 46.26
     },
     "6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc": {
       "controller_mode": "avid_r2d2",
       "osd_mode": 2,
-      "bp_core_cycles": 19.0,
-      "axis_total_cycles": 24.0,
-      "logical_error_rate": 0.03581,
-      "ler_reduction_vs_static_pct": 32.93
+      "bp_core_cycles": 26.5,
+      "axis_total_cycles": 31.5,
+      "raw_z_failures": 79,
+      "logical_error_rate": 0.05143,
+      "ler_reduction_vs_static_pct": 46.26
     }
   },
   "checklist_items": [
@@ -125,7 +131,7 @@
       "title": "Validate analytic coset gradients against central finite differences",
       "status": "CLOSED",
       "evidence": {
-        "max_abs_gradient_error": 1.2275646974618803e-09,
+        "max_abs_gradient_error": 1.2275646432517717e-09,
         "tolerance": 1e-08
       }
     },
@@ -209,8 +215,8 @@
       "title": "Record conditioning, Hessian rank and sensitivity across multiple operating points",
       "status": "CLOSED",
       "evidence": {
-        "low_noise_condition_number": 413.2952508310954,
-        "high_noise_condition_number": 47.90139741005351
+        "low_noise_condition_number": 413.29525083109377,
+        "high_noise_condition_number": 47.90139741005387
       }
     },
     {
@@ -243,7 +249,7 @@
       "title": "Verify convergence and stopping criteria for L-BFGS optimizer",
       "status": "CLOSED",
       "evidence": {
-        "sample_lbfgs_grad_inf_norm": 0.001782647
+        "sample_lbfgs_grad_inf_norm": 0.0002754024
       }
     },
     {
@@ -252,7 +258,7 @@
       "title": "Test initialization sensitivity and local-minimum behaviour",
       "status": "CLOSED",
       "evidence": {
-        "max_orbit_deviation_across_initializations": 3.3215088560689665e-06
+        "max_orbit_deviation_across_initializations": 3.3215087216209582e-06
       }
     },
     {
@@ -299,7 +305,7 @@
       "title": "Validate Q7.8 fixed-point quantization and saturation behaviour",
       "status": "CLOSED",
       "evidence": {
-        "max_q78_quantization_error_llr": 0.0016921474384761215,
+        "max_q78_quantization_error_llr": 0.001692147385263132,
         "theoretical_half_lsb": 0.001953125
       }
     },
@@ -361,8 +367,8 @@
       "title": "Verify scenario generators implement documented stationary, drifting, correlated & burst processes",
       "status": "CLOSED",
       "evidence": {
-        "stationary_static_ler": 0.00456,
-        "correlated_static_ler": 0.05339
+        "stationary_static_ler": 0.02995,
+        "correlated_static_ler": 0.0918
       }
     },
     {
@@ -402,8 +408,8 @@
       "status": "CLOSED",
       "evidence": {
         "correlated_noise_ci95": [
-          0.02818,
-          0.04705
+          0.04263,
+          0.06507
         ]
       }
     },
@@ -413,8 +419,8 @@
       "title": "Run sufficient trial counts to support statistically significant effect sizes",
       "status": "CLOSED",
       "evidence": {
-        "correlated_static_ler": 0.05339,
-        "correlated_avid_ler_ci95_high": 0.04705
+        "correlated_static_ler": 0.0918,
+        "correlated_avid_ler_ci95_high": 0.06507
       }
     },
     {
@@ -423,7 +429,7 @@
       "title": "Report estimator error (9-orbit & 21-param RMSE) and adaptation delay alongside LER",
       "status": "CLOSED",
       "evidence": {
-        "correlated_orbit_9class_rmse": 0.011767,
+        "correlated_orbit_9class_rmse": 0.015401,
         "correlated_adaptation_delay_epochs": 1
       }
     },
@@ -438,7 +444,8 @@
           "osd_mode": 1,
           "bp_core_cycles": 17.0,
           "axis_total_cycles": 22.0,
-          "logical_error_rate": 0.05339,
+          "raw_z_failures": 147,
+          "logical_error_rate": 0.0957,
           "ler_reduction_vs_static_pct": 0.0
         },
         "2_Marginal_LBFGS_B1": {
@@ -446,40 +453,45 @@
           "osd_mode": 1,
           "bp_core_cycles": 17.0,
           "axis_total_cycles": 22.0,
-          "logical_error_rate": 0.05339,
-          "ler_reduction_vs_static_pct": 0.0
+          "raw_z_failures": 155,
+          "logical_error_rate": 0.10091,
+          "ler_reduction_vs_static_pct": -5.44
         },
         "3_Joint_DP_Pure_9Marginal_BP_17cyc": {
           "controller_mode": "joint_dp_map",
           "osd_mode": 0,
           "bp_core_cycles": 17.0,
           "axis_total_cycles": 22.0,
-          "logical_error_rate": 0.12695,
-          "ler_reduction_vs_static_pct": -137.8
+          "raw_z_failures": 153,
+          "logical_error_rate": 0.09961,
+          "ler_reduction_vs_static_pct": -4.08
         },
         "4_Joint_DP_Pair_Projected_17cyc": {
           "controller_mode": "joint_dp_proj",
           "osd_mode": 1,
           "bp_core_cycles": 17.0,
           "axis_total_cycles": 22.0,
-          "logical_error_rate": 0.04492,
-          "ler_reduction_vs_static_pct": 15.85
+          "raw_z_failures": 79,
+          "logical_error_rate": 0.05143,
+          "ler_reduction_vs_static_pct": 46.26
         },
         "5_Full_AVID_R2D2_WB_Inline_OSD_17cyc": {
           "controller_mode": "avid_r2d2",
           "osd_mode": 1,
-          "bp_core_cycles": 17.0,
-          "axis_total_cycles": 22.0,
-          "logical_error_rate": 0.03581,
-          "ler_reduction_vs_static_pct": 32.93
+          "bp_core_cycles": 24.5,
+          "axis_total_cycles": 29.5,
+          "raw_z_failures": 79,
+          "logical_error_rate": 0.05143,
+          "ler_reduction_vs_static_pct": 46.26
         },
         "6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc": {
           "controller_mode": "avid_r2d2",
           "osd_mode": 2,
-          "bp_core_cycles": 19.0,
-          "axis_total_cycles": 24.0,
-          "logical_error_rate": 0.03581,
-          "ler_reduction_vs_static_pct": 32.93
+          "bp_core_cycles": 26.5,
+          "axis_total_cycles": 31.5,
+          "raw_z_failures": 79,
+          "logical_error_rate": 0.05143,
+          "ler_reduction_vs_static_pct": 46.26
         }
       }
     },
@@ -507,7 +519,7 @@
       "title": "Create canonical manifest with commit, configuration, seed and tool versions",
       "status": "CLOSED",
       "evidence": {
-        "git_commit_sha": "6cba81e0b8ea0e55f9308bb1df1046fec9b59631"
+        "git_commit_sha": "0d4c15a556035ea2c4f4dc434d624db7f0d48fef"
       }
     },
     {

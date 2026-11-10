@@ -9,6 +9,7 @@ Executes the compiled C++ `avid_daemon` + Verilator/Bridge co-simulation across:
   5. `results/`: Master JSON summary and publication-ready Markdown comparison tables.
 '''
 from __future__ import annotations
+import concurrent.futures
 import csv
 import json
 from pathlib import Path
@@ -74,6 +75,7 @@ def run_daemon_bridge_pair(
                 if sock.exists():
                     break
                 time.sleep(0.005)
+            ckpt_path = REPO_ROOT / "checkpoints/r2d2_v1_trained.bin"
             subprocess.run(
                 [
                     str(daemon_bin),
@@ -85,6 +87,7 @@ def run_daemon_bridge_pair(
                     "--seed", str(seed),
                     "--controller-mode", controller_mode,
                     "--osd-mode", str(osd_mode),
+                    "--checkpoint", str(ckpt_path),
                     "--metrics-out", str(q_json),
                 ],
                 check=True,
@@ -112,15 +115,24 @@ def run_step_1_baselines(daemon_bin: Path, bridge_bin: Path) -> dict:
     ]
     rows = []
     md_rows = []
+    modes = ["static", "tuned_static", "marginal_lbfgs", "b2_pid", "b3_covariance", "joint_dp_proj", "avid_r2d2", "b4_oracle"]
+    tasks = [(scen, m) for scen in scenarios for m in modes]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
+        fut_map = {
+            (scen, m): ex.submit(run_daemon_bridge_pair, daemon_bin, bridge_bin, scen, 1536, 256, 2026, m, 1)
+            for scen, m in tasks
+        }
+        res_map = {k: fut.result() for k, fut in fut_map.items()}
+
     for scen in scenarios:
-        m_static = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "static", 1)
-        m_tuned = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "tuned_static", 1)
-        m_marg = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "marginal_lbfgs", 1)
-        m_pid = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "b2_pid", 1)
-        m_cov = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "b3_covariance", 1)
-        m_proj = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "joint_dp_proj", 1)
-        m_avid = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "avid_r2d2", 1)
-        m_orac = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, 2026, "b4_oracle", 1)
+        m_static = res_map[(scen, "static")]
+        m_tuned = res_map[(scen, "tuned_static")]
+        m_marg = res_map[(scen, "marginal_lbfgs")]
+        m_pid = res_map[(scen, "b2_pid")]
+        m_cov = res_map[(scen, "b3_covariance")]
+        m_proj = res_map[(scen, "joint_dp_proj")]
+        m_avid = res_map[(scen, "avid_r2d2")]
+        m_orac = res_map[(scen, "b4_oracle")]
 
         row = {
             "scenario": scen,
@@ -179,8 +191,14 @@ def run_step_2_ablations(daemon_bin: Path, bridge_bin: Path) -> dict:
     rows = []
     md_rows = []
     base_ler = None
-    for variant_id, c_mode, o_mode, desc in configs:
-        m = run_daemon_bridge_pair(daemon_bin, bridge_bin, "correlated_noise", 1536, 256, 2026, c_mode, o_mode)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as ex:
+        abl_res = list(
+            ex.map(
+                lambda cfg: run_daemon_bridge_pair(daemon_bin, bridge_bin, "correlated_noise", 1536, 256, 2026, cfg[1], cfg[2]),
+                configs,
+            )
+        )
+    for (variant_id, c_mode, o_mode, desc), m in zip(configs, abl_res):
         if base_ler is None:
             base_ler = m["logical_error_rate"]
         red = ler_reduction_pct(base_ler, m["logical_error_rate"])
@@ -231,14 +249,25 @@ def run_step_3_multiseed(daemon_bin: Path, bridge_bin: Path) -> dict:
     traj_rows = []
     summary_by_scenario: Dict[str, dict] = {}
 
+    ms_tasks = [(scen, sd, m) for scen in scenarios for sd in seeds for m in ("joint_dp_proj", "avid_r2d2")]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
+        ms_futs = {
+            (scen, sd, m): ex.submit(run_daemon_bridge_pair, daemon_bin, bridge_bin, scen, 1536, 256, sd, m, 1)
+            for scen, sd, m in ms_tasks
+        }
+        ms_res = {k: fut.result() for k, fut in ms_futs.items()}
+
     for scen in scenarios:
         s_lers: List[float] = []
+        p_lers: List[float] = []
         a_lers: List[float] = []
         sb_lers: List[float] = []
         ab_lers: List[float] = []
         for sd in seeds:
-            m = run_daemon_bridge_pair(daemon_bin, bridge_bin, scen, 1536, 256, sd, "avid_r2d2", 1)
+            m_proj = ms_res[(scen, sd, "joint_dp_proj")]
+            m = ms_res[(scen, sd, "avid_r2d2")]
             s_lers.append(m["static_b0_logical_error_rate"])
+            p_lers.append(m_proj["logical_error_rate"])
             a_lers.append(m["logical_error_rate"])
             sb_lers.append(m["burst_window_static_ler"])
             ab_lers.append(m["burst_window_avid_ler"])
@@ -247,9 +276,12 @@ def run_step_3_multiseed(daemon_bin: Path, bridge_bin: Path) -> dict:
                 "seed": sd,
                 "rounds": m["total_rounds"],
                 "static_b0_failures": m["raw_static_b0_failures"],
+                "joint_dp_proj_failures": m_proj["raw_avid_z_failures"],
                 "avid_z_failures": m["raw_avid_z_failures"],
                 "static_b0_ler": m["static_b0_logical_error_rate"],
+                "joint_dp_proj_ler": m_proj["logical_error_rate"],
                 "avid_ler": m["logical_error_rate"],
+                "proj_reduction_pct": m_proj["ler_reduction_vs_static_pct"],
                 "whole_run_reduction_pct": m["ler_reduction_vs_static_pct"],
                 "burst_static_ler": m["burst_window_static_ler"],
                 "burst_avid_ler": m["burst_window_avid_ler"],
@@ -258,6 +290,8 @@ def run_step_3_multiseed(daemon_bin: Path, bridge_bin: Path) -> dict:
             })
         summary_by_scenario[scen] = {
             "whole_run_significance": paired_multiseed_tests(s_lers, a_lers),
+            "joint_dp_proj_significance": paired_multiseed_tests(s_lers, p_lers),
+            "avid_vs_proj_significance": paired_multiseed_tests(p_lers, a_lers),
             "burst_window_significance": paired_multiseed_tests(sb_lers, ab_lers),
         }
 
@@ -278,17 +312,19 @@ def run_step_3_multiseed(daemon_bin: Path, bridge_bin: Path) -> dict:
     md_rows = []
     for scen, d in summary_by_scenario.items():
         w_sig = d["whole_run_significance"]
+        p_sig = d["joint_dp_proj_significance"]
         b_sig = d["burst_window_significance"]
         md_rows.append(
             f"| `{scen}` | `{w_sig['static_mean_ler']:.5f} ± {w_sig['static_std_ler']:.5f}` | "
+            f"`{p_sig['adaptive_mean_ler']:.5f} ± {p_sig['adaptive_std_ler']:.5f}` (`-{p_sig['mean_ler_reduction_pct']:.2f}%`) | "
             f"**`{w_sig['adaptive_mean_ler']:.5f} ± {w_sig['adaptive_std_ler']:.5f}`** | "
             f"**`-{w_sig['mean_ler_reduction_pct']:.2f}%`** | **`-{b_sig['mean_ler_reduction_pct']:.2f}%`** | "
             f"`{w_sig['paired_t_pvalue']:.2e}` | `{w_sig['wilcoxon_two_sided_pvalue']:.2e}` | `{w_sig['cohens_d']:.2f}` |"
         )
     (ms_dir / "README.md").write_text(
         "# V1 10-Seed Shared-Stream C++ Runtime Statistical Evaluation (`seeds = 2026..2035`)\n\n"
-        "| Scenario ($N=10$ Seeds, `1,536` Rounds/Seed) | Static B0 LER ($\\mu \\pm \\sigma$) | **AVID V1 LER ($\\mu \\pm \\sigma$)** | Whole-Run Mean Reduction | Burst-Window Mean Reduction | Paired $t$-Test $p$ | Wilcoxon $p$ | Cohen's $d$ |\n"
-        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n"
+        "| Scenario ($N=10$ Seeds, `1,536` Rounds/Seed) | Static B0 LER ($\\mu \\pm \\sigma$) | Joint-DP Projection LER ($\\mu \\pm \\sigma$) | **AVID V1 LER ($\\mu \\pm \\sigma$)** | Whole-Run Mean Reduction | Burst-Window Mean Reduction | Paired $t$-Test $p$ | Wilcoxon $p$ | Cohen's $d$ |\n"
+        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n"
         + "\n".join(md_rows)
         + "\n\n## Artifacts\n"
         "- [`v1_multiseed_10seeds_evaluation.json`](v1_multiseed_10seeds_evaluation.json)\n"
@@ -387,10 +423,11 @@ def run_v1_scientific_suite() -> dict:
     summary_md = (
         "# AVID V1 Scientific Evaluation Results Summary\n\n"
         "## 1. 10-Seed Paired Statistical Significance (`seeds = 2026..2035`, `1,536` Rounds/Seed)\n\n"
-        "| Scenario | Static B0 Mean LER | **AVID V1 Mean LER** | Whole-Run Mean Reduction | Burst-Window Mean Reduction | Paired $t$-Test $p$ | Wilcoxon $p$ | Cohen's $d$ |\n"
-        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n"
+        "| Scenario | Static B0 Mean LER | Joint-DP Projection Mean LER | **AVID V1 Mean LER** | Whole-Run Mean Reduction | Burst-Window Mean Reduction | Paired $t$-Test $p$ | Wilcoxon $p$ | Cohen's $d$ |\n"
+        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n"
         + "\n".join(
             f"| `{sc}` | `{d['whole_run_significance']['static_mean_ler']:.5f}` | "
+            f"`{d['joint_dp_proj_significance']['adaptive_mean_ler']:.5f}` (`-{d['joint_dp_proj_significance']['mean_ler_reduction_pct']:.2f}%`) | "
             f"**`{d['whole_run_significance']['adaptive_mean_ler']:.5f}`** | "
             f"**`-{d['whole_run_significance']['mean_ler_reduction_pct']:.2f}%`** | "
             f"**`-{d['burst_window_significance']['mean_ler_reduction_pct']:.2f}%`** | "

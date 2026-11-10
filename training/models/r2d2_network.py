@@ -38,12 +38,12 @@ def value_rescale_h_prime(z: np.ndarray | float, eps: float = 1e-3) -> np.ndarra
 
 
 ACTION_DEFINITIONS: List[Dict[str, object]] = [
-    {"action_id": 0, "name": "STATIC_PRIOR_K3", "pair_weight_scale": 0.00, "bp_iterations": 3, "recalibrate": False, "fallback": False},
-    {"action_id": 1, "name": "ADAPTIVE_PAIR_K5", "pair_weight_scale": 1.00, "bp_iterations": 5, "recalibrate": False, "fallback": False},
-    {"action_id": 2, "name": "AGGRESSIVE_PAIR_K7", "pair_weight_scale": 1.35, "bp_iterations": 7, "recalibrate": False, "fallback": False},
-    {"action_id": 3, "name": "DAMPED_PRIOR_K4", "pair_weight_scale": 0.85, "bp_iterations": 4, "recalibrate": False, "fallback": False},
-    {"action_id": 4, "name": "FAST_RECALIBRATE_K7", "pair_weight_scale": 1.15, "bp_iterations": 7, "recalibrate": True, "fallback": False},
-    {"action_id": 5, "name": "CONSERVATIVE_FALLBACK_K3", "pair_weight_scale": 0.00, "bp_iterations": 3, "recalibrate": False, "fallback": True},
+    {"action_id": 0, "name": "STATIC_PRIOR_K3", "pair_weight_scale": 0.00, "bp_iterations": 3, "temporal_beta": 0.75, "recalibrate": False, "fallback": False},
+    {"action_id": 1, "name": "ADAPTIVE_PAIR_K4", "pair_weight_scale": 1.15, "bp_iterations": 4, "temporal_beta": 0.65, "recalibrate": False, "fallback": False},
+    {"action_id": 2, "name": "AGGRESSIVE_PAIR_K5", "pair_weight_scale": 1.35, "bp_iterations": 5, "temporal_beta": 0.50, "recalibrate": False, "fallback": False},
+    {"action_id": 3, "name": "DAMPED_PRIOR_K4", "pair_weight_scale": 1.05, "bp_iterations": 4, "temporal_beta": 0.55, "recalibrate": False, "fallback": False},
+    {"action_id": 4, "name": "FAST_RECALIBRATE_K5", "pair_weight_scale": 1.25, "bp_iterations": 5, "temporal_beta": 0.00, "recalibrate": True, "fallback": False},
+    {"action_id": 5, "name": "CONSERVATIVE_FALLBACK_K3", "pair_weight_scale": 0.00, "bp_iterations": 3, "temporal_beta": 0.00, "recalibrate": False, "fallback": True},
 ]
 
 
@@ -101,6 +101,7 @@ class R2D2Network:
             "action_name": action_spec["name"],
             "pair_weight_scale": float(action_spec["pair_weight_scale"]),
             "bp_iterations": int(action_spec["bp_iterations"]),
+            "temporal_beta": float(action_spec.get("temporal_beta", 0.0)),
             "recalibrate": bool(action_spec["recalibrate"]),
             "fallback": bool(action_spec["fallback"]),
             "h_next": h_next,

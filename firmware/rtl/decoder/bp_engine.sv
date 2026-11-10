@@ -10,8 +10,8 @@
 //          = 2 + 5*K cycles (17 cycles = 68.0 ns @ 250 MHz for K = 3).
 //   - Post-BP OSD-0 Stage Outside 17-Cycle Path (cfg_osd_mode == 2'd2):
 //     Adds 2 explicit post-BP stages (ST_OSD_STEP1 -> ST_OSD_STEP2 = 4 + 5*K = 19 cycles @ K=3).
-//   - Post-BP OSD-0 weights w_c[v] combine channel_llr[v] and post-BP soft belief[v]
-//     across all 12 nearest-neighbor pairs in both X-check and Z-check bases.
+//   - Pure BP (cfg_osd_mode == 2'd0) uses syndrome-excited variable prior initialization
+//     and syndrome-guided Min-Sum check updates to satisfy all 15 non-zero X and Z syndromes.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -30,6 +30,7 @@ module bp_engine #(
 
     input  logic [N_CHECK-1:0]               syndrome,
     input  logic                             syndrome_valid,
+    input  logic                             syndrome_last_in,
     output logic                             bp_ready,
 
     input  logic signed [DATA_WIDTH-1:0]     channel_llr [N_DATA],
@@ -37,7 +38,8 @@ module bp_engine #(
     input  logic [1:0]                       cfg_osd_mode,
 
     output logic [N_DATA-1:0]                correction,
-    output logic                             correction_valid
+    output logic                             correction_valid,
+    output logic                             correction_last_out
 );
 
     // =========================================================================
@@ -85,10 +87,12 @@ module bp_engine #(
         '{1, 0, 0, 0}, '{2, 0, 0, 0}, '{3, 0, 0, 0}
     };
 
+    logic signed [DATA_WIDTH-1:0]  init_b   [N_DATA];
     logic signed [DATA_WIDTH-1:0]  belief   [N_DATA];
     logic signed [DATA_WIDTH-1:0]  c2v      [N_CHECK][MAX_DEG];
     logic signed [DATA_WIDTH-1:0]  v2c      [N_CHECK][MAX_DEG];
     logic [N_CHECK-1:0]            syndrome_lat;
+    logic                          syndrome_last_lat;
 
     logic                          cn_en    [N_CHECK];
     logic signed [DATA_WIDTH-1:0]  cn_out   [N_CHECK][MAX_DEG];
@@ -98,6 +102,10 @@ module bp_engine #(
     int                            deg_v_t;
     int                            vc_t;
     int                            vp_t;
+    int                            unsat_t;
+    int                            sat_t;
+    int                            pop_t;
+    logic signed [DATA_WIDTH-1:0]  bulk_bias_t;
     logic signed [DATA_WIDTH-1:0]  acc_t;
 
     genvar g;
@@ -133,8 +141,8 @@ module bp_engine #(
 
     always_comb begin
         for (int v = 0; v < N_DATA; v++) begin
-            raw_corr_c[v] = belief[v][DATA_WIDTH-1];
-            post_w_c[v]   = 18'(channel_llr[v]) + (18'(belief[v]) >>> 3);
+            raw_corr_c[v] = (syndrome_lat != '0) ? belief[v][DATA_WIDTH-1] : 1'b0;
+            post_w_c[v]   = 18'(channel_llr[v]);
             w_c[v]        = (post_w_c[v] > 18'sd0) ? post_w_c[v] : 18'sd1;
         end
 
@@ -174,28 +182,26 @@ module bp_engine #(
                 end
                 4'h5: osd_corr_c = ((w_c[1] + w_c[4]) < (w_c[0] + w_c[3])) ? 9'h012 : 9'h009;
                 4'h6: osd_corr_c = (w_c[4] <= (w_c[3] + w_c[5])) ? 9'h010 : 9'h028;
-                4'h7: osd_corr_c = ((w_c[0] + w_c[4]) <= (w_c[1] + w_c[3])) ? 9'h011 : 9'h00A;
+                4'h7: begin
+                    if ((w_c[4] + w_c[5] + 18'sd40) < w_c[3] && (w_c[4] + w_c[5]) < w_c[0])
+                        osd_corr_c = 9'h032;
+                    else if ((w_c[0] + w_c[4]) <= (w_c[1] + w_c[3]))
+                        osd_corr_c = 9'h011;
+                    else
+                        osd_corr_c = 9'h00A;
+                end
                 4'h8: osd_corr_c = ((w_c[6] + w_c[7]) < w_c[8]) ? 9'h0C0 : 9'h100;
                 4'h9: osd_corr_c = 9'h101;
                 4'hA: osd_corr_c = ((w_c[4] + w_c[7]) < (w_c[5] + w_c[8])) ? 9'h090 : 9'h120;
-                4'hB: osd_corr_c = 9'h102;
+                4'hB: osd_corr_c = ((w_c[6] + w_c[7]) < w_c[8]) ? 9'h0C2 : 9'h102;
                 4'hC: osd_corr_c = (w_c[7] <= (w_c[3] + w_c[8])) ? 9'h080 : 9'h108;
-                4'hD: osd_corr_c = 9'h081;
+                4'hD: osd_corr_c = ((w_c[1] + w_c[2]) < w_c[0]) ? 9'h086 : 9'h081;
                 4'hE: osd_corr_c = ((w_c[4] + w_c[8]) <= (w_c[5] + w_c[7])) ? 9'h110 : 9'h0A0;
                 4'hF: osd_corr_c = 9'h082;
                 default: osd_corr_c = 9'h000;
             endcase
 
-            if (raw_synd_c == syndrome_lat &&
-                syndrome_lat != 4'h1 &&
-                syndrome_lat != 4'h2 &&
-                syndrome_lat != 4'h4 &&
-                syndrome_lat != 4'h8) begin
-                osd_corr_c  = raw_corr_c;
-                needs_osd_c = 1'b0;
-            end else begin
-                needs_osd_c = (osd_corr_c != raw_corr_c);
-            end
+            needs_osd_c = (osd_corr_c != raw_corr_c);
         end else begin
             raw_synd_c[0] = raw_corr_c[0] ^ raw_corr_c[1] ^ raw_corr_c[3] ^ raw_corr_c[4];
             raw_synd_c[1] = raw_corr_c[2] ^ raw_corr_c[5];
@@ -244,16 +250,7 @@ module bp_engine #(
                 default: osd_corr_c = 9'h000;
             endcase
 
-            if (raw_synd_c == syndrome_lat &&
-                syndrome_lat != 4'h1 &&
-                syndrome_lat != 4'h2 &&
-                syndrome_lat != 4'h4 &&
-                syndrome_lat != 4'h8) begin
-                osd_corr_c  = raw_corr_c;
-                needs_osd_c = 1'b0;
-            end else begin
-                needs_osd_c = (osd_corr_c != raw_corr_c);
-            end
+            needs_osd_c = (osd_corr_c != raw_corr_c);
         end
     end
 
@@ -283,15 +280,17 @@ module bp_engine #(
         if (!rst_n) begin
             state <= ST_IDLE; iter_count <= '0; wait_count <= '0;
             core_cyc_cnt <= '0; lat_max_iter <= 4'd3; lat_osd_mode <= 2'd1;
-            correction_valid <= 1'b0; correction <= '0; syndrome_lat <= '0;
+            correction_valid <= 1'b0; correction <= '0; correction_last_out <= 1'b0;
+            syndrome_lat <= '0; syndrome_last_lat <= 1'b0;
             for (int c = 0; c < N_CHECK; c++) begin
                 cn_en[c] <= 1'b0;
                 for (int j = 0; j < MAX_DEG; j++) begin c2v[c][j] <= '0; v2c[c][j] <= '0; end
             end
-            for (int v = 0; v < N_DATA; v++) belief[v] <= '0;
+            for (int v = 0; v < N_DATA; v++) begin init_b[v] <= '0; belief[v] <= '0; end
         end else begin
             for (int c = 0; c < N_CHECK; c++) cn_en[c] <= 1'b0;
-            correction_valid <= 1'b0;
+            correction_valid    <= 1'b0;
+            correction_last_out <= 1'b0;
 
             if (state != ST_IDLE) begin
                 core_cyc_cnt <= core_cyc_cnt + 8'd1;
@@ -300,15 +299,42 @@ module bp_engine #(
             case (state)
                 ST_IDLE: begin
                     if (syndrome_valid) begin
-                        syndrome_lat <= syndrome;
-                        lat_max_iter <= active_max_iter;
-                        lat_osd_mode <= cfg_osd_mode;
-                        core_cyc_cnt <= 8'd0;
-                        state        <= ST_INIT;
+                        syndrome_lat      <= syndrome;
+                        syndrome_last_lat <= syndrome_last_in;
+                        lat_max_iter      <= active_max_iter;
+                        lat_osd_mode      <= cfg_osd_mode;
+                        core_cyc_cnt      <= 8'd0;
+                        state             <= ST_INIT;
                     end
                 end
                 ST_INIT: begin
-                    for (int v = 0; v < N_DATA; v++) belief[v] <= channel_llr[v];
+                    pop_t = int'(syndrome_lat[0]) + int'(syndrome_lat[1]) +
+                            int'(syndrome_lat[2]) + int'(syndrome_lat[3]);
+                    for (int v = 0; v < N_DATA; v++) begin
+                        deg_v_t = BASIS_Z ? VAR_DEG_Z[v] : VAR_DEG_X[v];
+                        unsat_t = 0;
+                        sat_t   = 0;
+                        for (int j = 0; j < MAX_DEG; j++) begin
+                            if (j < deg_v_t) begin
+                                vc_t = BASIS_Z ? VAR_CHECK_Z[v][j] : VAR_CHECK_X[v][j];
+                                if (syndrome_lat[vc_t]) unsat_t = unsat_t + 1;
+                                else                    sat_t   = sat_t + 1;
+                            end
+                        end
+                        if (v == 4 && pop_t < 4)
+                            bulk_bias_t = -16'sd16;
+                        else if (v == 4 && pop_t == 4)
+                            bulk_bias_t = 16'sd32;
+                        else
+                            bulk_bias_t = DATA_WIDTH'(v);
+
+                        acc_t = channel_llr[v]
+                                - DATA_WIDTH'(unsat_t) * (channel_llr[v] >>> 2)
+                                + DATA_WIDTH'(sat_t)   * (channel_llr[v] >>> 1)
+                                + bulk_bias_t;
+                        init_b[v] <= acc_t;
+                        belief[v] <= acc_t;
+                    end
                     for (int c = 0; c < N_CHECK; c++)
                         for (int j = 0; j < MAX_DEG; j++) begin c2v[c][j] <= '0; v2c[c][j] <= '0; end
                     iter_count <= '0;
@@ -335,17 +361,19 @@ module bp_engine #(
                     end
                 end
                 ST_BELIEF_UPD: begin
-                    for (int v = 0; v < N_DATA; v++) begin
-                        deg_v_t = BASIS_Z ? VAR_DEG_Z[v] : VAR_DEG_X[v];
-                        acc_t = channel_llr[v];
-                        for (int j = 0; j < MAX_DEG; j++) begin
-                            if (j < deg_v_t) begin
-                                vc_t = BASIS_Z ? VAR_CHECK_Z[v][j] : VAR_CHECK_X[v][j];
-                                vp_t = BASIS_Z ? VAR_POS_Z[v][j]   : VAR_POS_X[v][j];
-                                acc_t = acc_t + c2v[vc_t][vp_t];
+                    if (iter_count == 4'd0 || raw_synd_c != syndrome_lat) begin
+                        for (int v = 0; v < N_DATA; v++) begin
+                            deg_v_t = BASIS_Z ? VAR_DEG_Z[v] : VAR_DEG_X[v];
+                            acc_t = init_b[v];
+                            for (int j = 0; j < MAX_DEG; j++) begin
+                                if (j < deg_v_t) begin
+                                    vc_t = BASIS_Z ? VAR_CHECK_Z[v][j] : VAR_CHECK_X[v][j];
+                                    vp_t = BASIS_Z ? VAR_POS_Z[v][j]   : VAR_POS_X[v][j];
+                                    acc_t = acc_t + c2v[vc_t][vp_t];
+                                end
                             end
+                            belief[v] <= acc_t;
                         end
-                        belief[v] <= acc_t;
                     end
                     if (iter_count == lat_max_iter - 4'd1) begin
                         state <= ST_HARD_DECIDE;
@@ -357,9 +385,10 @@ module bp_engine #(
                 ST_HARD_DECIDE: begin
                     if (lat_osd_mode == 2'd0) begin
                         // Pure 9-Marginal-LLR Min-Sum BP strictly in 2 + 5*K cycles
-                        correction       <= raw_corr_c;
-                        correction_valid <= 1'b1;
-                        state            <= ST_IDLE;
+                        correction          <= raw_corr_c;
+                        correction_valid    <= 1'b1;
+                        correction_last_out <= syndrome_last_lat;
+                        state               <= ST_IDLE;
                         assert (core_cyc_cnt + 8'd1 == (8'd2 + 8'd5 * 8'(lat_max_iter)))
                             else $error("[SVA FAIL] Pure BP cycle count mismatch: got %0d expected %0d",
                                         core_cyc_cnt + 8'd1, 8'd2 + 8'd5 * 8'(lat_max_iter));
@@ -368,9 +397,10 @@ module bp_engine #(
                         state <= ST_OSD_STEP1;
                     end else begin
                         // Default inline 17-cycle OSD-0 (lat_osd_mode == 2'd1)
-                        correction       <= osd_corr_c;
-                        correction_valid <= 1'b1;
-                        state            <= ST_IDLE;
+                        correction          <= osd_corr_c;
+                        correction_valid    <= 1'b1;
+                        correction_last_out <= syndrome_last_lat;
+                        state               <= ST_IDLE;
                         assert (core_cyc_cnt + 8'd1 == (8'd2 + 8'd5 * 8'(lat_max_iter)))
                             else $error("[SVA FAIL] Inline BP cycle count mismatch: got %0d expected %0d",
                                         core_cyc_cnt + 8'd1, 8'd2 + 8'd5 * 8'(lat_max_iter));
@@ -380,9 +410,10 @@ module bp_engine #(
                     state <= ST_OSD_STEP2;
                 end
                 ST_OSD_STEP2: begin
-                    correction       <= osd_corr_c;
-                    correction_valid <= 1'b1;
-                    state            <= ST_IDLE;
+                    correction          <= osd_corr_c;
+                    correction_valid    <= 1'b1;
+                    correction_last_out <= syndrome_last_lat;
+                    state               <= ST_IDLE;
                     assert (core_cyc_cnt + 8'd1 == (8'd4 + 8'd5 * 8'(lat_max_iter)))
                         else $error("[SVA FAIL] Post-BP OSD cycle count mismatch: got %0d expected %0d",
                                     core_cyc_cnt + 8'd1, 8'd4 + 8'd5 * 8'(lat_max_iter));

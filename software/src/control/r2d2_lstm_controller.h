@@ -31,9 +31,10 @@ struct AvidR2D2MemoryAudit {
 
 struct AvidR2D2ControlDecision {
     int action_id = 0;
-    const char* action_name = "STATIC_PRIOR_K4";
+    const char* action_name = "STATIC_PRIOR_K3";
     double pair_weight_scale = 0.0;
-    uint32_t bp_iterations = 4;
+    uint32_t bp_iterations = 3;
+    double temporal_beta = 0.75;
     bool recalibrate = false;
     bool fallback = false;
     double state_value = 0.0;
@@ -194,7 +195,46 @@ public:
         (void)fit_nll;
         double features[8] = {0.0};
         extract_causal_features(hist_x, hist_z, window_rounds, theta_21, burst_score, features);
-        return step_from_features(features);
+        AvidR2D2ControlDecision dec = step_from_features(features);
+
+        /* Couple the R2D2 gain head residual delta_g[q] with the causal 21-D MAP posterior
+         * across all 12 lattice edges (permutation-covariant across any hot pair (u,v)): */
+        static constexpr int kEdgeEndpoints[12][2] = {
+            {0, 1}, {1, 2}, {3, 4}, {4, 5}, {6, 7}, {7, 8},
+            {0, 3}, {3, 6}, {1, 4}, {4, 7}, {2, 5}, {5, 8}
+        };
+        double activity[9] = {0.0};
+        double sum_act = 0.0;
+        double max_act = 0.0;
+        int hot_qubits = 0;
+        for (int q = 0; q < 9; ++q) {
+            double max_inc_pair = 0.0;
+            for (int e = 0; e < 12; ++e) {
+                if (kEdgeEndpoints[e][0] == q || kEdgeEndpoints[e][1] == q) {
+                    max_inc_pair = std::max(max_inc_pair, theta_21[9 + e]);
+                }
+            }
+            activity[q] = std::max(0.0, theta_21[q] - 0.016) +
+                          0.90 * std::max(0.0, max_inc_pair - 0.014);
+            sum_act += activity[q];
+            max_act = std::max(max_act, activity[q]);
+            if (activity[q] > 0.028) {
+                hot_qubits++;
+            }
+        }
+        const double mean_act = sum_act / 9.0;
+        if (dec.pair_weight_scale > 0.0 && max_act > 0.008) {
+            for (int q = 0; q < 9; ++q) {
+                const double net_mag = std::clamp(std::abs(dec.qubit_gains[q] - 1.0), 0.04, 0.30);
+                if (activity[q] > mean_act + 0.004) {
+                    const double rel = std::clamp(activity[q] / std::max(0.01, max_act), 0.25, 1.0);
+                    dec.qubit_gains[q] = std::clamp(1.0 - (0.14 + 0.45 * net_mag) * rel, 0.72, 0.88);
+                } else if (activity[q] < 0.004) {
+                    dec.qubit_gains[q] = std::clamp(1.0 + (0.12 + 0.40 * net_mag), 1.12, 1.26);
+                }
+            }
+        }
+        return dec;
     }
 
     AvidR2D2ControlDecision step_from_features(const double features[8]) {
@@ -204,6 +244,7 @@ public:
         dec.action_name = inf.action_name;
         dec.pair_weight_scale = inf.pair_weight_scale;
         dec.bp_iterations = static_cast<uint32_t>(inf.bp_iterations);
+        dec.temporal_beta = inf.temporal_beta;
         dec.recalibrate = inf.recalibrate;
         dec.fallback = inf.fallback;
         dec.state_value = inf.state_value;
@@ -240,7 +281,8 @@ public:
                      double *pair_weight_scale_out = nullptr,
                      int *action_id_out = nullptr,
                      bool *recalibrate_out = nullptr,
-                     bool *fallback_out = nullptr) {
+                     bool *fallback_out = nullptr,
+                     double *temporal_beta_out = nullptr) {
         const AvidR2D2ControlDecision dec = step_causal_decision(
             hist_x, hist_z, window_rounds, theta_21, fit_nll, burst_score);
         for (int q = 0; q < 9; ++q) {
@@ -251,6 +293,7 @@ public:
         if (action_id_out) *action_id_out = dec.action_id;
         if (recalibrate_out) *recalibrate_out = dec.recalibrate;
         if (fallback_out) *fallback_out = dec.fallback;
+        if (temporal_beta_out) *temporal_beta_out = dec.temporal_beta;
     }
 
     static AvidR2D2MemoryAudit get_memory_audit() {

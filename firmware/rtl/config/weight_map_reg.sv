@@ -3,9 +3,13 @@
 // Project : AVID (Adaptive Variational Inference Decoder)
 // Target  : Xilinx Zynq-7020 (Dual ARM Cortex-A9 + Artix-7 PL @ 250 MHz)
 //
-// AXI4-Lite SLAVE + Double-Buffered Weight Registry (Shadow + Active Banks)
-// Supports independent AW-before-W, W-before-AW, and simultaneous AW+W
-// handshakes, BVALID/RVALID backpressure stall protection, and Formal SVA.
+// AXI4-Lite SLAVE + Double-Buffered Weight Registry (Shadow + Commit Snapshot +
+// Active Banks):
+//   - Supports independent AW-before-W, W-before-AW, and simultaneous AW+W
+//     handshakes, BVALID/RVALID backpressure stall protection, and Formal SVA.
+//   - Snapshots shadow_x/shadow_z into commit_snap_x/commit_snap_z when COMMIT
+//     (0x048) is written AND rejects writes to shadow_x/shadow_z with SLVERR
+//     while swap_pending == 1 & !bp_ready_in so torn weights can never commit.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -33,7 +37,7 @@ module weight_map_reg #(
     output logic                             s_axil_arready,
     output logic [31:0]                      s_axil_rdata,
     output logic [1:0]                       s_axil_rresp,
-    output logic                             s_axil_rvalid,
+    output logic                     s_axil_rvalid,
     input  logic                             s_axil_rready,
 
     // Active bank outputs -> BP engine
@@ -49,12 +53,16 @@ module weight_map_reg #(
     output logic [1:0]                       cfg_osd_mode
 );
 
-    logic signed [DATA_WIDTH-1:0] shadow_x   [N_DATA];
-    logic signed [DATA_WIDTH-1:0] shadow_z   [N_DATA];
-    logic signed [DATA_WIDTH-1:0] active_x_r [N_DATA];
-    logic signed [DATA_WIDTH-1:0] active_z_r [N_DATA];
-    logic signed [DATA_WIDTH-1:0] prev_act_x [N_DATA];
-    logic signed [DATA_WIDTH-1:0] prev_act_z [N_DATA];
+    logic signed [DATA_WIDTH-1:0] shadow_x      [N_DATA];
+    logic signed [DATA_WIDTH-1:0] shadow_z      [N_DATA];
+    logic signed [DATA_WIDTH-1:0] commit_snap_x [N_DATA];
+    logic signed [DATA_WIDTH-1:0] commit_snap_z [N_DATA];
+    logic signed [DATA_WIDTH-1:0] active_x_r    [N_DATA];
+    logic signed [DATA_WIDTH-1:0] active_z_r    [N_DATA];
+    logic signed [DATA_WIDTH-1:0] prev_act_x    [N_DATA];
+    logic signed [DATA_WIDTH-1:0] prev_act_z    [N_DATA];
+    logic signed [DATA_WIDTH-1:0] prev_snap_x   [N_DATA];
+    logic signed [DATA_WIDTH-1:0] prev_snap_z   [N_DATA];
 
     logic        swap_pending;
     logic        prev_swap_pending;
@@ -79,25 +87,27 @@ module weight_map_reg #(
     logic [3:0]  wr_strb_c;
     logic [15:0] wr_mask_c;
     logic        wr_fire_c;
+    logic        shadow_locked_c;
     int          wr_idx_t;
     int          rd_idx_t;
 
-    assign cfg_max_iter   = cfg_max_iter_r;
-    assign cfg_osd_mode   = cfg_osd_mode_r;
-    assign active_x       = active_x_r;
-    assign active_z       = active_z_r;
+    assign cfg_max_iter    = cfg_max_iter_r;
+    assign cfg_osd_mode    = cfg_osd_mode_r;
+    assign active_x        = active_x_r;
+    assign active_z        = active_z_r;
 
-    assign s_axil_awready = !aw_valid_lat && (!s_axil_bvalid || s_axil_bready);
-    assign s_axil_wready  = !w_valid_lat  && (!s_axil_bvalid || s_axil_bready);
-    assign s_axil_bresp   = bresp_r;
-    assign s_axil_arready = (!s_axil_rvalid || s_axil_rready);
-    assign s_axil_rresp   = rresp_r;
+    assign s_axil_awready  = !aw_valid_lat && (!s_axil_bvalid || s_axil_bready);
+    assign s_axil_wready   = !w_valid_lat  && (!s_axil_bvalid || s_axil_bready);
+    assign s_axil_bresp    = bresp_r;
+    assign s_axil_arready  = (!s_axil_rvalid || s_axil_rready);
+    assign s_axil_rresp    = rresp_r;
 
-    assign aw_hs_c   = s_axil_awvalid && s_axil_awready;
-    assign w_hs_c    = s_axil_wvalid  && s_axil_wready;
-    assign have_aw_c = aw_hs_c || aw_valid_lat;
-    assign have_w_c  = w_hs_c  || w_valid_lat;
-    assign wr_fire_c = have_aw_c && have_w_c;
+    assign aw_hs_c         = s_axil_awvalid && s_axil_awready;
+    assign w_hs_c          = s_axil_wvalid  && s_axil_wready;
+    assign have_aw_c       = aw_hs_c || aw_valid_lat;
+    assign have_w_c        = w_hs_c  || w_valid_lat;
+    assign wr_fire_c       = have_aw_c && have_w_c;
+    assign shadow_locked_c = swap_pending && !bp_ready_in;
 
     assign wr_addr_c = aw_valid_lat ? aw_addr_lat : s_axil_awaddr;
     assign wr_data_c = w_valid_lat  ? w_data_lat  : s_axil_wdata;
@@ -121,17 +131,19 @@ module weight_map_reg #(
             cfg_max_iter_r <= 4'd3;
             cfg_osd_mode_r <= 2'd1;
             for (int i = 0; i < N_DATA; i++) begin
-                active_x_r[i] <= LLR_DEFAULT;
-                active_z_r[i] <= LLR_DEFAULT;
-                shadow_x[i]   <= LLR_DEFAULT;
-                shadow_z[i]   <= LLR_DEFAULT;
+                active_x_r[i]    <= LLR_DEFAULT;
+                active_z_r[i]    <= LLR_DEFAULT;
+                shadow_x[i]      <= LLR_DEFAULT;
+                shadow_z[i]      <= LLR_DEFAULT;
+                commit_snap_x[i] <= LLR_DEFAULT;
+                commit_snap_z[i] <= LLR_DEFAULT;
             end
         end else begin
-            // 1. Atomic shadow -> active copy ONLY when swap_pending && decoder idle
+            // 1. Atomic commit_snap -> active copy ONLY when swap_pending && decoder idle
             if (swap_pending && bp_ready_in) begin
                 for (int i = 0; i < N_DATA; i++) begin
-                    active_x_r[i] <= shadow_x[i];
-                    active_z_r[i] <= shadow_z[i];
+                    active_x_r[i] <= commit_snap_x[i];
+                    active_z_r[i] <= commit_snap_z[i];
                 end
                 swap_pending <= 1'b0;
                 epoch_count  <= epoch_count + 32'd1;
@@ -157,14 +169,29 @@ module weight_map_reg #(
                 if ((wr_addr_c & 32'h3) != 32'd0) begin
                     bresp_r <= 2'b10;
                 end else if (wr_addr_c < (N_DATA * 4)) begin
-                    wr_idx_t = int'(wr_addr_c >> 2);
-                    shadow_x[wr_idx_t] <= DATA_WIDTH'((shadow_x[wr_idx_t] & ~wr_mask_c) | (wr_data_c[DATA_WIDTH-1:0] & wr_mask_c));
+                    if (shadow_locked_c) begin
+                        bresp_r <= 2'b10;
+                    end else begin
+                        wr_idx_t = int'(wr_addr_c >> 2);
+                        shadow_x[wr_idx_t] <= DATA_WIDTH'((shadow_x[wr_idx_t] & ~wr_mask_c) | (wr_data_c[DATA_WIDTH-1:0] & wr_mask_c));
+                    end
                 end else if (wr_addr_c >= 32'h24 && wr_addr_c < 32'h24 + (N_DATA * 4)) begin
-                    wr_idx_t = int'((wr_addr_c - 32'h24) >> 2);
-                    shadow_z[wr_idx_t] <= DATA_WIDTH'((shadow_z[wr_idx_t] & ~wr_mask_c) | (wr_data_c[DATA_WIDTH-1:0] & wr_mask_c));
+                    if (shadow_locked_c) begin
+                        bresp_r <= 2'b10;
+                    end else begin
+                        wr_idx_t = int'((wr_addr_c - 32'h24) >> 2);
+                        shadow_z[wr_idx_t] <= DATA_WIDTH'((shadow_z[wr_idx_t] & ~wr_mask_c) | (wr_data_c[DATA_WIDTH-1:0] & wr_mask_c));
+                    end
                 end else if (wr_addr_c == 32'h48) begin
-                    if (wr_data_c[0] && wr_strb_c[0])
+                    if (shadow_locked_c) begin
+                        bresp_r <= 2'b10;
+                    end else if (wr_data_c[0] && wr_strb_c[0]) begin
+                        for (int i = 0; i < N_DATA; i++) begin
+                            commit_snap_x[i] <= shadow_x[i];
+                            commit_snap_z[i] <= shadow_z[i];
+                        end
                         swap_pending <= 1'b1;
+                    end
                 end else if (wr_addr_c == 32'h54) begin
                     if (wr_strb_c[0] && wr_data_c[3:0] >= 4'd1 && wr_data_c[3:0] <= 4'd7)
                         cfg_max_iter_r <= wr_data_c[3:0];
@@ -242,8 +269,10 @@ module weight_map_reg #(
         prev_bp_ready     <= bp_ready_in;
         prev_swap_pending <= swap_pending;
         for (int i = 0; i < N_DATA; i++) begin
-            prev_act_x[i] <= active_x_r[i];
-            prev_act_z[i] <= active_z_r[i];
+            prev_act_x[i]  <= active_x_r[i];
+            prev_act_z[i]  <= active_z_r[i];
+            prev_snap_x[i] <= commit_snap_x[i];
+            prev_snap_z[i] <= commit_snap_z[i];
         end
 
         if (aresetn && prev_aresetn) begin
@@ -256,10 +285,16 @@ module weight_map_reg #(
                         else $error("[SVA FAIL] active_z_r[%0d] mutated while bp_ready_in==0!", i);
                 end
             end
-            // SVA 2: swap_pending MUST remain asserted until bp_ready_in==1
+            // SVA 2: swap_pending AND committed snapshot MUST remain invariant until bp_ready_in==1
             if (prev_swap_pending && !prev_bp_ready) begin
                 assert (swap_pending == 1'b1)
                     else $error("[SVA FAIL] swap_pending cleared while bp_ready_in==0!");
+                for (int i = 0; i < N_DATA; i++) begin
+                    assert (commit_snap_x[i] == prev_snap_x[i])
+                        else $error("[SVA FAIL] commit_snap_x[%0d] torn while swap_pending==1!", i);
+                    assert (commit_snap_z[i] == prev_snap_z[i])
+                        else $error("[SVA FAIL] commit_snap_z[%0d] torn while swap_pending==1!", i);
+                end
             end
         end
     end

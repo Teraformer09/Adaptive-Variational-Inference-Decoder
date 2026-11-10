@@ -271,6 +271,23 @@ int main(int argc, char *argv[]) {
     signal(SIGINT,  sigint_handler);
     signal(SIGTERM, sigint_handler);
 
+    g_model_z.set_basis_z(false);
+    g_model_z.init(0.012, 0.004);
+    g_model_x.set_basis_z(true);
+    g_model_x.init(0.005, 0.002);
+    g_r2d2.reset_All();
+    if (checkpoint_path && checkpoint_path[0] != '\0') {
+        std::string err_msg;
+        if (!g_r2d2.load_checkpoint(checkpoint_path, &err_msg)) {
+            fprintf(stderr, "[avid_daemon] FATAL: Failed to load R2D2 checkpoint '%s': %s\n",
+                    checkpoint_path, err_msg.c_str());
+            return 2;
+        }
+    } else if (std::strcmp(controller_mode, "avid_r2d2") == 0 && !g_r2d2.is_checkpoint_loaded()) {
+        fprintf(stderr, "[avid_daemon] FATAL: controller_mode=avid_r2d2 requires a valid R2D2 checkpoint.\n");
+        return 2;
+    }
+
     if (avid_hal_open(&g_hal, backend, socket_path, WRD_BASE_ADDR) < 0) {
         fprintf(stderr, "[avid_daemon] Failed to open HAL backend (mode=%d socket=%s)\n",
                 (int)backend, socket_path);
@@ -290,22 +307,6 @@ int main(int argc, char *argv[]) {
     avid_dma_ring_init(&g_dma_ring);
     avid_profiler_init(&g_prof_est, "joint_dp_lbfgs_r2d2_step", 10000.0); /* 10 ms slow-loop deadline */
     avid_fallback_init(&g_fallback, AVID_Q78_DEFAULT);
-
-    g_model_z.set_basis_z(false);
-    g_model_z.init(0.012, 0.004);
-    g_model_x.set_basis_z(true);
-    g_model_x.init(0.005, 0.002);
-    g_r2d2.reset_All();
-    if (checkpoint_path && checkpoint_path[0] != '\0') {
-        std::string err_msg;
-        if (!g_r2d2.load_checkpoint(checkpoint_path, &err_msg)) {
-            fprintf(stderr, "[avid_daemon] Failed to load R2D2 checkpoint '%s': %s\n",
-                    checkpoint_path, err_msg.c_str());
-            if (stim_fp) std::fclose(stim_fp);
-            avid_hal_close(&g_hal);
-            return 2;
-        }
-    }
 
     uint64_t last_cycle = 0;
     if (backend == AVID_HAL_BACKEND_SIMULATION && osd_mode != 1u) {
@@ -364,6 +365,12 @@ int main(int argc, char *argv[]) {
 
     uint64_t rng_state = (seed == 0) ? 0xCAFEBABE12345678ULL : (seed ^ 0x9E3779B97F4A7C15ULL);
     bool pending_fast_burst_trigger = false;
+    bool in_high_regime = false;
+    uint32_t prev_fast_triggers = 0u;
+    double prev_non_triv = 0.10;
+    double smooth_hist_x_f[16] = {0.0};
+    double smooth_hist_z_f[16] = {0.0};
+    bool has_smooth_hist = false;
 
     while (g_running) {
         uint64_t burst[AVID_DMA_SLOT_PACKETS];
@@ -487,19 +494,45 @@ int main(int argc, char *argv[]) {
         avid_dma_ring_push_burst(&g_dma_ring, burst, AVID_DMA_SLOT_PACKETS);
 
         uint32_t valid_in_slot = 0;
-        if (avid_dma_ring_consume_slot(&g_dma_ring, hist_x, hist_z, &valid_in_slot)) {
+        uint32_t slot_hist_x[16] = {0};
+        uint32_t slot_hist_z[16] = {0};
+        if (avid_dma_ring_consume_slot(&g_dma_ring, slot_hist_x, slot_hist_z, &valid_in_slot)) {
+            for (int s = 0; s < 16; ++s) {
+                hist_x[s] += slot_hist_x[s];
+                hist_z[s] += slot_hist_z[s];
+            }
             acc_rounds += valid_in_slot;
         }
 
-        int target_win = single_shot_test ? 512 : window_rounds;
-        bool subepoch_fast_adapt = (pending_fast_burst_trigger &&
-                                    acc_rounds >= 64u &&
-                                    std::strcmp(scenario, "short_burst_60us_vs_10ms") == 0);
+        const double slot_non_triv = 1.0 - ((double)slot_hist_x[0] / (double)std::max(1u, valid_in_slot));
 
-        if ((int)acc_rounds >= target_win || subepoch_fast_adapt) {
+        int target_win = single_shot_test ? 512 : window_rounds;
+        bool is_window_boundary = ((int)acc_rounds >= target_win) ||
+                                  (seq_gen > 0u && (seq_gen % (uint32_t)target_win) == 0u);
+        double sub_non_triv = 1.0 - ((double)hist_x[0] / (double)std::max(1u, acc_rounds));
+        bool causal_burst_onset    = (pending_fast_burst_trigger && !in_high_regime &&
+                                      slot_non_triv >= 0.24 && (sub_non_triv - prev_non_triv) >= 0.065);
+        bool causal_burst_recovery = (in_high_regime && slot_non_triv <= 0.115 && sub_non_triv <= 0.185);
+        bool subepoch_fast_adapt   = (!is_window_boundary &&
+                                      acc_rounds >= 64u &&
+                                      std::strcmp(controller_mode, "avid_r2d2") == 0 &&
+                                      (causal_burst_onset || causal_burst_recovery));
+
+        if (is_window_boundary || subepoch_fast_adapt) {
             if (subepoch_fast_adapt) {
                 fast_burst_subepoch_adaptations++;
                 pending_fast_burst_trigger = false;
+                for (int s = 0; s < 16; ++s) {
+                    hist_x[s] = slot_hist_x[s];
+                    hist_z[s] = slot_hist_z[s];
+                }
+                acc_rounds = valid_in_slot;
+                sub_non_triv = slot_non_triv;
+            }
+            if (sub_non_triv >= 0.20) {
+                in_high_regime = true;
+            } else if (sub_non_triv <= 0.125) {
+                in_high_regime = false;
             }
             avid_profiler_begin(&g_prof_est);
 
@@ -509,7 +542,8 @@ int main(int argc, char *argv[]) {
             /* Authentic data-corruption fault injection for fallback_safety_trigger (Fixes M15):
              * Corrupt the input syndrome histogram and model parameters so the estimator & quantizer
              * genuinely detect an out-of-bounds / unphysical state without boolean bypass flags. */
-            if (std::strcmp(scenario, "fallback_safety_trigger") == 0 && epochs == 1) {
+            const bool is_corrupted_epoch = (std::strcmp(scenario, "fallback_safety_trigger") == 0 && epochs == 1);
+            if (is_corrupted_epoch) {
                 std::memset(hist_x, 0, sizeof(hist_x));
                 for (int q = 0; q < 9; ++q) {
                     g_model_z.theta_(q) = 0.65; /* Unphysical > 0.50 depolarization */
@@ -517,24 +551,32 @@ int main(int argc, char *argv[]) {
             }
 
             if (std::strcmp(controller_mode, "static") == 0) {
-                g_model_z.init(0.012, 0.004);
-                g_model_x.init(0.005, 0.002);
+                if (!is_corrupted_epoch) {
+                    g_model_z.init(0.012, 0.004);
+                    g_model_x.init(0.005, 0.002);
+                }
                 last_nll = g_model_z.compute_nll_from_histogram(hist_x);
                 last_marginal_nll = g_model_z.compute_legacy_marginal_nll_from_histogram(hist_x);
             } else if (std::strcmp(controller_mode, "tuned_static") == 0) {
                 /* Tuned static prior matched to spatial average noise without online adaptation */
-                g_model_z.init(0.024, 0.015);
-                g_model_x.init(0.006, 0.003);
+                if (!is_corrupted_epoch) {
+                    g_model_z.init(0.024, 0.015);
+                    g_model_x.init(0.006, 0.003);
+                }
                 last_nll = g_model_z.compute_nll_from_histogram(hist_x);
                 last_marginal_nll = g_model_z.compute_legacy_marginal_nll_from_histogram(hist_x);
             } else if (std::strcmp(controller_mode, "marginal_lbfgs") == 0) {
-                last_marginal_nll = g_solver.fit_legacy_marginal_histogram(g_model_z, hist_x, 20);
-                g_solver.fit_legacy_marginal_histogram(g_model_x, hist_z, 12);
+                if (!is_corrupted_epoch) {
+                    last_marginal_nll = g_solver.fit_legacy_marginal_histogram(g_model_z, hist_x, 20);
+                    g_solver.fit_legacy_marginal_histogram(g_model_x, hist_z, 12);
+                }
                 last_nll = g_model_z.compute_nll_from_histogram(hist_x);
             } else if (std::strcmp(controller_mode, "b4_oracle") == 0) {
                 /* Oracle baseline receives true instantaneous parameter vector */
-                g_model_z.theta_ = true_theta_z;
-                g_model_x.theta_ = true_theta_x;
+                if (!is_corrupted_epoch) {
+                    g_model_z.theta_ = true_theta_z;
+                    g_model_x.theta_ = true_theta_x;
+                }
                 last_nll = g_model_z.compute_nll_from_histogram(hist_x);
                 last_marginal_nll = g_model_z.compute_legacy_marginal_nll_from_histogram(hist_x);
             } else {
@@ -553,12 +595,21 @@ int main(int argc, char *argv[]) {
             int selected_action_id = 0;
             bool action_recalibrate = false;
             bool action_fallback = false;
+            double temporal_beta = 0.0;
 
             if (std::strcmp(controller_mode, "avid_r2d2") == 0) {
+                const uint32_t new_triggers = (g_fast_detector.trigger_count >= prev_fast_triggers)
+                                                  ? (g_fast_detector.trigger_count - prev_fast_triggers)
+                                                  : 0u;
+                prev_fast_triggers = g_fast_detector.trigger_count;
+                const double density_jump = std::abs(sub_non_triv - prev_non_triv);
+                prev_non_triv = sub_non_triv;
                 const double burst_score = std::clamp(
-                    g_fast_detector.peak_density / std::max(0.01, g_fast_detector.density_threshold),
-                    0.0,
-                    1.0);
+                    3.20 * std::max(0.0, density_jump - 0.035) +
+                    (subepoch_fast_adapt ? 0.65 : 0.04) +
+                    ((new_triggers > 0u && density_jump >= 0.05) ? 0.25 : 0.0),
+                    0.02,
+                    0.95);
                 g_r2d2.step_causal(
                     hist_x,
                     hist_z,
@@ -571,14 +622,43 @@ int main(int argc, char *argv[]) {
                     &pair_weight_scale,
                     &selected_action_id,
                     &action_recalibrate,
-                    &action_fallback);
+                    &action_fallback,
+                    &temporal_beta);
 
-                if (action_recalibrate) {
-                    /* Action a4 (FAST_RECALIBRATE_K8): re-run L-BFGS from fresh initialization
-                     * to shed stale prior inertia during abrupt regime shifts or bursts */
-                    g_model_z.init(0.025, 0.020);
-                    last_nll = g_solver.fit_histogram(g_model_z, hist_x, 24, &diag_z);
+                if (!is_corrupted_epoch) {
+                    const double scale_w = (double)target_win / (double)std::max(1u, acc_rounds);
+                    const double smooth_non_triv = has_smooth_hist
+                        ? (1.0 - (smooth_hist_x_f[0] / (double)std::max(1, target_win)))
+                        : sub_non_triv;
+                    if (!has_smooth_hist || action_recalibrate || subepoch_fast_adapt ||
+                        density_jump >= 0.035 ||
+                        (sub_non_triv < 0.23 && (sub_non_triv - smooth_non_triv) >= 0.004)) {
+                        for (int s = 0; s < 16; ++s) {
+                            smooth_hist_x_f[s] = (double)hist_x[s] * scale_w;
+                            smooth_hist_z_f[s] = (double)hist_z[s] * scale_w;
+                        }
+                        has_smooth_hist = true;
+                    } else if (temporal_beta > 0.0) {
+                        uint32_t eval_hx[16] = {0};
+                        uint32_t eval_hz[16] = {0};
+                        for (int s = 0; s < 16; ++s) {
+                            smooth_hist_x_f[s] = temporal_beta * smooth_hist_x_f[s] +
+                                                 (1.0 - temporal_beta) * ((double)hist_x[s] * scale_w);
+                            smooth_hist_z_f[s] = temporal_beta * smooth_hist_z_f[s] +
+                                                 (1.0 - temporal_beta) * ((double)hist_z[s] * scale_w);
+                            eval_hx[s] = (uint32_t)std::max(0L, std::lround(smooth_hist_x_f[s]));
+                            eval_hz[s] = (uint32_t)std::max(0L, std::lround(smooth_hist_z_f[s]));
+                        }
+                        last_nll = g_solver.fit_histogram(g_model_z, eval_hx, 22, &diag_z);
+                        g_solver.fit_histogram(g_model_x, eval_hz, 12, &diag_x);
+                        last_marginal_nll = diag_z.legacy_marginal_nll;
+                        last_grad_inf     = diag_z.final_grad_inf_norm;
+                        last_lbfgs_iters  = diag_z.iterations_executed;
+                    }
                 }
+            } else if (std::strcmp(controller_mode, "marginal_lbfgs") == 0) {
+                pair_weight_scale = 0.95;
+                rec_k = 3u;
             } else if (std::strcmp(controller_mode, "joint_dp_proj") == 0) {
                 pair_weight_scale = 1.0;
                 rec_k = 4u;
@@ -684,9 +764,11 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            std::memset(hist_x, 0, sizeof(hist_x));
-            std::memset(hist_z, 0, sizeof(hist_z));
-            acc_rounds = 0;
+            if (!subepoch_fast_adapt) {
+                std::memset(hist_x, 0, sizeof(hist_x));
+                std::memset(hist_z, 0, sizeof(hist_z));
+                acc_rounds = 0;
+            }
             epochs++;
 
             if (single_shot_test && epochs >= 2) {

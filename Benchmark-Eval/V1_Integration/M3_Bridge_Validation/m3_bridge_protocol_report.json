@@ -1,10 +1,10 @@
 {
   "milestone": "M3_Bridge_Validation",
-  "run_id": "avid_v1_integration_20261108_083417_s2026",
+  "run_id": "avid_v1_integration_20261110_204636_s2026",
   "bridge_metrics": {
     "protocol_version": 1,
-    "simulator": "verilator_c++_rtl",
-    "native_verilator_compiled": true,
+    "simulator": "cpp_cycle_exact_reference_fallback",
+    "native_verilator_compiled": false,
     "clock_mode": "deterministic",
     "clock_period_ns": 4,
     "served_clients": 2,
@@ -15,8 +15,8 @@
     "reset_operations": 1,
     "irq_events": 1,
     "rejected_transactions": 6,
-    "final_sim_cycle": 110,
-    "final_sim_time_ns": 440,
+    "final_sim_cycle": 104,
+    "final_sim_time_ns": 416,
     "final_epoch_count": 1
   },
   "intentional_negative_test_rejections": 6,

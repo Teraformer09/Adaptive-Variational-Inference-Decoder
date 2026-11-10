@@ -4,18 +4,9 @@
 // Target  : Xilinx Zynq-7020 / Kria K26  @250 MHz
 //
 // Purpose  — Phase 1.1
-//   AXI4-Stream SLAVE for syndrome ingestion.  Extended from ZEPHYR with a
-//   depth-4 FIFO so back-to-back DMA bursts do not stall the AXI bus while
-//   the BP engine is still processing.  Syndrome words are buffered and
-//   drained in-order.
-//
-//   COMMANDMENT #4: The ARM CPU never touches the syndrome stream in transit.
-//   COMMANDMENT #9: No interrupt triggers the next decode.  The FIFO is the
-//                   elastic buffer between the DMA (bursty) and the decoder
-//                   (deterministic).
-//
-//   FIFO depth: 4 entries (covers 4 back-to-back syndrome rounds during one
-//   BP decode cycle of 17 clocks).  Increase FIFO_DEPTH for longer pipelines.
+//   AXI4-Stream SLAVE for syndrome ingestion with a depth-16 elastic FIFO so
+//   back-to-back DMA bursts do not stall the AXI bus or drop syndromes while
+//   the BP engine is processing or egress is backpressured.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -23,7 +14,7 @@ module axis_syndrome_rx #(
     parameter int DATA_WIDTH  = 16,
     parameter int N_CHECK_X   = 4,
     parameter int N_CHECK_Z   = 4,
-    parameter int FIFO_DEPTH  = 4    // Must be power of 2
+    parameter int FIFO_DEPTH  = 16   // Must be power of 2
 )(
     input  logic                     aclk,
     input  logic                     aresetn,
@@ -63,6 +54,10 @@ module axis_syndrome_rx #(
     always_ff @(posedge aclk) begin
         if (!aresetn) begin
             wr_ptr <= '0;
+            for (int i = 0; i < FIFO_DEPTH; i++) begin
+                fifo_data[i] <= '0;
+                fifo_last[i] <= 1'b0;
+            end
         end else if (s_axis_tvalid && s_axis_tready) begin
             fifo_data[wr_ptr[PTR_W-1:0]] <= s_axis_tdata;
             fifo_last[wr_ptr[PTR_W-1:0]] <= s_axis_tlast;
@@ -70,13 +65,13 @@ module axis_syndrome_rx #(
         end
     end
 
-    // Read side — drain to decoder when BP engine is ready
+    // Read side — pop exactly one word when decoder is idle and no unconsumed word is staged
     logic handshake;
-    assign handshake = !fifo_empty && sbu_ready;
+    assign handshake = !fifo_empty && sbu_ready && !syndrome_valid;
 
     always_ff @(posedge aclk) begin
         if (!aresetn) begin
-            rd_ptr        <= '0;
+            rd_ptr         <= '0;
             syndrome_valid <= 1'b0;
             syndrome_last  <= 1'b0;
             syndrome_x     <= '0;
@@ -84,11 +79,11 @@ module axis_syndrome_rx #(
             epoch_count    <= 32'd0;
         end else begin
             if (handshake) begin
-                syndrome_x    <= fifo_data[rd_ptr[PTR_W-1:0]][N_CHECK_X-1:0];
-                syndrome_z    <= fifo_data[rd_ptr[PTR_W-1:0]][N_CHECK_X+N_CHECK_Z-1:N_CHECK_X];
-                syndrome_last <= fifo_last[rd_ptr[PTR_W-1:0]];
+                syndrome_x     <= fifo_data[rd_ptr[PTR_W-1:0]][N_CHECK_X-1:0];
+                syndrome_z     <= fifo_data[rd_ptr[PTR_W-1:0]][N_CHECK_X+N_CHECK_Z-1:N_CHECK_X];
+                syndrome_last  <= fifo_last[rd_ptr[PTR_W-1:0]];
                 syndrome_valid <= 1'b1;
-                rd_ptr <= rd_ptr + 1'b1;
+                rd_ptr         <= rd_ptr + 1'b1;
                 if (fifo_last[rd_ptr[PTR_W-1:0]])
                     epoch_count <= epoch_count + 32'd1;
             end else if (sbu_ready) begin

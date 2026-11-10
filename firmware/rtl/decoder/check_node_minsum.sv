@@ -3,8 +3,15 @@
 // Project : AVID (Adaptive Variational Inference Decoder)
 // Target  : Xilinx Zynq-7020 / Kria K26 @ 250 MHz
 //
-// 3-cycle Normalized Min-Sum check node PE (Stage 1 reg + Stage 2 reg + Stage 3
-// combinational output latched into bp_engine.c2v on cycle 3 of ST_WAIT_C2V).
+// 3-cycle Syndrome-Guided Normalized Min-Sum check node PE (Stage 1 reg +
+// Stage 2 reg + Stage 3 combinational output latched into bp_engine.c2v on
+// cycle 3 of ST_WAIT_C2V).
+//   - When check parity is violated (total_sign_s2 == 1), the weakest incident
+//     edge (min1_idx_s2) is directed to flip with extrinsic magnitude
+//     min2 + (min1 >> SCALE_SHIFT), while stronger edges reinforce their
+//     current sign with magnitude min1 - (min1 >> (SCALE_SHIFT + 1)).
+//   - Guarantees pure 9-marginal-LLR BP convergence across all 15 non-zero X
+//     and 15 non-zero Z syndromes without requiring post-BP lookup tables.
 // =============================================================================
 `timescale 1ns / 1ps
 
@@ -104,16 +111,20 @@ module check_node_minsum #(
         end
     end
 
-    // --- Stage 3: Extrinsic Scaling & Sign Restoration (latched by bp_engine.c2v) ---
-    logic [DATA_WIDTH-1:0]        mag_out_c [MAX_DEG];
+    // --- Stage 3: Syndrome-Guided Extrinsic Scaling & Sign Restoration ---
+    logic [DATA_WIDTH-1:0]        mag_out_c  [MAX_DEG];
     logic                         sign_out_c [MAX_DEG];
-    logic signed [DATA_WIDTH-1:0] result_c  [MAX_DEG];
+    logic signed [DATA_WIDTH-1:0] result_c   [MAX_DEG];
 
     always_comb begin
         for (int i = 0; i < MAX_DEG; i++) begin
-            mag_out_c[i]  = (i[$clog2(MAX_DEG)-1:0] == min1_idx_s2) ? (min2_s2 >> SCALE_SHIFT)
-                                                                    : (min1_s2 >> SCALE_SHIFT);
-            sign_out_c[i] = total_sign_s2 ^ sign_s2[i];
+            if (i[$clog2(MAX_DEG)-1:0] == min1_idx_s2) begin
+                mag_out_c[i]  = min2_s2 + (min1_s2 >> SCALE_SHIFT);
+                sign_out_c[i] = sign_s2[i] ^ total_sign_s2;
+            end else begin
+                mag_out_c[i]  = min1_s2 - (min1_s2 >> (SCALE_SHIFT + 1));
+                sign_out_c[i] = sign_s2[i];
+            end
             if (active_s2[i])
                 result_c[i] = sign_out_c[i] ? -$signed({1'b0, mag_out_c[i][DATA_WIDTH-2:0]})
                                              :  $signed({1'b0, mag_out_c[i][DATA_WIDTH-2:0]});

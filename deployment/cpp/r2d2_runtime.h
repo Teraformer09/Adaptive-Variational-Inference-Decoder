@@ -9,9 +9,10 @@ namespace deployment {
 
 struct R2D2InferenceOutput {
     int action_id = 0;
-    const char* action_name = "STATIC_PRIOR_K4";
+    const char* action_name = "STATIC_PRIOR_K3";
     double pair_weight_scale = 0.0;
-    int bp_iterations = 4;
+    int bp_iterations = 3;
+    double temporal_beta = 0.75;
     bool recalibrate = false;
     bool fallback = false;
     double state_value = 0.0;

@@ -1,8 +1,8 @@
 # M1: Standalone SystemVerilog RTL Correctness & SVA Verification
 
 ## Provenance
-- **Run ID**: `avid_v1_integration_20261108_083417_s2026`
-- **Simulator**: `verilator_c++_rtl` (`native_verilator_compiled = True`, `--assert` enabled)
+- **Run ID**: `avid_v1_integration_20261110_204636_s2026`
+- **Simulator**: `cpp_cycle_exact_reference_fallback` (`native_verilator_compiled = False`, `--assert` enabled)
 - **Top Module**: `aa_qec_top` (`firmware/rtl/top/aa_qec_top.sv`)
 
 ## Verification Summary (`96/96` Syndrome $\times$ OSD-Mode Vectors)

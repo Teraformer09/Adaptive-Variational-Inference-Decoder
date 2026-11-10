@@ -12,4 +12,4 @@
    - 16-round sliding subwindow (`subwindow_rounds = 16`), syndrome-density threshold `0.35`, 4-round debounce (`worst_case_trigger_latency_rounds = 20` rounds = `20 us` at `1 MHz`).
 3. **Slow Adaptive Estimation & Control Path (ARM PS / QEMU Guest)**:
    - Dual-basis ($X$ and $Z$) 16-state exact XOR-convolution Dynamic Programming (DP) + analytical coset-inversion gradient + two-pass L-BFGS MAP estimator (`noise_model.cpp`, `lbfgs_solver.cpp`).
-   - 64-unit `int8` LSTM Weighted-Bellman R2D2 controller (`r2d2_lstm_controller.h`, `25,998` parameters = `25.39 KB`) producing ping-pong shadow-bank Q7.8 LLR updates committed atomically across `weight_map_reg.sv`.
+   - 64-unit Dueling LSTM R2D2 controller (`r2d2_lstm_controller.h` / `r2d2_runtime.cpp`, `19,744` parameters = `19.28 KB` `int8` / `77.12 KB` `fp32`) producing 6 discrete control actions ($K \in \{3, 4, 5\}$, $\gamma_{\mathrm{pair}}$, temporal smoothing $\beta$, recalibrate, fallback) and 9 per-qubit gain residuals committed atomically across `weight_map_reg.sv`.

@@ -342,7 +342,11 @@ void NoiseModel::to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT],
             int u = NM_CROSSTALK_PAIRS[k].i;
             int v = NM_CROSSTALK_PAIRS[k].j;
             if (g_pair == g && event_signature(u) != event_signature(v)) {
-                double score = theta_(NM_N_QUBIT + k) + 0.5 * (theta_(u) + theta_(v));
+                double score = theta_(NM_N_QUBIT + k) + 0.25 * (theta_(u) + theta_(v));
+                if (qubit_gains) {
+                    const double end_gain = std::max(0.5, 0.5 * (qubit_gains[u] + qubit_gains[v]));
+                    score *= (1.0 / end_gain);
+                }
                 if (score > best_pair_score) {
                     best_pair_score = score;
                     best_pair_k = k;
@@ -368,23 +372,56 @@ void NoiseModel::to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT],
         int v = NM_CROSSTALK_PAIRS[best_pair_k].j;
         double p_pair       = theta_(NM_N_QUBIT + best_pair_k);
         double p_end_max    = std::max(theta_(u), theta_(v));
-        double p_base_prior = prior_theta_(aliased_singles[0]);
+        double p_base_prior = std::min(0.015, prior_theta_(aliased_singles[0]));
 
-        /* Bayesian syndrome-alias dominance condition modulated by pair_weight_scale */
-        double pair_evidence = pair_weight_scale * (p_pair + 0.5 * std::max(0.0, p_end_max - p_base_prior));
+        bool dominated_by_adjacent_pair = false;
+        for (int k2 = 0; k2 < NM_N_CROSSTALK; k2++) {
+            if (k2 == best_pair_k) continue;
+            int u2 = NM_CROSSTALK_PAIRS[k2].i;
+            int v2 = NM_CROSSTALK_PAIRS[k2].j;
+            if ((u2 == u || u2 == v || v2 == u || v2 == v) &&
+                theta_(NM_N_QUBIT + k2) > p_pair + 0.008) {
+                dominated_by_adjacent_pair = true;
+                break;
+            }
+        }
+        if (dominated_by_adjacent_pair) {
+            continue;
+        }
+
+        double gain_boost = 1.0;
+        if (qubit_gains) {
+            double end_gain_avg = std::max(0.5, 0.5 * (qubit_gains[u] + qubit_gains[v]));
+            double single_gain  = qubit_gains[aliased_singles[0]];
+            gain_boost = std::clamp(single_gain / end_gain_avg, 0.72, 1.42);
+        }
+
+        /* Bayesian syndrome-alias dominance condition modulated by pair_weight_scale and qubit_gains */
+        double end_support   = (p_pair > 0.012) ? (0.48 * std::max(0.0, p_end_max - p_base_prior)) : 0.0;
+        double pair_evidence = pair_weight_scale * gain_boost * (p_pair + end_support);
         if (pair_evidence > p_base_prior + 0.008) {
             double p_eff_pair = std::clamp(std::max(p_pair, 0.65 * p_end_max), 0.015, 0.38);
-            double scale_inv  = 1.0 / std::clamp(pair_weight_scale, 0.5, 2.0);
+            double eff_scale  = 0.85 + 0.15 * pair_weight_scale + 0.85 * (gain_boost - 1.0);
+            double scale_inv  = 1.0 / std::clamp(eff_scale, 0.50, 2.20);
             int16_t pair_half_q78 = (int16_t)std::clamp(
-                (long)std::lround(0.45 * scale_inv * std::log((1.0 - p_eff_pair) / p_eff_pair) * 256.0),
+                (long)std::lround(0.48 * scale_inv * std::log((1.0 - p_eff_pair) / p_eff_pair) * 256.0),
                 16L, 0x0200L);
-            llr_q78[u] = std::min(llr_q78[u], pair_half_q78);
-            llr_q78[v] = std::min(llr_q78[v], pair_half_q78);
+            int16_t u_half = qubit_gains
+                                 ? (int16_t)std::clamp((long)std::lround(pair_half_q78 * qubit_gains[u]), 16L, 0x0220L)
+                                 : pair_half_q78;
+            int16_t v_half = qubit_gains
+                                 ? (int16_t)std::clamp((long)std::lround(pair_half_q78 * qubit_gains[v]), 16L, 0x0220L)
+                                 : pair_half_q78;
+            llr_q78[u] = std::min(llr_q78[u], u_half);
+            llr_q78[v] = std::min(llr_q78[v], v_half);
 
             int16_t pair_sum = (int16_t)(llr_q78[u] + llr_q78[v]);
             for (int idx = 0; idx < n_aliased; idx++) {
                 int w = aliased_singles[idx];
-                llr_q78[w] = std::max<int16_t>(llr_q78[w], (int16_t)(pair_sum + 0x0020));
+                int16_t margin = qubit_gains
+                                     ? (int16_t)std::clamp((long)std::lround(32.0 + 96.0 * (qubit_gains[w] - 1.0)), 16L, 96L)
+                                     : (int16_t)0x0020;
+                llr_q78[w] = std::max<int16_t>(llr_q78[w], (int16_t)(pair_sum + margin));
             }
         }
     }

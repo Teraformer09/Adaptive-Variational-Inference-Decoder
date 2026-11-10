@@ -289,6 +289,8 @@ def run_experiment(config_path: Path) -> int:
                 controller_mode,
                 "--osd-mode",
                 str(osd_mode),
+                "--checkpoint",
+                str(REPO_ROOT / "checkpoints" / "r2d2_v1_trained.bin"),
                 "--metrics-out",
                 str(sw_metrics),
             ]

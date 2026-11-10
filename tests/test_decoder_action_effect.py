@@ -119,3 +119,77 @@ def test_heldout_multi_pair_12_67_projection_and_fallback(tmp_path: Path) -> Non
         repo_root, tmp_path, "fallback_safety_trigger", "avid_r2d2", rounds=1024, window=256
     )
     assert m_fb["fallback_events"] >= 1
+
+
+def test_executable_relative_checkpoint_and_hard_fail_on_missing_checkpoint(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    daemon_bin = repo_root / "emulator" / "qemu" / "images" / "avid_daemon_x86_64"
+    bridge_bin = repo_root / "emulator" / "verilator" / "models" / "avid_cosim_bridge"
+
+    # 1. Verify hard fail (exit code 2) when avid_r2d2 is given a nonexistent checkpoint path
+    bad_proc = subprocess.run(
+        [
+            str(daemon_bin),
+            "--backend",
+            "sim",
+            "--scenario",
+            "stationary_noise",
+            "--controller-mode",
+            "avid_r2d2",
+            "--checkpoint",
+            str(tmp_path / "nonexistent_r2d2_checkpoint.bin"),
+        ],
+        cwd=str(tmp_path),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert bad_proc.returncode == 2
+    assert "FATAL" in bad_proc.stderr
+
+    # 2. Verify executable-relative checkpoint resolution when launched from /tmp without --checkpoint
+    sock_path = tmp_path / "rel_ckpt.sock"
+    metrics_path = tmp_path / "rel_ckpt_metrics.json"
+    bridge_proc = subprocess.Popen(
+        [str(bridge_bin), "--socket", str(sock_path), "--max-clients", "1"],
+        cwd=str(tmp_path),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    try:
+        for _ in range(50):
+            if sock_path.exists():
+                break
+            subprocess.run(["sleep", "0.02"], check=False)
+        subprocess.run(
+            [
+                str(daemon_bin),
+                "--backend",
+                "sim",
+                "--socket",
+                str(sock_path),
+                "--scenario",
+                "correlated_noise",
+                "--controller-mode",
+                "avid_r2d2",
+                "--rounds",
+                "512",
+                "--window",
+                "256",
+                "--seed",
+                "2026",
+                "--metrics-out",
+                str(metrics_path),
+            ],
+            cwd=str(tmp_path),
+            check=True,
+            timeout=30,
+        )
+    finally:
+        bridge_proc.terminate()
+        bridge_proc.wait(timeout=5)
+
+    m = json.loads(metrics_path.read_text(encoding="utf-8"))
+    assert m["r2d2_checkpoint_loaded"] is True
+    assert m["logical_error_rate"] < m["static_b0_logical_error_rate"]
+

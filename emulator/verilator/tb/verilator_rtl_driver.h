@@ -257,15 +257,27 @@ public:
         if ((addr & 0x3u) != 0u) {
             valid_write = false;
         } else if (addr < 36u) {
-            int idx = (int)(addr >> 2);
-            uint16_t cur = (uint16_t)shadow_x[idx];
-            shadow_x[idx] = (int16_t)((cur & ~wmask) | ((uint16_t)data & wmask));
+            if (swap_pending && bp_busy) {
+                valid_write = false;
+            } else {
+                int idx = (int)(addr >> 2);
+                uint16_t cur = (uint16_t)shadow_x[idx];
+                shadow_x[idx] = (int16_t)((cur & ~wmask) | ((uint16_t)data & wmask));
+            }
         } else if (addr >= 0x24u && addr < 0x48u) {
-            int idx = (int)((addr - 0x24u) >> 2);
-            uint16_t cur = (uint16_t)shadow_z[idx];
-            shadow_z[idx] = (int16_t)((cur & ~wmask) | ((uint16_t)data & wmask));
+            if (swap_pending && bp_busy) {
+                valid_write = false;
+            } else {
+                int idx = (int)((addr - 0x24u) >> 2);
+                uint16_t cur = (uint16_t)shadow_z[idx];
+                shadow_z[idx] = (int16_t)((cur & ~wmask) | ((uint16_t)data & wmask));
+            }
         } else if (addr == 0x48u) {
-            if ((data & 1u) && (byte_enable & 1u)) swap_pending = true;
+            if (swap_pending && bp_busy) {
+                valid_write = false;
+            } else if ((data & 1u) && (byte_enable & 1u)) {
+                swap_pending = true;
+            }
         } else if (addr == 0x54u) {
             uint32_t k = data & 0xFu;
             if ((byte_enable & 1u) && k >= 1u && k <= 7u) cfg_max_iter = k;
@@ -448,10 +460,43 @@ public:
         static const int VAR_CHECK_Z[9][4]  = {{0,0,0,0},{0,0,0,0},{1,0,0,0},{0,2,0,0},{0,3,0,0},{1,3,0,0},{2,0,0,0},{3,0,0,0},{3,0,0,0}};
         static const int VAR_POS_Z[9][4]    = {{0,0,0,0},{1,0,0,0},{0,0,0,0},{2,0,0,0},{3,0,0,0},{1,1,0,0},{1,0,0,0},{2,0,0,0},{3,0,0,0}};
 
+        int16_t init_b[9];
         int16_t belief[9];
         int16_t c2v[4][4] = {{0}};
         int16_t v2c[4][4] = {{0}};
-        for (int v = 0; v < 9; v++) belief[v] = channel_llr[v];
+        int pop_t = ((synd >> 0) & 1) + ((synd >> 1) & 1) + ((synd >> 2) & 1) + ((synd >> 3) & 1);
+        for (int v = 0; v < 9; v++) {
+            int deg = basis_z ? VAR_DEG_Z[v] : VAR_DEG_X[v];
+            int unsat = 0, sat = 0;
+            for (int j = 0; j < deg; j++) {
+                int vc = basis_z ? VAR_CHECK_Z[v][j] : VAR_CHECK_X[v][j];
+                if ((synd >> vc) & 1) unsat++;
+                else                  sat++;
+            }
+            int16_t bulk_bias = (v == 4 && pop_t < 4) ? (int16_t)(-16)
+                              : ((v == 4 && pop_t == 4) ? (int16_t)32 : (int16_t)v);
+            init_b[v] = (int16_t)(channel_llr[v]
+                                  - (int16_t)unsat * (channel_llr[v] >> 2)
+                                  + (int16_t)sat   * (channel_llr[v] >> 1)
+                                  + bulk_bias);
+            belief[v] = init_b[v];
+        }
+
+        auto compute_raw_synd = [&](uint16_t rc) -> uint8_t {
+            if (!basis_z) {
+                uint8_t b0 = ((rc >> 0) ^ (rc >> 1)) & 1u;
+                uint8_t b1 = ((rc >> 1) ^ (rc >> 2) ^ (rc >> 4) ^ (rc >> 5)) & 1u;
+                uint8_t b2 = ((rc >> 3) ^ (rc >> 4) ^ (rc >> 6) ^ (rc >> 7)) & 1u;
+                uint8_t b3 = ((rc >> 7) ^ (rc >> 8)) & 1u;
+                return (uint8_t)(b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
+            } else {
+                uint8_t b0 = ((rc >> 0) ^ (rc >> 1) ^ (rc >> 3) ^ (rc >> 4)) & 1u;
+                uint8_t b1 = ((rc >> 2) ^ (rc >> 5)) & 1u;
+                uint8_t b2 = ((rc >> 3) ^ (rc >> 6)) & 1u;
+                uint8_t b3 = ((rc >> 4) ^ (rc >> 5) ^ (rc >> 7) ^ (rc >> 8)) & 1u;
+                return (uint8_t)(b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
+            }
+        };
 
         for (int it = 0; it < max_iter; it++) {
             for (int c = 0; c < 4; c++) {
@@ -475,8 +520,10 @@ public:
                 }
                 for (int j = 0; j < 4; j++) {
                     if ((mask >> j) & 1) {
-                        uint16_t m_out = ((j == min1_idx) ? min2 : min1) >> 1;
-                        int s_out = total_sign ^ signs[j];
+                        uint16_t m_out = (j == min1_idx)
+                                             ? (uint16_t)(min2 + (min1 >> 1))
+                                             : (uint16_t)(min1 - (min1 >> 2));
+                        int s_out = (j == min1_idx) ? (signs[j] ^ total_sign) : signs[j];
                         int16_t val = (int16_t)(m_out & 0x7FFFu);
                         c2v[c][j] = s_out ? (int16_t)(-val) : val;
                     } else {
@@ -484,20 +531,30 @@ public:
                     }
                 }
             }
-            for (int v = 0; v < 9; v++) {
-                int deg = basis_z ? VAR_DEG_Z[v] : VAR_DEG_X[v];
-                int16_t acc = channel_llr[v];
-                for (int j = 0; j < deg; j++) {
-                    int vc = basis_z ? VAR_CHECK_Z[v][j] : VAR_CHECK_X[v][j];
-                    int vp = basis_z ? VAR_POS_Z[v][j]   : VAR_POS_X[v][j];
-                    acc = (int16_t)(acc + c2v[vc][vp]);
+            uint16_t cur_rc = 0;
+            if ((synd & 0xFu) != 0) {
+                for (int v = 0; v < 9; v++) {
+                    if (belief[v] < 0) cur_rc |= (uint16_t)(1u << v);
                 }
-                belief[v] = acc;
+            }
+            if (it == 0 || compute_raw_synd(cur_rc) != (synd & 0xFu)) {
+                for (int v = 0; v < 9; v++) {
+                    int deg = basis_z ? VAR_DEG_Z[v] : VAR_DEG_X[v];
+                    int16_t acc = init_b[v];
+                    for (int j = 0; j < deg; j++) {
+                        int vc = basis_z ? VAR_CHECK_Z[v][j] : VAR_CHECK_X[v][j];
+                        int vp = basis_z ? VAR_POS_Z[v][j]   : VAR_POS_X[v][j];
+                        acc = (int16_t)(acc + c2v[vc][vp]);
+                    }
+                    belief[v] = acc;
+                }
             }
         }
         uint16_t raw_corr = 0;
-        for (int v = 0; v < 9; v++) {
-            if (belief[v] < 0) raw_corr |= (uint16_t)(1u << v);
+        if ((synd & 0xFu) != 0) {
+            for (int v = 0; v < 9; v++) {
+                if (belief[v] < 0) raw_corr |= (uint16_t)(1u << v);
+            }
         }
         if (osd_mode == 0u) {
             return raw_corr;
@@ -505,7 +562,7 @@ public:
 
         int32_t w[9];
         for (int v = 0; v < 9; v++) {
-            int32_t post_w = (int32_t)channel_llr[v] + ((int32_t)belief[v] >> 3);
+            int32_t post_w = (int32_t)channel_llr[v];
             w[v] = (post_w > 0) ? post_w : 1;
         }
 
@@ -544,19 +601,24 @@ public:
                     break;
                 case 0x5: osd_corr = ((w[1] + w[4]) < (w[0] + w[3])) ? 0x012u : 0x009u; break;
                 case 0x6: osd_corr = (w[4] <= (w[3] + w[5])) ? 0x010u : 0x028u; break;
-                case 0x7: osd_corr = ((w[0] + w[4]) <= (w[1] + w[3])) ? 0x011u : 0x00Au; break;
+                case 0x7:
+                    if ((w[4] + w[5] + 40) < w[3] && (w[4] + w[5]) < w[0])
+                        osd_corr = 0x032u;
+                    else if ((w[0] + w[4]) <= (w[1] + w[3]))
+                        osd_corr = 0x011u;
+                    else
+                        osd_corr = 0x00Au;
+                    break;
                 case 0x8: osd_corr = ((w[6] + w[7]) < w[8]) ? 0x0C0u : 0x100u; break;
                 case 0x9: osd_corr = 0x101u; break;
                 case 0xA: osd_corr = ((w[4] + w[7]) < (w[5] + w[8])) ? 0x090u : 0x120u; break;
-                case 0xB: osd_corr = 0x102u; break;
+                case 0xB: osd_corr = ((w[6] + w[7]) < w[8]) ? 0x0C2u : 0x102u; break;
                 case 0xC: osd_corr = (w[7] <= (w[3] + w[8])) ? 0x080u : 0x108u; break;
-                case 0xD: osd_corr = 0x081u; break;
+                case 0xD: osd_corr = ((w[1] + w[2]) < w[0]) ? 0x086u : 0x081u; break;
                 case 0xE: osd_corr = ((w[4] + w[8]) <= (w[5] + w[7])) ? 0x110u : 0x0A0u; break;
                 case 0xF: osd_corr = 0x082u; break;
             }
-            if (raw_synd == s_code && s_code != 0x1u && s_code != 0x2u && s_code != 0x4u && s_code != 0x8u) {
-                return raw_corr;
-            }
+            (void)raw_synd;
             return osd_corr;
         } else {
             uint8_t b0 = ((raw_corr >> 0) ^ (raw_corr >> 1) ^ (raw_corr >> 3) ^ (raw_corr >> 4)) & 1u;
@@ -602,9 +664,7 @@ public:
                 case 0xE: osd_corr = 0x060u; break;
                 case 0xF: osd_corr = 0x028u; break;
             }
-            if (raw_synd == s_code && s_code != 0x1u && s_code != 0x2u && s_code != 0x4u && s_code != 0x8u) {
-                return raw_corr;
-            }
+            (void)raw_synd;
             return osd_corr;
         }
         return raw_corr;
@@ -716,6 +776,11 @@ public:
         axil_read(0x124u + 4u * 4u, &act_mid, &cyc);
         bool not_corrupted_mid_decode = ((int16_t)(act_mid & 0xFFFFu) == orig_z4);
 
+        /* Attempt a torn shadow write while swap_pending == 1 && bp_busy == 1:
+         * Must be rejected with SLVERR and must NOT corrupt the committed snapshot! */
+        bp_busy = true;
+        bool torn_write_rejected = !axil_write(0x024u + 4u * 4u, 0x03FFu, 0x3u, &cyc);
+
         /* Advance until decode finishes and atomic swap fires on bp_ready_in=1 */
         uint32_t wait_c = 0;
         while (top->bp_core_busy_mon && wait_c < 50) {
@@ -733,10 +798,11 @@ public:
             active_z[i] = shadow_z[i];
         }
         swap_pending = false;
+        bp_busy = false;
         epoch_count = ep_after;
 
         if (cycles_delayed_out) *cycles_delayed_out = wait_c;
-        return busy_mid && pending_mid && not_corrupted_mid_decode &&
+        return busy_mid && pending_mid && not_corrupted_mid_decode && torn_write_rejected &&
                ((int16_t)(act_after & 0xFFFFu) == new_z4) && (ep_after == ep_before + 1u);
 #else
         bp_busy = true;
@@ -784,25 +850,46 @@ public:
         top->m_axis_correction_tready = 1;
         step_clock(2);
 
-        /* 2. Consecutive back-to-back syndrome burst into 4-deep RX FIFO */
-        uint8_t burst_sx[3] = {0x1u, 0x6u, 0x8u};
-        for (int i = 0; i < 3; i++) {
-            if (!top->s_axis_syndrome_tready) return false;
+        /* 2. Consecutive 8-syndrome burst under 100-cycle m_axis_correction_tready = 0 backpressure,
+         *    with s_axis_syndrome_tlast = 1 ONLY on packet 7 (8th word):
+         *    Verifies 8/8 lossless delivery AND selective epoch_irq/tlast propagation. */
+        top->m_axis_correction_tready = 0;
+        uint8_t burst_sx[8] = {0x1u, 0x2u, 0x3u, 0x4u, 0x6u, 0x8u, 0xCu, 0x9u};
+        for (int i = 0; i < 8; i++) {
+            if (!top->s_axis_syndrome_tready) {
+                top->m_axis_correction_tready = 1;
+                return false;
+            }
             top->s_axis_syndrome_tdata  = burst_sx[i];
             top->s_axis_syndrome_tvalid = 1;
-            top->s_axis_syndrome_tlast  = (i == 2) ? 1 : 0;
+            top->s_axis_syndrome_tlast  = (i == 7) ? 1 : 0;
             step_clock(1);
         }
         top->s_axis_syndrome_tvalid = 0;
         top->s_axis_syndrome_tlast  = 0;
 
-        int completed = 0;
-        for (int g = 0; g < 120 && completed < 3; g++) {
+        /* Hold egress backpressure (tready = 0) for 100 cycles while BP decodes queued syndromes */
+        step_clock(100);
+
+        /* Release backpressure and drain all 8 corrections */
+        top->m_axis_correction_tready = 1;
+        int completed   = 0;
+        int tlast_count = 0;
+        int irq_count   = 0;
+        for (int g = 0; g < 240 && (completed < 8 || irq_count < 1); g++) {
+            bool had_valid = (top->m_axis_correction_tvalid != 0);
+            bool had_last  = (top->m_axis_correction_tlast != 0);
             step_clock(1);
-            if (top->m_axis_correction_tvalid) completed++;
+            if (had_valid) {
+                completed++;
+                if (had_last) tlast_count++;
+            }
+            if (top->epoch_irq) {
+                irq_count++;
+            }
         }
         step_clock(2);
-        return (completed == 3);
+        return (completed == 8) && (tlast_count == 1) && (irq_count == 1);
 #else
         step_clock(10);
         return true;

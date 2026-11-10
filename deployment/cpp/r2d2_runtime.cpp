@@ -22,17 +22,18 @@ struct ActionMeta {
     const char* name;
     double pair_weight_scale;
     int bp_iterations;
+    double temporal_beta;
     bool recalibrate;
     bool fallback;
 };
 
 constexpr ActionMeta kActionTable[R2D2_NUM_ACTIONS] = {
-    {"STATIC_PRIOR_K3",          0.00, 3, false, false},
-    {"ADAPTIVE_PAIR_K5",         1.00, 5, false, false},
-    {"AGGRESSIVE_PAIR_K7",       1.35, 7, false, false},
-    {"DAMPED_PRIOR_K4",          0.85, 4, false, false},
-    {"FAST_RECALIBRATE_K7",      1.15, 7, true,  false},
-    {"CONSERVATIVE_FALLBACK_K3", 0.00, 3, false, true},
+    {"STATIC_PRIOR_K3",          0.00, 3, 0.75, false, false},
+    {"ADAPTIVE_PAIR_K4",         1.15, 4, 0.65, false, false},
+    {"AGGRESSIVE_PAIR_K5",       1.35, 5, 0.50, false, false},
+    {"DAMPED_PRIOR_K4",          1.05, 4, 0.55, false, false},
+    {"FAST_RECALIBRATE_K5",      1.25, 5, 0.00, true,  false},
+    {"CONSERVATIVE_FALLBACK_K3", 0.00, 3, 0.00, false, true},
 };
 
 }  // namespace
@@ -149,6 +150,7 @@ R2D2InferenceOutput R2D2Runtime::step(const double raw_features[R2D2_INPUT_DIM])
     out.action_name = kActionTable[best_action].name;
     out.pair_weight_scale = kActionTable[best_action].pair_weight_scale;
     out.bp_iterations = kActionTable[best_action].bp_iterations;
+    out.temporal_beta = kActionTable[best_action].temporal_beta;
     out.recalibrate = kActionTable[best_action].recalibrate;
     out.fallback = kActionTable[best_action].fallback;
     return out;

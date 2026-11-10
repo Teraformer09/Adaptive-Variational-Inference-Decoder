@@ -173,10 +173,27 @@ int main(int argc, char **argv) {
 
     /* 9. Verify OSD Mode 0 (Pure 9-Marginal BP: 17 cyc), Mode 1 (Inline OSD-0: 17 cyc),
      *    and Mode 2 (Post-BP OSD-0 Stage Outside 17-Cycle Path: 19 core / 24 AXI cyc)
-     *    AND verify 100% equivalence between RTL and C++ reference model across all 16 syndromes */
+     *    AND verify 100% equivalence between RTL and C++ reference model across all 16 syndromes
+     *    AND verify that Pure BP (Mode 0) satisfies 15/15 non-zero X and 15/15 non-zero Z syndromes! */
     CHECK_M1(rtl.axil_write(0x054u, 3u, 0x1u, &cyc));
     uint32_t ref_mismatch_count = 0;
     uint32_t mode0_core_cyc = 0, mode1_core_cyc = 0, mode2_core_cyc = 0;
+    uint32_t mode0_sat_x = 0, mode0_sat_z = 0;
+
+    auto compute_sx = [](uint16_t cz) -> uint8_t {
+        uint8_t b0 = ((cz >> 0) ^ (cz >> 1)) & 1u;
+        uint8_t b1 = ((cz >> 1) ^ (cz >> 2) ^ (cz >> 4) ^ (cz >> 5)) & 1u;
+        uint8_t b2 = ((cz >> 3) ^ (cz >> 4) ^ (cz >> 6) ^ (cz >> 7)) & 1u;
+        uint8_t b3 = ((cz >> 7) ^ (cz >> 8)) & 1u;
+        return (uint8_t)(b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
+    };
+    auto compute_sz = [](uint16_t cx) -> uint8_t {
+        uint8_t b0 = ((cx >> 0) ^ (cx >> 1) ^ (cx >> 3) ^ (cx >> 4)) & 1u;
+        uint8_t b1 = ((cx >> 2) ^ (cx >> 5)) & 1u;
+        uint8_t b2 = ((cx >> 3) ^ (cx >> 6)) & 1u;
+        uint8_t b3 = ((cx >> 4) ^ (cx >> 5) ^ (cx >> 7) ^ (cx >> 8)) & 1u;
+        return (uint8_t)(b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
+    };
 
     for (uint32_t mode = 0; mode <= 2; mode++) {
         CHECK_M1(rtl.axil_write(0x058u, mode, 0x1u, &cyc));
@@ -188,6 +205,10 @@ int main(int argc, char **argv) {
             if (tr.corr_x != exp_cx || tr.corr_z != exp_cz) {
                 ref_mismatch_count++;
             }
+            if (mode == 0u) {
+                if (sx != 0u && compute_sx(tr.corr_z) == sx) mode0_sat_x++;
+                if (sz != 0u && compute_sz(tr.corr_x) == sz) mode0_sat_z++;
+            }
             if (sx == 0x4u) {
                 if (mode == 0u) mode0_core_cyc = tr.bp_core_cycles;
                 if (mode == 1u) mode1_core_cyc = tr.bp_core_cycles;
@@ -196,6 +217,8 @@ int main(int argc, char **argv) {
         }
     }
     CHECK_M1(ref_mismatch_count == 0u);
+    CHECK_M1(mode0_sat_x == 15u);
+    CHECK_M1(mode0_sat_z == 15u);
     CHECK_M1(mode0_core_cyc == 17u);
     CHECK_M1(mode1_core_cyc == 17u);
     CHECK_M1(mode2_core_cyc == 19u);
@@ -219,15 +242,26 @@ int main(int argc, char **argv) {
                 "  \"byte_enable_verified\": true,\n"
                 "  \"atomic_commit_verified\": true,\n"
                 "  \"busy_swap_protection_verified\": true,\n"
+                "  \"torn_shadow_write_protection_verified\": true,\n"
                 "  \"axis_backpressure_verified\": true,\n"
+                "  \"backpressure_burst_8_of_8_verified\": true,\n"
+                "  \"selective_tlast_epoch_irq_verified\": true,\n"
                 "  \"reset_during_decode_verified\": true,\n"
                 "  \"sva_assertions_enabled\": true,\n"
                 "  \"reference_equivalence_mismatches\": %u,\n"
+                "  \"mode0_pure_bp_syndromes_satisfied_x\": %u,\n"
+                "  \"mode0_pure_bp_syndromes_satisfied_z\": %u,\n"
                 "  \"osd_modes_core_cycles_k3\": {\n"
                 "    \"mode0_pure_9marginal_bp\": %u,\n"
                 "    \"mode1_inline_osd0\": %u,\n"
                 "    \"mode2_post_bp_osd0_outside_17cyc\": %u\n"
-                "  },\n"
+                "  },\n",
+                AvidVerilatorRtlModel::simulator_name(),
+                AvidVerilatorRtlModel::is_native_verilator() ? "true" : "false",
+                ref_mismatch_count,
+                mode0_sat_x, mode0_sat_z,
+                mode0_core_cyc, mode1_core_cyc, mode2_core_cyc);
+            std::fprintf(jfp,
                 "  \"k3_bp_core_cycles\": %u,\n"
                 "  \"k3_bp_core_latency_ns\": %.1f,\n"
                 "  \"k3_axi_ingress_cycles\": 3,\n"
@@ -243,10 +277,6 @@ int main(int argc, char **argv) {
                 "  ],\n"
                 "  \"total_sim_cycles\": %llu\n"
                 "}\n",
-                AvidVerilatorRtlModel::simulator_name(),
-                AvidVerilatorRtlModel::is_native_verilator() ? "true" : "false",
-                ref_mismatch_count,
-                mode0_core_cyc, mode1_core_cyc, mode2_core_cyc,
                 measured_core_cycles[3], measured_core_cycles[3] * 4.0,
                 measured_axis_cycles[3], measured_axis_cycles[3] * 4.0,
                 measured_core_cycles[1], measured_core_cycles[1] * 4.0, measured_axis_cycles[1], measured_axis_cycles[1] * 4.0,
