@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """
-noise_generator.py — Repaired Canonical CSS Non-Markovian Noise Scenario Generator
-Addresses Policy Items A01 / Q02, A05 / Q11, and A08 / Q17:
-  - Uses canonical rotated d=3 planar surface code CSS checks:
-      X_CHECKS = [[0, 1], [1, 2, 4, 5], [3, 4, 6, 7], [7, 8]]
-      Z_CHECKS = [[0, 1, 3, 4], [2, 5], [3, 6], [4, 5, 7, 8]]
-    satisfying H_X * H_Z^T == 0 (mod 2).
-  - Generates independent Z-faults (detected by X-checks), X-faults (detected by Z-checks),
-    nearest-neighbor ZZ pair crosstalk, and syndrome measurement bit-flip errors.
+noise_generator.py — Canonical CSS Non-Markovian & Seven-Stage Noise Scenario Generator.
+Addresses Policy Items A01 / Q02, A05 / Q11, and A08 / Q17 while also exposing
+`generate_seven_stage_trajectory()` backed by the persistent-PD multi-generator framework.
 """
 
 from __future__ import annotations
@@ -119,21 +114,56 @@ def generate_scenario(
     return syndromes_x, syndromes_z, true_p, true_pzz
 
 
+def generate_seven_stage_trajectory(
+    duration_seconds: float = 100.0,
+    seed: int = 42,
+    assignment_policy: str = "curriculum_burst_enriched",
+):
+    """Generate a trajectory using the Seven-Stage persistent-PD multi-generator framework."""
+    from simulation.stimulus.seven_stage.stage6_stratified_sampler import (
+        generate_single_stratified_trajectory,
+    )
+
+    encoded, prov, assign_manifest = generate_single_stratified_trajectory(
+        trajectory_id=f"seven_stage_s{seed}",
+        split_id="eval",
+        master_seed=seed,
+        duration_seconds=duration_seconds,
+        assignment_policy=assignment_policy,
+    )
+    return encoded, prov, assign_manifest
+
+
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--rounds", type=int, default=100_000)
     p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--mode", choices=["legacy", "seven_stage"], default="legacy")
+    p.add_argument("--duration-sec", type=float, default=100.0)
     p.add_argument("--output", type=str, default="simulation/stimulus/syndromes.npz")
     return p.parse_args()
 
 
 def main():
     args = parse_args()
+    out_path = Path(args.output)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if args.mode == "seven_stage":
+        from simulation.stimulus.noise_framework.avid_interface.avid_input_adapter import (
+            AvidInputAdapter,
+        )
+
+        encoded, prov, _ = generate_seven_stage_trajectory(
+            duration_seconds=args.duration_sec, seed=args.seed
+        )
+        AvidInputAdapter().write_npz(encoded, out_path, extra_metadata={"provenance": prov})
+        print(f"Saved {encoded['total_rounds']:,} seven-stage CSS rounds -> {out_path}")
+        return
+
     rng = np.random.default_rng(args.seed)
     sx, sz, true_p, true_pzz = generate_scenario(args.rounds, rng)
 
-    out_path = Path(args.output)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         str(out_path),
         syndromes=sx,

@@ -1,0 +1,28 @@
+# Controlled Baseline Fixtures for Stage 5 Regression & Comparison Experiments
+# NOTE: These numerical regimes are NEVER loaded by default by the dynamic
+# MeasurementNoiseGenerator. They are used only when explicitly requested by name
+# in baseline regression tests.
+
+schema_version: "1.0"
+
+baselines:
+  ideal_noiseless:
+    q_base_x: [0.0, 0.0, 0.0, 0.0]
+    q_base_z: [0.0, 0.0, 0.0, 0.0]
+    temporal_sticky_prob: 0.0
+    detector_dropout_prob: 0.0
+    observation_delay_samples: 0
+
+  moderate_readout_noise:
+    q_base_x: [0.004, 0.005, 0.005, 0.004]
+    q_base_z: [0.004, 0.004, 0.004, 0.005]
+    temporal_sticky_prob: 0.08
+    detector_dropout_prob: 0.001
+    observation_delay_samples: 0
+
+  correlated_readout_and_dropout:
+    q_base_x: [0.010, 0.014, 0.014, 0.010]
+    q_base_z: [0.010, 0.012, 0.012, 0.010]
+    temporal_sticky_prob: 0.22
+    detector_dropout_prob: 0.005
+    observation_delay_samples: 1

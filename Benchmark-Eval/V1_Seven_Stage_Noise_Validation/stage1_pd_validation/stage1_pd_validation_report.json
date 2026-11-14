@@ -1,0 +1,285 @@
+{
+  "stage": "stage1_pd_profiles",
+  "pd_config_hash": "d34949f38dd82ec860de3d17c0723578a1f833c6fcf0e37659427ce075601916",
+  "deterministic_reproduction_verified": true,
+  "validation_summary": {
+    "num_profiles_validated": 16,
+    "samples_per_profile": 25000,
+    "all_passed": true,
+    "profiles": {
+      "PD_01": {
+        "empirical_mean": 0.003004374262160916,
+        "theoretical_mean": 0.003000698308602924,
+        "mean_rel_error": 0.0012250327023723482,
+        "empirical_std": 0.0008020531099666953,
+        "theoretical_std": 0.0007987767199142126,
+        "std_rel_error": 0.004101759566596495,
+        "quantiles_10_50_90": [
+          0.0019685041658578503,
+          0.003007498928066431,
+          0.004038708833749768
+        ],
+        "support_min": 0.0002,
+        "support_max": 0.025,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_02": {
+        "empirical_mean": 0.006509910688879678,
+        "theoretical_mean": 0.006502777293819936,
+        "mean_rel_error": 0.0010969766820280872,
+        "empirical_std": 0.0017888443932676064,
+        "theoretical_std": 0.001795363061812129,
+        "std_rel_error": 0.0036308358365929683,
+        "quantiles_10_50_90": [
+          0.004209589014039766,
+          0.006506858065558581,
+          0.00881752854309532
+        ],
+        "support_min": 0.0005,
+        "support_max": 0.065,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_03": {
+        "empirical_mean": 0.004497746687385415,
+        "theoretical_mean": 0.004501397450858402,
+        "mean_rel_error": 0.0008110289110975763,
+        "empirical_std": 0.001190845482413345,
+        "theoretical_std": 0.0011976094933707107,
+        "std_rel_error": 0.005647926970191394,
+        "quantiles_10_50_90": [
+          0.002972211385435727,
+          0.004492372940771766,
+          0.006038259568204061
+        ],
+        "support_min": 0.0004,
+        "support_max": 0.04,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_04": {
+        "empirical_mean": 0.00800577734182726,
+        "theoretical_mean": 0.008004147206284878,
+        "mean_rel_error": 0.0002036613645863334,
+        "empirical_std": 0.0021875505710648897,
+        "theoretical_std": 0.0021931992420728464,
+        "std_rel_error": 0.002575539376266604,
+        "quantiles_10_50_90": [
+          0.005206488981206671,
+          0.007998363034391564,
+          0.010795825820442756
+        ],
+        "support_min": 0.0008,
+        "support_max": 0.08,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_05": {
+        "empirical_mean": 0.005513898478578077,
+        "theoretical_mean": 0.005502314411516613,
+        "mean_rel_error": 0.002105308093121369,
+        "empirical_std": 0.0014954886842609221,
+        "theoretical_std": 0.001496135884843441,
+        "std_rel_error": 0.00043258141795490866,
+        "quantiles_10_50_90": [
+          0.0035993810484972228,
+          0.0055164483984283036,
+          0.007430396034241593
+        ],
+        "support_min": 0.0005,
+        "support_max": 0.06,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_06": {
+        "empirical_mean": 0.007025022387573719,
+        "theoretical_mean": 0.007004771455050714,
+        "mean_rel_error": 0.002891019736040579,
+        "empirical_std": 0.0019965773266453104,
+        "theoretical_std": 0.001992345331736476,
+        "std_rel_error": 0.002124127198945985,
+        "quantiles_10_50_90": [
+          0.004455697444429965,
+          0.007030250523780791,
+          0.009583241156930001
+        ],
+        "support_min": 0.0006,
+        "support_max": 0.065,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_07": {
+        "empirical_mean": 0.011023510731700522,
+        "theoretical_mean": 0.011004628823033226,
+        "mean_rel_error": 0.0017158151329716156,
+        "empirical_std": 0.00301068725408268,
+        "theoretical_std": 0.002992271769686882,
+        "std_rel_error": 0.006154348873773981,
+        "quantiles_10_50_90": [
+          0.00717585784592955,
+          0.011012528065753292,
+          0.014905258612564799
+        ],
+        "support_min": 0.001,
+        "support_max": 0.095,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_08": {
+        "empirical_mean": 0.005011953622307853,
+        "theoretical_mean": 0.005003190337520897,
+        "mean_rel_error": 0.001751539357045247,
+        "empirical_std": 0.0013884241538453335,
+        "theoretical_std": 0.0013948595997097578,
+        "std_rel_error": 0.004613687188132346,
+        "quantiles_10_50_90": [
+          0.003206567093270731,
+          0.00501568004154539,
+          0.006788770044030938
+        ],
+        "support_min": 0.0005,
+        "support_max": 0.048,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_09": {
+        "empirical_mean": 0.006211862963565125,
+        "theoretical_mean": 0.00620245650006437,
+        "mean_rel_error": 0.0015165706523950061,
+        "empirical_std": 0.001691269448989115,
+        "theoretical_std": 0.001695874970403337,
+        "std_rel_error": 0.002715719905416584,
+        "quantiles_10_50_90": [
+          0.004031554668286017,
+          0.006213666769920304,
+          0.00838103478319135
+        ],
+        "support_min": 0.0005,
+        "support_max": 0.062,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_10": {
+        "empirical_mean": 0.007495961910081298,
+        "theoretical_mean": 0.007504431444216868,
+        "mean_rel_error": 0.0011286043717670987,
+        "empirical_std": 0.0021002742471284276,
+        "theoretical_std": 0.0020928082907011453,
+        "std_rel_error": 0.003567434466145505,
+        "quantiles_10_50_90": [
+          0.004788503258229579,
+          0.007503780152197929,
+          0.010177123832081685
+        ],
+        "support_min": 0.0007,
+        "support_max": 0.072,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_11": {
+        "empirical_mean": 0.004200610096594319,
+        "theoretical_mean": 0.004201124637122059,
+        "mean_rel_error": 0.00012247685374369328,
+        "empirical_std": 0.001089384828244463,
+        "theoretical_std": 0.0010980551507677194,
+        "std_rel_error": 0.007896071993464551,
+        "quantiles_10_50_90": [
+          0.002802938170780538,
+          0.00420371456462241,
+          0.005602211483589625
+        ],
+        "support_min": 0.0004,
+        "support_max": 0.042,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_12": {
+        "empirical_mean": 0.009521259827419798,
+        "theoretical_mean": 0.009504368345969476,
+        "mean_rel_error": 0.0017772334610206139,
+        "empirical_std": 0.002586389895958366,
+        "theoretical_std": 0.0025927616824953257,
+        "std_rel_error": 0.002457528811837269,
+        "quantiles_10_50_90": [
+          0.00617917957057566,
+          0.00953303476506733,
+          0.012820375636413897
+        ],
+        "support_min": 0.0009,
+        "support_max": 0.088,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_13": {
+        "empirical_mean": 0.006807926963941287,
+        "theoretical_mean": 0.006803695522498618,
+        "mean_rel_error": 0.0006219328052932049,
+        "empirical_std": 0.0019010080871480692,
+        "theoretical_std": 0.0018939572602416422,
+        "std_rel_error": 0.003722801487889652,
+        "quantiles_10_50_90": [
+          0.004346589035573784,
+          0.0068057623758587815,
+          0.00926208503421088
+        ],
+        "support_min": 0.0006,
+        "support_max": 0.068,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_14": {
+        "empirical_mean": 0.008792670139337617,
+        "theoretical_mean": 0.00880370305842658,
+        "mean_rel_error": 0.0012532134507198893,
+        "empirical_std": 0.0023843576445188763,
+        "theoretical_std": 0.0023938174157495055,
+        "std_rel_error": 0.003951751360981418,
+        "quantiles_10_50_90": [
+          0.005713216982291275,
+          0.00878281933843137,
+          0.011861829498376376
+        ],
+        "support_min": 0.0008,
+        "support_max": 0.085,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_15": {
+        "empirical_mean": 0.0018029113404461128,
+        "theoretical_mean": 0.0018006163172395514,
+        "mean_rel_error": 0.001274576479502246,
+        "empirical_std": 0.0004969741848174288,
+        "theoretical_std": 0.000498950779983179,
+        "std_rel_error": 0.003961503308636708,
+        "quantiles_10_50_90": [
+          0.001164670226167808,
+          0.0017996985936061657,
+          0.0024374588153801553
+        ],
+        "support_min": 0.0001,
+        "support_max": 0.015,
+        "within_support": true,
+        "passed": true
+      },
+      "PD_16": {
+        "empirical_mean": 0.012541473436382594,
+        "theoretical_mean": 0.012505420092225064,
+        "mean_rel_error": 0.0028830174349716814,
+        "empirical_std": 0.0033877374584360184,
+        "theoretical_std": 0.003390976788545897,
+        "std_rel_error": 0.0009552793521974168,
+        "quantiles_10_50_90": [
+          0.008228269491809348,
+          0.012537394432316454,
+          0.01690007745293633
+        ],
+        "support_min": 0.0012,
+        "support_max": 0.1,
+        "within_support": true,
+        "passed": true
+      }
+    }
+  },
+  "passed": true
+}

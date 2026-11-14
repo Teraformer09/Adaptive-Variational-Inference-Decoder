@@ -1,0 +1,6 @@
+{
+  "train_intersect_val_empty": true,
+  "train_intersect_test_empty": true,
+  "val_intersect_test_empty": true,
+  "all_disjoint": true
+}

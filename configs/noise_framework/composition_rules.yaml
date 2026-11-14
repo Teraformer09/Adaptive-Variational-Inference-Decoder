@@ -1,0 +1,25 @@
+# Physical Noise Composition Rules
+# Distinguishes binary Pauli error mask composition (bitwise XOR modulo 2)
+# from continuous independent Bernoulli mechanism probability composition (XOR parity convolution).
+
+schema_version: "1.0"
+
+binary_pauli_composition:
+  representation: "uint16_9bit_pauli_mask_and_uint8_4bit_syndrome"
+  operator: "bitwise_xor_mod2"
+  formula_z: "e_Z_composite[n] = XOR_{j=1..G} e_Z_{j,n}"
+  formula_x: "e_X_composite[n] = XOR_{j=1..G} e_X_{j,n}"
+  identical_pauli_cancellation: true
+  syndrome_x_formula: "s_X[n] = (H_X @ e_Z_composite[n]) mod 2"
+  syndrome_z_formula: "s_Z[n] = (H_Z @ e_X_composite[n]) mod 2"
+
+continuous_probability_composition:
+  representation: "float64_21_mechanism_bernoulli_vector"
+  operator: "bernoulli_xor_parity_convolution"
+  formula: "p_k_composite(t_n) = 0.5 * (1.0 - prod_{j=1..G} (1.0 - 2.0 * p_{j,k}(t_n)))"
+  clip_min: 1.0e-6
+  clip_max: 0.48
+
+measurement_imperfection_composition:
+  operator: "syndrome_xor_plus_dropout_and_fifo_delay"
+  formula: "s_tilde[n] = (s[n - delay] XOR m[n]) & (~dropout_mask[n])"

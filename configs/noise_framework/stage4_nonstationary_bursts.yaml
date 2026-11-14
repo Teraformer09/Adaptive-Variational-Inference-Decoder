@@ -1,0 +1,45 @@
+# Stage 4: Non-Stationary Correlated Burst Generation
+# p_k(t) = sigmoid(alpha_k + x_{k,t} + sum_j A_j * w_{j,k} * g_j(t - tau_j))
+
+schema_version: "1.0"
+
+burst_kernels:
+  gaussian_bell:
+    formula: "exp(-0.5 * ((t - tau_j) / width_j)^2)"
+  fast_attack_exp_decay:
+    formula: "I(t >= tau_j) * (1 - exp(-(t - tau_j)/attack_j)) * exp(-(t - tau_j)/decay_j)"
+  rectangular_window:
+    formula: "I(tau_j <= t <= tau_j + duration_j)"
+
+overlapping_burst_templates:
+  - burst_id: "B_EARLY_PAIR34_45"
+    tau_sec: 18.0
+    width_sec: 4.5
+    amplitude_logit: 1.85
+    kernel: "gaussian_bell"
+    target_mechanisms: [3, 4, 5, 11, 12]
+    spatial_weights: [0.6, 0.8, 0.6, 1.0, 1.0]
+
+  - burst_id: "B_MID_OVERLAP_12_67"
+    tau_sec: 48.0
+    width_sec: 5.5
+    amplitude_logit: 2.05
+    kernel: "fast_attack_exp_decay"
+    target_mechanisms: [1, 2, 6, 7, 10, 14]
+    spatial_weights: [0.7, 0.7, 0.7, 0.7, 1.0, 1.0]
+
+  - burst_id: "B_SECONDARY_MID_CORE"
+    tau_sec: 51.5
+    width_sec: 3.5
+    amplitude_logit: 1.65
+    kernel: "gaussian_bell"
+    target_mechanisms: [4, 7, 13, 19]
+    spatial_weights: [0.8, 0.7, 1.0, 0.9]
+
+  - burst_id: "B_LATE_BOUNDARY_STREAK"
+    tau_sec: 79.0
+    width_sec: 5.0
+    amplitude_logit: 1.95
+    kernel: "rectangular_window"
+    target_mechanisms: [2, 5, 8, 17, 20]
+    spatial_weights: [0.75, 0.80, 0.75, 1.0, 1.0]

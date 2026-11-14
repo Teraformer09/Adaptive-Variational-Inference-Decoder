@@ -1,0 +1,93 @@
+# Active Noise Generator Instances Registry
+# Separates generator class implementations (in simulation/stimulus/noise_framework/generators/)
+# from active generator instances that independently receive 100-second PD assignments.
+
+schema_version: "1.0"
+
+generators:
+  - generator_id: "z_single_noise_01"
+    generator_type: "gaussian"
+    enabled: true
+    seed: 1001
+    output_domain: "probability_parameter"
+    output_shape: [21]
+    composition_group: "data_faults_z"
+    parameters:
+      basis: "Z"
+      fault_family: "Z_single_and_envelope"
+      single_weight: 1.0
+      pair_weight: 0.25
+
+  - generator_id: "x_single_noise_01"
+    generator_type: "ou"
+    enabled: true
+    seed: 1002
+    output_domain: "probability_parameter"
+    output_shape: [21]
+    composition_group: "data_faults_x"
+    parameters:
+      basis: "X"
+      fault_family: "X_ou_drift"
+      tau_sec: 8.0
+      volatility_scale: 0.30
+
+  - generator_id: "zz_crosstalk_01"
+    generator_type: "spatial_correlated"
+    enabled: true
+    seed: 1003
+    output_domain: "probability_parameter"
+    output_shape: [21]
+    composition_group: "data_faults_z"
+    parameters:
+      basis: "Z"
+      fault_family: "ZZ_pair_correlated"
+      latent_beta_scale: 1.15
+
+  - generator_id: "telegraph_tls_01"
+    generator_type: "telegraph"
+    enabled: true
+    seed: 1004
+    output_domain: "probability_parameter"
+    output_shape: [21]
+    composition_group: "data_faults_z"
+    parameters:
+      basis: "Z"
+      fault_family: "Z_tls_telegraph"
+      rate_up_per_sec: 0.05
+      rate_down_per_sec: 0.18
+      high_multiplier: 2.2
+
+  - generator_id: "burst_noise_01"
+    generator_type: "burst"
+    enabled: true
+    seed: 1005
+    output_domain: "probability_parameter"
+    output_shape: [21]
+    composition_group: "data_faults_z"
+    parameters:
+      basis: "Z"
+      fault_family: "Z_nonstationary_burst"
+      kernel: "gaussian_bell"
+
+  - generator_id: "markov_regime_01"
+    generator_type: "markov"
+    enabled: true
+    seed: 1006
+    output_domain: "probability_parameter"
+    output_shape: [21]
+    composition_group: "data_faults_x"
+    parameters:
+      basis: "X"
+      fault_family: "X_markov_modulated"
+      state_multipliers: [0.75, 1.0, 1.65]
+
+  - generator_id: "measurement_noise_01"
+    generator_type: "measurement_noise"
+    enabled: true
+    seed: 1007
+    output_domain: "measurement_fault_parameters"
+    output_shape: [11]
+    composition_group: "measurement_faults"
+    parameters:
+      config_path: "configs/noise_framework/stage5_measurement_imperfections.yaml"
+      mapping_path: "configs/noise_framework/measurement_parameter_mapping.yaml"

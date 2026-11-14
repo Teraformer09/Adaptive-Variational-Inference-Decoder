@@ -1,0 +1,8 @@
+{
+  "stage": "stage3_spatial_correlated",
+  "num_samples": 1000,
+  "dominant_pair_correlation_10_13": 0.9601093060958708,
+  "mean_dominant_pair_prob": 0.05381140819745135,
+  "mean_background_pair_prob": 0.010629421046003827,
+  "passed": true
+}

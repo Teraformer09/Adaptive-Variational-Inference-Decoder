@@ -1,0 +1,362 @@
+# 16 Canonical Probability Distribution (PD) Profiles (PD_01 .. PD_16)
+# Single source of truth for the 16 reusable probability distributions.
+# Each profile defines a truncated Gaussian distribution N_trunc(mean, std^2; [min, max])
+# over a physical fault-probability random variable, together with explicit temporal envelope
+# and spatial/mechanism metadata so data-fault and measurement-noise generators can sample
+# from any assigned profile without inventing ad-hoc distributions.
+
+schema_version: "1.0"
+num_profiles: 16
+
+profiles:
+  - profile_id: "PD_01"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0030
+      std: 0.0008
+      temporal_mu_sec: 12.0
+      temporal_sigma_sec: 4.5
+      burst_amplitude: 0.012
+      sticky_scale: 0.04
+      dropout_scale: 0.0005
+      delay_quantiles: [0.92, 0.99]
+    support:
+      min: 0.0002
+      max: 0.0250
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "early_disturbance"
+      description: "Low-intensity narrow early probability profile"
+      dominant_qubits: [0, 1, 4]
+      dominant_pairs: [0, 4]
+
+  - profile_id: "PD_02"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0065
+      std: 0.0018
+      temporal_mu_sec: 18.0
+      temporal_sigma_sec: 3.5
+      burst_amplitude: 0.038
+      sticky_scale: 0.10
+      dropout_scale: 0.0015
+      delay_quantiles: [0.80, 0.96]
+    support:
+      min: 0.0005
+      max: 0.0650
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "early_disturbance"
+      description: "Early high-pair-intensity probability profile"
+      dominant_qubits: [4, 5]
+      dominant_pairs: [3, 4]
+
+  - profile_id: "PD_03"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0045
+      std: 0.0012
+      temporal_mu_sec: 22.0
+      temporal_sigma_sec: 11.0
+      burst_amplitude: 0.018
+      sticky_scale: 0.07
+      dropout_scale: 0.0010
+      delay_quantiles: [0.88, 0.98]
+    support:
+      min: 0.0004
+      max: 0.0400
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "early_disturbance"
+      description: "Early broad moderate envelope profile"
+      dominant_qubits: [1, 2, 4, 5]
+      dominant_pairs: [1, 3, 8]
+
+  - profile_id: "PD_04"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0080
+      std: 0.0022
+      temporal_mu_sec: 25.0
+      temporal_sigma_sec: 14.0
+      burst_amplitude: 0.032
+      sticky_scale: 0.14
+      dropout_scale: 0.0025
+      delay_quantiles: [0.75, 0.94]
+    support:
+      min: 0.0008
+      max: 0.0800
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "early_disturbance"
+      description: "Medium-width plaquette-clustered probability profile"
+      dominant_qubits: [0, 1, 3, 4]
+      dominant_pairs: [0, 2, 6, 8]
+
+  - profile_id: "PD_05"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0055
+      std: 0.0015
+      temporal_mu_sec: 36.0
+      temporal_sigma_sec: 4.0
+      burst_amplitude: 0.040
+      sticky_scale: 0.09
+      dropout_scale: 0.0012
+      delay_quantiles: [0.85, 0.97]
+    support:
+      min: 0.0005
+      max: 0.0600
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "intermediate_disturbance"
+      description: "Early-mid narrow crosstalk profile on pair (1,2)"
+      dominant_qubits: [1, 2]
+      dominant_pairs: [1, 10]
+
+  - profile_id: "PD_06"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0070
+      std: 0.0020
+      temporal_mu_sec: 42.0
+      temporal_sigma_sec: 16.0
+      burst_amplitude: 0.022
+      sticky_scale: 0.12
+      dropout_scale: 0.0020
+      delay_quantiles: [0.78, 0.95]
+    support:
+      min: 0.0006
+      max: 0.0650
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "intermediate_disturbance"
+      description: "Intermediate wide continuous-drift probability profile"
+      dominant_qubits: [3, 4, 5]
+      dominant_pairs: [2, 3]
+
+  - profile_id: "PD_07"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0110
+      std: 0.0030
+      temporal_mu_sec: 50.0
+      temporal_sigma_sec: 3.0
+      burst_amplitude: 0.048
+      sticky_scale: 0.18
+      dropout_scale: 0.0035
+      delay_quantiles: [0.68, 0.90]
+    support:
+      min: 0.0010
+      max: 0.0950
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "intermediate_disturbance"
+      description: "Mid-window sharp core burst profile"
+      dominant_qubits: [4, 5, 7]
+      dominant_pairs: [3, 9]
+
+  - profile_id: "PD_08"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0050
+      std: 0.0014
+      temporal_mu_sec: 52.0
+      temporal_sigma_sec: 18.0
+      burst_amplitude: 0.019
+      sticky_scale: 0.08
+      dropout_scale: 0.0010
+      delay_quantiles: [0.86, 0.97]
+    support:
+      min: 0.0005
+      max: 0.0480
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "intermediate_disturbance"
+      description: "Mid-window broad symmetric background profile"
+      dominant_qubits: [0, 2, 4, 6, 8]
+      dominant_pairs: [0, 1, 4, 11]
+
+  - profile_id: "PD_09"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0062
+      std: 0.0017
+      temporal_mu_sec: 62.0
+      temporal_sigma_sec: 4.5
+      burst_amplitude: 0.042
+      sticky_scale: 0.11
+      dropout_scale: 0.0018
+      delay_quantiles: [0.82, 0.96]
+    support:
+      min: 0.0005
+      max: 0.0620
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "intermediate_disturbance"
+      description: "Late-intermediate narrow pair (6,7) hotspot profile"
+      dominant_qubits: [6, 7]
+      dominant_pairs: [4, 7]
+
+  - profile_id: "PD_10"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0075
+      std: 0.0021
+      temporal_mu_sec: 66.0
+      temporal_sigma_sec: 12.5
+      burst_amplitude: 0.027
+      sticky_scale: 0.15
+      dropout_scale: 0.0022
+      delay_quantiles: [0.76, 0.94]
+    support:
+      min: 0.0007
+      max: 0.0720
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "intermediate_disturbance"
+      description: "Late-intermediate column streak profile on qubits (1,4,7)"
+      dominant_qubits: [1, 4, 7]
+      dominant_pairs: [8, 9]
+
+  - profile_id: "PD_11"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0042
+      std: 0.0011
+      temporal_mu_sec: 76.0
+      temporal_sigma_sec: 4.0
+      burst_amplitude: 0.023
+      sticky_scale: 0.06
+      dropout_scale: 0.0009
+      delay_quantiles: [0.89, 0.98]
+    support:
+      min: 0.0004
+      max: 0.0420
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "delayed_disturbance"
+      description: "Delayed narrow right-boundary disturbance profile"
+      dominant_qubits: [2, 5, 8]
+      dominant_pairs: [10, 11]
+
+  - profile_id: "PD_12"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0095
+      std: 0.0026
+      temporal_mu_sec: 80.0
+      temporal_sigma_sec: 3.5
+      burst_amplitude: 0.046
+      sticky_scale: 0.19
+      dropout_scale: 0.0038
+      delay_quantiles: [0.65, 0.89]
+    support:
+      min: 0.0009
+      max: 0.0880
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "delayed_disturbance"
+      description: "Delayed sharp dual-pair (1,2) and (6,7) profile"
+      dominant_qubits: [1, 2, 6, 7]
+      dominant_pairs: [1, 4]
+
+  - profile_id: "PD_13"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0068
+      std: 0.0019
+      temporal_mu_sec: 84.0
+      temporal_sigma_sec: 11.5
+      burst_amplitude: 0.030
+      sticky_scale: 0.13
+      dropout_scale: 0.0020
+      delay_quantiles: [0.79, 0.95]
+    support:
+      min: 0.0006
+      max: 0.0680
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "delayed_disturbance"
+      description: "Delayed wide bottom-right plaquette profile"
+      dominant_qubits: [4, 5, 7, 8]
+      dominant_pairs: [3, 5, 9, 11]
+
+  - profile_id: "PD_14"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0088
+      std: 0.0024
+      temporal_mu_sec: 88.0
+      temporal_sigma_sec: 15.0
+      burst_amplitude: 0.034
+      sticky_scale: 0.17
+      dropout_scale: 0.0030
+      delay_quantiles: [0.70, 0.92]
+    support:
+      min: 0.0008
+      max: 0.0850
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "delayed_disturbance"
+      description: "Delayed broad global elevation profile"
+      dominant_qubits: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+      dominant_pairs: [0, 2, 3, 8, 9]
+
+  - profile_id: "PD_15"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0018
+      std: 0.0005
+      temporal_mu_sec: 50.0
+      temporal_sigma_sec: 25.0
+      burst_amplitude: 0.004
+      sticky_scale: 0.02
+      dropout_scale: 0.0002
+      delay_quantiles: [0.96, 0.995]
+    support:
+      min: 0.0001
+      max: 0.0150
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "stationary_anchor"
+      description: "Quiet baseline anchor profile"
+      dominant_qubits: [4]
+      dominant_pairs: [3]
+
+  - profile_id: "PD_16"
+    distribution_type: "truncated_gaussian"
+    parameters:
+      mean: 0.0125
+      std: 0.0034
+      temporal_mu_sec: 91.0
+      temporal_sigma_sec: 6.0
+      burst_amplitude: 0.052
+      sticky_scale: 0.24
+      dropout_scale: 0.0048
+      delay_quantiles: [0.60, 0.85]
+    support:
+      min: 0.0012
+      max: 0.1000
+      variable: "fault_probability"
+      units: "probability_per_sample"
+    metadata:
+      category: "delayed_disturbance"
+      description: "High-stress delayed diagonal disturbance profile"
+      dominant_qubits: [0, 4, 8]
+      dominant_pairs: [0, 3, 8, 11]

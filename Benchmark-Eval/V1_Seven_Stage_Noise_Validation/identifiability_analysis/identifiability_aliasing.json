@@ -1,0 +1,48 @@
+{
+  "syndrome_aliasing_examples": [
+    {
+      "aliased_mechanisms": [
+        8,
+        13
+      ],
+      "shared_syndrome_signature": 8,
+      "tvd_marginal_syndrome": 1.8388068845354155e-16,
+      "max_logical_posterior_diff": 0.16963590680127827,
+      "ler_oracle_a": 0.17373009848967075,
+      "ler_oracle_b": 0.17389290268302013
+    },
+    {
+      "aliased_mechanisms": [
+        8,
+        13
+      ],
+      "shared_syndrome_signature": 8,
+      "tvd_marginal_syndrome": 9.237402509576498e-17,
+      "max_logical_posterior_diff": 0.19035318912209886,
+      "ler_oracle_a": 0.15120340205521354,
+      "ler_oracle_b": 0.1521027650458284
+    },
+    {
+      "aliased_mechanisms": [
+        8,
+        13
+      ],
+      "shared_syndrome_signature": 8,
+      "tvd_marginal_syndrome": 1.0928757898653885e-16,
+      "max_logical_posterior_diff": 0.19160404595397768,
+      "ler_oracle_a": 0.14611892651044106,
+      "ler_oracle_b": 0.14734685662676908
+    },
+    {
+      "aliased_mechanisms": [
+        8,
+        13
+      ],
+      "shared_syndrome_signature": 8,
+      "tvd_marginal_syndrome": 3.5128150388530344e-17,
+      "max_logical_posterior_diff": 0.19267653294404247,
+      "ler_oracle_a": 0.1573983863089192,
+      "ler_oracle_b": 0.1553557801305796
+    }
+  ]
+}

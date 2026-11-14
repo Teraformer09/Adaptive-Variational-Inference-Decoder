@@ -47,6 +47,25 @@ REQUIRED_PATHS = [
     "tests/test_checkpoint_export.py",
     "tests/test_cpp_python_parity.py",
     "tests/test_decoder_action_effect.py",
+    "tests/test_seven_stage_noise_framework.py",
+    "configs/noise_framework/framework_v1.yaml",
+    "configs/noise_framework/pd_profiles_16.yaml",
+    "configs/noise_framework/generator_registry.yaml",
+    "configs/noise_framework/generator_assignment.yaml",
+    "configs/noise_framework/sampling_schedule.yaml",
+    "configs/noise_framework/composition_rules.yaml",
+    "configs/noise_framework/stage5_measurement_imperfections.yaml",
+    "configs/noise_framework/measurement_parameter_mapping.yaml",
+    "configs/noise_framework/baselines/stage5_measurement_baselines.yaml",
+    "configs/noise_framework/stage6_stratified_splits.yaml",
+    "simulation/stimulus/noise_framework/__init__.py",
+    "simulation/stimulus/noise_framework/syndrome/measurement_parameters.py",
+    "simulation/stimulus/noise_framework/syndrome/measurement_model.py",
+    "simulation/stimulus/noise_framework/generators/measurement_noise_generator.py",
+    "simulation/stimulus/seven_stage/stage5_measurement_noise.py",
+    "simulation/reference/noise_model/logical_class_distribution.py",
+    "simulation/reference/noise_model/stage7_statistical_validator.py",
+    "Benchmark-Eval/V1_Seven_Stage_Noise_Validation/run_seven_stage_eval.py",
     "datasets/dataset_manifest.json",
     "artifacts/README.md",
     "dependencies/requirements.txt",
@@ -62,6 +81,11 @@ def main() -> int:
     # Ensure duplicate docs/AVID_EPJ_Weekly_Update.md does not exist
     if (REPO_ROOT / "docs" / "AVID_EPJ_Weekly_Update.md").exists():
         errors.append("Duplicate weekly update found at docs/AVID_EPJ_Weekly_Update.md")
+
+    # Ensure Stage 5 default measurement YAML does not hard-code fixed regimes
+    stage5_yaml = REPO_ROOT / "configs" / "noise_framework" / "stage5_measurement_imperfections.yaml"
+    if stage5_yaml.exists() and "\nregimes:" in stage5_yaml.read_text(encoding="utf-8"):
+        errors.append("Default stage5_measurement_imperfections.yaml must not contain hard-coded 'regimes:'")
 
     # Ensure no machine-specific file:///home/ links or accidental LaTeX control characters exist in tracked Markdown files
     for md in REPO_ROOT.rglob("*.md"):

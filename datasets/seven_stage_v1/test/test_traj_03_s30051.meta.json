@@ -1,0 +1,78 @@
+{
+  "trajectory_id": "test_traj_03_s30051",
+  "split_id": "test",
+  "master_seed": 30051,
+  "num_composite_samples": 2000,
+  "rounds_per_composite_sample": 1,
+  "total_rounds": 2000,
+  "assignment_history": {
+    "0": {
+      "z_single_noise_01": "PD_12",
+      "x_single_noise_01": "PD_16",
+      "zz_crosstalk_01": "PD_14",
+      "telegraph_tls_01": "PD_12",
+      "burst_noise_01": "PD_12",
+      "markov_regime_01": "PD_16",
+      "measurement_noise_01": "PD_12"
+    },
+    "1": {
+      "z_single_noise_01": "PD_16",
+      "x_single_noise_01": "PD_16",
+      "zz_crosstalk_01": "PD_12",
+      "telegraph_tls_01": "PD_14",
+      "burst_noise_01": "PD_14",
+      "markov_regime_01": "PD_16",
+      "measurement_noise_01": "PD_16"
+    }
+  },
+  "dropout_events_x": 62,
+  "dropout_events_z": 70,
+  "max_observation_delay_samples": 2,
+  "provenance": {
+    "framework_version": "1.0.0-seven-stage",
+    "master_seed": 30051,
+    "split_id": "test",
+    "assignment_policy": "delayed_dominant_eval",
+    "duration_seconds": 200.0,
+    "profile_config_hash": "38018c373f4f68e53a213770afc2727f8bce1747642b26b3a0e01615842ab73c",
+    "generator_config_hash": "de2e388fa2b6827c19c21e283301978399b3fd921f48f7c33eacba364c5fa82f",
+    "assignment_config_hash": "13c63ba816f3c76664423f544500346747f1fd2c9f25121a781b2003f951c3bf",
+    "composition_config_hash": "613c1bc93d11436a1d23ff38d665f80e7dd18224739ff1e0dc912b0ab2e42462",
+    "measurement_config_hash": "6919a8a9a9638330fff81adfa68c57c5e202b39e6fc9bc8db08e8ce83d5da269",
+    "code_geometry_hash": "b6442fa83a3e58a0779679a0f38cea8364e50cb445597ac9dd9f19cf59c93d02",
+    "theta_hash": "07bdf8e9bc1bb6855255cd4106123fc139a2de925dd071b7e6209e9f631046c5",
+    "theta_vector": {
+      "master_seed": 30051,
+      "assignment_policy": "delayed_dominant_eval",
+      "duration_seconds": 200.0,
+      "split_id": "test",
+      "profile_config_hash": "38018c373f4f68e53a213770afc2727f8bce1747642b26b3a0e01615842ab73c",
+      "generator_config_hash": "de2e388fa2b6827c19c21e283301978399b3fd921f48f7c33eacba364c5fa82f",
+      "allowed_profile_ids": [
+        "PD_12",
+        "PD_14",
+        "PD_16"
+      ],
+      "assignment_history": {
+        "0": {
+          "z_single_noise_01": "PD_12",
+          "x_single_noise_01": "PD_16",
+          "zz_crosstalk_01": "PD_14",
+          "telegraph_tls_01": "PD_12",
+          "burst_noise_01": "PD_12",
+          "markov_regime_01": "PD_16",
+          "measurement_noise_01": "PD_12"
+        },
+        "1": {
+          "z_single_noise_01": "PD_16",
+          "x_single_noise_01": "PD_16",
+          "zz_crosstalk_01": "PD_12",
+          "telegraph_tls_01": "PD_14",
+          "burst_noise_01": "PD_14",
+          "markov_regime_01": "PD_16",
+          "measurement_noise_01": "PD_16"
+        }
+      }
+    }
+  }
+}

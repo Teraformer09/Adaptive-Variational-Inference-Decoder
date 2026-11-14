@@ -1,0 +1,48 @@
+schema_version: "1.0"
+
+generator_type: measurement_noise
+
+mappings:
+
+  independent_readout:
+    target: q_base_x_z
+    source_variable: "fault_probability"
+    check_sampling_mode: "independent_per_check"
+    basis_sampling_mode: "independent_x_and_z"
+    scale_factor_x: 0.85
+    scale_factor_z: 0.80
+    dimensions:
+      x_checks: 4
+      z_checks: 4
+
+  temporally_correlated_readout:
+    target: temporal_sticky_prob
+    source_variable: "fault_probability"
+    check_sampling_mode: "shared_across_checks"
+    basis_sampling_mode: "shared_x_and_z"
+    use_profile_parameter: "sticky_scale"
+    scale_factor: 2.5
+
+  detector_dropout:
+    target: detector_dropout_prob
+    source_variable: "fault_probability"
+    check_sampling_mode: "shared_across_checks"
+    basis_sampling_mode: "shared_x_and_z"
+    use_profile_parameter: "dropout_scale"
+    scale_factor: 0.25
+
+  observation_delay:
+    target: observation_delay_samples
+    source_variable: "fault_probability"
+    check_sampling_mode: "shared_across_checks"
+    basis_sampling_mode: "shared_x_and_z"
+    quantization_rule: "threshold_quantiles"
+    thresholds: [0.0085, 0.0160]
+    integer_values: [0, 1, 2]
+
+validation:
+  probability_min: 0.0
+  probability_max: 1.0
+  delay_min: 0
+  delay_max: 5
+  delay_type: integer

@@ -1,0 +1,63 @@
+# AVID Seven-Stage Noise Framework Master Configuration (Phase 0 Contract Freeze)
+# Freezes the 5 core mathematical & architectural design decisions:
+#   1. PD Random Variable: Each of the 16 PDs (PD_01..PD_16) defines a truncated Gaussian / Beta-like
+#      distribution over a normalized physical fault-rate random variable plus explicit domain scalings
+#      for single-qubit faults, pair crosstalk faults, burst amplitudes, and measurement fault parameters.
+#   2. Generator Multiplicity: Configurable number of independent instances per generator class via
+#      generator_registry.yaml, each with a deterministic independent RNG stream H(master_seed, generator_id, w).
+#   3. 10 Hz Sample Semantics: Each 10 Hz sample (every 100 ms) produces simultaneous per-generator
+#      NoiseContribution objects composed into a CompositeNoiseSample containing both composite physical
+#      parameters and realized CSS fault/syndrome observations.
+#   4. 10 Hz Noise Clock vs. 1 MHz AVID Syndrome Clock: Explicitly separated in sampling_schedule.yaml.
+#      At 1 MHz, 100 ms corresponds to 100,000 hardware syndrome rounds; for tractable simulation,
+#      rounds_per_composite_sample is configurable (default 1 round/sample in trajectory mode, or
+#      block-expanded to window_rounds=256 / 100,000 for 1 MHz stream replay).
+#   5. PD Assignment Policy: Independent Categorical(pi_1..pi_16) per generator, persisting for 100 seconds
+#      (1,000 samples per window), supporting uniform_16, weighted curriculum, and stratified splits.
+
+schema_version: "1.0"
+framework_id: "avid_seven_stage_noise_framework_v1"
+
+configs:
+  pd_profiles: "configs/noise_framework/pd_profiles_16.yaml"
+  generator_registry: "configs/noise_framework/generator_registry.yaml"
+  generator_assignment: "configs/noise_framework/generator_assignment.yaml"
+  sampling_schedule: "configs/noise_framework/sampling_schedule.yaml"
+  composition_rules: "configs/noise_framework/composition_rules.yaml"
+  stage2_stochastic: "configs/noise_framework/stage2_stochastic_processes.yaml"
+  stage3_spatial: "configs/noise_framework/stage3_spatial_correlations.yaml"
+  stage4_bursts: "configs/noise_framework/stage4_nonstationary_bursts.yaml"
+  stage5_measurement: "configs/noise_framework/stage5_measurement_imperfections.yaml"
+  measurement_mapping: "configs/noise_framework/measurement_parameter_mapping.yaml"
+  measurement_baselines: "configs/noise_framework/baselines/stage5_measurement_baselines.yaml"
+  stage6_splits: "configs/noise_framework/stage6_stratified_splits.yaml"
+
+contract_freeze:
+  pd_count: 16
+  window_persistence_seconds: 100.0
+  generator_sampling_rate_hz: 10.0
+  samples_per_window: 1000
+  qec_syndrome_clock_hz: 1000000.0
+  canonical_parameter_count_per_basis: 21
+  canonical_parameter_order:
+    - "p_0"
+    - "p_1"
+    - "p_2"
+    - "p_3"
+    - "p_4"
+    - "p_5"
+    - "p_6"
+    - "p_7"
+    - "p_8"
+    - "p_01"
+    - "p_12"
+    - "p_34"
+    - "p_45"
+    - "p_67"
+    - "p_78"
+    - "p_03"
+    - "p_36"
+    - "p_14"
+    - "p_47"
+    - "p_25"
+    - "p_58"

@@ -22,3 +22,20 @@ This directory contains the 5 finalized, peer-reviewed evaluation benchmarks clo
 ```bash
 bash run_benchmarks_cloudshell.sh
 ```
+
+---
+
+## Seven-Stage Persistent-PD Multi-Generator Noise & Statistical Validation (`Benchmark-Eval/V1_Seven_Stage_Noise_Validation`)
+
+In addition to `Baseline_V0`, [`V1_Seven_Stage_Noise_Validation/`](V1_Seven_Stage_Noise_Validation/README.md) validates the **Seven-Stage Persistent-PD Multi-Generator Noise Generation and Statistical Validation Framework**:
+- **Stage 1 (`stage1_pd_validation/`)**: 16 reusable truncated-Gaussian Probability Distribution (PD) profiles (`configs/noise_framework/pd_profiles_16.yaml`).
+- **Stage 2 (`stage2_assignment_validation/` & `generator_assignment_validation/`)**: Persistent 100-second window PD assignment ($P_j^{(w)} \sim \operatorname{Categorical}(\pi_1 \dots \pi_{16})$) and isolated per-generator RNG streams.
+- **Stage 3 (`stage3_generator_validation/` & `sampling_synchronization/`)**: Synchronized 10 Hz (`100 ms`) multi-generator stepping (`1,000` samples per 100s window) and spatially correlated 21-mechanism fault generation.
+- **Stage 4 (`stage4_composition_validation/` & `composition_validation/`)**: Physical Pauli modulo-2 XOR mask composition ($\mathbf{e}_n^{\mathrm{composite}} = \bigoplus_j \mathbf{e}_{j,n}$) and independent Bernoulli probability composition ($p_{\mathrm{combined}} = 1 - \prod_j (1 - p_j)$).
+- **Stage 5 (`stage5_syndrome_validation/`)**: Dynamic `MeasurementNoiseGenerator` (`measurement_noise_01`) and `MeasurementModel` with independent readout errors, Markov sticky temporal correlation, detector dropout validity masks ($v_{c,t} \in \{0,1\}$), and observation delay (`event_timestamps` vs. `delivery_timestamps`).
+- **Stage 6 (`stage6_dataset_validation/`)**: Stratified trajectory generation (`datasets/seven_stage_v1/`) with disjoint train/val/test configurations.
+- **Stage 7 (`stage7_statistical_validation/`, `distribution_validation/`, `identifiability_analysis/`, `decoder_evaluation/`)**: Exact 32-state joint syndrome-logical distribution $P(s, \ell \mid \theta)$, conditional posterior $P(\ell \mid s, \theta)$, Bayes-optimal Oracle LER $\mathrm{LER}_{\mathrm{oracle}}(\theta)$, syndrome-aliasing analysis, and 6-decoder shared-trajectory evaluation.
+
+```bash
+PYTHONPATH=. python3 Benchmark-Eval/V1_Seven_Stage_Noise_Validation/run_seven_stage_eval.py
+```

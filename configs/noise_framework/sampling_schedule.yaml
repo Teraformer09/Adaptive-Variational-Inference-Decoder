@@ -1,0 +1,28 @@
+# Two-Clock Sampling Schedule Contract
+# Explicitly separates the Noise-Generator Sampling Clock (10 samples/s = 100 ms period)
+# from the QEC Fast-Path Hardware Syndrome Clock (1 MHz = 1 us period).
+
+schema_version: "1.0"
+
+generator_sampling_clock:
+  rate_hz: 10.0
+  interval_sec: 0.1
+  interval_ms: 100.0
+  window_duration_sec: 100.0
+  samples_per_window: 1000
+  timestamp_formula: "t_n = t_0 + n / 10.0"
+  strict_timestamp_alignment: true
+  timestamp_tolerance_sec: 1.0e-9
+
+qec_hardware_clock:
+  syndrome_round_rate_hz: 1000000.0
+  syndrome_round_period_us: 1.0
+  fast_path_fpga_clock_mhz: 250.0
+  default_qec_rounds_per_composite_sample: 1
+
+storage_contract:
+  store_individual_generator_contributions: true
+  store_individual_probability_vectors: true
+  store_composite_pauli_masks: true
+  store_composite_probability_vectors: true
+  store_noiseless_and_noisy_syndromes: true

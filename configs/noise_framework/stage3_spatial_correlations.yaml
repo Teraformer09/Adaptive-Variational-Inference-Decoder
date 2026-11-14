@@ -1,0 +1,40 @@
+# Stage 3: Spatially Correlated Fault Generation
+# p_k(t | u_t) = sigmoid(alpha_k + beta_k * u_t) over the 21 fault mechanisms
+# (9 single-qubit faults k=0..8 and 12 nearest-neighbour pair faults k=9..20).
+
+schema_version: "1.0"
+num_mechanisms: 21
+single_qubit_indices: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+# 12 canonical nearest-neighbour edges on the rotated d=3 surface code (NM_CROSSTALK_PAIRS)
+pair_edges:
+  - {mechanism_idx: 9,  pair_idx: 0,  qubits: [0, 1]}
+  - {mechanism_idx: 10, pair_idx: 1,  qubits: [1, 2]}
+  - {mechanism_idx: 11, pair_idx: 2,  qubits: [3, 4]}
+  - {mechanism_idx: 12, pair_idx: 3,  qubits: [4, 5]}
+  - {mechanism_idx: 13, pair_idx: 4,  qubits: [4, 7]}
+  - {mechanism_idx: 14, pair_idx: 5,  qubits: [6, 7]}
+  - {mechanism_idx: 15, pair_idx: 6,  qubits: [0, 3]}
+  - {mechanism_idx: 16, pair_idx: 7,  qubits: [1, 4]}
+  - {mechanism_idx: 17, pair_idx: 8,  qubits: [2, 5]}
+  - {mechanism_idx: 18, pair_idx: 9,  qubits: [3, 6]}
+  - {mechanism_idx: 19, pair_idx: 10, qubits: [5, 7]}
+  - {mechanism_idx: 20, pair_idx: 11, qubits: [5, 8]}
+
+spatial_clusters:
+  top_left_plaquette:
+    active_qubits: [0, 1, 3, 4]
+    active_pairs: [0, 2, 6, 7]
+    beta_loading: 1.25
+  bottom_right_plaquette:
+    active_qubits: [4, 5, 7, 8]
+    active_pairs: [3, 4, 10, 11]
+    beta_loading: 1.30
+  anti_diagonal_streak:
+    active_qubits: [1, 2, 6, 7]
+    active_pairs: [1, 5]
+    beta_loading: 1.40
+  central_cross_star:
+    active_qubits: [1, 3, 4, 5, 7]
+    active_pairs: [2, 3, 4, 7]
+    beta_loading: 1.35

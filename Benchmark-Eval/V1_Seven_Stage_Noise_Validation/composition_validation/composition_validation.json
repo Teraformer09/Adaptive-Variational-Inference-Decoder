@@ -1,0 +1,13 @@
+{
+  "stage": "stage4_composition_and_bursts",
+  "num_composite_samples": 1000,
+  "num_active_generators": 7,
+  "individual_attribution_preserved": true,
+  "composition_math_validation": {
+    "identical_pauli_cancellation_verified": true,
+    "disjoint_qubit_superposition_verified": true,
+    "probability_union_max_abs_error": 0.0020799999999999985,
+    "passed": true
+  },
+  "passed": true
+}

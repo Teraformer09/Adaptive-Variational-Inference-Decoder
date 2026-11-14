@@ -1,0 +1,218 @@
+{
+  "stage": "stage2_assignment_and_lifecycle",
+  "duration_seconds": 250.0,
+  "expected_samples": 2500,
+  "actual_samples": 2500,
+  "window_persistence_verified": true,
+  "rng_stream_isolation_verified": true,
+  "uniform_categorical_max_freq_deviation": 0.008392857142857146,
+  "assignment_manifest_250s": {
+    "master_seed": 202,
+    "policy_name": "uniform_16",
+    "configured_probabilities": {
+      "PD_01": 0.0625,
+      "PD_02": 0.0625,
+      "PD_03": 0.0625,
+      "PD_04": 0.0625,
+      "PD_05": 0.0625,
+      "PD_06": 0.0625,
+      "PD_07": 0.0625,
+      "PD_08": 0.0625,
+      "PD_09": 0.0625,
+      "PD_10": 0.0625,
+      "PD_11": 0.0625,
+      "PD_12": 0.0625,
+      "PD_13": 0.0625,
+      "PD_14": 0.0625,
+      "PD_15": 0.0625,
+      "PD_16": 0.0625
+    },
+    "assignment_counts": {
+      "PD_01": 0,
+      "PD_02": 0,
+      "PD_03": 1,
+      "PD_04": 0,
+      "PD_05": 1,
+      "PD_06": 1,
+      "PD_07": 3,
+      "PD_08": 0,
+      "PD_09": 2,
+      "PD_10": 3,
+      "PD_11": 2,
+      "PD_12": 1,
+      "PD_13": 2,
+      "PD_14": 2,
+      "PD_15": 2,
+      "PD_16": 1
+    },
+    "empirical_frequencies": {
+      "PD_01": 0.0,
+      "PD_02": 0.0,
+      "PD_03": 0.047619047619047616,
+      "PD_04": 0.0,
+      "PD_05": 0.047619047619047616,
+      "PD_06": 0.047619047619047616,
+      "PD_07": 0.14285714285714285,
+      "PD_08": 0.0,
+      "PD_09": 0.09523809523809523,
+      "PD_10": 0.14285714285714285,
+      "PD_11": 0.09523809523809523,
+      "PD_12": 0.047619047619047616,
+      "PD_13": 0.09523809523809523,
+      "PD_14": 0.09523809523809523,
+      "PD_15": 0.09523809523809523,
+      "PD_16": 0.047619047619047616
+    },
+    "total_assignments": 21,
+    "history": [
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_13",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_16",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 0,
+        "profile_id": "PD_14",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 0,
+        "profile_id": "PD_05",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_11",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 0,
+        "profile_id": "PD_10",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_07",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_10",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_06",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 1,
+        "profile_id": "PD_15",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 1,
+        "profile_id": "PD_10",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_11",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 1,
+        "profile_id": "PD_09",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_14",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_12",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_13",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 2,
+        "profile_id": "PD_07",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 2,
+        "profile_id": "PD_09",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_15",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 2,
+        "profile_id": "PD_03",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_07",
+        "policy_name": "uniform_16",
+        "assignment_probability": 0.0625
+      }
+    ]
+  },
+  "passed": true
+}

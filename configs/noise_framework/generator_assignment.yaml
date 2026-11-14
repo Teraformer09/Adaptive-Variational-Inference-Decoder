@@ -1,0 +1,33 @@
+# Persistent 100-Second Window PD Assignment Policy
+# At t = 100*w, each generator G_j independently draws P_j^(w) ~ Categorical(pi_1..pi_16)
+# and retains that PD assignment throughout [100*w, 100*(w+1)).
+
+schema_version: "1.0"
+window_duration_sec: 100.0
+samples_per_sec: 10
+samples_per_window: 1000
+persist_generator_internal_state_across_windows: true
+allow_duplicate_pd_across_generators: true
+
+policies:
+  uniform_16:
+    description: "Equal assignment probability pi_i = 1/16 across all 16 PD profiles."
+    weights: [0.0625, 0.0625, 0.0625, 0.0625, 0.0625, 0.0625, 0.0625, 0.0625,
+              0.0625, 0.0625, 0.0625, 0.0625, 0.0625, 0.0625, 0.0625, 0.0625]
+
+  curriculum_burst_enriched:
+    description: "Weighted training policy emphasizing correlated pair hotspots and sharp bursts."
+    weights: [0.04, 0.08, 0.05, 0.07, 0.08, 0.05, 0.09, 0.05,
+              0.08, 0.06, 0.05, 0.09, 0.06, 0.06, 0.03, 0.06]
+
+  early_dominant_eval:
+    description: "Diagnostic policy emphasizing early-window disturbances (P_01..P_06)."
+    weights: [0.14, 0.14, 0.12, 0.12, 0.10, 0.10, 0.04, 0.04,
+              0.03, 0.03, 0.03, 0.03, 0.02, 0.02, 0.02, 0.02]
+
+  delayed_dominant_eval:
+    description: "Diagnostic policy emphasizing delayed-window disturbances (P_09..P_16)."
+    weights: [0.02, 0.02, 0.02, 0.02, 0.03, 0.03, 0.04, 0.04,
+              0.08, 0.08, 0.10, 0.13, 0.10, 0.10, 0.06, 0.13]
+
+default_policy: "curriculum_burst_enriched"

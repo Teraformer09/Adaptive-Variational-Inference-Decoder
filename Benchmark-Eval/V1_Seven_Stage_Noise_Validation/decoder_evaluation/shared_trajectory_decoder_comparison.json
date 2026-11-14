@@ -1,0 +1,105 @@
+{
+  "total_rounds": 8000,
+  "aggregate_logical_failures": {
+    "1_static_bp": 2008,
+    "2_marginal_lbfgs": 2008,
+    "3_deterministic_pid": 2008,
+    "4_memoryless_joint_dp_proj": 2008,
+    "5_recurrent_avid_r2d2": 1983,
+    "6_oracle_bp_and_coset": 1533
+  },
+  "aggregate_logical_error_rates": {
+    "1_static_bp": 0.251,
+    "2_marginal_lbfgs": 0.251,
+    "3_deterministic_pid": 0.251,
+    "4_memoryless_joint_dp_proj": 0.251,
+    "5_recurrent_avid_r2d2": 0.247875,
+    "6_oracle_bp_and_coset": 0.191625
+  },
+  "per_seed": [
+    {
+      "seed": 30000,
+      "total_rounds": 2000,
+      "window_rounds": 250,
+      "logical_failures": {
+        "1_static_bp": 483,
+        "2_marginal_lbfgs": 483,
+        "3_deterministic_pid": 483,
+        "4_memoryless_joint_dp_proj": 483,
+        "5_recurrent_avid_r2d2": 475,
+        "6_oracle_bp_and_coset": 344
+      },
+      "logical_error_rates": {
+        "1_static_bp": 0.2415,
+        "2_marginal_lbfgs": 0.2415,
+        "3_deterministic_pid": 0.2415,
+        "4_memoryless_joint_dp_proj": 0.2415,
+        "5_recurrent_avid_r2d2": 0.2375,
+        "6_oracle_bp_and_coset": 0.172
+      }
+    },
+    {
+      "seed": 30017,
+      "total_rounds": 2000,
+      "window_rounds": 250,
+      "logical_failures": {
+        "1_static_bp": 495,
+        "2_marginal_lbfgs": 495,
+        "3_deterministic_pid": 495,
+        "4_memoryless_joint_dp_proj": 495,
+        "5_recurrent_avid_r2d2": 488,
+        "6_oracle_bp_and_coset": 367
+      },
+      "logical_error_rates": {
+        "1_static_bp": 0.2475,
+        "2_marginal_lbfgs": 0.2475,
+        "3_deterministic_pid": 0.2475,
+        "4_memoryless_joint_dp_proj": 0.2475,
+        "5_recurrent_avid_r2d2": 0.244,
+        "6_oracle_bp_and_coset": 0.1835
+      }
+    },
+    {
+      "seed": 30034,
+      "total_rounds": 2000,
+      "window_rounds": 250,
+      "logical_failures": {
+        "1_static_bp": 537,
+        "2_marginal_lbfgs": 537,
+        "3_deterministic_pid": 537,
+        "4_memoryless_joint_dp_proj": 537,
+        "5_recurrent_avid_r2d2": 528,
+        "6_oracle_bp_and_coset": 443
+      },
+      "logical_error_rates": {
+        "1_static_bp": 0.2685,
+        "2_marginal_lbfgs": 0.2685,
+        "3_deterministic_pid": 0.2685,
+        "4_memoryless_joint_dp_proj": 0.2685,
+        "5_recurrent_avid_r2d2": 0.264,
+        "6_oracle_bp_and_coset": 0.2215
+      }
+    },
+    {
+      "seed": 30051,
+      "total_rounds": 2000,
+      "window_rounds": 250,
+      "logical_failures": {
+        "1_static_bp": 493,
+        "2_marginal_lbfgs": 493,
+        "3_deterministic_pid": 493,
+        "4_memoryless_joint_dp_proj": 493,
+        "5_recurrent_avid_r2d2": 492,
+        "6_oracle_bp_and_coset": 379
+      },
+      "logical_error_rates": {
+        "1_static_bp": 0.2465,
+        "2_marginal_lbfgs": 0.2465,
+        "3_deterministic_pid": 0.2465,
+        "4_memoryless_joint_dp_proj": 0.2465,
+        "5_recurrent_avid_r2d2": 0.246,
+        "6_oracle_bp_and_coset": 0.1895
+      }
+    }
+  ]
+}

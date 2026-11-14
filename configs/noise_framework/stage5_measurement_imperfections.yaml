@@ -1,0 +1,41 @@
+schema_version: "1.0"
+
+stage: measurement_imperfections
+
+enabled: true
+
+generator:
+  generator_id: measurement_noise_01
+  generator_type: measurement_noise
+  output_domain: measurement_fault_parameters
+
+  supported_mechanisms:
+    - independent_readout
+    - temporally_correlated_readout
+    - detector_dropout
+    - observation_delay
+
+  target_dimensions:
+    x_checks: 4
+    z_checks: 4
+
+  profile_assignment:
+    source: pd_registry
+    assignment_policy: independent_per_generator
+    persistence_seconds: 100
+
+  sampling:
+    samples_per_second: 10
+    synchronized: true
+
+  random_state:
+    independent_rng_stream: true
+
+composition:
+  output: measurement_fault_parameters
+  preserve_individual_contributions: true
+
+validation:
+  enforce_probability_bounds: true
+  require_finite_values: true
+  require_valid_delay: true

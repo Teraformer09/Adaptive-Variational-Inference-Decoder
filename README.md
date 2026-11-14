@@ -104,6 +104,16 @@ Full artifact: [`Benchmark-Eval/V1_Scientific_Evaluation/ablations/README.md`](B
 | `5_Full_AVID_R2D2_WB_Inline_OSD_17cyc` | `avid_r2d2` | `1` | `24 / 29` | `79` | `0.05143` | `+46.26%` |
 | `6_Full_AVID_R2D2_WB_PostBP_OSD_19cyc` | `avid_r2d2` | `2` | `26 / 31` | `79` | `0.05143` | `+46.26%` |
 
+### 5.4 Seven-Stage Persistent-PD Multi-Generator Noise & Validation Suite (`Benchmark-Eval/V1_Seven_Stage_Noise_Validation/`)
+Full artifact: [`Benchmark-Eval/V1_Seven_Stage_Noise_Validation/README.md`](Benchmark-Eval/V1_Seven_Stage_Noise_Validation/README.md) & [`configs/noise_framework/framework_v1.yaml`](configs/noise_framework/framework_v1.yaml):
+- **Stage 1 (`pd_profiles_16.yaml`)**: 16 reusable truncated-Gaussian Probability Distribution (PD) profiles (`PD_01..PD_16`) with inverse-CDF sampling and empirical moment validation.
+- **Stage 2 (`generator_assignment.yaml`)**: Persistent 100-second window PD assignment ($P_j^{(w)} \sim \operatorname{Categorical}(\pi_1 \dots \pi_{16})$, $w(t) = \lfloor t / 100 \rfloor$) and isolated per-generator RNG streams.
+- **Stage 3 (`generator_registry.yaml`, `sampling_schedule.yaml`)**: 8 independent generators stepped synchronously at `10 Hz` (`100 ms` intervals, `1,000` samples per `100s` window).
+- **Stage 4 (`composition_rules.yaml`)**: Physical Pauli modulo-2 XOR mask composition ($\mathbf{e}_n^{\mathrm{composite}} = \bigoplus_j \mathbf{e}_{j,n}$) and independent Bernoulli probability composition ($p_{\mathrm{combined}} = 1 - \prod_j (1 - p_j)$).
+- **Stage 5 (`stage5_measurement_imperfections.yaml`, `measurement_parameter_mapping.yaml`)**: Dynamic `MeasurementNoiseGenerator` (`measurement_noise_01`) and `MeasurementModel` with independent readout errors, Markov sticky temporal correlation, detector dropout validity masks ($v_{c,t} \in \{0,1\}$), and observation delay (`event_timestamps` vs. `delivery_timestamps`). Controlled reference fixtures are stored separately in [`configs/noise_framework/baselines/stage5_measurement_baselines.yaml`](configs/noise_framework/baselines/stage5_measurement_baselines.yaml).
+- **Stage 6 (`stage6_stratified_splits.yaml`, `datasets/seven_stage_v1/`)**: Stratified train/val/test trajectory generation with disjoint configuration hashes ($\Theta_{\mathrm{train}} \cap \Theta_{\mathrm{test}} = \varnothing$).
+- **Stage 7 (`logical_class_distribution.py`, `stage7_statistical_validator.py`)**: Exact 32-state joint syndrome-logical dynamic programming $P(s, \ell \mid \theta)$, conditional posteriors $P(\ell \mid s, \theta)$, Bayes-optimal Oracle LER $\mathrm{LER}_{\mathrm{oracle}}(\theta)$, syndrome-aliasing analysis, and 6-decoder shared-trajectory evaluation.
+
 ---
 
 ## 6. Quick Start, Verification Suites & Reproducibility
@@ -118,11 +128,19 @@ python3 -m training.evaluation.evaluate_policy
 # 3. Build Verilator RTL, C++ co-simulation bridge, and ARM Cortex-A9 / ARM64 / native guests
 bash scripts/build_all.sh
 
-# 4. Run all 36 executable verification & simulation tests (auto-builds binaries if needed)
-pytest -v tests/test_training.py tests/test_checkpoint_export.py tests/test_cpp_python_parity.py tests/test_decoder_action_effect.py
+# 4. Run Seven-Stage Persistent-PD Multi-Generator Noise & Stage 5 Measurement Validation
+PYTHONPATH=. python3 -m simulation.stimulus.seven_stage.stage5_measurement_noise \
+  --config configs/noise_framework/framework_v1.yaml \
+  --duration 250 \
+  --seed 42 \
+  --output Benchmark-Eval/V1_Seven_Stage_Noise_Validation/stage5_measurement_validation
+PYTHONPATH=. python3 Benchmark-Eval/V1_Seven_Stage_Noise_Validation/run_seven_stage_eval.py
+
+# 5. Run all executable verification & simulation tests (auto-builds binaries if needed)
+pytest -v tests/test_training.py tests/test_checkpoint_export.py tests/test_cpp_python_parity.py tests/test_decoder_action_effect.py tests/test_seven_stage_noise_framework.py
 pytest -q simulation/tests/ tests/
 
-# 5. Validate architecture contracts, repository structure & checkpoint provenance
+# 6. Validate architecture contracts, repository structure & checkpoint provenance
 python3 tools/validate_architecture.py
 python3 tools/validate_repository.py
 python3 tools/verify_provenance.py

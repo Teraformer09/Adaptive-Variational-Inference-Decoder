@@ -1,0 +1,40 @@
+# Stage 2: Stochastic Temporal Noise Generation Parameters
+# Governs Ornstein-Uhlenbeck (OU) continuous drift, heavy-tailed Student-t innovations,
+# Markov-modulated regime transitions, and Random Telegraph Noise (RTN).
+
+schema_version: "1.0"
+dt_sec: 0.1
+
+ornstein_uhlenbeck:
+  kappa_reversion_rate: 0.12
+  mu_baseline: 0.0
+  sigma_volatility: 0.35
+  innovation_types:
+    gaussian:
+      distribution: "normal"
+      mean: 0.0
+      std: 1.0
+    heavy_tailed_t4:
+      distribution: "student_t"
+      df_nu: 4.0
+      normalize_unit_variance: true
+    heavy_tailed_t3:
+      distribution: "student_t"
+      df_nu: 3.2
+      normalize_unit_variance: true
+
+random_telegraph_noise:
+  num_tls_defects: 3
+  rate_low_to_high_per_sec: 0.045
+  rate_high_to_low_per_sec: 0.180
+  delta_logit_low: -0.15
+  delta_logit_high: 1.35
+
+markov_regime_switching:
+  states: ["quiet", "drifting", "excited"]
+  state_logit_offsets: [-0.25, 0.35, 1.20]
+  state_volatility_scales: [0.5, 1.0, 1.8]
+  transition_matrix:
+    - [0.970, 0.025, 0.005]
+    - [0.040, 0.920, 0.040]
+    - [0.020, 0.100, 0.880]

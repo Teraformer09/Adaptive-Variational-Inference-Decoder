@@ -275,17 +275,22 @@ class CycleAccurateBPEngine:
         res_synd = (self.H @ corr_bits) % 2
         residual_ok = bool(np.all(res_synd == s_vec))
 
-        # If pure BP hard-decision does not satisfy syndrome (e.g. symmetric trapping set on d=3),
-        # select lowest-posterior-cost valid pattern matching active weights (weighted OSD-0)
-        if not residual_ok and self.n_vars <= 9:
+        # Pair-aware weighted OSD-0 (matching bp_engine.sv cfg_osd_mode = 1):
+        # For any non-zero syndrome on d=3 (n_vars <= 9), select the valid correction pattern
+        # minimizing the active Q7.8 LLR + soft-posterior cost so correlated pair weights
+        # (w_u + w_v < w_alias) can override degree-1 single-qubit boundary aliases.
+        if s_mask != 0 and self.n_vars <= 9:
             best_cost = float("inf")
             best_pat = corr_bits
-            # Soft reliability cost: lower prior LLR / lower posterior means more likely to flip
             weights_pos = np.maximum(np.array(priors, dtype=np.float64), 1.0)
-            for pat_int in range(1 << self.n_vars):
+            post_adj = np.maximum(np.array(posterior, dtype=np.float64), 0.0) * (
+                0.08 / max(1, iters)
+            )
+            eff_cost_vec = weights_pos + post_adj
+            for pat_int in range(1, 1 << self.n_vars):
                 pat = np.array([(pat_int >> q) & 1 for q in range(self.n_vars)], dtype=np.uint8)
                 if np.all(((self.H @ pat) % 2) == s_vec):
-                    cost = float(np.dot(pat, weights_pos))
+                    cost = float(np.dot(pat, eff_cost_vec))
                     if cost < best_cost:
                         best_cost = cost
                         best_pat = pat
@@ -299,8 +304,7 @@ class CycleAccurateBPEngine:
         logical_err = False
         if true_error is not None:
             residual_err = (np.asarray(true_error, dtype=np.uint8) ^ corr_bits) & 1
-            # Check if residual error commutes with checks and flips logical operator
-            if np.all(((self.H @ residual_err) % 2) == 0):
+            if residual_ok:
                 logical_err = bool((np.dot(self.logical_op, residual_err) % 2) == 1)
             else:
                 logical_err = True
@@ -418,3 +422,84 @@ class CausalStreamRunner:
             "bp_cycles_K3": self.bp.cycle_count_fused(3),
             "bp_latency_ns_K3": self.bp.cycle_count_fused(3) * 4.0,
         }
+
+    def run_trajectory(
+        self,
+        trajectory: Dict[str, object],
+        initial_weights: Optional[np.ndarray] = None,
+        controller_mode: str = "avid_r2d2",
+    ) -> Dict[str, object]:
+        """Consume an externally generated trajectory from the Seven-Stage Noise Framework."""
+        sx_arr = np.asarray(trajectory["syndromes_x"], dtype=np.uint8)
+        err_z_arr = np.asarray(trajectory["fault_masks_z"], dtype=np.uint8)
+        total_rounds = int(sx_arr.shape[0])
+
+        _, default_q78 = self.model.compute_q7_8_llrs(self.model.default_theta)
+        start_q78 = default_q78 if initial_weights is None else np.asarray(initial_weights, dtype=np.int16)
+        self.weight_bank = DoubleBufferedWeightBank(n_vars=9, reset_llr_q78=int(start_q78[0]))
+        self.weight_bank.write_shadow_bank(start_q78)
+        self.weight_bank.pulse_commit()
+        self.weight_bank.step_atomic_swap(bp_ready_in=True)
+
+        static_weights = self.weight_bank.active_mem.copy()
+        hist = np.zeros(self.model.n_states, dtype=np.float64)
+        pending_commit_round: Optional[int] = None
+        pending_q78: Optional[np.ndarray] = None
+        pending_K: int = self.bp.default_K
+        active_K: int = self.bp.default_K
+
+        logical_errors_adaptive = 0
+        logical_errors_static = 0
+        commit_history: List[Tuple[int, int]] = []
+        total_cycles = 0
+
+        for r in range(total_rounds):
+            if pending_commit_round is not None and r >= pending_commit_round and pending_q78 is not None:
+                self.weight_bank.write_shadow_bank(pending_q78)
+                self.weight_bank.pulse_commit()
+                swapped = self.weight_bank.step_atomic_swap(bp_ready_in=True)
+                if swapped:
+                    active_K = pending_K
+                    commit_history.append((r, self.weight_bank.swap_count))
+                pending_commit_round = None
+                pending_q78 = None
+
+            s_vec = sx_arr[r]
+            err = err_z_arr[r]
+            s_mask = int(sum((int(s_vec[c]) & 1) << c for c in range(4)))
+            hist[s_mask] += 1.0
+
+            k_use = 3 if controller_mode == "static" else active_K
+            w_use = static_weights if controller_mode == "static" else self.weight_bank.active_mem
+            tr_adapt = self.bp.decode(s_mask, w_use, K=k_use, true_error=err)
+            tr_stat = self.bp.decode(s_mask, static_weights, K=3, true_error=err)
+
+            total_cycles += tr_adapt.cycles_fused
+            if tr_adapt.logical_error:
+                logical_errors_adaptive += 1
+            if tr_stat.logical_error:
+                logical_errors_static += 1
+
+            if controller_mode != "static" and (r + 1) % self.window_rounds == 0:
+                fit = self.model.fit_lbfgs(hist, prior_lambda=0.5, max_iter=15)
+                pending_q78 = fit["llr_q7_8"]
+                non_triv = float(np.sum(hist[1:]) / max(1.0, float(np.sum(hist))))
+                if controller_mode == "avid_r2d2":
+                    pending_K = 5 if non_triv >= 0.25 else (4 if non_triv >= 0.14 else 3)
+                else:
+                    pending_K = 3
+                pending_commit_round = r + self.commit_delay_rounds
+                hist.fill(0.0)
+
+        return {
+            "controller_mode": controller_mode,
+            "total_rounds": total_rounds,
+            "logical_errors_adaptive": logical_errors_adaptive,
+            "logical_errors_static": logical_errors_static,
+            "ler_adaptive": logical_errors_adaptive / max(1, total_rounds),
+            "ler_static": logical_errors_static / max(1, total_rounds),
+            "swap_count": self.weight_bank.swap_count,
+            "commit_history": commit_history,
+            "mean_bp_cycles": total_cycles / max(1, total_rounds),
+        }
+

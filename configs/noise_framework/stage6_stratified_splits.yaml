@@ -1,0 +1,49 @@
+# Stage 6: Stratified Trajectory Generation & Disjoint Dataset Splits
+# Enforces strict trajectory-level / configuration-level disjointness:
+#   Theta_train ∩ Theta_val = ∅, Theta_train ∩ Theta_test = ∅, Theta_val ∩ Theta_test = ∅
+
+schema_version: "1.0"
+enforce_disjoint_theta_hashes: true
+enforce_disjoint_seeds: true
+enforce_disjoint_pd_pools: false
+
+partitions:
+  train:
+    num_trajectories: 6
+    duration_seconds: 200.0
+    seed_range: [10000, 19999]
+    assignment_policy: "curriculum_burst_enriched"
+    allowed_profile_ids:
+      - "PD_01"
+      - "PD_02"
+      - "PD_03"
+      - "PD_04"
+      - "PD_06"
+      - "PD_07"
+      - "PD_08"
+      - "PD_10"
+      - "PD_13"
+      - "PD_15"
+    ou_volatility_scale: 1.00
+
+  val:
+    num_trajectories: 3
+    duration_seconds: 200.0
+    seed_range: [20000, 29999]
+    assignment_policy: "early_dominant_eval"
+    allowed_profile_ids:
+      - "PD_05"
+      - "PD_09"
+      - "PD_11"
+    ou_volatility_scale: 1.15
+
+  test:
+    num_trajectories: 4
+    duration_seconds: 200.0
+    seed_range: [30000, 39999]
+    assignment_policy: "delayed_dominant_eval"
+    allowed_profile_ids:
+      - "PD_12"
+      - "PD_14"
+      - "PD_16"
+    ou_volatility_scale: 1.30
