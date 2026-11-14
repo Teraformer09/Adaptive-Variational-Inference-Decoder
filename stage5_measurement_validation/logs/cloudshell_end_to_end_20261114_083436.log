@@ -1,0 +1,260 @@
+================================================================================
+Google Cloud Shell End-to-End Execution Transcript (2026-11-14T08:34:36Z)
+Host: tirthahaque@cloudshell:~/Adaptive-Variational-Inference-Decoder
+Branch: AVID_EPJ_Patches (HEAD -> bbe3ccb)
+================================================================================
+
+[M0 Setup] Checking Cloud Shell toolchain for AVID V1 Dual-Emulator...
+[M0 Setup] Toolchain summary:
+  - Python3      : Python 3.12.3
+  - CMake        : cmake version 3.28.3
+  - Host G++     : g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+  - Cortex-A9 G++: arm-linux-gnueabihf-g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+  - ARM64 G++    : aarch64-linux-gnu-g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+  - QEMU CortexA9: qemu-arm version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)
+  - QEMU ARM64   : qemu-aarch64 version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)
+  - Verilator    : Verilator 5.020 2024-01-01 rev (Debian 5.020-1)
+
+$ PYTHONPATH=. python3 -m simulation.stimulus.seven_stage.stage5_measurement_noise --duration 250 --seed 42 --config configs/noise_framework/framework_v1.yaml
+[PASS] Stage 5 validated 2500 synchronized samples over 250.0s (windows=['0', '1', '2']).
+
+$ PYTHONPATH=. python3 Benchmark-Eval/V1_Seven_Stage_Noise_Validation/run_seven_stage_eval.py
+[PASS] All 7 stages executed and validated successfully.
+
+$ bash scripts/run_v1_acceptance.sh
+=================================================================
+  AVID V1 Dual-Emulator Experiment Runner: avid_v1_integration_20261114_083436_s2026
+=================================================================
+[PASS M1] Verilator RTL verified (verilator_c++_rtl): K=3 core=17 cyc (68.0 ns), AXI total=22 cyc (88.0 ns) @ 250 MHz
+[PASS M3] Co-Simulation Bridge <-> Verilator RTL register & syndrome transactions verified
+[PASS M4] Scenario 'stationary_noise': rounds=1536 epochs=6 commits=4 (reconciled=True) core_cyc=17.0 axis_cyc=22.0 static_ler=0.02995 avid_ler=0.02995 (-0.0%) orbit_rmse=0.008137
+[PASS M4] Scenario 'slowly_drifting_noise': rounds=1536 epochs=9 commits=8 (reconciled=True) core_cyc=19.92 axis_cyc=24.92 static_ler=0.07292 avid_ler=0.04818 (-33.93%) orbit_rmse=0.014259
+[PASS M4] Scenario 'correlated_noise': rounds=1536 epochs=7 commits=5 (reconciled=True) core_cyc=22.42 axis_cyc=27.42 static_ler=0.0918 avid_ler=0.05143 (-43.97%) orbit_rmse=0.015401
+[PASS M4] Scenario 'burst_disturbance': rounds=1536 epochs=8 commits=8 (reconciled=True) core_cyc=23.46 axis_cyc=28.46 static_ler=0.06445 avid_ler=0.04557 (-29.29%) orbit_rmse=0.015169
+[PASS M4] Scenario 'delayed_weight_commit': rounds=1536 epochs=7 commits=6 (reconciled=True) core_cyc=23.25 axis_cyc=28.25 static_ler=0.09245 avid_ler=0.05729 (-38.03%) orbit_rmse=0.008783
+[PASS M4] Scenario 'reset_recovery': rounds=1536 epochs=10 commits=9 (reconciled=True) core_cyc=22.0 axis_cyc=27.0 static_ler=0.07812 avid_ler=0.05013 (-35.83%) orbit_rmse=0.016191
+[PASS M4] Scenario 'busy_decoder': rounds=1536 epochs=6 commits=6 (reconciled=True) core_cyc=22.0 axis_cyc=27.0 static_ler=0.08594 avid_ler=0.05729 (-33.33%) orbit_rmse=0.01225
+[PASS M4] Scenario 'variable_k_adaptation': rounds=1536 epochs=7 commits=6 (reconciled=True) core_cyc=15.75 axis_cyc=20.75 static_ler=0.09375 avid_ler=0.04818 (-48.61%) orbit_rmse=0.010724
+[PASS M4] Scenario 'fallback_safety_trigger': rounds=1536 epochs=9 commits=9 (reconciled=True) core_cyc=24.92 axis_cyc=29.92 static_ler=0.08919 avid_ler=0.06055 (-32.12%) orbit_rmse=0.062655
+[PASS M4] Scenario 'short_burst_60us_vs_10ms': rounds=1536 epochs=7 commits=7 (reconciled=True) core_cyc=22.42 axis_cyc=27.42 static_ler=0.07422 avid_ler=0.04427 (-40.35%) orbit_rmse=0.015269
+=================================================================
+  [RUN COMPLETE] Status=PASS | Run Dir: runs/avid_v1_integration_20261114_083436_s2026
+=================================================================
+[PASS] Provenance verified: run_id=avid_v1_integration_20261114_083436_s2026, simulator=verilator_c++_rtl, r2d2_bin_sha256=3c1447653d07b159...
+[PASS] Verified 4 requirements in requirements_traceability.yaml.
+
+$ PYTHONPATH=. python3 -m pytest simulation/tests/ tests/ -v
+========================================================================== test session starts ===========================================================================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tirthahaque/Adaptive-Variational-Inference-Decoder
+configfile: pytest.ini
+plugins: anyio-4.16.0, platformdirs-4.14.3
+collected 204 items
+
+simulation/tests/test_code_geometry.py::TestCodeGeometry::test_artifacts_and_rtl_consistency PASSED                                                                [  0%]
+simulation/tests/test_code_geometry.py::TestCodeGeometry::test_d3_css_algebra_and_distance PASSED                                                                  [  0%]
+simulation/tests/test_code_geometry.py::TestCodeGeometry::test_d5_css_algebra PASSED                                                                               [  1%]
+simulation/tests/test_dataset_provenance.py::TestDatasetProvenance::test_same_seed_reproduces_identical_trajectory_and_provenance PASSED                           [  1%]
+simulation/tests/test_end_to_end_pipeline.py::TestEndToEndPipeline::test_bp_cycle_formula_and_single_error_decoding PASSED                                         [  2%]
+simulation/tests/test_end_to_end_pipeline.py::TestEndToEndPipeline::test_causal_stream_and_shared_input_baselines PASSED                                           [  2%]
+simulation/tests/test_end_to_end_pipeline.py::TestEndToEndPipeline::test_double_buffered_weight_bank_atomicity PASSED                                              [  3%]
+simulation/tests/test_event_signatures.py::TestEventSignatures::test_json_artifact_consistency PASSED                                                              [  3%]
+simulation/tests/test_event_signatures.py::TestEventSignatures::test_single_and_pair_xor_signatures PASSED                                                         [  4%]
+simulation/tests/test_generator_assignment.py::TestGeneratorAssignment::test_independent_assignment_and_rng_isolation PASSED                                       [  4%]
+simulation/tests/test_generator_lifecycle.py::TestGeneratorLifecycle::test_ou_state_persists_across_100s_profile_reassignment PASSED                               [  5%]
+simulation/tests/test_identifiability.py::TestIdentifiability::test_jacobian_and_fisher_ranks PASSED                                                               [  5%]
+simulation/tests/test_identifiability.py::TestIdentifiability::test_lbfgs_identifies_hotspot_and_zz_crosstalk PASSED                                               [  6%]
+simulation/tests/test_joint_likelihood.py::TestJointLikelihood::test_analytic_gradient_matches_finite_difference PASSED                                            [  6%]
+simulation/tests/test_joint_likelihood.py::TestJointLikelihood::test_dp_matches_bruteforce_enumeration PASSED                                                      [  7%]
+simulation/tests/test_measurement_assignment.py::test_assignment_persists_within_window PASSED                                                                     [  7%]
+simulation/tests/test_measurement_assignment.py::test_assignment_changes_at_boundary PASSED                                                                        [  8%]
+simulation/tests/test_measurement_assignment.py::test_each_generator_has_one_assignment_per_window PASSED                                                          [  8%]
+simulation/tests/test_measurement_assignment.py::test_assignments_are_reproducible PASSED                                                                          [  9%]
+simulation/tests/test_measurement_assignment.py::test_generator_rng_streams_are_independent PASSED                                                                 [  9%]
+simulation/tests/test_measurement_avid_integration.py::test_correct_syndrome_bits_survive_encoding PASSED                                                          [ 10%]
+simulation/tests/test_measurement_avid_integration.py::test_packet_round_trip_returns_identical_syndrome_bits PASSED                                               [ 10%]
+simulation/tests/test_measurement_avid_integration.py::test_xz_basis_separation_maintained_in_packet_stream PASSED                                                 [ 11%]
+simulation/tests/test_measurement_avid_integration.py::test_packet_length_and_format_unchanged PASSED                                                              [ 11%]
+simulation/tests/test_measurement_avid_integration.py::test_metadata_matches_original_trajectory PASSED                                                            [ 12%]
+simulation/tests/test_measurement_avid_integration.py::test_invalid_packet_input_rejected PASSED                                                                   [ 12%]
+simulation/tests/test_measurement_baselines.py::test_all_three_baselines_load PASSED                                                                               [ 13%]
+simulation/tests/test_measurement_baselines.py::test_exact_numerical_values_are_preserved PASSED                                                                   [ 13%]
+simulation/tests/test_measurement_baselines.py::test_explicit_baseline_selection_works PASSED                                                                      [ 14%]
+simulation/tests/test_measurement_baselines.py::test_unknown_baseline_names_are_rejected PASSED                                                                    [ 14%]
+simulation/tests/test_measurement_baselines.py::test_dynamic_mode_does_not_load_baseline_regimes PASSED                                                            [ 15%]
+simulation/tests/test_measurement_baselines.py::test_baseline_output_is_reproducible PASSED                                                                        [ 15%]
+simulation/tests/test_measurement_composition.py::test_single_generator_produces_unchanged_contribution PASSED                                                     [ 16%]
+simulation/tests/test_measurement_composition.py::test_independent_sources_combine_correctly_and_reproducibly_with_provenance PASSED                               [ 16%]
+simulation/tests/test_measurement_composition.py::test_identical_source_contributions_not_silently_double_counted PASSED                                           [ 17%]
+simulation/tests/test_measurement_composition.py::test_incompatible_parameter_dimensions_rejected PASSED                                                           [ 17%]
+simulation/tests/test_measurement_composition.py::test_invalid_probability_values_rejected PASSED                                                                  [ 18%]
+simulation/tests/test_measurement_config.py::test_no_hardcoded_regimes PASSED                                                                                      [ 18%]
+simulation/tests/test_measurement_config.py::test_generator_identity PASSED                                                                                        [ 19%]
+simulation/tests/test_measurement_config.py::test_assignment_source PASSED                                                                                         [ 19%]
+simulation/tests/test_measurement_config.py::test_assignment_persistence PASSED                                                                                    [ 20%]
+simulation/tests/test_measurement_config.py::test_sampling_frequency PASSED                                                                                        [ 20%]
+simulation/tests/test_measurement_config.py::test_supported_mechanisms PASSED                                                                                      [ 21%]
+simulation/tests/test_measurement_config.py::test_output_domain_validation_flags PASSED                                                                            [ 21%]
+simulation/tests/test_measurement_correlation.py::TestMeasurementCorrelation::test_temporal_sticky_transition_increases_repeat_error_probability PASSED            [ 22%]
+simulation/tests/test_measurement_delay.py::TestMeasurementDelay::test_event_and_delivery_timestamps_preserved_under_delay PASSED                                  [ 22%]
+simulation/tests/test_measurement_dropout.py::TestMeasurementDropout::test_dropped_observations_carry_explicit_zero_validity_mask PASSED                           [ 23%]
+simulation/tests/test_measurement_generator.py::test_generator_initialization PASSED                                                                               [ 23%]
+simulation/tests/test_measurement_generator.py::test_valid_pd_assignment PASSED                                                                                    [ 24%]
+simulation/tests/test_measurement_generator.py::test_unknown_pd_assignment_rejected PASSED                                                                         [ 24%]
+simulation/tests/test_measurement_generator.py::test_valid_sample_generation_and_shapes_and_ids PASSED                                                             [ 25%]
+simulation/tests/test_measurement_generator.py::test_independent_rng_reproducibility_and_different_seeds PASSED                                                    [ 25%]
+simulation/tests/test_measurement_generator.py::test_state_save_and_load_reproduces_subsequent_samples PASSED                                                      [ 25%]
+simulation/tests/test_measurement_generator.py::test_incompatible_pd_rejected PASSED                                                                               [ 26%]
+simulation/tests/test_measurement_mapping.py::test_all_targets_defined PASSED                                                                                      [ 26%]
+simulation/tests/test_measurement_mapping.py::test_unknown_source_variable_rejected PASSED                                                                         [ 27%]
+simulation/tests/test_measurement_mapping.py::test_incompatible_distribution_rejected PASSED                                                                       [ 27%]
+simulation/tests/test_measurement_mapping.py::test_missing_target_rejected PASSED                                                                                  [ 28%]
+simulation/tests/test_measurement_mapping.py::test_duplicate_target_rejected PASSED                                                                                [ 28%]
+simulation/tests/test_measurement_mapping.py::test_invalid_mapping_dimensions_rejected PASSED                                                                      [ 29%]
+simulation/tests/test_measurement_mapping.py::test_invalid_integer_conversion_rejected PASSED                                                                      [ 29%]
+simulation/tests/test_measurement_mapping.py::test_incompatible_support_rejected PASSED                                                                            [ 30%]
+simulation/tests/test_measurement_model.py::test_zero_readout_probability_produces_no_flips PASSED                                                                 [ 30%]
+simulation/tests/test_measurement_model.py::test_unit_readout_probability_flips_every_valid_bit PASSED                                                             [ 31%]
+simulation/tests/test_measurement_model.py::test_zero_and_unit_dropout_probability_and_validity_masks PASSED                                                       [ 31%]
+simulation/tests/test_measurement_model.py::test_delay_zero_and_delay_one_preserve_event_and_delivery_timestamps PASSED                                            [ 32%]
+simulation/tests/test_measurement_model.py::test_temporal_persistence_matches_markov_transition_model PASSED                                                       [ 32%]
+simulation/tests/test_measurement_model.py::test_input_immutability PASSED                                                                                         [ 33%]
+simulation/tests/test_measurement_parameter_bounds.py::TestMeasurementParameterBounds::test_invalid_parameters_rejected_on_construction PASSED                     [ 33%]
+simulation/tests/test_measurement_parameter_bounds.py::TestMeasurementParameterBounds::test_sampled_parameters_within_valid_bounds PASSED                          [ 34%]
+simulation/tests/test_measurement_parameters.py::test_valid_four_element_vectors PASSED                                                                            [ 34%]
+simulation/tests/test_measurement_parameters.py::test_three_element_x_vector_rejected PASSED                                                                       [ 35%]
+simulation/tests/test_measurement_parameters.py::test_three_element_z_vector_rejected PASSED                                                                       [ 35%]
+simulation/tests/test_measurement_parameters.py::test_probability_below_zero_rejected PASSED                                                                       [ 36%]
+simulation/tests/test_measurement_parameters.py::test_probability_above_one_rejected PASSED                                                                        [ 36%]
+simulation/tests/test_measurement_parameters.py::test_nan_or_infinity_rejected PASSED                                                                              [ 37%]
+simulation/tests/test_measurement_parameters.py::test_negative_delay_rejected PASSED                                                                               [ 37%]
+simulation/tests/test_measurement_parameters.py::test_floating_point_delay_rejected PASSED                                                                         [ 38%]
+simulation/tests/test_measurement_parameters.py::test_missing_generator_id_rejected PASSED                                                                         [ 38%]
+simulation/tests/test_measurement_parameters.py::test_valid_parameter_object PASSED                                                                                [ 39%]
+simulation/tests/test_measurement_pd_assignment.py::TestMeasurementPDAssignment::test_incompatible_profile_variable_rejected PASSED                                [ 39%]
+simulation/tests/test_measurement_pd_assignment.py::TestMeasurementPDAssignment::test_measurement_generator_accepts_all_16_registry_pds PASSED                     [ 40%]
+simulation/tests/test_measurement_profile_persistence.py::TestMeasurementProfilePersistence::test_persistence_across_250_seconds_three_windows PASSED              [ 40%]
+simulation/tests/test_measurement_registry.py::test_generator_type_resolves_and_active_generators_returns_instance PASSED                                          [ 41%]
+simulation/tests/test_measurement_registry.py::test_duplicate_id_rejected PASSED                                                                                   [ 41%]
+simulation/tests/test_measurement_registry.py::test_disabled_generator_not_instantiated PASSED                                                                     [ 42%]
+simulation/tests/test_measurement_registry.py::test_unsupported_generator_type_rejected PASSED                                                                     [ 42%]
+simulation/tests/test_measurement_sampling.py::test_ten_seconds_generates_100_valid_samples_with_unique_ids_and_spacing PASSED                                     [ 43%]
+simulation/tests/test_measurement_sampling.py::test_samples_follow_assigned_pd_statistical_distribution PASSED                                                     [ 43%]
+simulation/tests/test_measurement_sampling.py::test_invalid_mapping_fails_immediately PASSED                                                                       [ 44%]
+simulation/tests/test_measurement_syndrome_integration.py::test_trajectory_contains_all_required_step11_keys PASSED                                                [ 44%]
+simulation/tests/test_measurement_syndrome_integration.py::test_zero_measurement_noise_produces_ideal_observations PASSED                                          [ 45%]
+simulation/tests/test_measurement_syndrome_integration.py::test_measurement_noise_changes_observations_without_changing_physical_faults PASSED                     [ 45%]
+simulation/tests/test_measurement_syndrome_integration.py::test_syndrome_calculations_match_canonical_css_matrices PASSED                                          [ 46%]
+simulation/tests/test_measurement_syndrome_integration.py::test_dropout_represented_by_invalidity_not_valid_zero_bit PASSED                                        [ 46%]
+simulation/tests/test_measurement_syndrome_integration.py::test_delayed_observations_retain_original_event_identity PASSED                                         [ 47%]
+simulation/tests/test_measurement_syndrome_integration.py::test_xz_basis_separation_is_preserved PASSED                                                            [ 47%]
+simulation/tests/test_noise_composition.py::TestNoiseComposition::test_pauli_xor_cancellation_and_probability_union PASSED                                         [ 48%]
+simulation/tests/test_packet_roundtrip.py::TestPacketRoundtrip::test_single_packet_roundtrip PASSED                                                                [ 48%]
+simulation/tests/test_packet_roundtrip.py::TestPacketRoundtrip::test_stim_to_bin_no_xz_duplication PASSED                                                          [ 49%]
+simulation/tests/test_packet_roundtrip.py::TestPacketRoundtrip::test_stream_roundtrip_and_gap_detection PASSED                                                     [ 49%]
+simulation/tests/test_pd_profiles.py::TestPDProfiles::test_all_16_profiles_load_and_validate_moments PASSED                                                        [ 50%]
+simulation/tests/test_seven_stage_pipeline.py::TestSevenStagePipeline::test_generated_trajectory_roundtrips_packet_stream_and_runs_in_causal_runner PASSED         [ 50%]
+simulation/tests/test_synchronized_sampling.py::TestSynchronizedSampling::test_all_generators_synchronized_at_2500_instants PASSED                                 [ 50%]
+simulation/tests/test_syndrome_generation.py::TestSyndromeGeneration::test_encoded_syndromes_equal_hx_ez_and_hz_ex_mod2 PASSED                                     [ 51%]
+tests/acceptance/v0_closure/test_v0_closure_40.py::test_v0_closure_report_and_live_cpp_suite PASSED                                                                [ 51%]
+tests/acceptance/v1_acceptance/test_v1_exit_criteria.py::test_v1_canonical_report_and_live_rtl_bridge PASSED                                                       [ 52%]
+tests/acceptance/v1_acceptance/test_v1_exit_criteria.py::test_v1_benchmark_eval_suites PASSED                                                                      [ 52%]
+tests/integration/adaptive_weight_commit/test_epoch_reconciliation.py::test_epoch_commit_reconciliation PASSED                                                     [ 53%]
+tests/integration/end_to_end/test_10_scenarios_present.py::test_ten_scenarios PASSED                                                                               [ 53%]
+tests/integration/qemu_verilator/test_lockstep_metrics.py::test_zero_hal_rejections PASSED                                                                         [ 54%]
+tests/stress/long_duration/test_57344_round_report.py::test_long_duration_report PASSED                                                                            [ 54%]
+tests/stress/reset_stress/test_reset_recovery_scenario.py::test_reset_recovery PASSED                                                                              [ 55%]
+tests/stress/transaction_stress/test_busy_decoder_scenario.py::test_busy_decoder PASSED                                                                            [ 55%]
+tests/test_checkpoint_export.py::test_checkpoint_files_and_schema_integrity PASSED                                                                                 [ 56%]
+tests/test_checkpoint_export.py::test_roundtrip_export_and_load_exact_parity PASSED                                                                                [ 56%]
+tests/test_checkpoint_export.py::test_corrupted_checkpoint_rejected PASSED                                                                                         [ 57%]
+tests/test_cpp_python_parity.py::test_cpp_python_recurrent_trajectory_parity PASSED                                                                                [ 57%]
+tests/test_decoder_action_effect.py::test_controller_modes_produce_distinct_decoder_behavior PASSED                                                                [ 58%]
+tests/test_decoder_action_effect.py::test_heldout_multi_pair_12_67_projection_and_fallback PASSED                                                                  [ 58%]
+tests/test_decoder_action_effect.py::test_executable_relative_checkpoint_and_hard_fail_on_missing_checkpoint PASSED                                                [ 59%]
+tests/test_measurement_assignment.py::test_assignment_persists_within_window PASSED                                                                                [ 59%]
+tests/test_measurement_assignment.py::test_assignment_changes_at_boundary PASSED                                                                                   [ 60%]
+tests/test_measurement_assignment.py::test_each_generator_has_one_assignment_per_window PASSED                                                                     [ 60%]
+tests/test_measurement_assignment.py::test_assignments_are_reproducible PASSED                                                                                     [ 61%]
+tests/test_measurement_assignment.py::test_generator_rng_streams_are_independent PASSED                                                                            [ 61%]
+tests/test_measurement_avid_integration.py::test_correct_syndrome_bits_survive_encoding PASSED                                                                     [ 62%]
+tests/test_measurement_avid_integration.py::test_packet_round_trip_returns_identical_syndrome_bits PASSED                                                          [ 62%]
+tests/test_measurement_avid_integration.py::test_xz_basis_separation_maintained_in_packet_stream PASSED                                                            [ 63%]
+tests/test_measurement_avid_integration.py::test_packet_length_and_format_unchanged PASSED                                                                         [ 63%]
+tests/test_measurement_avid_integration.py::test_metadata_matches_original_trajectory PASSED                                                                       [ 64%]
+tests/test_measurement_avid_integration.py::test_invalid_packet_input_rejected PASSED                                                                              [ 64%]
+tests/test_measurement_baselines.py::test_all_three_baselines_load PASSED                                                                                          [ 65%]
+tests/test_measurement_baselines.py::test_exact_numerical_values_are_preserved PASSED                                                                              [ 65%]
+tests/test_measurement_baselines.py::test_explicit_baseline_selection_works PASSED                                                                                 [ 66%]
+tests/test_measurement_baselines.py::test_unknown_baseline_names_are_rejected PASSED                                                                               [ 66%]
+tests/test_measurement_baselines.py::test_dynamic_mode_does_not_load_baseline_regimes PASSED                                                                       [ 67%]
+tests/test_measurement_baselines.py::test_baseline_output_is_reproducible PASSED                                                                                   [ 67%]
+tests/test_measurement_composition.py::test_single_generator_produces_unchanged_contribution PASSED                                                                [ 68%]
+tests/test_measurement_composition.py::test_independent_sources_combine_correctly_and_reproducibly_with_provenance PASSED                                          [ 68%]
+tests/test_measurement_composition.py::test_identical_source_contributions_not_silently_double_counted PASSED                                                      [ 69%]
+tests/test_measurement_composition.py::test_incompatible_parameter_dimensions_rejected PASSED                                                                      [ 69%]
+tests/test_measurement_composition.py::test_invalid_probability_values_rejected PASSED                                                                             [ 70%]
+tests/test_measurement_config.py::test_no_hardcoded_regimes PASSED                                                                                                 [ 70%]
+tests/test_measurement_config.py::test_generator_identity PASSED                                                                                                   [ 71%]
+tests/test_measurement_config.py::test_assignment_source PASSED                                                                                                    [ 71%]
+tests/test_measurement_config.py::test_assignment_persistence PASSED                                                                                               [ 72%]
+tests/test_measurement_config.py::test_sampling_frequency PASSED                                                                                                   [ 72%]
+tests/test_measurement_config.py::test_supported_mechanisms PASSED                                                                                                 [ 73%]
+tests/test_measurement_config.py::test_output_domain_validation_flags PASSED                                                                                       [ 73%]
+tests/test_measurement_generator.py::test_generator_initialization PASSED                                                                                          [ 74%]
+tests/test_measurement_generator.py::test_valid_pd_assignment PASSED                                                                                               [ 74%]
+tests/test_measurement_generator.py::test_unknown_pd_assignment_rejected PASSED                                                                                    [ 75%]
+tests/test_measurement_generator.py::test_valid_sample_generation_and_shapes_and_ids PASSED                                                                        [ 75%]
+tests/test_measurement_generator.py::test_independent_rng_reproducibility_and_different_seeds PASSED                                                               [ 75%]
+tests/test_measurement_generator.py::test_state_save_and_load_reproduces_subsequent_samples PASSED                                                                 [ 76%]
+tests/test_measurement_generator.py::test_incompatible_pd_rejected PASSED                                                                                          [ 76%]
+tests/test_measurement_mapping.py::test_all_targets_defined PASSED                                                                                                 [ 77%]
+tests/test_measurement_mapping.py::test_unknown_source_variable_rejected PASSED                                                                                    [ 77%]
+tests/test_measurement_mapping.py::test_incompatible_distribution_rejected PASSED                                                                                  [ 78%]
+tests/test_measurement_mapping.py::test_missing_target_rejected PASSED                                                                                             [ 78%]
+tests/test_measurement_mapping.py::test_duplicate_target_rejected PASSED                                                                                           [ 79%]
+tests/test_measurement_mapping.py::test_invalid_mapping_dimensions_rejected PASSED                                                                                 [ 79%]
+tests/test_measurement_mapping.py::test_invalid_integer_conversion_rejected PASSED                                                                                 [ 80%]
+tests/test_measurement_mapping.py::test_incompatible_support_rejected PASSED                                                                                       [ 80%]
+tests/test_measurement_model.py::test_zero_readout_probability_produces_no_flips PASSED                                                                            [ 81%]
+tests/test_measurement_model.py::test_unit_readout_probability_flips_every_valid_bit PASSED                                                                        [ 81%]
+tests/test_measurement_model.py::test_zero_and_unit_dropout_probability_and_validity_masks PASSED                                                                  [ 82%]
+tests/test_measurement_model.py::test_delay_zero_and_delay_one_preserve_event_and_delivery_timestamps PASSED                                                       [ 82%]
+tests/test_measurement_model.py::test_temporal_persistence_matches_markov_transition_model PASSED                                                                  [ 83%]
+tests/test_measurement_model.py::test_input_immutability PASSED                                                                                                    [ 83%]
+tests/test_measurement_parameters.py::test_valid_four_element_vectors PASSED                                                                                       [ 84%]
+tests/test_measurement_parameters.py::test_three_element_x_vector_rejected PASSED                                                                                  [ 84%]
+tests/test_measurement_parameters.py::test_three_element_z_vector_rejected PASSED                                                                                  [ 85%]
+tests/test_measurement_parameters.py::test_probability_below_zero_rejected PASSED                                                                                  [ 85%]
+tests/test_measurement_parameters.py::test_probability_above_one_rejected PASSED                                                                                   [ 86%]
+tests/test_measurement_parameters.py::test_nan_or_infinity_rejected PASSED                                                                                         [ 86%]
+tests/test_measurement_parameters.py::test_negative_delay_rejected PASSED                                                                                          [ 87%]
+tests/test_measurement_parameters.py::test_floating_point_delay_rejected PASSED                                                                                    [ 87%]
+tests/test_measurement_parameters.py::test_missing_generator_id_rejected PASSED                                                                                    [ 88%]
+tests/test_measurement_parameters.py::test_valid_parameter_object PASSED                                                                                           [ 88%]
+tests/test_measurement_registry.py::test_generator_type_resolves_and_active_generators_returns_instance PASSED                                                     [ 89%]
+tests/test_measurement_registry.py::test_duplicate_id_rejected PASSED                                                                                              [ 89%]
+tests/test_measurement_registry.py::test_disabled_generator_not_instantiated PASSED                                                                                [ 90%]
+tests/test_measurement_registry.py::test_unsupported_generator_type_rejected PASSED                                                                                [ 90%]
+tests/test_measurement_sampling.py::test_ten_seconds_generates_100_valid_samples_with_unique_ids_and_spacing PASSED                                                [ 91%]
+tests/test_measurement_sampling.py::test_samples_follow_assigned_pd_statistical_distribution PASSED                                                                [ 91%]
+tests/test_measurement_sampling.py::test_invalid_mapping_fails_immediately PASSED                                                                                  [ 92%]
+tests/test_measurement_syndrome_integration.py::test_trajectory_contains_all_required_step11_keys PASSED                                                           [ 92%]
+tests/test_measurement_syndrome_integration.py::test_zero_measurement_noise_produces_ideal_observations PASSED                                                     [ 93%]
+tests/test_measurement_syndrome_integration.py::test_measurement_noise_changes_observations_without_changing_physical_faults PASSED                                [ 93%]
+tests/test_measurement_syndrome_integration.py::test_syndrome_calculations_match_canonical_css_matrices PASSED                                                     [ 94%]
+tests/test_measurement_syndrome_integration.py::test_dropout_represented_by_invalidity_not_valid_zero_bit PASSED                                                   [ 94%]
+tests/test_measurement_syndrome_integration.py::test_delayed_observations_retain_original_event_identity PASSED                                                    [ 95%]
+tests/test_measurement_syndrome_integration.py::test_xz_basis_separation_is_preserved PASSED                                                                       [ 95%]
+tests/test_seven_stage_noise_framework.py::test_stages_1_to_5_validation_gates PASSED                                                                              [ 96%]
+tests/test_seven_stage_noise_framework.py::test_stage7_exact_joint_syndrome_logical_distribution_and_oracle PASSED                                                 [ 96%]
+tests/test_seven_stage_noise_framework.py::test_stage7_statistical_validation_and_shared_trajectory_decoders PASSED                                                [ 97%]
+tests/test_synchronized_sampling.py::test_all_generators_synchronized_at_2500_instants PASSED                                                                      [ 97%]
+tests/test_training.py::test_kapturowski_value_rescaling_bijection_and_derivative PASSED                                                                           [ 98%]
+tests/test_training.py::test_recurrent_lstm_bptt_gradient_vs_finite_difference PASSED                                                                              [ 98%]
+tests/test_training.py::test_dueling_q_head_gradient_vs_finite_difference PASSED                                                                                   [ 99%]
+tests/test_training.py::test_prioritized_sequence_replay_and_target_sync PASSED                                                                                    [ 99%]
+tests/test_training.py::test_trained_checkpoint_metrics_and_convergence PASSED                                                                                     [100%]
+
+===================================================================== 204 passed in 80.62s (0:01:20) =====================================================================
