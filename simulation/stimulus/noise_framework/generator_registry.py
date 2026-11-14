@@ -52,6 +52,7 @@ VALID_COMPOSITION_GROUPS = {
     "data_faults_z",
     "data_faults_x",
     "measurement_faults",
+    "measurement_parameters",
 }
 
 
@@ -129,11 +130,15 @@ class GeneratorRegistry:
         return list(self._instances.values())
 
     def get(self, generator_id: str) -> BaseNoiseGenerator:
+        if not self._instances and self._specs:
+            self.instantiate_all()
         if generator_id not in self._instances:
             raise KeyError(f"Generator '{generator_id}' is not instantiated or not active")
         return self._instances[generator_id]
 
     def active_generators(self) -> List[BaseNoiseGenerator]:
+        if not self._instances and self._specs:
+            self.instantiate_all()
         return list(self._instances.values())
 
     @property

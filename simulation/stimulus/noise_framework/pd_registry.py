@@ -24,6 +24,12 @@ class PDRegistry:
     """Immutable registry of the 16 canonical Probability Distribution (PD) profiles."""
 
     EXPECTED_PROFILE_COUNT = 16
+    DEFAULT_PATH = (
+        Path(__file__).resolve().parents[3]
+        / "configs"
+        / "noise_framework"
+        / "pd_profiles_16.yaml"
+    )
 
     def __init__(self, path: Optional[str | Path] = None) -> None:
         self._profiles: Dict[str, NoiseProfile] = {}
@@ -32,10 +38,11 @@ class PDRegistry:
         if path is not None:
             self.load(path)
 
-    def load(self, path: str | Path) -> "PDRegistry":
+    def load(self, path: Optional[str | Path] = None) -> "PDRegistry":
         if self._loaded:
             raise RuntimeError("PDRegistry is immutable once loaded; instantiate a new PDRegistry instead.")
-        raw = load_yaml_validated(path, required_keys=("schema_version", "profiles"))
+        target_path = Path(path) if path is not None else self.DEFAULT_PATH
+        raw = load_yaml_validated(target_path, required_keys=("schema_version", "profiles"))
         profiles_list = raw["profiles"]
         if not isinstance(profiles_list, list) or len(profiles_list) != self.EXPECTED_PROFILE_COUNT:
             raise ValueError(
@@ -80,14 +87,14 @@ class PDRegistry:
 
     def get(self, profile_id: str) -> NoiseProfile:
         if not self._loaded:
-            raise RuntimeError("PDRegistry has not been loaded yet")
+            self.load()
         if profile_id not in self._profiles:
             raise KeyError(f"Unknown profile_id '{profile_id}'")
         return self._profiles[profile_id]
 
     def list_profiles(self) -> List[str]:
         if not self._loaded:
-            raise RuntimeError("PDRegistry has not been loaded yet")
+            self.load()
         return list(self._profiles.keys())
 
     @property

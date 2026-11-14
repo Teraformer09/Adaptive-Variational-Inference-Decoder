@@ -1,0 +1,40 @@
+{
+  "trajectory_id": "stage5_meas_s42",
+  "split_id": "validation",
+  "master_seed": 42,
+  "num_composite_samples": 2500,
+  "rounds_per_composite_sample": 1,
+  "total_rounds": 2500,
+  "assignment_history": {
+    "0": {
+      "z_single_noise_01": "PD_05",
+      "x_single_noise_01": "PD_02",
+      "zz_crosstalk_01": "PD_12",
+      "telegraph_tls_01": "PD_03",
+      "burst_noise_01": "PD_07",
+      "markov_regime_01": "PD_12",
+      "measurement_noise_01": "PD_02"
+    },
+    "1": {
+      "z_single_noise_01": "PD_11",
+      "x_single_noise_01": "PD_16",
+      "zz_crosstalk_01": "PD_15",
+      "telegraph_tls_01": "PD_02",
+      "burst_noise_01": "PD_02",
+      "markov_regime_01": "PD_06",
+      "measurement_noise_01": "PD_10"
+    },
+    "2": {
+      "z_single_noise_01": "PD_02",
+      "x_single_noise_01": "PD_10",
+      "zz_crosstalk_01": "PD_01",
+      "telegraph_tls_01": "PD_12",
+      "burst_noise_01": "PD_08",
+      "markov_regime_01": "PD_09",
+      "measurement_noise_01": "PD_05"
+    }
+  },
+  "dropout_events_x": 30,
+  "dropout_events_z": 38,
+  "max_observation_delay_samples": 1
+}

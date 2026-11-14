@@ -23,6 +23,42 @@ from simulation.stimulus.noise_framework.syndrome.measurement_parameters import 
 )
 
 
+class MeasurementObservation(dict):
+    """Observation bundle supporting both attribute and dictionary access."""
+
+    @property
+    def observed_syndrome_x(self) -> np.ndarray:
+        return self["observed_syndromes_x"]
+
+    @property
+    def observed_syndrome_z(self) -> np.ndarray:
+        return self["observed_syndromes_z"]
+
+    @property
+    def validity_mask_x(self) -> np.ndarray:
+        return self["validity_mask_x"]
+
+    @property
+    def validity_mask_z(self) -> np.ndarray:
+        return self["validity_mask_z"]
+
+    @property
+    def measurement_error_mask_x(self) -> np.ndarray:
+        return self["measurement_faults_x"]
+
+    @property
+    def measurement_error_mask_z(self) -> np.ndarray:
+        return self["measurement_faults_z"]
+
+    @property
+    def event_timestamps(self) -> Any:
+        return self["event_timestamps"]
+
+    @property
+    def delivery_timestamps(self) -> Any:
+        return self["delivery_timestamps"]
+
+
 class MeasurementModel:
     """Applies readout bit-flips, temporal correlation, dropout, and observation delay."""
 
@@ -159,32 +195,44 @@ class MeasurementModel:
             detector_z[1:] = observed_z[1:] ^ observed_z[:-1]
 
         if single_step:
-            return {
-                "observed_syndromes_x": observed_x[0],
-                "observed_syndromes_z": observed_z[0],
-                "validity_mask_x": validity_x[0],
-                "validity_mask_z": validity_z[0],
-                "measurement_faults_x": meas_faults_x[0],
-                "measurement_faults_z": meas_faults_z[0],
-                "event_timestamps": float(event_timestamps[0]),
-                "delivery_timestamps": float(delivery_timestamps[0]),
-                "observation_delays": int(delays[0]),
-                "source_event_indices": int(source_event_indices[0]),
-                "detector_events_x": detector_x[0],
-                "detector_events_z": detector_z[0],
-            }
+            return MeasurementObservation(
+                {
+                    "observed_syndromes_x": observed_x[0],
+                    "observed_syndromes_z": observed_z[0],
+                    "observed_syndrome_x": observed_x[0],
+                    "observed_syndrome_z": observed_z[0],
+                    "validity_mask_x": validity_x[0],
+                    "validity_mask_z": validity_z[0],
+                    "measurement_faults_x": meas_faults_x[0],
+                    "measurement_faults_z": meas_faults_z[0],
+                    "measurement_error_mask_x": meas_faults_x[0],
+                    "measurement_error_mask_z": meas_faults_z[0],
+                    "event_timestamps": float(event_timestamps[0]),
+                    "delivery_timestamps": float(delivery_timestamps[0]),
+                    "observation_delays": int(delays[0]),
+                    "source_event_indices": int(source_event_indices[0]),
+                    "detector_events_x": detector_x[0],
+                    "detector_events_z": detector_z[0],
+                }
+            )
 
-        return {
-            "observed_syndromes_x": observed_x,
-            "observed_syndromes_z": observed_z,
-            "validity_mask_x": validity_x,
-            "validity_mask_z": validity_z,
-            "measurement_faults_x": meas_faults_x,
-            "measurement_faults_z": meas_faults_z,
-            "event_timestamps": event_timestamps,
-            "delivery_timestamps": delivery_timestamps,
-            "observation_delays": delays,
-            "source_event_indices": source_event_indices,
-            "detector_events_x": detector_x,
-            "detector_events_z": detector_z,
-        }
+        return MeasurementObservation(
+            {
+                "observed_syndromes_x": observed_x,
+                "observed_syndromes_z": observed_z,
+                "observed_syndrome_x": observed_x,
+                "observed_syndrome_z": observed_z,
+                "validity_mask_x": validity_x,
+                "validity_mask_z": validity_z,
+                "measurement_faults_x": meas_faults_x,
+                "measurement_faults_z": meas_faults_z,
+                "measurement_error_mask_x": meas_faults_x,
+                "measurement_error_mask_z": meas_faults_z,
+                "event_timestamps": event_timestamps,
+                "delivery_timestamps": delivery_timestamps,
+                "observation_delays": delays,
+                "source_event_indices": source_event_indices,
+                "detector_events_x": detector_x,
+                "detector_events_z": detector_z,
+            }
+        )

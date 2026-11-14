@@ -13,8 +13,14 @@ if str(REPO_ROOT) not in sys.path:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def ensure_compiled_binaries() -> None:
-    """Build Verilator RTL/bridge models, C++ baseline suite, and daemon if missing on a clean checkout."""
+def ensure_compiled_binaries(request: pytest.FixtureRequest) -> None:
+    """Build Verilator RTL/bridge models, C++ baseline suite, and daemon if missing and required."""
+    needs_cpp = any(
+        "test_cpp_python_parity" in item.nodeid or "test_decoder_action_effect" in item.nodeid
+        for item in request.session.items
+    )
+    if not needs_cpp:
+        return
     required_bins = [
         REPO_ROOT / "emulator/verilator/models/standalone_rtl_tb",
         REPO_ROOT / "emulator/verilator/models/avid_cosim_bridge",

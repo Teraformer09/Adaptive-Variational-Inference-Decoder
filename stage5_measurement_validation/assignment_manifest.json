@@ -1,0 +1,219 @@
+{
+  "stage": "stage5_measurement_noise",
+  "seed": 42,
+  "window_duration_sec": 100.0,
+  "num_windows": 3,
+  "measurement_assignment_by_window": {
+    "0": "PD_02",
+    "1": "PD_10",
+    "2": "PD_05"
+  },
+  "generator_assignments": {
+    "master_seed": 42,
+    "policy_name": "curriculum_burst_enriched",
+    "configured_probabilities": {
+      "PD_01": 0.04,
+      "PD_02": 0.08,
+      "PD_03": 0.05,
+      "PD_04": 0.07,
+      "PD_05": 0.08,
+      "PD_06": 0.05,
+      "PD_07": 0.09,
+      "PD_08": 0.05,
+      "PD_09": 0.08,
+      "PD_10": 0.06,
+      "PD_11": 0.05,
+      "PD_12": 0.09,
+      "PD_13": 0.06,
+      "PD_14": 0.06,
+      "PD_15": 0.03,
+      "PD_16": 0.06
+    },
+    "assignment_counts": {
+      "PD_01": 1,
+      "PD_02": 5,
+      "PD_03": 1,
+      "PD_04": 0,
+      "PD_05": 2,
+      "PD_06": 1,
+      "PD_07": 1,
+      "PD_08": 1,
+      "PD_09": 1,
+      "PD_10": 2,
+      "PD_11": 1,
+      "PD_12": 3,
+      "PD_13": 0,
+      "PD_14": 0,
+      "PD_15": 1,
+      "PD_16": 1
+    },
+    "empirical_frequencies": {
+      "PD_01": 0.047619047619047616,
+      "PD_02": 0.23809523809523808,
+      "PD_03": 0.047619047619047616,
+      "PD_04": 0.0,
+      "PD_05": 0.09523809523809523,
+      "PD_06": 0.047619047619047616,
+      "PD_07": 0.047619047619047616,
+      "PD_08": 0.047619047619047616,
+      "PD_09": 0.047619047619047616,
+      "PD_10": 0.09523809523809523,
+      "PD_11": 0.047619047619047616,
+      "PD_12": 0.14285714285714285,
+      "PD_13": 0.0,
+      "PD_14": 0.0,
+      "PD_15": 0.047619047619047616,
+      "PD_16": 0.047619047619047616
+    },
+    "total_assignments": 21,
+    "history": [
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_05",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 0,
+        "profile_id": "PD_12",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.09
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 0,
+        "profile_id": "PD_03",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.05
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_07",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.09
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 0,
+        "profile_id": "PD_12",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.09
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_11",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.05
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_16",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.06
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 1,
+        "profile_id": "PD_15",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.03
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 1,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 1,
+        "profile_id": "PD_06",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.05
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_10",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.06
+      },
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_10",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.06
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 2,
+        "profile_id": "PD_01",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.04
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 2,
+        "profile_id": "PD_12",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.09
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_08",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.05
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 2,
+        "profile_id": "PD_09",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_05",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      }
+    ]
+  }
+}

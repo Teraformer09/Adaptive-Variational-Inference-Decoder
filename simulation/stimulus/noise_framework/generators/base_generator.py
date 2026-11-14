@@ -42,8 +42,28 @@ class BaseNoiseGenerator(ABC):
         self.samples_generated: int = 0
         self.last_timestamp: Optional[float] = None
 
-    def assign_profile(self, profile: NoiseProfile, window_id: Optional[int] = None) -> None:
+    def assign_profile(
+        self,
+        profile: NoiseProfile | str,
+        window_id: Optional[int] = None,
+        registry: Optional[Any] = None,
+    ) -> None:
         """Assign a new PD profile for the current 100s window without resetting internal state."""
+        if isinstance(profile, str):
+            reg = registry if registry is not None else getattr(self, "pd_registry", None)
+            if reg is None:
+                from simulation.stimulus.noise_framework.pd_registry import PDRegistry
+                from pathlib import Path
+                reg = PDRegistry(
+                    Path(__file__).resolve().parents[4]
+                    / "configs"
+                    / "noise_framework"
+                    / "pd_profiles_16.yaml"
+                )
+            try:
+                profile = reg.get(profile)
+            except KeyError as exc:
+                raise ValueError(f"Unknown PD profile_id '{profile}'") from exc
         if not isinstance(profile, NoiseProfile):
             raise TypeError(f"Expected NoiseProfile, got {type(profile)}")
         self._validate_profile_compatibility(profile)

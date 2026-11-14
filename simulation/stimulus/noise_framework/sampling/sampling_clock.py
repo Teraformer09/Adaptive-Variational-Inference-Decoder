@@ -66,3 +66,10 @@ class SamplingClock:
         self._prev_window_id = wid
         self._sample_id += 1
         return sid, ts, wid, crossed
+
+    def iter_duration(self, duration_seconds: float):
+        """Yield `(sample_id, timestamp, window_id)` for `int(round(duration_seconds * rate_hz))` steps."""
+        n_steps = int(round(float(duration_seconds) * self.rate_hz))
+        for _ in range(n_steps):
+            sid, ts, wid, _ = self.step()
+            yield sid, ts, wid

@@ -1,0 +1,306 @@
+{
+  "stage": "stage5_measurement_noise",
+  "passed": true,
+  "seed": 42,
+  "duration_seconds": 250.0,
+  "expected_samples": 2500,
+  "actual_samples": 2500,
+  "num_windows": 3,
+  "config_hashes": {
+    "framework_sha256": "ee276cfe9fd41c0e6988f31963430e8f93b7c8e8eee2a0a7fc3b70de7d053756",
+    "stage5_config_sha256": "5ba3f73f15567ff06c633bb6ee50bf866ad5eed477f3928ce0abe12a9bb0b793",
+    "mapping_config_sha256": "fa7c67c51554ee90a6926d8b64ae53eb4a4b29006822b295d18ddb11ebe1a2d2",
+    "pd_registry_sha256": "d34949f38dd82ec860de3d17c0723578a1f833c6fcf0e37659427ce075601916",
+    "generator_registry_sha256": "1a130ef95e5075f4a118a1aa40e82c6f824e941cf1df8f22a090b0237c0c23d1"
+  },
+  "provenance": {
+    "framework_version": "1.0.0-seven-stage",
+    "master_seed": 42,
+    "split_id": "validation",
+    "assignment_policy": "curriculum_burst_enriched",
+    "duration_seconds": 250.0,
+    "profile_config_hash": "38018c373f4f68e53a213770afc2727f8bce1747642b26b3a0e01615842ab73c",
+    "generator_config_hash": "de2e388fa2b6827c19c21e283301978399b3fd921f48f7c33eacba364c5fa82f",
+    "assignment_config_hash": "13c63ba816f3c76664423f544500346747f1fd2c9f25121a781b2003f951c3bf",
+    "composition_config_hash": "613c1bc93d11436a1d23ff38d665f80e7dd18224739ff1e0dc912b0ab2e42462",
+    "measurement_config_hash": "6919a8a9a9638330fff81adfa68c57c5e202b39e6fc9bc8db08e8ce83d5da269",
+    "code_geometry_hash": "b6442fa83a3e58a0779679a0f38cea8364e50cb445597ac9dd9f19cf59c93d02",
+    "theta_hash": "b1d872e162c2b0c41e2fe238af1abc8107fc021d322ab988020e0e945a28bf23",
+    "theta_vector": {
+      "master_seed": 42,
+      "assignment_policy": "curriculum_burst_enriched",
+      "duration_seconds": 250.0,
+      "split_id": "validation",
+      "profile_config_hash": "38018c373f4f68e53a213770afc2727f8bce1747642b26b3a0e01615842ab73c",
+      "generator_config_hash": "de2e388fa2b6827c19c21e283301978399b3fd921f48f7c33eacba364c5fa82f"
+    }
+  },
+  "measurement_assignment_by_window": {
+    "0": "PD_02",
+    "1": "PD_10",
+    "2": "PD_05"
+  },
+  "assignment_manifest": {
+    "master_seed": 42,
+    "policy_name": "curriculum_burst_enriched",
+    "configured_probabilities": {
+      "PD_01": 0.04,
+      "PD_02": 0.08,
+      "PD_03": 0.05,
+      "PD_04": 0.07,
+      "PD_05": 0.08,
+      "PD_06": 0.05,
+      "PD_07": 0.09,
+      "PD_08": 0.05,
+      "PD_09": 0.08,
+      "PD_10": 0.06,
+      "PD_11": 0.05,
+      "PD_12": 0.09,
+      "PD_13": 0.06,
+      "PD_14": 0.06,
+      "PD_15": 0.03,
+      "PD_16": 0.06
+    },
+    "assignment_counts": {
+      "PD_01": 1,
+      "PD_02": 5,
+      "PD_03": 1,
+      "PD_04": 0,
+      "PD_05": 2,
+      "PD_06": 1,
+      "PD_07": 1,
+      "PD_08": 1,
+      "PD_09": 1,
+      "PD_10": 2,
+      "PD_11": 1,
+      "PD_12": 3,
+      "PD_13": 0,
+      "PD_14": 0,
+      "PD_15": 1,
+      "PD_16": 1
+    },
+    "empirical_frequencies": {
+      "PD_01": 0.047619047619047616,
+      "PD_02": 0.23809523809523808,
+      "PD_03": 0.047619047619047616,
+      "PD_04": 0.0,
+      "PD_05": 0.09523809523809523,
+      "PD_06": 0.047619047619047616,
+      "PD_07": 0.047619047619047616,
+      "PD_08": 0.047619047619047616,
+      "PD_09": 0.047619047619047616,
+      "PD_10": 0.09523809523809523,
+      "PD_11": 0.047619047619047616,
+      "PD_12": 0.14285714285714285,
+      "PD_13": 0.0,
+      "PD_14": 0.0,
+      "PD_15": 0.047619047619047616,
+      "PD_16": 0.047619047619047616
+    },
+    "total_assignments": 21,
+    "history": [
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_05",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 0,
+        "profile_id": "PD_12",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.09
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 0,
+        "profile_id": "PD_03",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.05
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_07",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.09
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 0,
+        "profile_id": "PD_12",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.09
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 0,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_11",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.05
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_16",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.06
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 1,
+        "profile_id": "PD_15",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.03
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 1,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 1,
+        "profile_id": "PD_06",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.05
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 1,
+        "profile_id": "PD_10",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.06
+      },
+      {
+        "generator_id": "z_single_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_02",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "x_single_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_10",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.06
+      },
+      {
+        "generator_id": "zz_crosstalk_01",
+        "window_id": 2,
+        "profile_id": "PD_01",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.04
+      },
+      {
+        "generator_id": "telegraph_tls_01",
+        "window_id": 2,
+        "profile_id": "PD_12",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.09
+      },
+      {
+        "generator_id": "burst_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_08",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.05
+      },
+      {
+        "generator_id": "markov_regime_01",
+        "window_id": 2,
+        "profile_id": "PD_09",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      },
+      {
+        "generator_id": "measurement_noise_01",
+        "window_id": 2,
+        "profile_id": "PD_05",
+        "policy_name": "curriculum_burst_enriched",
+        "assignment_probability": 0.08
+      }
+    ]
+  },
+  "validation_checks": {
+    "no_default_hardcoded_regimes": true,
+    "shared_pd_registry_used": true,
+    "window_persistence_100s_verified": true,
+    "synchronized_10hz_sampling_verified": true,
+    "parameter_bounds_verified": true,
+    "event_and_delivery_timestamps_verified": true,
+    "dropout_validity_masks_verified": true,
+    "avid_packet_stream_compatible": true,
+    "no_missing_contributions": true
+  },
+  "summary_metrics": {
+    "mean_q_base_x": [
+      0.0056274230570745945,
+      0.0056880003343968855,
+      0.005782784173228582,
+      0.005677956725912769
+    ],
+    "mean_q_base_z": [
+      0.0053252507363724675,
+      0.005328276527859321,
+      0.005328680940666899,
+      0.0053593799553271915
+    ],
+    "std_q_base_x": [
+      0.0017121448841421587,
+      0.0016711930719575734,
+      0.0017181996436863973,
+      0.0017362596253956417
+    ],
+    "std_q_base_z": [
+      0.0015631121406798785,
+      0.0015732885227080326,
+      0.001610262399052439,
+      0.00164446174914777
+    ],
+    "mean_temporal_sticky_prob": 0.08115739184264653,
+    "mean_detector_dropout_prob": 0.003379446750902895,
+    "max_observation_delay_samples": 1,
+    "realized_measurement_flip_rate_x": 0.0076,
+    "realized_measurement_flip_rate_z": 0.0066,
+    "realized_dropout_count_x": 30,
+    "realized_dropout_count_z": 38
+  },
+  "artifacts": {
+    "observed_syndromes_npz": "stage5_measurement_validation/observed_syndromes.npz",
+    "measurement_parameters_npz": "stage5_measurement_validation/measurement_parameters.npz",
+    "measurement_ground_truth_npz": "stage5_measurement_validation/measurement_ground_truth.npz",
+    "assignment_manifest_json": "stage5_measurement_validation/assignment_manifest.json",
+    "trajectory_manifest_json": "stage5_measurement_validation/trajectory_manifest.json",
+    "statistical_metrics_json": "stage5_measurement_validation/statistical_metrics.json",
+    "validation_report_json": "stage5_measurement_validation/validation_report.json",
+    "npz_path": "stage5_measurement_validation/stage5_trajectory_s42.npz",
+    "bin_path": "stage5_measurement_validation/stage5_packets_s42.bin"
+  }
+}

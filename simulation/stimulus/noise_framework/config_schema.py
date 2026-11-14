@@ -279,11 +279,11 @@ class GeneratorSpec:
 
     generator_id: str
     generator_type: str
-    enabled: bool
-    seed: int
-    output_domain: str
-    output_shape: Tuple[int, ...]
-    composition_group: str
+    enabled: bool = True
+    seed: int = 42
+    output_domain: str = "measurement_fault_parameters"
+    output_shape: Tuple[int, ...] = (11,)
+    composition_group: str = "measurement_parameters"
     parameters: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:

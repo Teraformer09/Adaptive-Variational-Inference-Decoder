@@ -13,10 +13,23 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import math
+from pathlib import Path
 from typing import Any, Dict
 import numpy as np
 
-from simulation.stimulus.noise_framework.config_schema import NoiseContribution
+from simulation.stimulus.noise_framework.config_schema import (
+    NoiseContribution,
+    load_yaml_validated,
+)
+
+
+DEFAULT_BASELINE_YAML = (
+    Path(__file__).resolve().parents[4]
+    / "configs"
+    / "noise_framework"
+    / "baselines"
+    / "stage5_measurement_baselines.yaml"
+)
 
 
 @dataclass
@@ -143,3 +156,47 @@ class MeasurementNoiseParameters:
             "timestamp": self.timestamp,
             "window_id": self.window_id,
         }
+
+
+def load_all_measurement_baselines(
+    path: str | Path | None = None,
+) -> Dict[str, Dict[str, Any]]:
+    """Load the controlled baseline dictionary from `stage5_measurement_baselines.yaml`."""
+    yaml_path = Path(path) if path is not None else DEFAULT_BASELINE_YAML
+    raw = load_yaml_validated(yaml_path, required_keys=("schema_version", "baselines"))
+    baselines = raw["baselines"]
+    if not isinstance(baselines, dict) or not baselines:
+        raise ValueError(f"Invalid baselines section in {yaml_path}")
+    return baselines
+
+
+def load_measurement_baseline(
+    regime_name: str,
+    path: str | Path | None = None,
+    sample_id: int = 0,
+    timestamp: float = 0.0,
+    window_id: int = 0,
+) -> MeasurementNoiseParameters:
+    """Explicitly load one named baseline regime as a validated `MeasurementNoiseParameters`."""
+    if not regime_name or not isinstance(regime_name, str):
+        raise ValueError("Explicit non-empty baseline regime_name is required")
+    baselines = load_all_measurement_baselines(path=path)
+    if regime_name not in baselines:
+        raise KeyError(
+            f"Unknown baseline regime '{regime_name}'. Available baselines: {sorted(baselines.keys())}"
+        )
+    entry = baselines[regime_name]
+    return MeasurementNoiseParameters(
+        q_base_x=np.asarray(entry["q_base_x"], dtype=np.float64),
+        q_base_z=np.asarray(entry["q_base_z"], dtype=np.float64),
+        temporal_sticky_prob=float(entry["temporal_sticky_prob"]),
+        detector_dropout_prob=float(entry["detector_dropout_prob"]),
+        observation_delay_samples=int(entry["observation_delay_samples"]),
+        generator_id=f"baseline_{regime_name}",
+        profile_id=f"BASELINE_{regime_name.upper()}",
+        sample_id=int(sample_id),
+        timestamp=float(timestamp),
+        window_id=int(window_id),
+        metadata={"baseline_regime": regime_name, "explicit_baseline_mode": True},
+    )
+

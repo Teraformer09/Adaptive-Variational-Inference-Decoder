@@ -173,12 +173,7 @@ def run_stage5_measurement_noise_pipeline(
     out_dir = (
         Path(output_dir)
         if output_dir is not None
-        else (
-            REPO_ROOT
-            / "Benchmark-Eval"
-            / "V1_Seven_Stage_Noise_Validation"
-            / "stage5_syndrome_validation"
-        )
+        else (REPO_ROOT / "stage5_measurement_validation")
     )
     if not out_dir.is_absolute():
         out_dir = REPO_ROOT / out_dir
@@ -188,12 +183,132 @@ def run_stage5_measurement_noise_pipeline(
     bin_path = adapter.write_packet_stream(encoded_traj, out_dir / f"stage5_packets_s{seed}.bin")
     stream_check = adapter.validate_stream(bin_path, expected_trajectory=encoded_traj)
 
+    # Save the 7 canonical Step 14 output artifacts in out_dir
+    obs_npz_path = out_dir / "observed_syndromes.npz"
+    np.savez_compressed(
+        str(obs_npz_path),
+        observed_syndromes_x=np.asarray(encoded_traj["syndromes_x"], dtype=np.uint8),
+        observed_syndromes_z=np.asarray(encoded_traj["syndromes_z"], dtype=np.uint8),
+        validity_mask_x=val_x,
+        validity_mask_z=val_z,
+        sample_ids=np.asarray(encoded_traj["sample_ids"], dtype=np.int32),
+        window_ids=np.asarray(encoded_traj["window_ids"], dtype=np.int32),
+        event_timestamps=ev_ts,
+        delivery_timestamps=del_ts,
+    )
+
+    mp_vec = np.asarray(encoded_traj["measurement_parameters_vec"], dtype=np.float64)
+    params_npz_path = out_dir / "measurement_parameters.npz"
+    np.savez_compressed(
+        str(params_npz_path),
+        q_base_x=mp_vec[:, 0:4],
+        q_base_z=mp_vec[:, 4:8],
+        temporal_sticky_prob=mp_vec[:, 8],
+        detector_dropout_prob=mp_vec[:, 9],
+        observation_delay_samples=mp_vec[:, 10].astype(np.int32),
+        measurement_parameters_vec=mp_vec,
+        sample_ids=np.asarray(encoded_traj["sample_ids"], dtype=np.int32),
+        window_ids=np.asarray(encoded_traj["window_ids"], dtype=np.int32),
+        timestamps=np.asarray(encoded_traj["timestamps"], dtype=np.float64),
+    )
+
+    gt_npz_path = out_dir / "measurement_ground_truth.npz"
+    np.savez_compressed(
+        str(gt_npz_path),
+        ideal_syndromes_x=np.asarray(encoded_traj["ideal_syndromes_x"], dtype=np.uint8),
+        ideal_syndromes_z=np.asarray(encoded_traj["ideal_syndromes_z"], dtype=np.uint8),
+        measurement_faults_x=np.asarray(encoded_traj["measurement_faults_x"], dtype=np.uint8),
+        measurement_faults_z=np.asarray(encoded_traj["measurement_faults_z"], dtype=np.uint8),
+        fault_masks_x=np.asarray(encoded_traj["fault_masks_x"], dtype=np.uint8),
+        fault_masks_z=np.asarray(encoded_traj["fault_masks_z"], dtype=np.uint8),
+        logical_error_x=np.asarray(encoded_traj["logical_error_x"], dtype=np.uint8),
+        logical_error_z=np.asarray(encoded_traj["logical_error_z"], dtype=np.uint8),
+    )
+
     prov = build_provenance_record(
         master_seed=seed,
         assignment_policy="curriculum_burst_enriched",
         duration_seconds=duration_seconds,
         split_id="validation",
         framework_yaml_path=fw_path,
+    )
+
+    config_hashes = {
+        "framework_sha256": compute_canonical_config_hash(fw_cfg),
+        "stage5_config_sha256": compute_canonical_config_hash(stage5_cfg),
+        "mapping_config_sha256": compute_canonical_config_hash(map_cfg),
+        "pd_registry_sha256": pd_reg.config_hash,
+        "generator_registry_sha256": gen_reg.config_hash,
+    }
+
+    meas_assign_by_win = {
+        str(w): sorted(list(pids))[0] for w, pids in sorted(win_to_pid.items())
+    }
+    assignment_manifest_obj = {
+        "stage": "stage5_measurement_noise",
+        "seed": int(seed),
+        "window_duration_sec": 100.0,
+        "num_windows": len(win_to_pid),
+        "measurement_assignment_by_window": meas_assign_by_win,
+        "generator_assignments": pd_assign.assignment_manifest(),
+    }
+    assign_manifest_path = out_dir / "assignment_manifest.json"
+    assign_manifest_path.write_text(
+        json.dumps(assignment_manifest_obj, indent=2) + "\n", encoding="utf-8"
+    )
+
+    trajectory_manifest_obj = {
+        "trajectory_id": encoded_traj["trajectory_id"],
+        "split_id": encoded_traj["split_id"],
+        "seed": int(seed),
+        "duration_seconds": float(duration_seconds),
+        "sampling_rate_hz": 10.0,
+        "num_samples": expected_samples,
+        "num_windows": len(win_to_pid),
+        "config_hashes": config_hashes,
+        "provenance": prov,
+    }
+    traj_manifest_path = out_dir / "trajectory_manifest.json"
+    traj_manifest_path.write_text(
+        json.dumps(trajectory_manifest_obj, indent=2) + "\n", encoding="utf-8"
+    )
+
+    summary_metrics = {
+        "mean_q_base_x": [float(x) for x in np.mean(mp_vec[:, 0:4], axis=0)],
+        "mean_q_base_z": [float(x) for x in np.mean(mp_vec[:, 4:8], axis=0)],
+        "std_q_base_x": [float(x) for x in np.std(mp_vec[:, 0:4], axis=0)],
+        "std_q_base_z": [float(x) for x in np.std(mp_vec[:, 4:8], axis=0)],
+        "mean_temporal_sticky_prob": float(np.mean(mp_vec[:, 8])),
+        "mean_detector_dropout_prob": float(np.mean(mp_vec[:, 9])),
+        "max_observation_delay_samples": int(np.max(encoded_traj["observation_delays"])),
+        "realized_measurement_flip_rate_x": float(np.mean(encoded_traj["measurement_faults_x"])),
+        "realized_measurement_flip_rate_z": float(np.mean(encoded_traj["measurement_faults_z"])),
+        "realized_dropout_count_x": int(np.sum(val_x == 0)),
+        "realized_dropout_count_z": int(np.sum(val_z == 0)),
+    }
+    win_ids_arr = np.asarray(encoded_traj["window_ids"], dtype=np.int32)
+    per_window_metrics: Dict[str, Any] = {}
+    for w in sorted(win_to_pid.keys()):
+        mask = win_ids_arr == w
+        per_window_metrics[str(w)] = {
+            "assigned_profile_id": meas_assign_by_win[str(w)],
+            "sample_count": int(np.sum(mask)),
+            "mean_q_base_x": [float(x) for x in np.mean(mp_vec[mask, 0:4], axis=0)],
+            "mean_q_base_z": [float(x) for x in np.mean(mp_vec[mask, 4:8], axis=0)],
+            "mean_temporal_sticky_prob": float(np.mean(mp_vec[mask, 8])),
+            "mean_detector_dropout_prob": float(np.mean(mp_vec[mask, 9])),
+        }
+
+    stat_metrics_obj = {
+        "stage": "stage5_measurement_noise",
+        "seed": int(seed),
+        "num_samples": expected_samples,
+        "summary_metrics": summary_metrics,
+        "per_window_metrics": per_window_metrics,
+    }
+    stat_metrics_path = out_dir / "statistical_metrics.json"
+    stat_metrics_path.write_text(
+        json.dumps(stat_metrics_obj, indent=2) + "\n", encoding="utf-8"
     )
 
     all_passed = bool(
@@ -205,6 +320,9 @@ def run_stage5_measurement_noise_pipeline(
         and meas_gen.samples_generated == expected_samples
     )
 
+    def _rel_or_name(p: Path) -> str:
+        return str(p.relative_to(REPO_ROOT)) if p.is_relative_to(REPO_ROOT) else str(p.name)
+
     report = {
         "stage": "stage5_measurement_noise",
         "passed": all_passed,
@@ -212,17 +330,10 @@ def run_stage5_measurement_noise_pipeline(
         "duration_seconds": float(duration_seconds),
         "expected_samples": expected_samples,
         "actual_samples": int(meas_gen.samples_generated),
-        "config_hashes": {
-            "framework_sha256": compute_canonical_config_hash(fw_cfg),
-            "stage5_config_sha256": compute_canonical_config_hash(stage5_cfg),
-            "mapping_config_sha256": compute_canonical_config_hash(map_cfg),
-            "pd_registry_sha256": pd_reg.config_hash,
-            "generator_registry_sha256": gen_reg.config_hash,
-        },
+        "num_windows": len(win_to_pid),
+        "config_hashes": config_hashes,
         "provenance": prov,
-        "measurement_assignment_by_window": {
-            str(w): sorted(list(pids))[0] for w, pids in sorted(win_to_pid.items())
-        },
+        "measurement_assignment_by_window": meas_assign_by_win,
         "assignment_manifest": pd_assign.assignment_manifest(),
         "validation_checks": {
             "no_default_hardcoded_regimes": "regimes" not in stage5_cfg,
@@ -233,46 +344,27 @@ def run_stage5_measurement_noise_pipeline(
             "event_and_delivery_timestamps_verified": timestamps_consistent,
             "dropout_validity_masks_verified": validity_binary_ok,
             "avid_packet_stream_compatible": bool(stream_check["valid"]),
+            "no_missing_contributions": len(meas_contribs) == expected_samples,
         },
-        "summary_metrics": {
-            "mean_q_base_x": [
-                float(x) for x in np.mean(encoded_traj["measurement_parameters_vec"][:, 0:4], axis=0)
-            ],
-            "mean_q_base_z": [
-                float(x) for x in np.mean(encoded_traj["measurement_parameters_vec"][:, 4:8], axis=0)
-            ],
-            "mean_temporal_sticky_prob": float(
-                np.mean(encoded_traj["measurement_parameters_vec"][:, 8])
-            ),
-            "mean_detector_dropout_prob": float(
-                np.mean(encoded_traj["measurement_parameters_vec"][:, 9])
-            ),
-            "max_observation_delay_samples": int(np.max(encoded_traj["observation_delays"])),
-            "realized_measurement_flip_rate_x": float(
-                np.mean(encoded_traj["measurement_faults_x"])
-            ),
-            "realized_measurement_flip_rate_z": float(
-                np.mean(encoded_traj["measurement_faults_z"])
-            ),
-            "realized_dropout_count_x": int(np.sum(val_x == 0)),
-            "realized_dropout_count_z": int(np.sum(val_z == 0)),
-        },
+        "summary_metrics": summary_metrics,
         "artifacts": {
-            "npz_path": (
-                str(npz_path.relative_to(REPO_ROOT))
-                if npz_path.is_relative_to(REPO_ROOT)
-                else str(npz_path.name)
-            ),
-            "bin_path": (
-                str(bin_path.relative_to(REPO_ROOT))
-                if bin_path.is_relative_to(REPO_ROOT)
-                else str(bin_path.name)
-            ),
+            "observed_syndromes_npz": _rel_or_name(obs_npz_path),
+            "measurement_parameters_npz": _rel_or_name(params_npz_path),
+            "measurement_ground_truth_npz": _rel_or_name(gt_npz_path),
+            "assignment_manifest_json": _rel_or_name(assign_manifest_path),
+            "trajectory_manifest_json": _rel_or_name(traj_manifest_path),
+            "statistical_metrics_json": _rel_or_name(stat_metrics_path),
+            "validation_report_json": _rel_or_name(out_dir / "validation_report.json"),
+            "npz_path": _rel_or_name(npz_path),
+            "bin_path": _rel_or_name(bin_path),
         },
     }
 
-    report_path = out_dir / "stage5_measurement_validation_report.json"
-    report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    val_report_path = out_dir / "validation_report.json"
+    val_report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+
+    legacy_report_path = out_dir / "stage5_measurement_validation_report.json"
+    legacy_report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
 
 
@@ -289,7 +381,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--output",
         type=str,
-        default="Benchmark-Eval/V1_Seven_Stage_Noise_Validation/stage5_syndrome_validation",
+        default="stage5_measurement_validation",
         help="Output directory for validation artifacts",
     )
     return p.parse_args()

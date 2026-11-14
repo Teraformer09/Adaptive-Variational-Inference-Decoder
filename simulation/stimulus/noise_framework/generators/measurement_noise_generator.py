@@ -218,3 +218,13 @@ class MeasurementNoiseGenerator(BaseNoiseGenerator):
             timestamp=float(timestamp),
             window_id=window_id,
         )
+
+    def sample_parameters(
+        self,
+        sample_id: int = 0,
+        timestamp: float = 0.0,
+        window_id: Optional[int] = None,
+    ) -> MeasurementNoiseParameters:
+        """Convenience alias returning `MeasurementNoiseParameters` at `(timestamp, sample_id)`."""
+        return self.sample(timestamp=timestamp, sample_id=sample_id)
+
