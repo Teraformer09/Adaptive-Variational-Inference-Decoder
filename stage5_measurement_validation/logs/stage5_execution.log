@@ -1,0 +1,3 @@
+$ PYTHONPATH=. python3 -m simulation.stimulus.seven_stage.stage5_measurement_noise --duration 250 --seed 42 --config configs/noise_framework/framework_v1.yaml
+[PASS] Stage 5 validated 2500 synchronized samples over 250.0s (windows=['0', '1', '2']).
+Exit code: 0
