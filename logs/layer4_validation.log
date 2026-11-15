@@ -1,0 +1,40 @@
+=== Layer 4 Validation: Co-Simulation Bridge & Emulators ===
+Branch: layer4-cosim-bridge-emu | Commit: 54da68d
+-- The CXX compiler identification is GNU 15.3.0
+-- The C compiler identification is GNU 15.3.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (3.9s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/emulator/bridge/build_layer4
+[ 50%] Building CXX object CMakeFiles/avid_cosim_bridge.dir/src/cosim_bridge_main.cpp.o
+[100%] Linking CXX executable avid_cosim_bridge
+[100%] Built target avid_cosim_bridge
+[ 14%] Building CXX object CMakeFiles/test_bridge_transactions.dir/tests/test_bridge_transactions.cpp.o
+[ 28%] Building CXX object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/hal/physical_backend.cpp.o
+[ 42%] Building CXX object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/hal/simulation_backend.cpp.o
+[ 57%] Building C object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/driver/weight_reg_driver.c.o
+[ 71%] Building C object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/driver/weight_bank_driver.c.o
+[ 85%] Building CXX object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/custom_engine/cycle_accurate_bp_engine.cpp.o
+[100%] Linking CXX executable test_bridge_transactions
+[100%] Built target test_bridge_transactions
+============================= test session starts ==============================
+platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /tmp/avid_layer_worktrees/layer4-cosim-bridge-emu
+configfile: pytest.ini
+plugins: typeguard-4.4.4, anyio-4.11.0
+collecting ... collected 1 item
+
+tests/test_layer4_ip_op.py::test_layer4_bridge_ip_op_protocol PASSED     [100%]
+
+============================== 1 passed in 0.17s ===============================
+[PASS] Layer 4 IP & OP verification complete.
