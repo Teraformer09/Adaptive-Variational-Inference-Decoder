@@ -1,0 +1,125 @@
+schema_version: "1.0.0"
+description: >
+  Explicit specification and provenance registry for the 13 non-243 Set 1 harness targets
+  (7 C11 ABI checks, 4 production daemon integration checks, and 2 diagnostic companions).
+  These IDs DO NOT alter or renumber the 243 canonical Layer 3 traceability IDs in test_ids.yaml.
+gate_g1_arithmetic:
+  canonical_set1_ids_in_g1: 40    # L3-IP-001 .. L3-IP-040
+  c_abi_ids_in_g1: 7              # L3-ABI-001 .. L3-ABI-007
+  integration_ids_in_g1: 4        # L3-INT-001 .. L3-INT-004
+  total_gated_items_in_g1: 51     # 40 + 7 + 4 = 51
+  diagnostic_companions_excluded_from_g1_count: 2  # L3-DMA-INVALID-PKT, L3-CFG-MISSING (avoid double-counting L3-IP-008/010 and L3-IP-031/036)
+
+supplementary_tests:
+  - test_id: L3-ABI-001
+    category: c11_abi
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/c_abi/test_packet_abi.c
+    target_headers: ["software/src/ingress/packet_validator.h"]
+    related_canonical_ids: ["L3-IP-001", "L3-IP-002"]
+    specification: "Verify strict C11 (-std=c11) compilation, C11 vs C++17 sizeof/alignof/offsetof parity, and extern \"C\" linkage for packet_validator."
+
+  - test_id: L3-ABI-002
+    category: c11_abi
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/c_abi/test_histogram_abi.c
+    target_headers: ["software/src/ingress/dma_ingress_tap.h", "software/src/inference/ring_buffer.h"]
+    related_canonical_ids: ["L3-IP-010", "L3-IP-011"]
+    specification: "Verify C11 vs C++17 struct layout of avid_dma_slot_t, avid_dma_ring_t, syndrome_round_t, and ring_buffer_t, plus dlsym C symbol linkage check for avid_dma_ring_init."
+
+  - test_id: L3-ABI-003
+    category: c11_abi
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/c_abi/test_parameter_abi.c
+    target_headers: ["software/src/estimator/llr_quantizer.h"]
+    related_canonical_ids: ["L3-IP-021", "L3-IP-023", "L3-IP-040"]
+    specification: "Verify C11 extern \"C\" ABI of avid_prob_to_q78_llr and avid_quantize_and_validate_bank and document C++-only 21-parameter NoiseModel boundary."
+
+  - test_id: L3-ABI-004
+    category: c11_abi
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c
+    target_headers:
+      - "software/src/driver/weight_reg_driver.h"
+      - "software/src/driver/weight_bank_driver.h"
+      - "software/src/control/causal_scheduler.h"
+      - "software/src/control/fallback_fsm.h"
+      - "software/src/hal/avid_hal.h"
+    related_canonical_ids: ["L3-IP-032", "L3-IP-038", "L3-IP-039"]
+    sub_checks:
+      L3-ABI-004.a: "C11 compilation & extern \"C\" calls to wrd_open, avid_weight_bank_write_and_commit, wrd_read_active_weight (3 checks)"
+      L3-ABI-004.b: "dlsym unmangled C linkage check for avid_scheduler_init, avid_fast_detector_init, avid_fallback_init (3 checks -> ABI-L3-02)"
+      L3-ABI-004.c: "cc -std=c11 -x c -fsyntax-only header check on software/src/hal/avid_hal.h (1 check -> ABI-L3-01)"
+    specification: "Composite C11 control/driver/HAL boundary test verifying driver C11 calls, control header extern \"C\" symbol export, and avid_hal.h C11 preprocessing."
+
+  - test_id: L3-ABI-005
+    category: c11_abi
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/c_abi/test_struct_layout.c
+    target_headers: ["software/src/{ingress,inference,control,driver}/*.h"]
+    related_canonical_ids: ["L3-IP-001", "L3-IP-010", "L3-IP-032", "L3-IP-038", "L3-IP-039"]
+    specification: "77-check C11 vs C++17 sizeof, _Alignof, and offsetof equivalence matrix across all 11 shared C structs."
+
+  - test_id: L3-ABI-006
+    category: c11_abi
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/c_abi/test_null_pointer.c
+    target_headers: ["software/src/ingress/packet_validator.h", "software/src/estimator/llr_quantizer.h", "software/src/driver/weight_bank_driver.h"]
+    related_canonical_ids: ["L3-IP-008", "L3-IP-040"]
+    specification: "Fork-isolated NULL pointer safety probes across 7 public extern \"C\" entrypoints."
+
+  - test_id: L3-ABI-007
+    category: c11_abi
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/c_abi/test_buffer_ownership.c
+    target_headers: ["software/src/estimator/llr_quantizer.h", "software/src/inference/ring_buffer.h", "software/src/driver/weight_reg_driver.h"]
+    related_canonical_ids: ["L3-IP-011", "L3-IP-039"]
+    specification: "Caller-owned stack/heap buffer lifecycle, 64-byte guard canaries, ring_buffer_t wraparound, and wrd_open/wrd_close ownership."
+
+  - test_id: L3-INT-001
+    category: daemon_integration
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/integration/test_production_ingress_path.cpp
+    target_headers: ["software/src/inference/avid_daemon.cpp"]
+    related_canonical_ids: ["L3-IP-002", "L3-IP-009"]
+    specification: "End-to-end audit of avid_daemon --stim-bin binary ingress path on truncated 3B stream and raw packet unpacking."
+
+  - test_id: L3-INT-002
+    category: daemon_integration
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/integration/test_daemon_histogram_path.cpp
+    target_headers: ["software/src/inference/avid_daemon.cpp"]
+    related_canonical_ids: ["L3-IP-011", "L3-IP-020"]
+    specification: "End-to-end verification that DMA slot consumption populates hist_x/hist_z and alters HistogramLBFGSSolver::fit_histogram output in avid_daemon."
+
+  - test_id: L3-INT-003
+    category: daemon_integration
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/integration/test_ring_buffer_connectivity.cpp
+    target_headers: ["software/src/inference/ring_buffer.h", "software/src/inference/avid_daemon.cpp"]
+    related_canonical_ids: ["L3-IP-011", "L3-IP-018"]
+    specification: "Verify standalone ring_buffer_t NLL equivalence vs production avid_daemon connectivity (IMPLEMENTED_BUT_UNUSED check)."
+
+  - test_id: L3-INT-004
+    category: daemon_integration
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/integration/test_invalid_input_propagation.cpp
+    target_headers: ["software/src/ingress/dma_ingress_tap.cpp", "software/src/inference/avid_daemon.cpp"]
+    related_canonical_ids: ["L3-IP-004", "L3-IP-008"]
+    specification: "Compare standalone DMA ring (0/64 accepted) vs avid_daemon --stim-bin (64/64 repacked as VALID) on PARITY_ERR=1 packet stream."
+
+  - test_id: L3-DMA-INVALID-PKT
+    category: diagnostic_companion
+    counted_in_g1: false
+    source_file: tests/layer3/set1_input_contracts/dma_histogram/test_histogram_invalid_packet.cpp
+    target_headers: ["software/src/ingress/dma_ingress_tap.cpp"]
+    related_canonical_ids: ["L3-IP-008", "L3-IP-010"]
+    specification: "Standalone DMA slot consumer isolation check verifying mixed valid/PARITY_ERR/VALID=0 bursts exclude invalid packets from hist_x/hist_z."
+
+  - test_id: L3-CFG-MISSING
+    category: diagnostic_companion
+    counted_in_g1: false
+    source_file: tests/layer3/set1_input_contracts/runtime_config/test_config_missing.cpp
+    target_headers: ["software/src/inference/avid_daemon.cpp"]
+    related_canonical_ids: ["L3-IP-031", "L3-IP-036"]
+    specification: "Daemon startup failure check for missing --checkpoint, nonexistent --stim-bin, and dangling CLI value flags (--window with no argument)."

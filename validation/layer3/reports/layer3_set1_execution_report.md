@@ -1,19 +1,22 @@
 # Layer 3 — Test Set 1 Execution Report (`88df97e` Baseline)
 
-## 1. Execution Provenance
-- **Branch**: `layer3-slow-loop-software`
-- **Production Source Commit Under Test**: `88df97e86b579b6e2865cc70dc4d0b08225d677b` (**zero edits** to `software/`, `architecture/`, `deployment/`, `configs/`, `checkpoints/`)
-- **Frozen Reference Baseline**: `/home/tirtha/AVID_EPJ_Patches` @ `54da68d92778e4e1ffde9514aaaae585638761ff` (**verified untouched**)
-- **Compiler & Toolchain**: `cc` / `c++` `(Debian 15.3.0-1) 15.3.0` (`C11` `-std=c11` extensions OFF, `C++17` `-std=c++17` extensions OFF), CMake `3.31.6`, Python `3.14.6`
-- **Build Configurations Executed**:
-  1. **Standard (`RelWithDebInfo`)**: **66/66** unique translation units compiled (`19` production, `8` C ABI, `39` C++ Set 1 & common), **53/53** CTest targets executed.
-  2. **Sanitized (`Debug` + `-fsanitize=address,undefined`)**: **66/66** translation units compiled, **53/53** CTest targets executed (`ctest` exit code `0`; zero sanitizer violations outside intentional `fork()`-isolated null-dereference child probes).
+## 1. Execution Provenance & Cross-Branch Scope Note
+- **Layer 3 Stage Status**: **Test Set 1 (`set1_input_contracts`, `c_abi`, `integration`) is implemented and executed** against unmodified production baseline `88df97e86b579b6e2865cc70dc4d0b08225d677b` on branch `layer3-slow-loop-software` (initial execution commit `be50761cc6f4cc0c31f79555aa3f69ccd911563d`). Sets 2–5 remain halted at the mandatory Set 1 review gate.
+- **Layer 4 Stage Status Clarification**: On separate branch `layer4-cosim-bridge-emu` (`dd5ec1f2dcb531764a6d3f5940f184f426e93f10`), **only pre-implementation traceability (`LAYER4_IMPLEMENTATION_TO_TEST_TRACEABILITY.md`) has been completed and pushed** — Layer 4 test implementation and execution have **not** started.
+- **Frozen Reference Baseline**: `/home/tirtha/AVID_EPJ_Patches` @ `54da68d92778e4e1ffde9514aaaae585638761ff` (**verified untouched**).
+- **Compiler & Toolchain**: `cc` / `c++` `(Debian 15.3.0-1) 15.3.0` (`C11` `-std=c11` extensions OFF, `C++17` `-std=c++17` extensions OFF), CMake `3.31.6`, Python `3.14.6`.
+- **Exact Scope of the `66` Translation Units (`132` Total Compilation Invocations Across Both Builds)**:
+  - Each build configuration compiles the exact same **`66` unique source files**:
+    - **`19` production source files**: `18` non-`main` `.c`/`.cpp` files compiled into `libavid_layer3_prod.a` + `1` daemon entrypoint (`software/src/inference/avid_daemon.cpp`) compiled into `avid_daemon_under_test`.
+    - **`8` C ABI source files**: `1` C++17 layout oracle (`c_abi_cxx_layout_oracle.cpp`) + `7` strict C11 (`-std=c11`) `.c` test programs.
+    - **`39` C++17 harness & Set 1 source files**: `6` `tests/layer3/common/` files + `33` `tests/layer3/set1_input_contracts/{packet,dma_histogram,estimator_inputs,runtime_config,integration}/*.cpp` files.
+  - Both configurations were built from scratch and executed in full (`66` units in `build/layer3_standard` [`RelWithDebInfo`] + `66` units in `build/layer3_sanitizers` [`Debug` + `-fsanitize=address,undefined`] = **`132` total compilation units built** across the validation run; **53/53** CTest targets executed in each build).
 
 ---
 
 ## 2. Canonical Test Set 1 Results (`L3-IP-001` .. `L3-IP-040`)
 
-**Summary (`40/40` Executed)**: `15 PASS` | `20 FAIL` | `3 CONTRACT_MISMATCH` | `2 NOT_IMPLEMENTED` | `0 BLOCKED` | `0 INCONCLUSIVE`
+**Summary (`40/40` Canonical IDs Executed)**: `15 PASS` | `20 FAIL` | `3 CONTRACT_MISMATCH` | `2 NOT_IMPLEMENTED` | `0 BLOCKED` | `0 INCONCLUSIVE`
 
 | Test ID | Status | Test Name | Production Target | Classification / Evidence Summary |
 | :--- | :--- | :--- | :--- | :--- |
@@ -43,7 +46,7 @@
 | `L3-IP-024` | `FAIL` | `invalid_parameter_values_nan_inf_oob` | `noise_model.cpp` | `compute_joint_distribution` skips `validate_parameter_bounds`; `std::clamp(NaN)` propagates `NaN` to `p_joint_` & `NLL` |
 | `L3-IP-025` | `FAIL` | `prior_vector_validation_and_schema_consistency` | `noise_model.cpp` | Pair default prior drifts (`0.003` ctor vs `0.004` `init()` vs `0.008` schema); `NaN` `prior_theta_` propagates `NaN` |
 | `L3-IP-026` | `FAIL` | `regularization_lambda_validation_and_override` | `noise_model.cpp`, `lbfgs_solver.cpp` | Negative/`NaN` `prior_lambda_` unrejected; `fit_histogram` overwrites caller `lambda` to hardcoded `0.04` |
-| `L3-IP-027` | `PASS` | `valid_initial_guess_and_optimizer_reset` | `lbfgs_solver.cpp`, `lbfgs_optimizer.cpp` | Interior $\theta^{(0)}$ converges monotonically and `opt_.reset()` guarantees bit-identical repeat runs |
+| `L3-IP-027` | `PASS` | `valid_initial_guess_and_optimizer_reset` | `lbfgs_solver.cpp`, `lbfgs_optimizer.cpp` | Interior $\theta^{(0)}$ decreases NLL deterministically *(note `DISC-L3-08`: solver runs 2-pass projected GD rather than `opt_.step()`)* |
 | `L3-IP-028` | `FAIL` | `out_of_range_and_nan_initial_guess` | `lbfgs_solver.cpp` | `-0.10`/`0.85` silently clamped without warning; `NaN` initial guess corrupts `NLL` & $\theta$ with `NaN` |
 | `L3-IP-029` | `FAIL` | `sparse_sample_window_w_min_check` | `lbfgs_solver.cpp` | No `W_min` guard: `N=3` rounds (`hist[6]=2`) reports `converged=true` and swings $\theta_4$ from `0.012` to `>0.30` |
 | `L3-IP-030` | `FAIL` | `stale_observations_and_epoch_isolation` | `dma_ingress_tap.cpp`, `causal_scheduler.cpp` | Stale `epoch_id` packets accumulated; older `window_end_round` overwrites newer pending commit |
@@ -60,27 +63,36 @@
 
 ---
 
-## 3. Pure C11 ABI (`c_abi/`) & Production Integration (`integration/`) Results
+## 3. Non-243 Harness Extensions: Provenance, Sub-Check Disambiguation, & Gate `G1` Arithmetic
 
-| Test ID | Suite | Status | Key Evidence |
-| :--- | :--- | :--- | :--- |
-| `L3-ABI-001` | C11 ABI | `PASS` | `packet_validator.h` C11/C++17 layout match (`12B` struct, `8B` wire word) + clean `extern "C"` call |
-| `L3-ABI-002` | C11 ABI | `FAIL` | Struct layouts match, **but** `dma_ingress_tap.h` lacks `extern "C"` (`dlsym("avid_dma_ring_init") == NULL`) |
-| `L3-ABI-003` | C11 ABI | `PASS` | `llr_quantizer.h` C11 calls & bounds rejection pass (`0x0469`); documents C++-only 21-param `NoiseModel` |
-| `L3-ABI-004` | C11 ABI | `FAIL` | `causal_scheduler.h` & `fallback_fsm.h` lack `extern "C"`; `hal/avid_hal.h` fails `cc -std=c11` (`#include <cstdint>`) |
-| `L3-ABI-005` | C11 ABI | `PASS` | `77/77` `sizeof`, `_Alignof`, and `offsetof` checks match bit-for-bit between C11 and C++17 across all 11 shared structs |
-| `L3-ABI-006` | C11 ABI | `FAIL` | `6/6` `packet_validator` & `llr_quantizer` C entrypoints crash with signal 11 on `NULL` (`weight_bank_driver` safely returns `-1`) |
-| `L3-ABI-007` | C11 ABI | `PASS` | Caller-owned heap/stack buffers, 64-byte guard canaries, `ring_buffer_t` wraparound, and `wrd` lifecycle verified |
-| `L3-DMA-INVALID-PKT` | DMA | `PASS` | Standalone `avid_dma_ring_consume_slot` excludes `VALID=0` and `PARITY_ERR=1` packets from histograms |
-| `L3-CFG-MISSING` | Config | `FAIL` | Missing checkpoint/stim files return `rc=2`, **but** dangling `--window` flag without value exits `rc=0` |
-| `L3-INT-001` | Integration | `FAIL` | `avid_daemon --stim-bin` accepts 3-byte truncated file (`rc=0`) and unpacks without `avid_validate_packet` |
-| `L3-INT-002` | Integration | `PASS` | `avid_dma_ring_consume_slot -> hist_x/hist_z -> fit_histogram` end-to-end daemon dataflow verified |
-| `L3-INT-003` | Integration | `CONTRACT_MISMATCH` | `ring_buffer.h` works standalone (`|nll_rb - nll_hist| < 1e-12`) **but** is `IMPLEMENTED_BUT_UNUSED` in `avid_daemon` |
-| `L3-INT-004` | Integration | `FAIL` | `avid_daemon --stim-bin` re-stamps `AVID_PKT_FLAG_VALID` onto 64 `PARITY_ERR=1` packets, contaminating estimator NLL |
+The **243 canonical traceability IDs** (`test_ids.yaml`) remain strictly unchanged. Set 1 adds **13 explicitly specified harness targets** registered in `tests/layer3/common/supplementary_set1_specs.yaml`:
+- **`7` C11 ABI Targets (`L3-ABI-001..007`)** — **Counted in `G1`** (`4 PASS`, `3 FAIL`).
+  - *Explicit Sub-Check Decomposition of `L3-ABI-004` (`test_runtime_config_abi.c`, 7 checks total, 4 failed)*:
+    - `L3-ABI-004.a` (`PASS`, 3/3 checks): `weight_reg_driver.h` & `weight_bank_driver.h` pure C11 compilation and calls (`wrd_open`, `avid_weight_bank_write_and_commit`, `wrd_read_active_weight`).
+    - `L3-ABI-004.b` (`FAIL`, 0/3 checks -> `ABI-L3-02`): `dlsym` C-symbol checks for `avid_scheduler_init`, `avid_fast_detector_init` (`causal_scheduler.h`), and `avid_fallback_init` (`fallback_fsm.h`) — Category II headers lacking `extern "C"`.
+    - `L3-ABI-004.c` (`FAIL`, 0/1 check -> `ABI-L3-01`): `cc -std=c11 -x c -fsyntax-only` check on `software/src/hal/avid_hal.h` — Category I header declaring `extern "C"` at line 14 while including `<cstdint>`/`<cstddef>` at lines 9–10.
+- **`4` Daemon Integration Targets (`L3-INT-001..004`)** — **Counted in `G1`** (`1 PASS`, `2 FAIL`, `1 CONTRACT_MISMATCH`).
+- **`2` Diagnostic Companions (`L3-DMA-INVALID-PKT`, `L3-CFG-MISSING`)** — **Reported separately (excluded from `G1` 51-item denominator)** so they do not double-count canonical tests `L3-IP-008/010` and `L3-IP-031/036`.
+
+| Test ID | Category | Counted in `G1`? | Parent Canonical IDs | Source File | Status | Summary |
+| :--- | :--- | :---: | :--- | :--- | :--- | :--- |
+| `L3-ABI-001` | C11 ABI | Yes | `L3-IP-001, 002` | `c_abi/test_packet_abi.c` | `PASS` | `packet_validator.h` C11/C++17 layout match (`12B` struct, `8B` wire word) + `extern "C"` call |
+| `L3-ABI-002` | C11 ABI | Yes | `L3-IP-010, 011` | `c_abi/test_histogram_abi.c` | `FAIL` | Struct layouts match; Category II `dma_ingress_tap.h` omits `extern "C"` (`dlsym == NULL`) |
+| `L3-ABI-003` | C11 ABI | Yes | `L3-IP-021, 023, 040` | `c_abi/test_parameter_abi.c` | `PASS` | `llr_quantizer.h` C11 calls pass (`0x0469`); Category III `NoiseModel` exempt (C++-only) |
+| `L3-ABI-004` | C11 ABI | Yes | `L3-IP-032, 038, 039` | `c_abi/test_runtime_config_abi.c` | `FAIL` | Composite check: `004.a` drivers `PASS`; `004.b` scheduler/FSM `dlsym` `FAIL`; `004.c` `avid_hal.h` C11 `FAIL` |
+| `L3-ABI-005` | C11 ABI | Yes | `L3-IP-001..039` | `c_abi/test_struct_layout.c` | `PASS` | `77/77` `sizeof`, `_Alignof`, and `offsetof` checks match between C11 and C++17 across 11 structs |
+| `L3-ABI-006` | C11 ABI | Yes | `L3-IP-008, 040` | `c_abi/test_null_pointer.c` | `FAIL` | `6/6` Category I `packet_validator` & `llr_quantizer` C entrypoints crash (`SIGSEGV`) on `NULL` |
+| `L3-ABI-007` | C11 ABI | Yes | `L3-IP-011, 039` | `c_abi/test_buffer_ownership.c` | `PASS` | Caller-owned buffers, 64B guard canaries, `ring_buffer_t` wraparound, and `wrd` lifecycle verified |
+| `L3-INT-001` | Integration | Yes | `L3-IP-002, 009` | `integration/test_production_ingress_path.cpp` | `FAIL` | `avid_daemon --stim-bin` accepts 3-byte truncated file (`rc=0`) and skips `avid_validate_packet` |
+| `L3-INT-002` | Integration | Yes | `L3-IP-011, 020` | `integration/test_daemon_histogram_path.cpp` | `PASS` | `avid_dma_ring_consume_slot -> hist_x/hist_z -> fit_histogram` daemon dataflow verified |
+| `L3-INT-003` | Integration | Yes | `L3-IP-011, 018` | `integration/test_ring_buffer_connectivity.cpp` | `CONTRACT_MISMATCH` | `ring_buffer.h` works standalone (`|nll_rb - nll_hist| < 1e-12`) **but** is `IMPLEMENTED_BUT_UNUSED` in `avid_daemon` |
+| `L3-INT-004` | Integration | Yes | `L3-IP-004, 008` | `integration/test_invalid_input_propagation.cpp` | `FAIL` | `avid_daemon --stim-bin` re-stamps `AVID_PKT_FLAG_VALID` onto 64 `PARITY_ERR=1` packets, contaminating estimator |
+| `L3-DMA-INVALID-PKT` | Companion | No | `L3-IP-008, 010` | `dma_histogram/test_histogram_invalid_packet.cpp` | `PASS` | Standalone `avid_dma_ring_consume_slot` excludes `VALID=0` and `PARITY_ERR=1` packets from histograms |
+| `L3-CFG-MISSING` | Companion | No | `L3-IP-031, 036` | `runtime_config/test_config_missing.cpp` | `FAIL` | Missing `--checkpoint`/`--stim-bin` return `rc=2`, **but** dangling `--window` flag without value exits `rc=0` |
 
 ---
 
 ## 4. Gate `G1` Decision & Mandatory Stage Stop
-- **Gate `G1` (`Input Integrity & Contract Conformance`)**: **`FAIL`** (`20` PASS / `31` non-PASS across the 51 gated `L3-IP`, `L3-ABI`, and `L3-INT` items).
+- **Gate `G1` (`Input Integrity & Contract Conformance`)**: **`FAIL`** (`40 L3-IP + 7 L3-ABI + 4 L3-INT = 51` gated items: **`20` PASS (`15` `L3-IP` + `4` `L3-ABI` + `1` `L3-INT`)**, **`31` non-PASS (`25` `L3-IP` + `3` `L3-ABI` + `3` `L3-INT`)**).
 - **Gate `G10` (`Reproducibility, Traceability, & Branch Isolation`)**: **`PASS`**.
-- **Stage Gate Action**: Per instructions, execution stops cleanly after Set 1 so contract discrepancies and remediation scope can be reviewed before implementing executable tests for Sets 2–5.
+- **Stage Gate Action**: Do not proceed to Set 2. Preserve snapshot `validation/layer3/runs/88df97e_set1_baseline/` and commit `be50761cc6f4cc0c31f79555aa3f69ccd911563d` intact; resolve the authoritative packet, C ABI, and slow-loop integration contracts first, then execute a supplemental post-remediation Set 1 run.

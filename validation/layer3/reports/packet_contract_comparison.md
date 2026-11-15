@@ -5,6 +5,11 @@ Set 1 testing (`L3-IP-001`..`L3-IP-009`, `L3-IP-030`, `L3-ABI-001`, `L3-INT-001`
 
 > [!IMPORTANT]
 > Even though `packet_validator.h:3` explicitly states *"Enforces `architecture/contracts/syndrome_packet_v1.yaml`"*, the C header and YAML contract define **two incompatible binary layouts, word widths, flag positions, and sequence-ID widths**.
+>
+> **Cross-Layer Evidence (`layer1-noise-stimulus` vs `syndrome_packet_v1.yaml`)**:
+> - **64-Bit `A05 / Q11` Word Used Across Code & Layer 1**: Layer 1's validated stimulus codec (`simulation/stimulus/packet_codec.py` on `layer1-noise-stimulus`), `architecture/ingress/packet_layout.md`, `software/src/ingress/packet_validator.{h,cpp}`, `software/src/ingress/dma_ingress_tap.{h,cpp}`, and `software/src/inference/avid_daemon.cpp` all encode/decode the **8-byte (`uint64_t`) little-endian packet word** (`s_x[3:0] | s_z[7:4] | flags[15:8] | epoch_id[31:16] | seq_id[63:32]`, stream byte length divisible by 8).
+> - **16B Header + 32-Bit `SF1` Word in YAML**: `architecture/contracts/syndrome_packet_v1.yaml` (and `F01` in `fault_policy.yaml`) retains an earlier `16B` stream header (`0xAAEC0002`) + `4B` (`32`-bit) per-round word, plus the `16`-bit `axis_fpga_word_d3` slice fed to the RTL AXI-Stream fast path (`axis_syndrome_rx.sv`).
+> - **Audit Governance Rule**: Per Set 1 review policy, the validator must **not** be patched to match the YAML automatically; the authoritative wire contract must be explicitly established before updating implementation and tests.
 
 ---
 
