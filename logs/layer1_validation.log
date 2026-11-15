@@ -1,11 +1,11 @@
 === Layer 1 Validation: Code Model, 7-Stage Noise, Measurement Noise & Packet Codec ===
-Branch: layer1-noise-stimulus | Commit: 54da68d
+Branch: layer1-noise-stimulus | Commit: aafc19a
 ============================= test session starts ==============================
-platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python3
 cachedir: .pytest_cache
-rootdir: /tmp/avid_layer_worktrees/layer1-noise-stimulus
+rootdir: /home/tirthahaque/avid-layer1
 configfile: pytest.ini
-plugins: typeguard-4.4.4, anyio-4.11.0
+plugins: anyio-4.16.0, platformdirs-4.14.3
 collecting ... collected 89 items / 1 deselected / 88 selected
 
 tests/test_layer1_ip_op.py::test_layer1_ip_to_op_end_to_end PASSED       [  1%]
@@ -97,7 +97,7 @@ tests/test_seven_stage_noise_framework.py::test_stages_1_to_5_validation_gates P
 tests/test_seven_stage_noise_framework.py::test_stage7_exact_joint_syndrome_logical_distribution_and_oracle PASSED [ 98%]
 tests/test_seven_stage_noise_framework.py::test_stage7_statistical_validation_and_shared_trajectory_decoders PASSED [100%]
 
-================= 88 passed, 1 deselected in 200.33s (0:03:20) =================
+====================== 88 passed, 1 deselected in 42.86s =======================
 === Running Stage 5 Measurement Pipeline CLI (250s, seed=42) ===
 [PASS] Stage 5 validated 2500 synchronized samples over 250.0s (windows=['0', '1', '2']).
 [PASS] Layer 1 IP & OP verification complete.
