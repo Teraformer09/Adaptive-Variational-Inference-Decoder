@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "captured_at_utc": "2026-11-15T20:27:14Z",
+  "os_kernel": "Linux 7.0.12+kali-amd64 x86_64 GNU/Linux",
+  "c_compiler": "cc (Debian 15.3.0-1) 15.3.0",
+  "cxx_compiler": "c++ (Debian 15.3.0-1) 15.3.0",
+  "cmake": "cmake version 3.31.6",
+  "ctest": "ctest version 3.31.6",
+  "python": "Python 3.14.6",
+  "c_standard": "C11 (-std=c11, extensions OFF)",
+  "cxx_standard": "C++17 (-std=c++17, extensions OFF)"
+}

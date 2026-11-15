@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-003",
+  "test_name": "packet_version_and_endianness",
+  "test_description": "Packet version & endianness — verify little-endian byte order, HAL protocol_version==1 check, and YAML magic 0xAAEC0002 / version=1 stream header support",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/hal/simulation_backend.cpp",
+  "implementation_function": "avid_pack_packet_u64, avid_unpack_packet_u64, send_bridge_request",
+  "input_contract": "Versioned little-endian packet framing (protocol_version=1, magic=0xAAEC0002/0xAAEC0001)",
+  "independent_oracle": "Byte-level little-endian oracle + AF_UNIX mock peer + syndrome_packet_v1.yaml",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-003$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/yaml_v1_stream_2rounds.bin",
+  "expected": {
+    "version_validation": "Explicit LE64 byte codec, HAL RPC protocol_version==1 enforcement, and rejection of non-A05/Q11 header frames"
+  },
+  "actual": {
+    "hal_rpc_version_check": "PASS (v1 accepted, v99 rejected)",
+    "le64_codec_and_header_guard": "PASS (avid_encode_packet_le64/avid_decode_packet_le64 exact; legacy 0xAAEC0002 frame rejected)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-003.log",
+    "validation/layer3/raw_results/set1/L3-IP-003.json",
+    "validation/layer3/reports/packet_contract_decision.md"
+  ],
+  "duration_ms": 2.879,
+  "failure_classification": null
+}

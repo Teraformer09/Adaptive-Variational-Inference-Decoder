@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-ABI-005",
+  "test_name": "c_abi_struct_layout_parity",
+  "test_description": "Verify exact sizeof, _Alignof, and member offsetof parity between C11 (-std=c11) and C++17 (-std=c++17) across all 11 shared C structs",
+  "test_set": "set1_c_abi",
+  "status": "PASS",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "implementation_file": "software/src/{ingress,inference,control,driver}/*.h",
+  "implementation_function": "sizeof, _Alignof, offsetof across 11 public Layer 3 structs",
+  "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+  "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+  "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+  "expected": {
+    "summary": "77/77 sizeof, alignof, and offsetof checks match identically between C11 and C++17"
+  },
+  "actual": {
+    "summary": "77/77 checks run, 0 failed (pkt=12B, dma_ring=2304B, ring_buf=80008B, sched=88B, fsm=56B, wrd=152B)",
+    "checks_run": "77",
+    "checks_failed": "0"
+  },
+  "assertion_notes": [],
+  "evidence": ["validation/layer3/logs/set1/L3-ABI-005.log"],
+  "failure_classification": "",
+  "duration_ms": 0.030
+}

@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-028
+Test Name: out_of_range_and_nan_initial_guess
+Status: PASS
+Source Commit: 698771d
+Implementation File: software/src/estimator/lbfgs_solver.cpp
+Implementation Function: HistogramLBFGSSolver::fit_histogram
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-028$" --output-on-failure
+Fixture: tests/layer3/fixtures/parameters/invalid/out_of_range_21.txt
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

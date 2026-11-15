@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-027",
+  "test_name": "valid_initial_guess_and_optimizer_reset",
+  "test_description": "Valid initial guess — initialize theta^(0) in [1e-5, 0.45], run fit_histogram, and verify repeated calls reset history cleanly",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram, LBFGSOptimizer::reset",
+  "input_contract": "Valid interior initial parameter vector theta^(0) in [1e-5, 0.45]^21",
+  "independent_oracle": "Deterministic repeat-run identity proves LBFGSOptimizer::reset() clears s_hist_/y_hist_",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-027$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/correlated/corr_total1000.txt",
+  "expected": {
+    "fit_status": "Finite non-increasing NLL, interior theta in [1e-5, 0.45], bit-identical repeat after reset"
+  },
+  "actual": {
+    "fit_status": "initial_nll=0.991865, final_nll=0.958109, repeat_diff=0.000000"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-027.log",
+    "validation/layer3/raw_results/set1/L3-IP-027.json"
+  ],
+  "duration_ms": 1.571,
+  "failure_classification": null
+}

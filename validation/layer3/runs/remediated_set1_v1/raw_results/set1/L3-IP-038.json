@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-038",
+  "test_name": "safety_fsm_state_and_event_inputs",
+  "test_description": "Safety state input — sweep all 16 boolean event tuples across NORMAL_ADAPTIVE, HOLD_LAST_GOOD, SAFE_STATIC_PRIOR, DEGRADED_BYPASS, and probe invalid enum / NULL pointer handling",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_init, avid_fallback_step",
+  "input_contract": "4-state avid_fallback_state_t + 4 boolean health flags + non-null candidate/output weight pointers",
+  "independent_oracle": "architecture/contracts/fault_policy.yaml & fallback_fsm.h",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-038$\" --output-on-failure",
+  "fixture": "none",
+  "expected": {
+    "fsm_input_validation": "16/16 boolean health tuples deterministic AND null/corrupt state inputs guarded safely"
+  },
+  "actual": {
+    "fsm_input_validation": "16/16 boolean tuples deterministic; corrupt enum=99 escalated to SAFE_STATIC_PRIOR; nullptr inputs safely guarded with 0 crashes"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-038.log",
+    "validation/layer3/raw_results/set1/L3-IP-038.json"
+  ],
+  "duration_ms": 1.132,
+  "failure_classification": null
+}

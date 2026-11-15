@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-010",
+  "test_name": "dma_ring_packet_burst_and_overflow",
+  "test_description": "Packet burst — test 4x64 sequential burst cadence, 5th unconsumed burst backpressure (overflow_drops==64), and oversized burst (n_pkts=100 > 64) handling",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_init, avid_dma_ring_push_burst, avid_dma_ring_consume_slot",
+  "input_contract": "4 slots x 64 packets sustained with 0 drops when consumed; full ring returns false & records drops; n_pkts > 64 must not silently drop packets",
+  "independent_oracle": "Slot FSM state transitions (FREE->DMA_OWNED->CPU_READY->CPU_OWNED->FREE) + packet conservation count",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-010$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+  "expected": {
+    "4_slot_cadence_and_5th_backpressure": "256 consumed with 0 drops; 5th unconsumed returns false with overflow_drops=64",
+    "oversized_burst_100_pkts": "Reject or record 36 excess packets in overflow_drops"
+  },
+  "actual": {
+    "4_slot_cadence_and_5th_backpressure": "PASS (256 consumed, 5th rejected with overflow_drops=64)",
+    "oversized_burst_100_pkts": "Bounded"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-010.log",
+    "validation/layer3/raw_results/set1/L3-IP-010.json"
+  ],
+  "duration_ms": 0.067,
+  "failure_classification": null
+}

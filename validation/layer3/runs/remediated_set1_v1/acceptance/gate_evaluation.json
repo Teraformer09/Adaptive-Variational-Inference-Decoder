@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.1.0",
+  "run_id": "remediated_set1_v1",
+  "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "source_commit": "698771d2148cc5436f6b1a83eb98b4592ade0deb",
+  "evaluated_at_utc": "2026-11-15T20:30:26Z",
+  "active_stage": "set1_input_contracts",
+  "overall_layer3_decision": "PENDING_SETS_2_TO_5",
+  "stage1_gate_decision": "STAGE1_ACCEPTED_G1_G10_PASS",
+  "g1_decision": "PASS",
+  "g10_decision": "PASS",
+  "gates": [
+    {
+      "gate_id": "G1",
+      "gate_name": "Input Integrity & Contract Conformance",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 51,
+      "non_pass_count": 0,
+      "diagnostic_companion_non_pass": [],
+      "sanitizer_ctest_exit_code": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated 40 canonical L3-IP tests + 7 C11 ABI tests + 4 daemon integration tests (+ 2 diagnostic companions; ASan+UBSan rc=0) in mode='remediated': 51/51 gated PASS, 0 non-PASS; companion non-PASS=[]. All required technical & decision reports verified."
+    },
+    {
+      "gate_id": "G2",
+      "gate_name": "Likelihood Exactness & Analytical Gradient Fidelity",
+      "evaluated_in_stage": false,
+      "status": "NOT_EVALUATED_YET",
+      "pass_count": 0,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Deferred to Set 5 (L3-MATH-001..014) \u2014 stopped after Set 1 per mandatory stage gate."
+    },
+    {
+      "gate_id": "G3",
+      "gate_name": "L-BFGS Optimization & Quotient-Orbit Parameter Recovery",
+      "evaluated_in_stage": false,
+      "status": "NOT_EVALUATED_YET",
+      "pass_count": 0,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Deferred to Sets 2 & 5 (L3-OP, L3-STAT, L3-MATH) \u2014 stopped after Set 1 per mandatory stage gate."
+    },
+    {
+      "gate_id": "G4",
+      "gate_name": "Signed Q7.8 LLR Quantization & Bank Bounds Integrity",
+      "evaluated_in_stage": false,
+      "status": "NOT_EVALUATED_YET",
+      "pass_count": 0,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Deferred to Sets 2 & 5 (L3-OP-011..020, L3-MATH-033..042) \u2014 stopped after Set 1 per mandatory stage gate."
+    },
+    {
+      "gate_id": "G5",
+      "gate_name": "Causal Scheduling & Sub-Epoch Burst Detection",
+      "evaluated_in_stage": false,
+      "status": "NOT_EVALUATED_YET",
+      "pass_count": 0,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Deferred to Sets 2, 3, & 5 \u2014 stopped after Set 1 per mandatory stage gate."
+    },
+    {
+      "gate_id": "G6",
+      "gate_name": "Four-State Safety Fallback FSM & Hardware Protection",
+      "evaluated_in_stage": false,
+      "status": "NOT_EVALUATED_YET",
+      "pass_count": 0,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Deferred to Sets 2, 3, & 5 \u2014 stopped after Set 1 per mandatory stage gate."
+    },
+    {
+      "gate_id": "G7",
+      "gate_name": "End-to-End Slow-Loop Pipeline Flow & HAL Commit Atomicity",
+      "evaluated_in_stage": false,
+      "status": "NOT_EVALUATED_YET",
+      "pass_count": 0,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Deferred to Set 3 (L3-FLOW-001..045) \u2014 stopped after Set 1 per mandatory stage gate."
+    },
+    {
+      "gate_id": "G8",
+      "gate_name": "Runtime Execution, Memory Zero-Allocation, & Fault Recovery",
+      "evaluated_in_stage": false,
+      "status": "NOT_EVALUATED_YET",
+      "pass_count": 0,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Deferred to Set 4 (L3-EXEC-001..045) \u2014 stopped after Set 1 per mandatory stage gate."
+    },
+    {
+      "gate_id": "G9",
+      "gate_name": "Adaptive Control Efficacy & Non-Regression Over Static Baselines",
+      "evaluated_in_stage": false,
+      "status": "NOT_EVALUATED_YET",
+      "pass_count": 0,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Deferred to Sets 2 & 3 \u2014 stopped after Set 1 per mandatory stage gate."
+    },
+    {
+      "gate_id": "G10",
+      "gate_name": "Reproducibility, Traceability, & Branch Isolation Integrity",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 1,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "243/243 canonical IDs preserved; 40/40 Set 1 IDs executed; run_mode=remediated; baseline_be50761_evidence_preserved=True; frozen_baseline_untouched=True; missing_artifacts=0."
+    }
+  ]
+}

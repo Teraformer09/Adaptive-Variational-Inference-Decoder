@@ -1,0 +1,16 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-008
+Test Name: packet_corruption_and_no_side_effect
+Status: PASS
+Source Commit: 698771d
+Implementation File: software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp
+Implementation Function: avid_validate_packet, avid_dma_ring_consume_slot, avid_daemon(--stim-bin)
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-008$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/stim_parity_corrupted_64.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Standalone avid_dma_ring_consume_slot and avid_validate_packet isolated PARITY_ERR packet without mutating caller out struct.
+Production avid_daemon --stim-bin rejected all 64 PARITY_ERR packets (validator_invalid_flags=64, decoded_rtl_transactions=0, adaptive_epoch_commits=0).
+Contract boundary (syndrome_packet_v1.yaml v1.1.0): transport integrity is signaled via hardware PARITY_ERR flag bit [2].
+

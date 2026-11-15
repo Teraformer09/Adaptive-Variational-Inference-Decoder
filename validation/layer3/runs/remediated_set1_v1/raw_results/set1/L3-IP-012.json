@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-012",
+  "test_name": "histogram_dimensionality_and_pointer_validation",
+  "test_description": "Histogram dimensionality & pointer safety — verify NULL hist pointers never crash and compute_nll_from_histogram_checked rejects n_bins != 16",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "NoiseModel::compute_nll_from_histogram, NoiseModel::compute_nll_from_histogram_checked, HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "Non-null 16-bin count array; nullptr and n_bins != 16 explicitly rejected without crash",
+  "independent_oracle": "fork()-isolated NULL pointer probe + checked length API (15, 16, 17 bins)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-012$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/uniform/uniform_100.txt",
+  "expected": {
+    "null_and_dim_guard": "Explicit error/rejection on nullptr or wrong bin count (15, 17) without crash"
+  },
+  "actual": {
+    "null_and_dim_guard": "nullptr returns +Inf with 0 crashes; compute_nll_from_histogram_checked rejects n_bins=15/17 and accepts n_bins=16"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-012.log",
+    "validation/layer3/raw_results/set1/L3-IP-012.json"
+  ],
+  "duration_ms": 3.357,
+  "failure_classification": null
+}

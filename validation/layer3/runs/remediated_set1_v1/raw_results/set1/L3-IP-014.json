@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-014",
+  "test_name": "single_state_histogram",
+  "test_description": "Single-state histogram — feed 64 valid packets all with s_x=6, s_z=9 and verify hist_x[6]==64, hist_z[9]==64, all other bins==0",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot",
+  "input_contract": "Constant-syndrome burst increments only the matching X and Z bin",
+  "independent_oracle": "bin6_64.txt fixture & single-bin Kronecker delta oracle",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-014$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/single_bin/bin6_64.txt",
+  "expected": {
+    "hist_counts": "hist_x[6]==64 (others 0); hist_z[9]==64 (others 0)"
+  },
+  "actual": {
+    "hist_counts": "hist_x[6]=64, hist_z[9]=64"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-014.log",
+    "validation/layer3/raw_results/set1/L3-IP-014.json"
+  ],
+  "duration_ms": 0.403,
+  "failure_classification": null
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.1.0",
+  "layer": "layer3-slow-loop-software",
+  "frozen_reference_baseline": {
+    "branch": "AVID_EPJ_Patches",
+    "commit": "54da68d92778e4e1ffde9514aaaae585638761ff",
+    "untouched": true
+  },
+  "layer4_cross_branch_note": {
+    "branch": "layer4-cosim-bridge-emu",
+    "commit": "dd5ec1f2dcb531764a6d3f5940f184f426e93f10",
+    "status": "PRE_IMPLEMENTATION_TRACEABILITY_ONLY",
+    "note": "Only LAYER4_IMPLEMENTATION_TO_TEST_TRACEABILITY.md is complete; Layer 4 test implementation and execution have NOT started."
+  },
+  "runs": [
+    {
+      "run_id": "88df97e_set1_baseline",
+      "run_mode": "baseline",
+      "immutable_baseline_audit": true,
+      "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "initial_evidence_commit": "be50761cc6f4cc0c31f79555aa3f69ccd911563d",
+      "generated_at_utc": "2026-11-15T11:56:47Z",
+      "run_dir": "validation/layer3/runs/88df97e_set1_baseline",
+      "primary_top_level_artifacts_dir": "validation/layer3",
+      "results_file": "validation/layer3/runs/88df97e_set1_baseline/set1_input_contracts.json",
+      "results_sha256": "7c08a0fd1f6cfbab97041298d815806b4493cb61580cf68fee5b4a813ee43741",
+      "gate_evaluation_file": "validation/layer3/acceptance/gate_evaluation.json",
+      "g1_decision": "FAIL",
+      "g1_pass_count": 20,
+      "g1_non_pass_count": 31,
+      "g10_decision": "PASS",
+      "canonical_status_counts": {
+        "PASS": 15,
+        "FAIL": 20,
+        "CONTRACT_MISMATCH": 3,
+        "NOT_IMPLEMENTED": 2
+      },
+      "c_abi_status_counts": {
+        "PASS": 4,
+        "FAIL": 3
+      },
+      "supplementary_status_counts": {
+        "PASS": 2,
+        "FAIL": 3,
+        "CONTRACT_MISMATCH": 1
+      }
+    },
+    {
+      "run_id": "remediated_set1_v1",
+      "run_mode": "remediated",
+      "immutable_baseline_audit": false,
+      "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "source_commit": "698771d2148cc5436f6b1a83eb98b4592ade0deb",
+      "generated_at_utc": "2026-11-15T20:30:26Z",
+      "run_dir": "validation/layer3/runs/remediated_set1_v1",
+      "results_file": "validation/layer3/runs/remediated_set1_v1/results/set1_input_contracts.json",
+      "results_sha256": "b91d3b55b754ca9b9916548775049b1d5947ffc668703289ff2bd6a4ff6f718f",
+      "gate_evaluation_file": "validation/layer3/runs/remediated_set1_v1/acceptance/gate_evaluation.json",
+      "g1_decision": "PASS",
+      "g1_pass_count": 51,
+      "g1_non_pass_count": 0,
+      "diagnostic_companion_status_counts": {
+        "PASS": 2
+      },
+      "sanitizer_ctest_exit_code": 0,
+      "g10_decision": "PASS",
+      "stage1_gate_decision": "STAGE1_ACCEPTED_G1_G10_PASS",
+      "overall_layer3_decision": "PENDING_SETS_2_TO_5",
+      "canonical_status_counts": {
+        "PASS": 40
+      },
+      "c_abi_status_counts": {
+        "PASS": 7
+      },
+      "supplementary_status_counts": {
+        "PASS": 6
+      }
+    }
+  ]
+}

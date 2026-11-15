@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.1.0",
+  "run_id": "remediated_set1_v1",
+  "source_commit": "698771d2148cc5436f6b1a83eb98b4592ade0deb",
+  "evaluated_at_utc": "2026-11-15T20:30:26Z",
+  "unresolved_count": 0,
+  "unresolved_items": []
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-029",
+  "test_name": "sparse_sample_window_w_min_check",
+  "test_description": "Insufficient sample count — supply sparse 3-round histogram (sum=3 < W_min) and verify whether solver enforces a minimum sample count or overfits 3 noisy syndromes",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "Minimum sample threshold W_min or prior-dominated hold when sum(hist) is ultra-sparse (N=3)",
+  "independent_oracle": "With N=3 rounds (2 hits in bin 6), prior must either hold/reject sparse window or prevent extreme jump",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-029$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/sparse/sparse_total3.txt",
+  "expected": {
+    "sparse_sample_behavior": "Enforce W_min=16 hold/fallback on N=3 samples without overfitting"
+  },
+  "actual": {
+    "sparse_sample_behavior": "W_min=16 enforced; converged=false, iterations=0, theta_(4)=0.012000"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-029.log",
+    "validation/layer3/raw_results/set1/L3-IP-029.json"
+  ],
+  "duration_ms": 0.507,
+  "failure_classification": null
+}

@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-005",
+  "test_name": "syndrome_bit_range_and_field_decode",
+  "test_description": "Syndrome bit range — verify all 256 valid (s_x in 0..15, s_z in 0..15) combinations and inspect out-of-range s_x/s_z >= 16 handling",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/ingress/packet_validator.cpp",
+  "implementation_function": "avid_pack_packet_u64, avid_unpack_packet_u64",
+  "input_contract": "4-bit s_x in [0,15] and 4-bit s_z in [0,15]; out-of-range uint8_t >= 16 must be rejected rather than silently aliased",
+  "independent_oracle": "Exhaustive 256-state bitfield oracle + out-of-domain injection (16, 255)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-005$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/packet_001.bin",
+  "expected": {
+    "out_of_range_sx16_sz255": "Explicit false return from avid_pack_packet_u64_checked without silent aliasing",
+    "valid_256_domain": "256/256 exact round-trip"
+  },
+  "actual": {
+    "out_of_range_sx16_sz255": "Rejected cleanly (false, out_raw_word untouched)",
+    "valid_256_domain": "256/256 exact round-trip"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-005.log",
+    "validation/layer3/raw_results/set1/L3-IP-005.json"
+  ],
+  "duration_ms": 0.056,
+  "failure_classification": null
+}

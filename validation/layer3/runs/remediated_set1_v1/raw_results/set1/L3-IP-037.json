@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-037",
+  "test_name": "runtime_telemetry_and_epoch_reconciliation",
+  "test_description": "Runtime telemetry input — execute avid_daemon_under_test over 256 rounds (window=64) and verify epoch_commit_reconciled, hw_epoch, and profiler telemetry fields",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_daemon telemetry JSON emission & epoch commit reconciliation",
+  "input_contract": "Runtime telemetry tracks rounds_completed, epochs_completed, adaptive_epoch_commits, and epoch_commit_reconciled",
+  "independent_oracle": "initial_boot_commits + adaptive_epoch_commits == final_hw_epoch + reset_cleared_commits (epoch_commit_reconciled=true)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-037$\" --output-on-failure",
+  "fixture": "checkpoints/r2d2_v1_trained.bin",
+  "expected": {
+    "telemetry_reconciliation": "rc=0, total_rounds=256, decoded_rtl_transactions=256, epochs_completed=4, epoch_commit_reconciled=true"
+  },
+  "actual": {
+    "telemetry_reconciliation": "rc=0, epochs_completed=4, epoch_commit_reconciled=true"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-037.log",
+    "validation/layer3/raw_results/set1/L3-IP-037.json"
+  ],
+  "duration_ms": 18.431,
+  "failure_classification": null
+}

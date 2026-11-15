@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-032",
+  "test_name": "commit_delay_configuration_and_daemon_wiring",
+  "test_description": "Commit delay configuration — verify causal_scheduler commit_delay=0 vs commit_delay>0 AND check whether avid_daemon wires commit_delay",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "698771d",
+  "implementation_file": "software/src/control/causal_scheduler.cpp, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_scheduler_init, avid_scheduler_schedule_commit, avid_scheduler_poll_commit_ready",
+  "input_contract": "commit_delay_rounds >= 0 delays weight activation to window_end_round + commit_delay_rounds",
+  "independent_oracle": "architecture/contracts/system_timing.yaml & causal_scheduler.h vs avid_daemon.cpp call graph",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-032$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/configs/valid/valid_experiment.yaml",
+  "expected": {
+    "commit_delay": "causal_scheduler enforces commit_delay AND avid_daemon consumes --commit-delay causally"
+  },
+  "actual": {
+    "commit_delay": "Standalone causal_scheduler PASS (delay=0->256, delay=8->264); avid_daemon --commit-delay 0->2 commits, --commit-delay 8->1 commit over 128 rounds, -4->rc=2"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-032.log",
+    "validation/layer3/raw_results/set1/L3-IP-032.json"
+  ],
+  "duration_ms": 39.898,
+  "failure_classification": null
+}

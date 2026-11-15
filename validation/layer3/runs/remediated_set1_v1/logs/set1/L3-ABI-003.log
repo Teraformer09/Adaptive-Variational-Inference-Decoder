@@ -1,0 +1,5 @@
+[L3-ABI-003] c_abi_parameter_llr_quantizer — status=PASS checks_run=4 checks_failed=0 duration_ms=0.018
+Expected: Clean C11 linkage and Q7.8 fixed-point ABI on llr_quantizer.h; document C++-only 21-param NoiseModel boundary
+Actual:   llr_quantizer.h C11 calls passed (out_q78[0]=0x0469, bad_p rejected=true); NoiseModel is C++-only
+  note[0]: Minor constant note: AVID_Q78_DEFAULT macro is 0x0468 (1128), 1 LSB below avid_prob_to_q78_llr(0.012) == 0x0469 (1129).
+  note[1]: llr_quantizer.h has valid extern "C" C11 ABI for 9-qubit effective probabilities; 21-parameter NoiseModel/HistogramLBFGSSolver headers include <Eigen/Dense> and expose C++ classes only (no C11 wrapper).

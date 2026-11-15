@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-036
+Test Name: unknown_config_fields_and_schema_enforcement
+Status: PASS
+Source Commit: 698771d
+Implementation File: software/src/inference/avid_daemon.cpp, configs/schema.yaml
+Implementation Function: avid_daemon CLI parser & YAML schema contract
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-036$" --output-on-failure
+Fixture: tests/layer3/fixtures/configs/invalid/unknown_key_experiment.yaml
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+
