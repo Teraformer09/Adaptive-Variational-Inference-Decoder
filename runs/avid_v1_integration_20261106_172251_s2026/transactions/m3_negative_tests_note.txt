@@ -1,1 +1,0 @@
-6 intentional negative-test protocol rejections verified; 0 unexpected rejections.
