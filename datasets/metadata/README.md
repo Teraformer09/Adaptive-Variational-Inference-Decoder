@@ -1,1 +1,0 @@
-# Dataset metadata directory

@@ -1,0 +1,16 @@
+=== Layer 5 Validation: 250 MHz SystemVerilog RTL Decoder ===
+Branch: layer5-fpga-rtl-decoder | Commit: 54da68d
+[Layer 5] Compiling cycle-exact RTL C++ testbench (run in Cloud Shell for Verilator --assert)...
+[Verilator M1] Standalone RTL test passed (cpp_cycle_exact_reference_fallback): K=1..5 core={7,12,17,22,27} axis={12,17,22,27,32} (K=3 -> 17 core / 22 AXI cycles, ref_mismatches=0)
+============================= test session starts ==============================
+platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /tmp/avid_layer_worktrees/layer5-fpga-rtl-decoder
+configfile: pytest.ini
+plugins: typeguard-4.4.4, anyio-4.11.0
+collecting ... collected 1 item
+
+tests/test_layer5_ip_op.py::test_layer5_rtl_ip_op_matrix PASSED          [100%]
+
+============================== 1 passed in 0.11s ===============================
+[PASS] Layer 5 IP & OP verification complete.

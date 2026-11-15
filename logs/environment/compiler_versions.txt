@@ -1,1 +1,0 @@
-g++ 13.3.0, arm-linux-gnueabihf-g++ 13.3.0, aarch64-linux-gnu-g++ 13.3.0
