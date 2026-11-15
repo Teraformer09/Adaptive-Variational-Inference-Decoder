@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-006",
+  "test_name": "timestamp_and_epoch_monotonicity",
+  "test_description": "Timestamp validity — verify hardware packet timestamp presence and monotonic round/epoch enforcement in packet_validator and causal_scheduler",
+  "test_set": "set1_input_contracts",
+  "status": "NOT_IMPLEMENTED",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_validate_packet, avid_fast_detector_step, avid_scheduler_schedule_commit",
+  "input_contract": "Monotonic timestamps/epochs accepted; duplicate or backward timestamps/epochs rejected",
+  "independent_oracle": "packet_validator.h struct inspection + backward epoch (5->2) & backward round_idx (20->18) probes",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-006$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/packet_001.bin",
+  "expected": {
+    "timestamp_contract": "Explicit packet timestamp field or monotonic round/epoch enforcement rejecting duplicate/backward time"
+  },
+  "actual": {
+    "backward_epoch_5_to_2": "ACCEPTED silently",
+    "backward_round_20_to_18": "ACCEPTED silently (mutates ring_nonzero[round & 15])",
+    "packet_timestamp_field": "ABSENT in avid_syndrome_packet_t and syndrome_packet_v1.yaml"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-006.log",
+    "validation/layer3/raw_results/set1/L3-IP-006.json"
+  ],
+  "duration_ms": 0.633,
+  "failure_classification": "packet_timestamp_field_absent_and_round_epoch_monotonicity_unenforced"
+}

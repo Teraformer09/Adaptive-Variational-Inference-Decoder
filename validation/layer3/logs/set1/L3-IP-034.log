@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-034
+Test Name: burst_threshold_and_debounce_bounds
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/control/causal_scheduler.cpp
+Implementation Function: avid_fast_detector_init, avid_fast_detector_step
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-034$" --output-on-failure
+Fixture: none
+Failure Classification: MISSING_UPPER_BOUND_ON_BURST_DENSITY_THRESHOLD
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Negative threshold=-0.2 silently defaulted to 0.350000
+DEFECT: avid_fast_detector_init (`causal_scheduler.cpp:43`) checks `density_threshold > 0.0` only with NO `<= 1.0` or `std::isfinite` upper bound! `threshold=1.5` and `+Inf` are accepted, permanently disabling burst detection even under 100% syndrome saturation!
+

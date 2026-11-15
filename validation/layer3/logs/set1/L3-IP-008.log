@@ -1,0 +1,18 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-008
+Test Name: packet_corruption_and_no_side_effect
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp
+Implementation Function: avid_validate_packet, avid_dma_ring_consume_slot, avid_daemon(--stim-bin)
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-008$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/stim_parity_corrupted_64.bin
+Failure Classification: daemon_stim_bin_bypasses_parity_validator_and_no_crc
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Standalone avid_dma_ring_consume_slot properly excluded PARITY_ERR packet from hist_x/hist_z.
+avid_validate_packet mutated caller out struct before returning false: YES
+No CRC/checksum field exists in 64-bit packet: unflagged bit flips in s_x/s_z are undetectable.
+Production avid_daemon --stim-bin bypassed PARITY_ERR=1, VALID=0 and re-stamped VALID=1: NOT_RUN
+avid_daemon --stim-bin bypasses avid_validate_packet, re-stamping PARITY_ERR packets with VALID=1 into histograms
+

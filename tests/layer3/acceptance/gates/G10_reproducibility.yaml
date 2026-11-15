@@ -1,0 +1,16 @@
+gate_id: G10
+gate_name: Reproducibility, Traceability, & Branch Isolation Integrity
+stage: all_sets
+blocking: true
+description: >
+  243/243 canonical traceability IDs preserved, zero edits to software/architecture/deployment
+  during contract verification, frozen AVID_EPJ_Patches untouched, deterministic SHA-256
+  fixture manifests, and reproducible build + sanitizer logs archived.
+required_artifacts:
+  - tests/layer3/common/test_ids.yaml
+  - tests/layer3/acceptance/test_traceability.yaml
+  - validation/layer3/fixtures_used/fixture_hashes.json
+  - validation/layer3/manifests/source_manifest.json
+  - validation/layer3/manifests/build_manifest.json
+  - validation/layer3/manifests/validation_manifest.json
+pass_rule: "evaluated_per_stage"

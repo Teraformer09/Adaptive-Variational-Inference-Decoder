@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-001",
+  "test_name": "valid_packet_ingress",
+  "test_description": "Valid packet ingress — pack (s_x=5, s_z=11, seq=0, epoch=3, flags=AVID_PKT_FLAG_VALID), unpack & validate, plus 64-packet sequential stream",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/ingress/packet_validator.cpp",
+  "implementation_function": "avid_pack_packet_u64, avid_unpack_packet_u64, avid_validate_packet",
+  "input_contract": "64-bit word with VALID=1, PARITY_ERR=0, monotonic seq_id",
+  "independent_oracle": "binary_packet_builder::build_raw_packet_u64_oracle & packet_001_expected.json",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-001$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/packet_001.bin",
+  "expected": {
+    "validation_status": "ACCEPT (true), s_x=5, s_z=11, epoch_id=3, seq_id=0, valid_count=1"
+  },
+  "actual": {
+    "decoded_fields": "s_x=5, s_z=11, epoch_id=3, seq_id=0",
+    "stream64_valid_count": "64",
+    "validation_status": "ACCEPT (true)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-001.log",
+    "validation/layer3/raw_results/set1/L3-IP-001.json"
+  ],
+  "duration_ms": 1.319,
+  "failure_classification": null
+}

@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0.0",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "evaluated_at_utc": "2026-11-15T11:59:16Z",
+  "unresolved_count": 31,
+  "unresolved_items": [
+    {
+      "test_id": "L3-IP-002",
+      "test_name": "packet_length_and_wire_contract",
+      "status": "CONTRACT_MISMATCH",
+      "implementation_file": "software/src/ingress/packet_validator.h",
+      "failure_classification": "wire_packet_length_and_api_mismatch_64bit_u64_vs_yaml_16B_hdr_plus_4B_word",
+      "actual": {
+        "c_unpacked_struct_bytes": "12",
+        "c_wire_size_bytes": "8 (uint64_t by value; no byte-length parameter)",
+        "yaml_contract_bytes": "16-byte stream header + 4-byte per-round word"
+      }
+    },
+    {
+      "test_id": "L3-IP-003",
+      "test_name": "packet_version_and_endianness",
+      "status": "CONTRACT_MISMATCH",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/hal/simulation_backend.cpp",
+      "failure_classification": "missing_syndrome_stream_version_and_magic_header_parser",
+      "actual": {
+        "hal_rpc_version_check": "PASS (v1 accepted, v99 rejected)",
+        "syndrome_packet_version_check": "MISSING in packet_validator.cpp (no version field in 64-bit word; YAML 0xAAEC0002 header not parsed)"
+      }
+    },
+    {
+      "test_id": "L3-IP-004",
+      "test_name": "packet_field_encoding_and_flags",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/packet_validator.cpp",
+      "failure_classification": "reserved_upper_flag_bits_accepted_without_validation",
+      "actual": {
+        "flags_0x00": "REJECT (false)",
+        "flags_0xF1_reserved_bits": "ACCEPT (true) \u2014 reserved bits [7:4] ignored"
+      }
+    },
+    {
+      "test_id": "L3-IP-005",
+      "test_name": "syndrome_bit_range_and_field_decode",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/packet_validator.cpp",
+      "failure_classification": "out_of_range_syndrome_silently_masked_to_valid_4bit_domain",
+      "actual": {
+        "out_of_range_sx16_sz255": "Silently masked to s_x=0, s_z=15 and accepted",
+        "valid_256_domain": "256/256 exact round-trip"
+      }
+    },
+    {
+      "test_id": "L3-IP-006",
+      "test_name": "timestamp_and_epoch_monotonicity",
+      "status": "NOT_IMPLEMENTED",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/control/causal_scheduler.cpp",
+      "failure_classification": "packet_timestamp_field_absent_and_round_epoch_monotonicity_unenforced",
+      "actual": {
+        "backward_epoch_5_to_2": "ACCEPTED silently",
+        "backward_round_20_to_18": "ACCEPTED silently (mutates ring_nonzero[round & 15])",
+        "packet_timestamp_field": "ABSENT in avid_syndrome_packet_t and syndrome_packet_v1.yaml"
+      }
+    },
+    {
+      "test_id": "L3-IP-007",
+      "test_name": "packet_sequence_continuity",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/packet_validator.cpp",
+      "failure_classification": "rejected_sequence_packet_mutates_validator_last_seq_id_and_lacks_duplicate_counter",
+      "actual": {
+        "legit_seq12_after_rejected_999": "REJECT (last_seq_id overwritten by rejected packet 999)",
+        "seq_10_11_gap13_dup13_rollover": "10,11,rollover ACCEPT; gap 13 & dup 13 REJECT (both increment seq_gap_count)"
+      }
+    },
+    {
+      "test_id": "L3-IP-008",
+      "test_name": "packet_corruption_and_no_side_effect",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp",
+      "failure_classification": "daemon_stim_bin_bypasses_parity_validator_and_no_crc",
+      "actual": {
+        "crc_checksum": "ABSENT (single PARITY_ERR status bit only)",
+        "daemon_stim_bin_parity_err": "N/A",
+        "standalone_parity_err": "REJECT (0 histogram updates; caller out struct overwritten)"
+      }
+    },
+    {
+      "test_id": "L3-IP-009",
+      "test_name": "packet_truncation_and_boundaries",
+      "status": "FAIL",
+      "implementation_file": "software/src/hal/simulation_backend.cpp, software/src/inference/avid_daemon.cpp",
+      "failure_classification": "daemon_stim_bin_silently_accepts_truncated_3byte_packet",
+      "actual": {
+        "socket_truncated_json": "rc=-1, rejected_transactions=1 (PASS)",
+        "stim_bin_truncated_3B": "rc=0 (silently zero-reads 3-byte file across 64 rounds)"
+      }
+    },
+    {
+      "test_id": "L3-IP-010",
+      "test_name": "dma_ring_packet_burst_and_overflow",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+      "failure_classification": "oversized_dma_burst_silently_truncated_without_drop_accounting",
+      "actual": {
+        "4_slot_cadence_and_5th_backpressure": "PASS (256 consumed, 5th rejected with overflow_drops=64)",
+        "oversized_burst_100_pkts": "SILENT TRUNCATION: returned true, stored 64, dropped 36 with overflow_drops=0"
+      }
+    },
+    {
+      "test_id": "L3-IP-012",
+      "test_name": "histogram_dimensionality_and_pointer_validation",
+      "status": "FAIL",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "failure_classification": "UNGUARDED_NULL_HISTOGRAM_POINTER_AND_ARRAY_DECAY",
+      "actual": {
+        "null_and_dim_guard": "C array parameter decays to `const uint32_t*` (no length check); nullptr crashes with signal 11"
+      }
+    },
+    {
+      "test_id": "L3-IP-016",
+      "test_name": "normalized_empirical_distribution_input_check",
+      "status": "NOT_IMPLEMENTED",
+      "implementation_file": "software/src/inference/noise_model.h",
+      "failure_classification": "NO_NORMALIZED_FLOAT_HISTOGRAM_API_IN_LAYER3",
+      "actual": {
+        "normalized_pmf_validator": "No float/double PMF input entrypoint exists in software/src/ estimator APIs (uint32_t hist[16] only)"
+      }
+    },
+    {
+      "test_id": "L3-IP-017",
+      "test_name": "histogram_counter_overflow",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp, software/src/inference/noise_model.cpp",
+      "failure_classification": "histogram_bin_uint32_wraparound_in_dma_ingress_tap",
+      "actual": {
+        "dma_consume_bin_at_uint32_max": "WRAPPED TO 0 (0xFFFFFFFFu + 1 -> 0)",
+        "noise_model_sum_gt_2pow32": "PASS (nll=5.363844)"
+      }
+    },
+    {
+      "test_id": "L3-IP-019",
+      "test_name": "concurrent_histogram_snapshot_and_synchronization",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+      "failure_classification": "missing_synchronization_and_snapshot_api_in_dma_ingress_tap",
+      "actual": {
+        "external_mutex_harness": "Consistent (3200/3200 packets, 0 torn reads)",
+        "production_dma_ingress_tap_sync": "UNSYNCHRONIZED (no atomic/mutex/snapshot API; data race under concurrent threads)"
+      }
+    },
+    {
+      "test_id": "L3-IP-024",
+      "test_name": "invalid_parameter_values_nan_inf_oob",
+      "status": "FAIL",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "failure_classification": "NAN_PROPAGATION_IN_NOISE_MODEL_EVALUATION",
+      "actual": {
+        "invalid_param_handling": "validate_parameter_bounds rejects all 6 bad inputs, BUT compute_nll_from_histogram does not call it: NaN propagates to p_joint_[0..15] and NLL=NaN"
+      }
+    },
+    {
+      "test_id": "L3-IP-025",
+      "test_name": "prior_vector_validation_and_schema_consistency",
+      "status": "FAIL",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "failure_classification": "UNGUARDED_PRIOR_VECTOR_AND_DEFAULT_DRIFT",
+      "actual": {
+        "prior_validation": "ctor_pair=0.004000, init_pair=0.004000, schema_pair=0.008; NaN prior_theta_(0) produced NLL=NaN"
+      }
+    },
+    {
+      "test_id": "L3-IP-026",
+      "test_name": "regularization_lambda_validation_and_override",
+      "status": "FAIL",
+      "implementation_file": "software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp",
+      "failure_classification": "UNGUARDED_LAMBDA_AND_HARDCODED_SOLVER_OVERRIDE",
+      "actual": {
+        "lambda_contract": "Negative lambda=-5.0 accepted, NaN lambda->NLL=NaN, and fit_histogram overwrote caller lambda=2.5 to 0.040000"
+      }
+    },
+    {
+      "test_id": "L3-IP-028",
+      "test_name": "out_of_range_and_nan_initial_guess",
+      "status": "FAIL",
+      "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+      "failure_classification": "MISSING_INITIAL_GUESS_VALIDATION_NAN_PROPAGATION",
+      "actual": {
+        "nan_initial_guess": "Silent acceptance of -0.10/0.85; NaN initial guess produced nll=NaN, converged=false"
+      }
+    },
+    {
+      "test_id": "L3-IP-029",
+      "test_name": "sparse_sample_window_w_min_check",
+      "status": "FAIL",
+      "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+      "failure_classification": "MISSING_MINIMUM_SAMPLE_GUARD_SPARSE_OVERFIT",
+      "actual": {
+        "sparse_sample_behavior": "No W_min check (total==0 only); converged=true, theta_(4)=0.450000"
+      }
+    },
+    {
+      "test_id": "L3-IP-030",
+      "test_name": "stale_observations_and_epoch_isolation",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/control/causal_scheduler.cpp",
+      "failure_classification": "stale_epoch_packets_accumulated_and_older_window_overwrites_pending_commit",
+      "actual": {
+        "dma_overflow_drops": "0",
+        "stale_epoch_packet": "Accumulated into hist_x[6] (count=2)",
+        "stale_scheduler_window": "Overwrote newer pending commit"
+      }
+    },
+    {
+      "test_id": "L3-IP-032",
+      "test_name": "commit_delay_configuration_and_daemon_wiring",
+      "status": "CONTRACT_MISMATCH",
+      "implementation_file": "software/src/control/causal_scheduler.cpp, software/src/inference/avid_daemon.cpp",
+      "failure_classification": "SCHEDULER_COMMIT_DELAY_DISCONNECTED_FROM_DAEMON",
+      "actual": {
+        "commit_delay": "Standalone causal_scheduler PASS (delay=0->256, delay=8->264), BUT avid_daemon uses_scheduler=false, has_cli_flag=false"
+      }
+    },
+    {
+      "test_id": "L3-IP-033",
+      "test_name": "optimizer_max_iters_cap_validation",
+      "status": "FAIL",
+      "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+      "failure_classification": "SOLVER_MINIMUM_CLAMP_VIOLATES_MAX_ITERS_BUDGET",
+      "actual": {
+        "iteration_cap": "iters(-5)=12, iters(0)=12, iters(1)=12, iters(20)=20"
+      }
+    },
+    {
+      "test_id": "L3-IP-034",
+      "test_name": "burst_threshold_and_debounce_bounds",
+      "status": "FAIL",
+      "implementation_file": "software/src/control/causal_scheduler.cpp",
+      "failure_classification": "MISSING_UPPER_BOUND_ON_BURST_DENSITY_THRESHOLD",
+      "actual": {
+        "burst_threshold_bounds": "threshold=1.5 accepted (density_threshold=1.500000, triggered_under_100pct_burst=false); +Inf accepted (inf)"
+      }
+    },
+    {
+      "test_id": "L3-IP-035",
+      "test_name": "bp_iteration_k_bounds_validation",
+      "status": "FAIL",
+      "implementation_file": "software/src/custom_engine/cycle_accurate_bp_engine.cpp, software/src/hal/physical_backend.cpp, simulation_backend.cpp",
+      "failure_classification": "MISSING_UPPER_BOUND_CHECK_ON_BP_ITERATIONS",
+      "actual": {
+        "bp_k_bounds": "HAL rejects K=0 (rc=-1), but BOTH CycleAccurateBPEngine and HAL accept K=99 without error (bp.iterations_K=99, hal_rc=0, bp(K=0).K=3)"
+      }
+    },
+    {
+      "test_id": "L3-IP-036",
+      "test_name": "unknown_config_fields_and_schema_enforcement",
+      "status": "FAIL",
+      "implementation_file": "software/src/inference/avid_daemon.cpp, configs/schema.yaml",
+      "failure_classification": "SILENT_IGNORE_OF_UNKNOWN_CLI_FLAGS_AND_NO_NATIVE_YAML_LOADER",
+      "actual": {
+        "unknown_field_rejection": "invalid_configuration rc=2, osd_mode=9 rc=2, --unknown-key rc=0, --config bad.yaml rc=0, bad controller_mode rc=0"
+      }
+    },
+    {
+      "test_id": "L3-IP-038",
+      "test_name": "safety_fsm_state_and_event_inputs",
+      "status": "FAIL",
+      "implementation_file": "software/src/control/fallback_fsm.cpp",
+      "failure_classification": "FSM_UNGUARDED_NULL_POINTER_AND_CORRUPT_ENUM",
+      "actual": {
+        "fsm_input_validation": "16/16 boolean tuples deterministic; corrupt enum=99 silently overwritten; candidate_q78=nullptr crashed with signal 11"
+      }
+    },
+    {
+      "test_id": "L3-ABI-002",
+      "test_name": "c_abi_histogram_dma_ring",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.h, software/src/inference/ring_buffer.h",
+      "failure_classification": "C_ABI_MISSING_EXTERN_C_LINKAGE",
+      "actual": {
+        "summary": "Layouts match (avid_dma_ring_t=2136 B, ring_buffer_t=80008 B), but dlsym(\"avid_dma_ring_init\")=NULL (missing extern \"C\"), mangled=NULL",
+        "checks_run": "9",
+        "checks_failed": "1"
+      }
+    },
+    {
+      "test_id": "L3-ABI-004",
+      "test_name": "c_abi_runtime_config_hal",
+      "status": "FAIL",
+      "implementation_file": "software/src/control/causal_scheduler.h, fallback_fsm.h, hal/avid_hal.h, driver/weight_reg_driver.h",
+      "failure_classification": "C_ABI_HEADER_AND_LINKAGE_MISMATCH",
+      "actual": {
+        "summary": "wrd/weight_bank C11 OK; avid_scheduler_init=NULL, avid_fallback_init=NULL, avid_hal.h -std=c11=FAIL (<cstdint> in C11)",
+        "checks_run": "7",
+        "checks_failed": "4"
+      }
+    },
+    {
+      "test_id": "L3-ABI-006",
+      "test_name": "c_abi_null_pointer_safety",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, estimator/llr_quantizer.cpp, driver/weight_bank_driver.c",
+      "failure_classification": "C_ABI_UNGUARDED_NULL_DEREFERENCE",
+      "actual": {
+        "summary": "avid_weight_bank_write_and_commit(NULL)=-1 (safe), but 6/6 packet_validator & llr_quantizer C entrypoints crashed on NULL pointer",
+        "checks_run": "7",
+        "checks_failed": "6"
+      }
+    },
+    {
+      "test_id": "L3-INT-001",
+      "test_name": "production_daemon_ingress_path_audit",
+      "status": "FAIL",
+      "implementation_file": "software/src/inference/avid_daemon.cpp",
+      "failure_classification": "DAEMON_STIM_BIN_BYPASSES_PACKET_VALIDATOR",
+      "actual": {
+        "daemon_ingress_validation": "truncated_3B --stim-bin exited rc=0; unpacks raw without avid_validate_packet and re-stamps AVID_PKT_FLAG_VALID"
+      }
+    },
+    {
+      "test_id": "L3-INT-003",
+      "test_name": "ring_buffer_production_connectivity_audit",
+      "status": "CONTRACT_MISMATCH",
+      "implementation_file": "software/src/inference/ring_buffer.h, noise_model.cpp, avid_daemon.cpp",
+      "failure_classification": "RING_BUFFER_IMPLEMENTED_BUT_UNUSED_IN_AVID_DAEMON",
+      "actual": {
+        "ring_buffer_connectivity": "Standalone ring_buffer_t PASS (nll_rb=5.363844 == nll_hist=5.363844); avid_daemon connectivity = IMPLEMENTED_BUT_UNUSED (daemon uses avid_dma_ring_t + hist_x[16]/hist_z[16] directly)"
+      }
+    },
+    {
+      "test_id": "L3-INT-004",
+      "test_name": "invalid_packet_end_to_end_propagation",
+      "status": "FAIL",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp, software/src/inference/avid_daemon.cpp",
+      "failure_classification": "PARITY_CORRUPTED_STIM_PACKETS_CONTAMINATE_ESTIMATOR",
+      "actual": {
+        "invalid_propagation_blocked": "Standalone DMA ring: 0/64 accepted (PASS); avid_daemon --stim-bin: 64/64 accepted and contaminated Joint-DP NLL (FAIL)"
+      }
+    }
+  ]
+}

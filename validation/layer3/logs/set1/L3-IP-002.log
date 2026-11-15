@@ -1,0 +1,17 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-002
+Test Name: packet_length_and_wire_contract
+Status: CONTRACT_MISMATCH
+Source Commit: 88df97e
+Implementation File: software/src/ingress/packet_validator.h
+Implementation Function: avid_validate_packet vs syndrome_packet_v1.yaml
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-002$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/short_7B.bin
+Failure Classification: wire_packet_length_and_api_mismatch_64bit_u64_vs_yaml_16B_hdr_plus_4B_word
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Fixture sizes loaded: 0, 3, 7, 8, 9, 15, 24 bytes.
+C implementation wire word size: sizeof(uint64_t) = 8 bytes; unpacked struct sizeof(avid_syndrome_packet_t) = 12 bytes.
+packet_validator.h exposes NO (const uint8_t *buf, size_t len) entrypoint; it accepts uint64_t by value only.
+syndrome_packet_v1.yaml specifies header_size_bytes=16 and packet_size_bytes=4 (32-bit DMA word).
+

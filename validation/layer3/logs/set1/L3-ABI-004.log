@@ -1,0 +1,11 @@
+[L3-ABI-004] c_abi_runtime_config_hal — status=FAIL checks_run=7 checks_failed=4 duration_ms=46.684
+Expected: All C-facing control, driver, and HAL headers compile under C11 and export unmangled C symbols
+Actual:   wrd/weight_bank C11 OK; avid_scheduler_init=NULL, avid_fallback_init=NULL, avid_hal.h -std=c11=FAIL (<cstdint> in C11)
+  note[0]: ABI DEFECT: causal_scheduler.h lacks extern "C"; dlsym("avid_scheduler_init") == NULL!
+  note[1]: ABI DEFECT: causal_scheduler.h lacks extern "C"; dlsym("avid_fast_detector_init") == NULL!
+  note[2]: ABI DEFECT: fallback_fsm.h lacks extern "C"; dlsym("avid_fallback_init") == NULL!
+  note[3]: [FAIL /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c:45] causal_scheduler.h must export C symbol avid_scheduler_init
+  note[4]: [FAIL /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c:46] causal_scheduler.h must export C symbol avid_fast_detector_init
+  note[5]: [FAIL /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c:47] fallback_fsm.h must export C symbol avid_fallback_init
+  note[6]: ABI DEFECT: software/src/hal/avid_hal.h fails `cc -std=c11 -fsyntax-only` because lines 9-10 use `#include <cstdint>` and `#include <cstddef>` outside `#ifdef __cplusplus` despite having `extern "C"` at line 14!
+  note[7]: [FAIL /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c:59] hal/avid_hal.h must compile cleanly in C11 mode (-std=c11)

@@ -1,0 +1,4 @@
+experiment:
+  name: missing_fields_test
+software:
+  daemon: avid_daemon

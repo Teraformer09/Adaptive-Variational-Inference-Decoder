@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-004
+Test Name: packet_field_encoding_and_flags
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/ingress/packet_validator.cpp
+Implementation Function: avid_validate_packet
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-004$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/reserved_upper_flags.bin
+Failure Classification: reserved_upper_flag_bits_accepted_without_validation
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+flags=0x00 rejected=true; reserved flags=0xF1 accepted=true (DEFECT)
+avid_validate_packet accepted packet with reserved flag bits 0xF0 set (flags=0xF1)
+

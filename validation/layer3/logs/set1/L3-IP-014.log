@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-014
+Test Name: single_state_histogram
+Status: PASS
+Source Commit: 88df97e
+Implementation File: software/src/ingress/dma_ingress_tap.cpp
+Implementation Function: avid_dma_ring_consume_slot
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-014$" --output-on-failure
+Fixture: tests/layer3/fixtures/histograms/single_bin/bin6_64.txt
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

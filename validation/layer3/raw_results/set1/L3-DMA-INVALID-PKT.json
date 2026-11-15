@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-DMA-INVALID-PKT",
+  "test_name": "histogram_invalid_packet_exclusion",
+  "test_description": "Histogram invalid-packet isolation — verify missing VALID, PARITY_ERR, and sequence-gap packets never increment hist_x or hist_z in avid_dma_ring_consume_slot",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot",
+  "input_contract": "Invalid packets in DMA slot must contribute 0 counts to both X and Z histograms",
+  "independent_oracle": "compute_reference_histogram_from_u64_stream",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-DMA-INVALID-PKT$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/invalid/parity_err_flag.bin",
+  "expected": {
+    "invalid_packet_contributions": "0 counts in bins 8, 10, 12; exact match with reference oracle"
+  },
+  "actual": {
+    "valid_packets_accepted": "3/6"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-DMA-INVALID-PKT.log",
+    "validation/layer3/raw_results/set1/L3-DMA-INVALID-PKT.json"
+  ],
+  "duration_ms": 0.049,
+  "failure_classification": null
+}

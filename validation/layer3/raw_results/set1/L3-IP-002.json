@@ -1,0 +1,30 @@
+{
+  "test_id": "L3-IP-002",
+  "test_name": "packet_length_and_wire_contract",
+  "test_description": "Packet length — evaluate 0, 3, 7, 8, 9, 15, and 24-byte buffers against 64-bit C API and syndrome_packet_v1.yaml (16B header + 4B round word)",
+  "test_set": "set1_input_contracts",
+  "status": "CONTRACT_MISMATCH",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/ingress/packet_validator.h",
+  "implementation_function": "avid_validate_packet vs syndrome_packet_v1.yaml",
+  "input_contract": "Exact packet framing length validation across wire formats",
+  "independent_oracle": "architecture/contracts/syndrome_packet_v1.yaml vs packet_validator.h signature inspection",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-002$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/invalid/short_7B.bin",
+  "expected": {
+    "wire_contract": "Agreement between architecture/contracts/syndrome_packet_v1.yaml and packet_validator.h, plus explicit byte-length rejection for != packet_size"
+  },
+  "actual": {
+    "c_unpacked_struct_bytes": "12",
+    "c_wire_size_bytes": "8 (uint64_t by value; no byte-length parameter)",
+    "yaml_contract_bytes": "16-byte stream header + 4-byte per-round word"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-002.log",
+    "validation/layer3/raw_results/set1/L3-IP-002.json",
+    "validation/layer3/reports/packet_contract_comparison.md"
+  ],
+  "duration_ms": 3.154,
+  "failure_classification": "wire_packet_length_and_api_mismatch_64bit_u64_vs_yaml_16B_hdr_plus_4B_word"
+}

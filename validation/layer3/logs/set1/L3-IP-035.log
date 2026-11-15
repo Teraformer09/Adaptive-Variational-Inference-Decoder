@@ -1,0 +1,16 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-035
+Test Name: bp_iteration_k_bounds_validation
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/custom_engine/cycle_accurate_bp_engine.cpp, software/src/hal/physical_backend.cpp, simulation_backend.cpp
+Implementation Function: CycleAccurateBPEngine::decode, avid_hal_set_bp_iterations
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-035$" --output-on-failure
+Fixture: none
+Failure Classification: MISSING_UPPER_BOUND_CHECK_ON_BP_ITERATIONS
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+DEFECT: CycleAccurateBPEngine::decode accepts unsupported K=99 without upper-bound check (executes 99 iterations, cycles_fused=497)!
+[ASSERT_EQ FAILED] /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/runtime_config/test_config_types.cpp:110 (rc_k0 == -1) actual=0 expected=-1
+DEFECT: avid_hal_set_bp_iterations accepts k_iter=99 (rc=0) with zero upper-bound validation, AND physical_backend.cpp writes offset 0x054 while physical avid_hal_send_syndrome hardcodes K=3!
+

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "verified_at_utc": "2026-11-15T11:52:22Z",
+  "branch": "layer3-slow-loop-software",
+  "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "head_commit_at_run": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "production_tree_unmodified": true,
+  "production_paths_checked": [
+    "software/",
+    "architecture/",
+    "deployment/",
+    "configs/",
+    "checkpoints/"
+  ],
+  "frozen_baseline_branch": "AVID_EPJ_Patches",
+  "frozen_baseline_commit": "54da68d92778e4e1ffde9514aaaae585638761ff",
+  "frozen_baseline_untouched": true
+}

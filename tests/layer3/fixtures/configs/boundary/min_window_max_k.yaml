@@ -1,0 +1,38 @@
+experiment:
+  name: layer3_set1_valid
+  seed: 2026
+  timeout_seconds: 30
+  rounds_per_scenario: 1024
+  window_rounds: 64
+software:
+  emulator: native
+  architecture: x86_64
+  boot_mode: direct
+  daemon: avid_daemon
+  hal_backend: physical
+  controller_mode: heuristic
+  osd_mode: 1
+rtl:
+  simulator: fallback
+  top_module: aa_qec_top
+  clock_period_ns: 4
+  reset_cycles: 10
+  bp_iterations: 5
+  waveform: false
+bridge:
+  transport: unix_socket
+  protocol_version: 1
+  clock_mode: cycle_exact
+  transaction_timeout_ms: 2000
+scenarios:
+  - stationary_noise
+validation:
+  assertions: true
+  fail_on_rtl_error: true
+  fail_on_timeout: true
+artifacts:
+  output_dir: validation/layer3
+  save_logs: true
+  save_waveforms: false
+  save_transactions: true
+  save_metrics: true

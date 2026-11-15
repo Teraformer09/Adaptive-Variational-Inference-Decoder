@@ -1,0 +1,16 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-007
+Test Name: packet_sequence_continuity
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/ingress/packet_validator.cpp
+Implementation Function: avid_validate_packet
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-007$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/boundary/seq_rollover_pair.bin
+Failure Classification: rejected_sequence_packet_mutates_validator_last_seq_id_and_lacks_duplicate_counter
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+seq 10->11 accepted; gap 13 rejected (seq_gap_count=1); duplicate 13 rejected (seq_gap_count=2, no separate duplicate counter); UINT32_MAX->0 rollover accepted.
+Spoofed/out-of-order seq=999 after seq=11 rejected=true, but mutated v->last_seq_id=999 so legitimate next packet seq=12 was ALSO rejected (ok_legit_12=false).
+Rejected packet seq=999 mutated v->last_seq_id=999, causing legitimate next packet seq=12 to fail
+

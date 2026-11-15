@@ -1,0 +1,14 @@
+gate_id: G5
+gate_name: Causal Scheduling & Sub-Epoch Burst Detection
+stage: set2_set3_set5
+blocking: true
+description: >
+  No future-syndrome leakage across epoch commits; 16-round sliding burst detector
+  meets 4-round debounce and 20-round worst-case trigger latency.
+required_families:
+  - "L3-OP-021..L3-OP-028"
+  - "L3-STAT-012..L3-STAT-014"
+  - "L3-FLOW-007..L3-FLOW-008"
+  - "L3-FLOW-026..L3-FLOW-035"
+  - "L3-MATH-043..L3-MATH-052"
+pass_rule: "deferred_until_set2_set3_set5_authorized"

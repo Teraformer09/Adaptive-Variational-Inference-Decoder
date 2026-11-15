@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-023",
+  "test_name": "valid_parameter_bounds_and_clamping",
+  "test_description": "Valid parameter bounds — verify validate_parameter_bounds accepts [0.0, 0.5) and rejects >=0.5/<0, and clamp_params maps to [1e-5, 0.45]",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::validate_parameter_bounds, NoiseModel::clamp_params",
+  "input_contract": "Physical Bernoulli error probabilities in [0, 0.5), interior clamp [1e-5, 0.45]",
+  "independent_oracle": "architecture/estimator/parameter_schema.json prob_bounds=[1e-5, 0.45]",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-023$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/parameters/boundary/interior_bounds_21.txt",
+  "expected": {
+    "bounds_validation": "[0, 0.5) accepted, 0.5 rejected, clamp_params -> [1e-5, 0.45]"
+  },
+  "actual": {
+    "bounds_validation": "clamped[0]=0.000010, clamped[1]=0.450000"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-023.log",
+    "validation/layer3/raw_results/set1/L3-IP-023.json"
+  ],
+  "duration_ms": 0.999,
+  "failure_classification": null
+}

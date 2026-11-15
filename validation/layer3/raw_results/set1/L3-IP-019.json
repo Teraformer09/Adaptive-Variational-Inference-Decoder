@@ -1,0 +1,30 @@
+{
+  "test_id": "L3-IP-019",
+  "test_name": "concurrent_histogram_snapshot_and_synchronization",
+  "test_description": "Concurrent histogram update — verify external mutex snapshot consistency and inspect native thread-safety/synchronization of avid_dma_ring_t and hist[16]",
+  "test_set": "set1_input_contracts",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_push_burst, avid_dma_ring_consume_slot",
+  "input_contract": "Concurrent producer/consumer/snapshot/reset must not suffer torn snapshots, lost counts, or C++17 data races",
+  "independent_oracle": "Source synchronization audit + mutex-guarded multi-thread conservation check (sum(hist_x)==sum(hist_z)==total_valid)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-019$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+  "expected": {
+    "native_concurrent_snapshot_safety": "Atomic slot-ownership memory ordering and atomic/synchronized histogram snapshot & reset API"
+  },
+  "actual": {
+    "external_mutex_harness": "Consistent (3200/3200 packets, 0 torn reads)",
+    "production_dma_ingress_tap_sync": "UNSYNCHRONIZED (no atomic/mutex/snapshot API; data race under concurrent threads)"
+  },
+  "assertion_notes": [
+    "dma_ingress_tap.{h,cpp} lacks atomic memory ordering, mutexes, or a thread-safe histogram snapshot/reset API"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-019.log",
+    "validation/layer3/raw_results/set1/L3-IP-019.json"
+  ],
+  "duration_ms": 2.033,
+  "failure_classification": "missing_synchronization_and_snapshot_api_in_dma_ingress_tap"
+}

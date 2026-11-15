@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AVID Layer 3 Acceptance Gate Evaluation Schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source_commit",
+    "evaluated_at_utc",
+    "active_stage",
+    "overall_decision",
+    "gates"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "source_commit": { "type": "string" },
+    "evaluated_at_utc": { "type": "string" },
+    "active_stage": { "type": "string" },
+    "overall_decision": {
+      "type": "string",
+      "enum": ["ACCEPTED", "NOT_ACCEPTED", "STAGE_GATE_STOPPED"]
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "gate_id",
+          "gate_name",
+          "evaluated_in_stage",
+          "status",
+          "pass_count",
+          "non_pass_count",
+          "blocking_ids",
+          "rationale"
+        ],
+        "properties": {
+          "gate_id": { "type": "string" },
+          "gate_name": { "type": "string" },
+          "evaluated_in_stage": { "type": "boolean" },
+          "status": {
+            "type": "string",
+            "enum": ["PASS", "FAIL", "NOT_EVALUATED_YET"]
+          },
+          "pass_count": { "type": "integer" },
+          "non_pass_count": { "type": "integer" },
+          "blocking_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "rationale": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+[L3-ABI-007] c_abi_buffer_ownership — status=PASS checks_run=7 checks_failed=0 duration_ms=0.456
+Expected: Caller-owned buffers remain uncorrupted, unaliased, and freeable by caller
+Actual:   All 7 ownership & canary checks passed (0 failed)
+  note[0]: All C-callable APIs use caller-owned storage with zero hidden free() or out-of-bounds writes across 64-byte guard canaries.

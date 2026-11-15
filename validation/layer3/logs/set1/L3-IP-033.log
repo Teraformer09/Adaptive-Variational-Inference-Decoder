@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-033
+Test Name: optimizer_max_iters_cap_validation
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/estimator/lbfgs_solver.cpp
+Implementation Function: HistogramLBFGSSolver::fit_histogram
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-033$" --output-on-failure
+Fixture: tests/layer3/fixtures/histograms/correlated/corr_total1000.txt
+Failure Classification: SOLVER_MINIMUM_CLAMP_VIOLATES_MAX_ITERS_BUDGET
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+DEFECT: HistogramLBFGSSolver::fit_histogram (`lbfgs_solver.cpp:109-110`) computes `pass1_iters = std::max(6, max_iters / 2)` and `pass2_iters = std::max(6, max_iters - pass1_iters)`! Requesting max_iters=0 executed 12 iterations, max_iters=-5 executed 12, and max_iters=1 executed 12 iterations (violating the iteration budget cap)!
+

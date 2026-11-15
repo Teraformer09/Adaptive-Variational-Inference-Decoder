@@ -1,0 +1,11 @@
+gate_id: G4
+gate_name: Signed Q7.8 LLR Quantization & Bank Bounds Integrity
+stage: set2_and_set5
+blocking: true
+description: >
+  Signed Q7.8 fixed-point LLR conversion, monotonicity, saturation [0x0040, 0x3000],
+  and pair-alias projection satisfy llr_numeric_contract.yaml.
+required_families:
+  - "L3-OP-011..L3-OP-020"
+  - "L3-MATH-033..L3-MATH-042"
+pass_rule: "deferred_until_set2_and_set5_authorized"

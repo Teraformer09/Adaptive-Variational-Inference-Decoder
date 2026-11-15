@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-INT-003",
+  "test_name": "ring_buffer_production_connectivity_audit",
+  "test_description": "Ring-buffer connectivity — verify standalone ring_buffer_t + NoiseModel::compute_nll(rb) equivalence with histogram NLL, AND verify whether avid_daemon connects ring_buffer_t in production",
+  "test_set": "set1_integration",
+  "status": "CONTRACT_MISMATCH",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/inference/ring_buffer.h, noise_model.cpp, avid_daemon.cpp",
+  "implementation_function": "ring_init, ring_push, NoiseModel::compute_nll(const ring_buffer_t&)",
+  "input_contract": "Verify whether ring_buffer_t (RING_WINDOW=10000) is active on the production daemon path or IMPLEMENTED_BUT_UNUSED",
+  "independent_oracle": "Exact equality compute_nll(rb) == compute_nll_from_histogram(hist) standalone + avid_daemon.cpp & nm symbol inspection",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-003$\" --output-on-failure",
+  "fixture": "none",
+  "expected": {
+    "ring_buffer_connectivity": "Document exact standalone validity AND production avid_daemon connectivity"
+  },
+  "actual": {
+    "ring_buffer_connectivity": "Standalone ring_buffer_t PASS (nll_rb=5.363844 == nll_hist=5.363844); avid_daemon connectivity = IMPLEMENTED_BUT_UNUSED (daemon uses avid_dma_ring_t + hist_x[16]/hist_z[16] directly)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-INT-003.log",
+    "validation/layer3/raw_results/set1/L3-INT-003.json"
+  ],
+  "duration_ms": 213.656,
+  "failure_classification": "RING_BUFFER_IMPLEMENTED_BUT_UNUSED_IN_AVID_DAEMON"
+}

@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-018
+Test Name: window_rollover_and_histogram_reset
+Status: PASS
+Source Commit: 88df97e
+Implementation File: software/src/inference/ring_buffer.h, software/src/inference/avid_daemon.cpp
+Implementation Function: ring_init, ring_push, ring_at, avid_daemon window reset
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-018$" --output-on-failure
+Fixture: tests/layer3/fixtures/histograms/empty/zeros_16.txt
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Standalone ring_buffer_t (RING_WINDOW=10000): 10,500 pushes evicted oldest 500 entries cleanly (10000/10000 Pattern B).
+Production avid_daemon.cpp invokes ring_buffer_t: YES (IMPLEMENTED_AND_CONNECTED)
+

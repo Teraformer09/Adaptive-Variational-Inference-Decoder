@@ -1,0 +1,31 @@
+{
+  "test_id": "L3-IP-036",
+  "test_name": "unknown_config_fields_and_schema_enforcement",
+  "test_description": "Unknown configuration keys — verify configs/schema.yaml requires immediate failure on unknown keys, and test avid_daemon with unknown CLI flags (--unknown-key, --config)",
+  "test_set": "set1_input_contracts",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/inference/avid_daemon.cpp, configs/schema.yaml",
+  "implementation_function": "avid_daemon CLI parser & YAML schema contract",
+  "input_contract": "configs/schema.yaml: 'Unknown top-level or nested keys trigger an immediate validation failure'",
+  "independent_oracle": "Non-zero exit code on unknown CLI flags and invalid configuration values",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-036$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/configs/invalid/unknown_key_experiment.yaml",
+  "expected": {
+    "unknown_field_rejection": "Immediate non-zero exit code on unknown CLI flags, unknown controller_mode, and unknown YAML keys"
+  },
+  "actual": {
+    "unknown_field_rejection": "invalid_configuration rc=2, osd_mode=9 rc=2, --unknown-key rc=0, --config bad.yaml rc=0, bad controller_mode rc=0"
+  },
+  "assertion_notes": [
+    "DEFECT: `avid_daemon` (`avid_daemon.cpp:233-263`) has NO `else` branch in its `argv` parser — unknown CLI flags (`--unknown-key rogue_value`) are silently ignored with exit code 0!",
+    "CONTRACT MISMATCH: `avid_daemon` has no native YAML parser for `configs/schema.yaml` and silently ignores `--config unknown_key_experiment.yaml` (rc=0) instead of rejecting `unknown_top_section`!",
+    "DEFECT: Unknown `--controller-mode nonexistent_controller` is not rejected; `avid_daemon` falls through `else` and executes Joint-DP L-BFGS with rc=0!"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-036.log",
+    "validation/layer3/raw_results/set1/L3-IP-036.json"
+  ],
+  "duration_ms": 66.301,
+  "failure_classification": "SILENT_IGNORE_OF_UNKNOWN_CLI_FLAGS_AND_NO_NATIVE_YAML_LOADER"
+}

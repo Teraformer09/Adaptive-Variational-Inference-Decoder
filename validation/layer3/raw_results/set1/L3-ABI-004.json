@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-ABI-004",
+  "test_name": "c_abi_runtime_config_hal",
+  "test_description": "Verify C11 compatibility of runtime control, driver, and HAL headers (including avid_hal.h C11 preprocessing and extern \"C\" linkage)",
+  "test_set": "set1_c_abi",
+  "status": "FAIL",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "implementation_file": "software/src/control/causal_scheduler.h, fallback_fsm.h, hal/avid_hal.h, driver/weight_reg_driver.h",
+  "implementation_function": "avid_scheduler_init, avid_fallback_init, avid_hal_open, wrd_open",
+  "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+  "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+  "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+  "expected": {
+    "summary": "All C-facing control, driver, and HAL headers compile under C11 and export unmangled C symbols"
+  },
+  "actual": {
+    "summary": "wrd/weight_bank C11 OK; avid_scheduler_init=NULL, avid_fallback_init=NULL, avid_hal.h -std=c11=FAIL (<cstdint> in C11)",
+    "checks_run": "7",
+    "checks_failed": "4"
+  },
+  "assertion_notes": ["ABI DEFECT: causal_scheduler.h lacks extern \"C\"; dlsym(\"avid_scheduler_init\") == NULL!", "ABI DEFECT: causal_scheduler.h lacks extern \"C\"; dlsym(\"avid_fast_detector_init\") == NULL!", "ABI DEFECT: fallback_fsm.h lacks extern \"C\"; dlsym(\"avid_fallback_init\") == NULL!", "[FAIL /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c:45] causal_scheduler.h must export C symbol avid_scheduler_init", "[FAIL /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c:46] causal_scheduler.h must export C symbol avid_fast_detector_init", "[FAIL /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c:47] fallback_fsm.h must export C symbol avid_fallback_init", "ABI DEFECT: software/src/hal/avid_hal.h fails `cc -std=c11 -fsyntax-only` because lines 9-10 use `#include <cstdint>` and `#include <cstddef>` outside `#ifdef __cplusplus` despite having `extern \"C\"` at line 14!", "[FAIL /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/c_abi/test_runtime_config_abi.c:59] hal/avid_hal.h must compile cleanly in C11 mode (-std=c11)"],
+  "evidence": ["validation/layer3/logs/set1/L3-ABI-004.log"],
+  "failure_classification": "C_ABI_HEADER_AND_LINKAGE_MISMATCH",
+  "duration_ms": 46.684
+}

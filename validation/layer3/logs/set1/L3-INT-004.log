@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-INT-004
+Test Name: invalid_packet_end_to_end_propagation
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/ingress/dma_ingress_tap.cpp, software/src/inference/avid_daemon.cpp
+Implementation Function: avid_dma_ring_consume_slot vs avid_daemon --stim-bin
+Execution Command: ctest --test-dir build/layer3 -R "^L3-INT-004$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/stim_parity_corrupted_64.bin
+Failure Classification: PARITY_CORRUPTED_STIM_PACKETS_CONTAMINATE_ESTIMATOR
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+CRITICAL CONTAMINATION DEFECT: Standalone `avid_dma_ring_consume_slot` rejected 64/64 `PARITY_ERR=1, VALID=0` packets (`valid_out=0`), BUT `avid_daemon --stim-bin` stripped `flags=0x04`, re-stamped `AVID_PKT_FLAG_VALID`, accumulated `sx=6, sz=9` into `hist_x/hist_z`, and adapted the estimator & decoder weights on 100% parity-erroneous packets!
+

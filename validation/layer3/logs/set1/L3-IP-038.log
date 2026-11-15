@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-038
+Test Name: safety_fsm_state_and_event_inputs
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/control/fallback_fsm.cpp
+Implementation Function: avid_fallback_init, avid_fallback_step
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-038$" --output-on-failure
+Fixture: none
+Failure Classification: FSM_UNGUARDED_NULL_POINTER_AND_CORRUPT_ENUM
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Corrupted fsm.state=99 with estimator_ok=false transitioned to state=1 without flagging invalid incoming state.
+DEFECT: avid_fallback_step dereferences `candidate_q78 == nullptr` (and `out_should_commit == nullptr`) without null check, crashing with signal 11!
+

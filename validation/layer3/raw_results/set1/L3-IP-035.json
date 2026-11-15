@@ -1,0 +1,31 @@
+{
+  "test_id": "L3-IP-035",
+  "test_name": "bp_iteration_k_bounds_validation",
+  "test_description": "BP iteration bounds — test supported K in {2,3,4,5} and invalid K in {0, -5, 99} across CycleAccurateBPEngine and HAL",
+  "test_set": "set1_input_contracts",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/custom_engine/cycle_accurate_bp_engine.cpp, software/src/hal/physical_backend.cpp, simulation_backend.cpp",
+  "implementation_function": "CycleAccurateBPEngine::decode, avid_hal_set_bp_iterations",
+  "input_contract": "Supported BP iteration count K in {2, 3, 4, 5} (or bounded hardware max); reject K <= 0 and K == 99",
+  "independent_oracle": "deployment/cpp/r2d2_runtime.h K in {2,3,4,5}; hardware register bound check",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-035$\" --output-on-failure",
+  "fixture": "none",
+  "expected": {
+    "bp_k_bounds": "Accept supported K in {2..5}; reject K=0 and K=99"
+  },
+  "actual": {
+    "bp_k_bounds": "HAL rejects K=0 (rc=-1), but BOTH CycleAccurateBPEngine and HAL accept K=99 without error (bp.iterations_K=99, hal_rc=0, bp(K=0).K=3)"
+  },
+  "assertion_notes": [
+    "DEFECT: CycleAccurateBPEngine::decode accepts unsupported K=99 without upper-bound check (executes 99 iterations, cycles_fused=497)!",
+    "[ASSERT_EQ FAILED] /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/runtime_config/test_config_types.cpp:110 (rc_k0 == -1) actual=0 expected=-1",
+    "DEFECT: avid_hal_set_bp_iterations accepts k_iter=99 (rc=0) with zero upper-bound validation, AND physical_backend.cpp writes offset 0x054 while physical avid_hal_send_syndrome hardcodes K=3!"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-035.log",
+    "validation/layer3/raw_results/set1/L3-IP-035.json"
+  ],
+  "duration_ms": 0.295,
+  "failure_classification": "MISSING_UPPER_BOUND_CHECK_ON_BP_ITERATIONS"
+}

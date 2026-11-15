@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-INT-001",
+  "test_name": "production_daemon_ingress_path_audit",
+  "test_description": "Production ingress path connectivity — verify actual path taken by packets entering avid_daemon via --stim-bin vs avid_validate_packet",
+  "test_set": "set1_integration",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (--stim-bin fread -> avid_unpack_packet_u64 -> avid_pack_packet_u64 -> avid_dma_ring_push_burst)",
+  "input_contract": "Production daemon must validate external --stim-bin packets through avid_validate_packet rather than overwriting flags/seq_id",
+  "independent_oracle": "Direct source + runtime verification on avid_daemon_under_test with truncated 3-byte and invalid-flag --stim-bin files",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-001$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/invalid/truncated_3B.bin",
+  "expected": {
+    "daemon_ingress_validation": "Reject truncated 3B --stim-bin and preserve/validate raw packet flags & seq_id"
+  },
+  "actual": {
+    "daemon_ingress_validation": "truncated_3B --stim-bin exited rc=0; unpacks raw without avid_validate_packet and re-stamps AVID_PKT_FLAG_VALID"
+  },
+  "assertion_notes": [
+    "PRODUCTION INGRESS BYPASS: `avid_daemon.cpp:398-408,491` accepts a 3-byte truncated `--stim-bin` with rc=0 (synthesizing sx=0, sz=0 on short `fread`) AND unpacks `--stim-bin` words via `avid_unpack_packet_u64` without calling `avid_validate_packet`, then re-packs every word with fresh `AVID_PKT_FLAG_VALID` and `seq_gen++` before `avid_dma_ring_push_burst`!"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-INT-001.log",
+    "validation/layer3/raw_results/set1/L3-INT-001.json"
+  ],
+  "duration_ms": 16.425,
+  "failure_classification": "DAEMON_STIM_BIN_BYPASSES_PACKET_VALIDATOR"
+}

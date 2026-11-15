@@ -1,0 +1,16 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-036
+Test Name: unknown_config_fields_and_schema_enforcement
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/inference/avid_daemon.cpp, configs/schema.yaml
+Implementation Function: avid_daemon CLI parser & YAML schema contract
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-036$" --output-on-failure
+Fixture: tests/layer3/fixtures/configs/invalid/unknown_key_experiment.yaml
+Failure Classification: SILENT_IGNORE_OF_UNKNOWN_CLI_FLAGS_AND_NO_NATIVE_YAML_LOADER
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+DEFECT: `avid_daemon` (`avid_daemon.cpp:233-263`) has NO `else` branch in its `argv` parser — unknown CLI flags (`--unknown-key rogue_value`) are silently ignored with exit code 0!
+CONTRACT MISMATCH: `avid_daemon` has no native YAML parser for `configs/schema.yaml` and silently ignores `--config unknown_key_experiment.yaml` (rc=0) instead of rejecting `unknown_top_section`!
+DEFECT: Unknown `--controller-mode nonexistent_controller` is not rejected; `avid_daemon` falls through `else` and executes Joint-DP L-BFGS with rc=0!
+

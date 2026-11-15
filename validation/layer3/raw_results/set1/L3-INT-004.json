@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-INT-004",
+  "test_name": "invalid_packet_end_to_end_propagation",
+  "test_description": "Invalid-input propagation — feed 64 packets with VALID=0 and PARITY_ERR=1 (sx=6, sz=9) to standalone DMA ring (0 accepted) vs avid_daemon --stim-bin (all 64 accepted due to flag re-stamping!)",
+  "test_set": "set1_integration",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot vs avid_daemon --stim-bin",
+  "input_contract": "Packets with VALID=0 or PARITY_ERR=1 must NEVER contaminate histogram bins or trigger adaptive parameter updates",
+  "independent_oracle": "Standalone DMA ring valid_out==0; production daemon must match and NOT adapt on parity-corrupted packets",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-004$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/invalid/stim_parity_corrupted_64.bin",
+  "expected": {
+    "invalid_propagation_blocked": "0/64 parity-corrupted packets reach estimator in both standalone DMA ring and avid_daemon"
+  },
+  "actual": {
+    "invalid_propagation_blocked": "Standalone DMA ring: 0/64 accepted (PASS); avid_daemon --stim-bin: 64/64 accepted and contaminated Joint-DP NLL (FAIL)"
+  },
+  "assertion_notes": [
+    "CRITICAL CONTAMINATION DEFECT: Standalone `avid_dma_ring_consume_slot` rejected 64/64 `PARITY_ERR=1, VALID=0` packets (`valid_out=0`), BUT `avid_daemon --stim-bin` stripped `flags=0x04`, re-stamped `AVID_PKT_FLAG_VALID`, accumulated `sx=6, sz=9` into `hist_x/hist_z`, and adapted the estimator & decoder weights on 100% parity-erroneous packets!"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-INT-004.log",
+    "validation/layer3/raw_results/set1/L3-INT-004.json"
+  ],
+  "duration_ms": 29.944,
+  "failure_classification": "PARITY_CORRUPTED_STIM_PACKETS_CONTAMINATE_ESTIMATOR"
+}

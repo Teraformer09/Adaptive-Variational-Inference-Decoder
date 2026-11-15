@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at_utc": "2026-11-15T11:56:47Z",
+  "run_id": "88df97e_set1_baseline",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "results_file": "validation/layer3/results/set1_input_contracts.json",
+  "results_sha256": "7c08a0fd1f6cfbab97041298d815806b4493cb61580cf68fee5b4a813ee43741",
+  "canonical_status_counts": {
+    "PASS": 15,
+    "CONTRACT_MISMATCH": 3,
+    "FAIL": 20,
+    "NOT_IMPLEMENTED": 2
+  },
+  "c_abi_status_counts": {
+    "PASS": 4,
+    "FAIL": 3
+  },
+  "supplementary_status_counts": {
+    "PASS": 2,
+    "FAIL": 3,
+    "CONTRACT_MISMATCH": 1
+  },
+  "asan_ubsan_suite_executed": true
+}

@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-028
+Test Name: out_of_range_and_nan_initial_guess
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/estimator/lbfgs_solver.cpp
+Implementation Function: HistogramLBFGSSolver::fit_histogram
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-028$" --output-on-failure
+Fixture: tests/layer3/fixtures/parameters/invalid/out_of_range_21.txt
+Failure Classification: MISSING_INITIAL_GUESS_VALIDATION_NAN_PROPAGATION
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Out-of-bounds initial guess (-0.10, 0.85) accepted silently without error; clamp_params silently projected to [1e-5, 0.45], nll=0.993190
+DEFECT: HistogramLBFGSSolver::fit_histogram does NOT call validate_parameter_bounds; std::clamp(NaN, 1e-5, 0.45) returns NaN, corrupting final NLL and theta_ with NaN!
+

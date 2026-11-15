@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-022
+Test Name: parameter_ordering_and_signatures
+Status: PASS
+Source Commit: 88df97e
+Implementation File: software/src/inference/noise_model.cpp
+Implementation Function: NM_CROSSTALK_PAIRS, NM_EVENT_SIGNATURES, NM_EVENT_SIGNATURES_Z_BASIS
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-022$" --output-on-failure
+Fixture: architecture/estimator/parameter_schema.json
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

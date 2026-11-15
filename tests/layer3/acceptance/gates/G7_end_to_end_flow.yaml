@@ -1,0 +1,10 @@
+gate_id: G7
+gate_name: End-to-End Slow-Loop Pipeline Flow & HAL Commit Atomicity
+stage: set3_pipeline_flow
+blocking: true
+description: >
+  Ingress -> DMA slot -> 16-bin histogram -> Joint-DP L-BFGS -> R2D2 causal controller
+  -> Q7.8 quantizer -> shadow/active atomic swap executes without data loss or torn reads.
+required_families:
+  - "L3-FLOW-001..L3-FLOW-045"
+pass_rule: "deferred_until_set3_authorized"

@@ -1,0 +1,12 @@
+gate_id: G3
+gate_name: L-BFGS Optimization & Quotient-Orbit Parameter Recovery
+stage: set2_and_set5
+blocking: true
+description: >
+  Two-pass L-BFGS solver converges monotonically within iteration budget and recovers
+  the 9 identifiable stabilizer-signature orbits across multi-seed statistical ensembles.
+required_families:
+  - "L3-OP-001..L3-OP-010"
+  - "L3-STAT-001..L3-STAT-011"
+  - "L3-MATH-015..L3-MATH-032"
+pass_rule: "deferred_until_set2_and_set5_authorized"

@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-011
+Test Name: histogram_dimensions_and_accumulation
+Status: PASS
+Source Commit: 88df97e
+Implementation File: software/src/ingress/dma_ingress_tap.cpp
+Implementation Function: avid_dma_ring_consume_slot
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-011$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/valid/histogram_5pkt_stream.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

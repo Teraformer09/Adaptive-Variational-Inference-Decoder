@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-012",
+  "test_name": "histogram_dimensionality_and_pointer_validation",
+  "test_description": "Histogram dimensionality & pointer safety — verify C array decay loses length (15-bin vs 17-bin cannot be checked at runtime) and probe NULL hist pointer handling",
+  "test_set": "set1_input_contracts",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_nll_from_histogram, HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "const uint32_t hist[16] non-null 16-bin count array",
+  "independent_oracle": "fork()-isolated NULL pointer probe + C++ signature inspection",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-012$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/uniform/uniform_100.txt",
+  "expected": {
+    "null_and_dim_guard": "Explicit error/rejection on nullptr or wrong bin count without crash"
+  },
+  "actual": {
+    "null_and_dim_guard": "C array parameter decays to `const uint32_t*` (no length check); nullptr crashes with signal 11"
+  },
+  "assertion_notes": [
+    "DEFECT: compute_nll_from_histogram(nullptr) and fit_histogram(model, nullptr) dereference NULL without guard (child signaled=11) and C array decay `const uint32_t hist[16]` carries no length metadata to reject 15-bin buffers."
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-012.log",
+    "validation/layer3/raw_results/set1/L3-IP-012.json"
+  ],
+  "duration_ms": 3.793,
+  "failure_classification": "UNGUARDED_NULL_HISTOGRAM_POINTER_AND_ARRAY_DECAY"
+}

@@ -1,0 +1,11 @@
+gate_id: G9
+gate_name: Adaptive Control Efficacy & Non-Regression Over Static Baselines
+stage: set2_and_set3
+blocking: true
+description: >
+  Adaptive slow-loop configuration achieves statistically significant LER / NLL
+  improvement under drift and correlated crosstalk without regressing stationary noise.
+required_families:
+  - "L3-STAT-001..L3-STAT-015"
+  - "L3-FLOW-013..L3-FLOW-025"
+pass_rule: "deferred_until_set2_and_set3_authorized"

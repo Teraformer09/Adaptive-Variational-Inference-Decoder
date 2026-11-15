@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-029",
+  "test_name": "sparse_sample_window_w_min_check",
+  "test_description": "Insufficient sample count — supply sparse 3-round histogram (sum=3 < W_min) and verify whether solver enforces a minimum sample count or overfits 3 noisy syndromes",
+  "test_set": "set1_input_contracts",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "Minimum sample threshold W_min or prior-dominated hold when sum(hist) is ultra-sparse (N=3)",
+  "independent_oracle": "With N=3 rounds (2 hits in bin 6), prior must either hold/reject sparse window or prevent extreme jump",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-029$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/sparse/sparse_total3.txt",
+  "expected": {
+    "sparse_sample_behavior": "Enforce W_min hold/fallback or prior-dominated bound on N=3 samples"
+  },
+  "actual": {
+    "sparse_sample_behavior": "No W_min check (total==0 only); converged=true, theta_(4)=0.450000"
+  },
+  "assertion_notes": [
+    "DEFECT: HistogramLBFGSSolver::fit_histogram has no W_min minimum-sample guard (only checks `total == 0`); on just 3 rounds (hist[6]=2, hist[0]=1), it reports converged=true and swings theta_(4) from 0.012 to 0.450000!"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-029.log",
+    "validation/layer3/raw_results/set1/L3-IP-029.json"
+  ],
+  "duration_ms": 0.833,
+  "failure_classification": "MISSING_MINIMUM_SAMPLE_GUARD_SPARSE_OVERFIT"
+}

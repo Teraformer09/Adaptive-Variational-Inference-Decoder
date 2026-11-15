@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-ABI-001",
+  "test_name": "c_abi_packet_validator",
+  "test_description": "Pure C11 compilation, struct layout parity vs C++17, and extern \"C\" linkage call into packet_validator.cpp",
+  "test_set": "set1_c_abi",
+  "status": "PASS",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "implementation_file": "software/src/ingress/packet_validator.h",
+  "implementation_function": "avid_validator_init, avid_pack_packet_u64, avid_unpack_packet_u64, avid_validate_packet",
+  "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+  "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+  "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+  "expected": {
+    "summary": "C11/C++17 layout equality and clean extern \"C\" call for packet_validator.h"
+  },
+  "actual": {
+    "summary": "sizeof(pkt)=12, sizeof(validator)=40, extern \"C\" call succeeded (checks_failed=0)",
+    "checks_run": "14",
+    "checks_failed": "0"
+  },
+  "assertion_notes": ["Wire word is uint64_t (8 bytes); unpacked avid_syndrome_packet_t is 12 bytes (1-byte padding at byte 3); C11 and C++17 layouts match bit-for-bit."],
+  "evidence": ["validation/layer3/logs/set1/L3-ABI-001.log"],
+  "failure_classification": "",
+  "duration_ms": 0.013
+}

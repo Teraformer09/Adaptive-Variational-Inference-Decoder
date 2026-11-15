@@ -1,0 +1,11 @@
+gate_id: G2
+gate_name: Likelihood Exactness & Analytical Gradient Fidelity
+stage: set5_control_mathematics
+blocking: true
+description: >
+  Exact 16-state XOR-convolution DP distribution and analytical gradient match
+  independent 2^21 brute-force and central finite-difference oracles within machine
+  and numerical tolerances across stationary and correlated regimes.
+required_families:
+  - "L3-MATH-001..L3-MATH-014"
+pass_rule: "deferred_until_set5_authorized"

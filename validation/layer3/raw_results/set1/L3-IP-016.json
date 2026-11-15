@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-016",
+  "test_name": "normalized_empirical_distribution_input_check",
+  "test_description": "Invalid normalized distribution — inspect whether Layer 3 slow-loop C++ estimator exposes a floating-point normalized empirical PMF entrypoint accepting sum != 1.0 or NaN",
+  "test_set": "set1_input_contracts",
+  "status": "NOT_IMPLEMENTED",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/inference/noise_model.h",
+  "implementation_function": "absent float/double empirical PMF input API in software/src/",
+  "input_contract": "If normalized empirical PMF input exists, reject sum != 1 +- eps, negative probabilities, and NaN",
+  "independent_oracle": "API surface audit of software/src/inference/ and software/src/estimator/",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-016$\" --output-on-failure",
+  "fixture": "none (interface contract audit)",
+  "expected": {
+    "normalized_pmf_validator": "Reject unnormalized/negative/NaN float PMF or classify NOT_IMPLEMENTED if Layer 3 accepts uint32_t count histograms only"
+  },
+  "actual": {
+    "normalized_pmf_validator": "No float/double PMF input entrypoint exists in software/src/ estimator APIs (uint32_t hist[16] only)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-016.log",
+    "validation/layer3/raw_results/set1/L3-IP-016.json"
+  ],
+  "duration_ms": 0.049,
+  "failure_classification": "NO_NORMALIZED_FLOAT_HISTOGRAM_API_IN_LAYER3"
+}

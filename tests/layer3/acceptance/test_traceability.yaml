@@ -1,0 +1,2591 @@
+schema_version: 1.0.0
+source_document: LAYER3_IMPLEMENTATION_TO_TEST_TRACEABILITY.md
+source_document_sha256: ead2fe2283bee579139df7fd92bfa0629dacaadbf971b5b565a2ca93f3d1b4c0
+total_ids: 243
+traceability:
+- test_id: L3-IP-001
+  test_name: Valid packet ingress
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_valid.cpp
+  production_target: packet_validator.cpp:avid_pack_packet_u64,avid_validate_packet
+  expected_result: Returns `true`; decoded fields exact; `valid_count==1`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-001.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-002
+  test_name: Packet length
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_invalid.cpp
+  production_target: packet_validator.h`, `syndrome_packet_v1.yaml
+  expected_result: Exact `8` B accepted; mismatched lengths rejected cleanly *(DEF-L3-01)*
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-002.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-003
+  test_name: Packet version
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_endianness.cpp
+  production_target: simulation_backend.cpp:133-138`, `syndrome_packet_v1.yaml
+  expected_result: Version `1` / valid magics accepted; others rejected (`rejected_transactions++`)
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-003.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-004
+  test_name: Field encoding
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_flags.cpp
+  production_target: packet_validator.h:14-18`, `packet_validator.cpp:34-38
+  expected_result: Missing `VALID` or malformed reserved flags rejected (`invalid_flag_count++`) *(DEF-L3-10)*
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-004.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-005
+  test_name: Syndrome bit range
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_field_decode.cpp
+  production_target: packet_validator.cpp:23-24`, `avid_hal.h:341
+  expected_result: Bitwise `(raw & 0xF)`, `((raw>>4) & 0xF)` preserved; validator wrapper rejects `s_x/s_z >= 16`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-005.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-006
+  test_name: Timestamp validity
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_epoch.cpp
+  production_target: causal_scheduler.cpp`, `packet_validator.h` (capability check)
+  expected_result: Monotonic accepted; duplicate/backward rejected/flagged (`causal` check) *(DEF-L3-01/08)*
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-006.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-007
+  test_name: Sequence continuity
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_sequence.cpp
+  production_target: packet_validator.cpp:44-51
+  expected_result: '`seq=11 -> true`; `seq=13` after `11 -> false` & `seq_gap_count==1`; duplicate `seq=13 -> false` & gap/dup
+    count increments'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-007.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-008
+  test_name: Packet corruption
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_no_side_effect.cpp
+  production_target: packet_validator.cpp:34-38
+  expected_result: Parity-error packet rejected (`false`, `invalid_flag_count++`); absent hardware CRC field flagged explicitly
+    as `INCONCLUSIVE`/`PARITY_BIT_ONLY` *(DEF-L3-01)*
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-008.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-009
+  test_name: Packet truncation
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_boundary.cpp
+  production_target: simulation_backend.cpp:101-124`, `avid_daemon.cpp:400
+  expected_result: Socket returns `-1` (`rejected_transactions++`); short binary frame flagged incomplete
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-009.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-010
+  test_name: Packet burst
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/dma_histogram/test_dma_ingress.cpp
+  production_target: dma_ingress_tap.cpp:16-34
+  expected_result: Consumed cadence sustains `0` drops (`overflow_drops==0`); unconsumed 5th burst cleanly returns `false`
+    and increments `overflow_drops==64`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-010.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-011
+  test_name: Histogram dimensions
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/dma_histogram/test_histogram_accumulation.cpp
+  production_target: dma_ingress_tap.cpp:52-53`, `noise_model.h:27
+  expected_result: All 16 bins addressable, zero-indexed, out-of-bounds prevented by `& 0x0F`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-011.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-012
+  test_name: Histogram domain
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_histogram_input_validation.cpp
+  production_target: noise_model.cpp:138`, boundary wrapper
+  expected_result: Valid nonnegative integers accepted cleanly; invalid negative counts rejected at validator
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-012.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-013
+  test_name: Empty histogram
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_empty_observation.cpp
+  production_target: lbfgs_solver.cpp:82-94`, `noise_model.cpp:144-146
+  expected_result: Returns `0.0`, `grad == 0`, `diag.converged == false`, leaves `theta_` uncorrupted
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-013.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-014
+  test_name: Single-state histogram
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/dma_histogram/test_histogram_accumulation.cpp
+  production_target: dma_ingress_tap.cpp:51-54
+  expected_result: '`hist_x[6]==64`, all other X bins `0`; `hist_z[9]==64`, all other Z bins `0`'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-014.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-015
+  test_name: Normalized histogram
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_histogram_input_validation.cpp
+  production_target: noise_model.cpp:147-152
+  expected_result: Empirical bin proportions identical; NLL invariant under uniform scaling of counts (`DEF-L3-03`)
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-015.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-016
+  test_name: Invalid normalization
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_histogram_input_validation.cpp
+  production_target: Validator contract (`tests/layer3/`)
+  expected_result: Normalized PMF input checker in Set 1 wrapper
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-016.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-017
+  test_name: Counter overflow
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/dma_histogram/test_histogram_overflow.cpp
+  production_target: noise_model.cpp:140`, `dma_ingress_tap.cpp
+  expected_result: '`uint64_t total` in `noise_model.cpp` does NOT wrap around at `2^32`; slot saturation/guard checked *(DEF-L3-02)*'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-017.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-018
+  test_name: Window rollover
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/dma_histogram/test_histogram_reset.cpp
+  production_target: ring_buffer.h:35-46`, `avid_daemon.cpp:767-771
+  expected_result: Oldest `500` overwritten (`count==10000`); daemon zeros `hist_x, hist_z` after slow epoch
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-018.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-019
+  test_name: Concurrent histogram update
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/dma_histogram/test_histogram_snapshot.cpp
+  production_target: dma_ingress_tap.cpp
+  expected_result: Synchronized snapshot stays internally consistent (`sum(hist) == expected valid pkts`); unsynchronized
+    race hazard documented *(DEF-L3-02)*
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-019.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-020
+  test_name: X/Z independence
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/dma_histogram/test_histogram_channel_isolation.cpp
+  production_target: dma_ingress_tap.cpp:52-53`, `syndrome_packet_v1.yaml:59
+  expected_result: '`hist_x` invariant to Z stream changes and `hist_z` invariant to X stream changes (`syndrome_packet_v1.yaml`
+    invariant #1)'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-020.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-021
+  test_name: Parameter vector dimension
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_parameter_dimensions.cpp
+  production_target: noise_model.h:23-25`, `parameter_schema.json:4
+  expected_result: Exact 21-D schema verified; wrong-length inputs rejected in Python/C++ bridge
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-021.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-022
+  test_name: Parameter ordering
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_parameter_ordering.cpp
+  production_target: noise_model.cpp:22-47`, `parameter_schema.json:11-233
+  expected_result: Exact 1:1 ordering match with `parameter_schema.json`; permuted vector yields different/incorrect orbit
+    model as detected
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-022.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-023
+  test_name: Probability boundaries
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_parameter_bounds.cpp
+  production_target: noise_model.cpp:76-89
+  expected_result: '`validate_parameter_bounds` accepts `[0.0, 0.5)` and rejects `>= 0.5`; `clamp_params` maps to `[1e-5,
+    0.45]`'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-023.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-024
+  test_name: Invalid probabilities
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_parameter_nan_inf.cpp
+  production_target: noise_model.cpp:82-89`, guard patch
+  expected_result: '`validate_parameter_bounds` returns `false`; patched NLL/grad boundary rejects `NaN`/`Inf` instead of
+    silent clamp propagate *(DEF-L3-10)*'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-024.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-025
+  test_name: Prior dimensions
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_prior_validation.cpp
+  production_target: noise_model.h:148`, validator wrapper
+  expected_result: Only 21-D finite prior accepted; wrong dimension rejected with `ValueError`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-025.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-026
+  test_name: Prior strength
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_prior_validation.cpp
+  production_target: noise_model.cpp:154-157,237-239
+  expected_result: '`lambda=0.0` eliminates quadratic penalty; larger `lambda` pulls `theta` toward `prior_theta`; `lambda
+    < 0` rejected'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-026.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-027
+  test_name: Optimizer initialization
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_parameter_bounds.cpp
+  production_target: lbfgs_solver.cpp:16`, `lbfgs_optimizer.cpp:9-25
+  expected_result: Both solvers initialize with finite NLL and `hist_count_ == 0`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-027.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-028
+  test_name: Invalid optimizer state
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_parameter_nan_inf.cpp
+  production_target: lbfgs_solver.cpp`, `noise_model.cpp
+  expected_result: Rejected cleanly (`NaN` / negative start cannot execute silent update step) *(DEF-L3-10)*
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-028.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-029
+  test_name: Missing observations
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/estimator_inputs/test_empty_observation.cpp
+  production_target: lbfgs_solver.cpp:84-94
+  expected_result: '`total==0` returns early with `converged=false`; `total<W_min` keeps conservative fallback/uncertainty
+    behavior'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-029.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-030
+  test_name: Stale observations
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/packet/test_packet_epoch.cpp
+  production_target: dma_ingress_tap.cpp:21-24`, `fault_policy.yaml:F03
+  expected_result: Overrun increments `overflow_drops`; `epoch < current_epoch` window flagged stale and rejected before commit
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-030.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-031
+  test_name: Window configuration
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_consumption.cpp
+  production_target: avid_daemon.cpp:250-269
+  expected_result: Positive valid lengths accepted; `<= 0` cleanly exits with rc `2`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-031.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-032
+  test_name: Commit delay
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_valid.cpp
+  production_target: causal_scheduler.cpp:7-15
+  expected_result: Valid delays initialize cleanly and enforce `round_now >= end + delay`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-032.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-033
+  test_name: Optimizer limits
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_bounds.cpp
+  production_target: lbfgs_solver.cpp:44,109`, `lbfgs_optimizer.h:20-21
+  expected_result: Executed passes respect iteration bounds; `max_iters <= 0` does zero steps safely / rejected
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-033.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-034
+  test_name: Burst threshold
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_bounds.cpp
+  production_target: causal_scheduler.cpp:38-46
+  expected_result: Out-of-`(0,1]` threshold either defaults/rejects explicitly without allowing `>=0` always-trigger bug
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-034.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-035
+  test_name: Decoder iteration limit
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_types.cpp
+  production_target: system_timing.yaml:8`, `cycle_accurate_bp_engine.cpp:143
+  expected_result: Supported `K in 1..5` matches `cycles_fused = 2 + 5*K`; out-of-range flagged invalid
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-035.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-036
+  test_name: Runtime telemetry
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_unknown_fields.cpp
+  production_target: avid_daemon.cpp:265-289`, `configs/schema.yaml
+  expected_result: '`schema.yaml` & `avid_daemon` reject invalid configs (`rc=2`) and populate complete valid telemetry'
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-036.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-037
+  test_name: Epoch consistency
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_consumption.cpp
+  production_target: weight_commit_protocol.yaml:6`, `avid_daemon.cpp:808-809
+  expected_result: Exact epoch equality verified; mismatch flagged by bridge (`id_mismatch_errors`) & reconciler
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-037.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-038
+  test_name: Safety FSM input
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_types.cpp
+  production_target: fallback_fsm.cpp:17-56
+  expected_result: All 16 boolean tuples map cleanly; corrupted state enum rejected/forced safe *(DEF-L3-10)*
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-038.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-039
+  test_name: Active weight bank
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_valid.cpp
+  production_target: weight_reg_driver.c:108-128
+  expected_result: All 9 active bank slots reflect committed vector; out-of-range index returns safe `0`
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-039.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-IP-040
+  test_name: Shadow weight bank
+  test_set: set1_input_contracts
+  primary_owner: tests/layer3/set1_input_contracts/runtime_config/test_config_bounds.cpp
+  production_target: llr_quantizer.cpp:17-34`, `fallback_fsm.cpp:45
+  expected_result: Candidate only reaches active bank when `bounds_ok && should_commit`; invalid bank fails validation
+  evidence_artifact: validation/layer3/raw_results/set1/L3-IP-040.json
+  acceptance_gates:
+  - G1
+  - G10
+- test_id: L3-OP-001
+  test_name: Estimate dimensions
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: noise_model.h:25
+  expected_result: Run `HistogramLBFGSSolver::fit_histogram` on valid 16-bin histogram -> check output vector length == `21`
+    (`[0..8]` qubit, `[9..20]` pair)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-001.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-002
+  test_name: Estimate finiteness
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: noise_model.cpp`, `lbfgs_solver.cpp
+  expected_result: Assert all 21 `theta_(i)` and 21 `grad_(i)` are `std::isfinite` across 20 diverse histograms (sparse, uniform,
+    extreme hotspot)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-002.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-003
+  test_name: Parameter bounds
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: noise_model.cpp:76-89
+  expected_result: Assert every fitted `theta_(i)` satisfies exact solver box `[1e-5, 0.45]` (and `< 0.5`)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-003.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-004
+  test_name: Objective output
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: noise_model.cpp:138-159`, `lbfgs_solver.cpp:173
+  expected_result: Verify returned NLL `>= 0.0`, finite, and equals `model.compute_nll_from_histogram(hist)` at final `theta_`
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-004.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-005
+  test_name: Gradient output
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: lbfgs_solver.cpp:20-33,175
+  expected_result: Inspect `model.grad()` after `fit_histogram` -> dimension `21`, finite, projected gradient norm matches
+    `diag.final_grad_inf_norm`
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-005.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-006
+  test_name: Optimizer status
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: lbfgs_solver.cpp:85-93,171-178
+  expected_result: Verify `LBFGSFitDiagnostics.converged` matches exact condition (`isfinite && nll > 0 && g_inf < 0.25`)
+    vs forced `max_iters=0` failure & `hist=0`
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-006.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-007
+  test_name: Iteration count
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: lbfgs_solver.cpp:51,109-114,169,176
+  expected_result: Run with `max_iters=1, 6, 20` -> check `0 <= iterations_executed <= max_iters` matches actual backtracking
+    passes (`it1 + it2`)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-007.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-008
+  test_name: Initial/final objective
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: lbfgs_solver.cpp:105,172-173
+  expected_result: Assert `diag.initial_nll >= diag.final_joint_dp_nll` after monotonic Armijo descent (except where Pass
+    2 warm-start jump occurs — verify exact Pass 1/Pass 2 accounting!)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-008.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-009
+  test_name: Prior contribution
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: noise_model.cpp:154-157
+  expected_result: Evaluate NLL with `prior_lambda_=0` vs `prior_lambda_=0.04` at same final `theta_` -> confirm difference
+    equals exact `0.5 * 0.04 *
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-009.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-010
+  test_name: Insufficient evidence
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/estimator_output/test_parameter_output_shape.cpp
+  production_target: lbfgs_solver.cpp:84-94
+  expected_result: Feed `total=0` empty histogram & `total=5` sparse rounds -> `total=0` sets `converged=false, nll=0.0`;
+    `total=5` yields prior-dominated result (`sigma` wide)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-010.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-011
+  test_name: LLR dimension
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_quantizer.cpp:17`, `noise_model.cpp:302
+  expected_result: Both `avid_quantize_and_validate_bank` & `NoiseModel::to_q7_8_llr` produce exact `int16_t[9]` outputs (`NM_N_QUBIT==9`)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-011.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-012
+  test_name: Q7.8 encoding
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_numeric_contract.yaml:33-40`, `llr_quantizer.cpp:11
+  expected_result: Test golden reference probabilities `{0.001, 0.01, 0.03, 0.05, 0.10, 0.20, 0.30}` against `llr_numeric_contract.yaml`
+    & `round(log((1-p)/p)*256)` (`<= 1` LSB)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-012.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-013
+  test_name: Quantization rounding
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_quantizer.cpp:11`, `weight_reg_driver.h:30
+  expected_result: Check half-way and dense grid `llr * 256.0` under `std::lround` (`llr_quantizer.cpp`) vs truncating `wrd_float_to_q78`
+    (`DEF-L3-06`)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-013.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-014
+  test_name: Saturation
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_quantizer.cpp:27-30
+  expected_result: Feed `p=1e-7` (`llr ~ 16.1 -> 4126 < 0x3000`, note to trigger `> 0x3000` need `llr > 48` impossible at
+    `p>=1e-5`, so test `p=1e-5` -> `0x0B83`, `p=0.45` -> `0x0033 < 0x0040` triggers `AVID_Q78_MIN_SAFE` clamp + `all_safe=false`!)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-014.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-015
+  test_name: Zero-probability handling
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_quantizer.cpp:9,21-25
+  expected_result: Pass `p=0.0` into `avid_prob_to_q78_llr` & `avid_quantize_and_validate_bank` -> no `Inf`/`NaN`; bank returns
+    `false` & safe `AVID_Q78_DEFAULT`
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-015.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-016
+  test_name: Unit-probability handling
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_quantizer.cpp:9,21-25
+  expected_result: Pass `p=1.0` & `p=0.5` -> `avid_prob_to_q78_llr` clamps `0.49` (`>0`); `avid_quantize_and_validate_bank`
+    rejects `>= 0.5` returning `false` & `AVID_Q78_DEFAULT`
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-016.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-017
+  test_name: Sign convention
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_numeric_contract.yaml:8`, `llr_quantizer.cpp:10
+  expected_result: Verify monotonically decreasing `q78(p)` on `(0, 0.5)` and `p < 0.5 <=> q78 > 0` matching `llr_numeric_contract.yaml`
+    ("bit 0 preferred for `LLR > 0`")
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-017.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-018
+  test_name: Round-trip conversion
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_quantizer.cpp:11
+  expected_result: <= 1/512 + eps` where unsaturated
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-018.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-019
+  test_name: Parameter mapping
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: noise_model.cpp:281-311
+  expected_result: Set single qubit `q=4` hot (`theta[4]=0.12`), others baseline -> verify ONLY `q=4` (plus any coupled pairs
+    on `4`) drops LLR relative to non-adjacent qubits
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-019.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-020
+  test_name: Invalid estimate propagation
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/llr_quantization/test_q78_output.cpp
+  production_target: llr_quantizer.cpp:21-24`, `fallback_fsm.cpp:45
+  expected_result: Inject `NaN`, `-0.1`, `0.6` into `p_eff` -> assert `avid_quantize_and_validate_bank` returns `false`, `bounds_ok=false`
+    blocks adaptive commit in FSM
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-020.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-021
+  test_name: Burst indication
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/scheduler_output/test_scheduler_decision.cpp
+  production_target: causal_scheduler.cpp:48-76
+  expected_result: Drive `avid_fast_burst_detector_t` with calm `sx=0` then dense `sx=0x2` -> verify `burst_active` and return
+    value boolean state
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-021.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-022
+  test_name: Trigger timestamp
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/scheduler_output/test_scheduler_decision.cpp
+  production_target: causal_scheduler.cpp:64-70
+  expected_result: Burst starts at `round=100` (`density >= 0.35`, `debounce=4`) -> check exact `round_idx` when `step()`
+    returns `true` (`100 <= r_trig <= 119`)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-022.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-023
+  test_name: Trigger latency
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/scheduler_output/test_scheduler_decision.cpp
+  production_target: causal_scheduler.cpp:45,64-70
+  expected_result: Measure `r_trig - burst_start + 1` across `density in {0.4, 0.5, 1.0}` bursts -> stays in `[debounce, 20]`
+    (never `<= 0` / retrospective!)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-023.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-024
+  test_name: Commit scheduling
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/scheduler_output/test_scheduler_decision.cpp
+  production_target: causal_scheduler.cpp:17-36
+  expected_result: '`avid_scheduler_schedule_commit(window_end=256, w)` with `commit_delay=32` -> `poll_commit_ready(287)==false`,
+    `poll_commit_ready(288)==true`'
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-024.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-025
+  test_name: Epoch assignment
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/scheduler_output/test_scheduler_decision.cpp
+  production_target: causal_scheduler.cpp:32
+  expected_result: Poll `0, 1, 2` commits -> `active_epoch_id` increments strictly `0 -> 1 -> 2` matching committed weights
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-025.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-026
+  test_name: Delayed evidence
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/scheduler_output/test_scheduler_decision.cpp
+  production_target: causal_scheduler.cpp` + scheduler guard
+  expected_result: Schedule commit for `t_target=500`, test re-scheduling with older `window_end` or late HAL response ->
+    guard ensures older timestamp cannot overwrite newer pending commit
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-026.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-027
+  test_name: Duplicate trigger
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/scheduler_output/test_scheduler_decision.cpp
+  production_target: causal_scheduler.cpp:65-69
+  expected_result: Feed sustained burst for `50` consecutive rounds -> assert `debounce_counter == debounce_rounds` triggers
+    once per burst window (`trigger_count==1`), NOT 40 duplicate commits
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-027.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-028
+  test_name: No-evidence condition
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/scheduler_output/test_scheduler_decision.cpp
+  production_target: causal_scheduler.cpp:64
+  expected_result: Feed `10,000` stationary low-rate rounds (`p=0.012`, subwindow density well below `0.35` almost always;
+    inject constant `p < 0.01` & sub-threshold `5/16=0.3125 < 0.35`) -> exact `0` triggers below threshold
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-028.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-029
+  test_name: FSM state output
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/fsm_output/test_fsm_action_output.cpp
+  production_target: fallback_fsm.h:9-14
+  expected_result: Check `fsm.state in {0, 1, 2, 3}` (`NORMAL_ADAPTIVE, HOLD_LAST_GOOD, SAFE_STATIC_PRIOR, DEGRADED_BYPASS`)
+    after every step
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-029.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-030
+  test_name: Safety transition
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/fsm_output/test_fsm_action_output.cpp
+  production_target: fallback_fsm.cpp:17-56
+  expected_result: Drive exact state sequence (`NORMAL -> HOLD -> HOLD -> SAFE_STATIC -> NORMAL -> DEGRADED -> NORMAL`) verifying
+    exact transition table
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-030.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-031
+  test_name: Fallback activation
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/fsm_output/test_fsm_action_output.cpp
+  production_target: fallback_fsm.cpp:25-55
+  expected_result: Independently violate `estimator_ok=false`, `deadline_ok=false`, `bounds_ok=false`, `bus_ok=false` -> verify
+    fallback triggers (`fallback_triggers++`) and exact state
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-031.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-032
+  test_name: Recovery eligibility
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/fsm_output/test_fsm_action_output.cpp
+  production_target: fallback_fsm.cpp:33-40
+  expected_result: 'From `HOLD_LAST_GOOD` & `SAFE_STATIC_PRIOR`: assert faulty steps keep non-`NORMAL` state; healthy step
+    (`all 4 true`) restores `NORMAL_ADAPTIVE` (and document `1`-step vs `yaml`''s `3`-step `DEF-L3-07`)'
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-032.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-033
+  test_name: Daemon health
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/fsm_output/test_fsm_action_output.cpp
+  production_target: avid_daemon.cpp:774-778,971
+  expected_result: Run `avid_daemon --self-test` & scenario runs -> `rc==0` when HAL has `0` rejected tx, non-zero exit when
+    HAL errors or bad args
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-033.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-034
+  test_name: Error reporting
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/fsm_output/test_fsm_action_output.cpp
+  production_target: packet_validator.cpp:36`, `avid_daemon.cpp:265-269
+  expected_result: Corrupt packet (`PARITY_ERR`), malformed bridge msg, bad scenario (`--scenario invalid_configuration`)
+    -> counters increment (`invalid_flag_count`, `rejected_transactions`) & stderr reports explicitly
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-034.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-035
+  test_name: Commit result
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/fsm_output/test_fsm_action_output.cpp
+  production_target: weight_reg_driver.c:123-132`, `avid_daemon.cpp:808-836
+  expected_result: Inject HAL busy (`bp_ready=0`) vs normal commit -> verify `status_reg`, `hw_epoch`, and `epoch_commit_reconciled`
+    match actual hardware/sim state
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-035.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-OP-036
+  test_name: Runtime counters
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/fsm_output/test_fsm_action_output.cpp
+  production_target: avid_daemon.cpp:826-965
+  expected_result: Compare `validator.valid_count`, `hal_total_transactions`, `hal_syndrome_packets`, `epochs_completed`,
+    `action_histogram` sum against exact ground-truth loop iteration counts
+  evidence_artifact: validation/layer3/raw_results/set2/L3-OP-036.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-001
+  test_name: Single-parameter recovery
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_stationary_recovery.py
+  production_target: lbfgs_solver.cpp`, `parameter_schema.json:482-498
+  expected_result: Vary `theta[4]` (clean singleton orbit `0x6`) across `{0.015, 0.04, 0.08}` with `N=2000`, `30` seeds
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-001.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-002
+  test_name: Multi-parameter recovery
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_stationary_recovery.py
+  production_target: noise_model.cpp:264-279
+  expected_result: Track parameter vector RMSE, 9-class `compute_orbit_rmse`, and KL/TV predictive syndrome error
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-002.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-003
+  test_name: Independent-noise recovery
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_stationary_recovery.py
+  production_target: lbfgs_solver.cpp
+  expected_result: Compare orbit RMSE + non-aliased single-qubit recovery (`q1, q4, q7`) vs aliased pairs
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-003.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-004
+  test_name: Correlated-noise recovery
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_correlated_noise.py
+  production_target: lbfgs_solver.cpp:131-166
+  expected_result: Measure both `theta[9+k]` error and endpoint-disambiguated pair error + orbit RMSE separately from singles!
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-004.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-005
+  test_name: Measurement-noise recovery
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_model_mismatch.py
+  production_target: avid_daemon.cpp:443-448
+  expected_result: Measure parameter bias under readout misspecification vs readout-free case (`M9`)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-005.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-006
+  test_name: Sample-size sensitivity
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_sample_size_sensitivity.py
+  production_target: lbfgs_solver.cpp`, `noise_model.cpp
+  expected_result: Empirical estimator variance & orbit RMSE strictly decrease monotonically with `W`
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-006.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-007
+  test_name: Seed variation
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_seed_variance.py
+  production_target: Set 2 statistical harness
+  expected_result: Report mean, std, IQR, 5th/95th percentiles for NLL, orbit RMSE, 21-param RMSE
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-007.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-008
+  test_name: Prior sensitivity
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_prior_sensitivity.py
+  production_target: noise_model.cpp:154-157
+  expected_result: Quantify shrinkage bias toward `prior_theta` vs variance reduction curve
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-008.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-009
+  test_name: Initial-point sensitivity
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_initialization_sensitivity.py
+  production_target: lbfgs_solver.cpp:78
+  expected_result: Measure spread across identifiable 9-class orbits vs unidentifiable null/aliased coordinates
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-009.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-010
+  test_name: Model mismatch
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_model_mismatch.py
+  production_target: avid_daemon.cpp:197-205
+  expected_result: Inject out-of-model 3-qubit streak (`{3,4,5}`) & asymmetric bias burst (`30` seeds)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-010.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-011
+  test_name: Parameter identifiability
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_identifiable_parameter_recovery.py
+  production_target: parameter_schema.json`, `noise_model.cpp
+  expected_result: Prove individual coordinates shift along null-space/prior while orbit probability recovers tightly (`DEF-L3-03`)
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-011.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-012
+  test_name: Drift tracking
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_drift_recovery.py
+  production_target: avid_daemon.cpp:170-175
+  expected_result: Measure tracking lag (windows behind true ramp) and dynamic tracking RMSE
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-012.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-013
+  test_name: Burst contamination
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_burst_contamination.py
+  production_target: system_timing.yaml
+  expected_result: Measure tiny dilution effect (`0.6%` of window) on slow MAP vs immediate `20 us` fast detector trigger
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-013.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-014
+  test_name: Stationary false alarms
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_false_trigger_rate.py
+  production_target: causal_scheduler.cpp:48-76
+  expected_result: Record empirical false-alarm trigger rate vs `density >= 0.35` binomial tail probability
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-014.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-STAT-015
+  test_name: Statistical calibration
+  test_set: set2_output_statistics
+  primary_owner: tests/layer3/set2_output_statistics/statistical/test_confidence_calibration.py
+  production_target: noise_model.cpp`, Set 5C
+  expected_result: Compute inverse observed Fisher std errors on identifiable singleton `Z_1, Z_4, Z_7` across `30` Monte
+    Carlo trials
+  evidence_artifact: validation/layer3/raw_results/set2/L3-STAT-015.json
+  acceptance_gates:
+  - G2
+  - G10
+- test_id: L3-FLOW-001
+  test_name: Packet ingress -> histogram
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/ingress_to_histogram/test_packet_to_histogram.cpp
+  production_target: packet_validator.cpp` -> `dma_ingress_tap.cpp:50-55
+  expected_result: Pack a known 64-bit sequence (`s_x in {0, 6}`, `s_z in {0, 9}`), push into `avid_dma_ring_t`, consume slot
+    -> verify exact bin delta `hist_x[6], hist_z[9]` matches unpacked packet count
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-001.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-002
+  test_name: Histogram -> observation window
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/histogram_to_estimator/test_histogram_snapshot_delivery.cpp
+  production_target: dma_ingress_tap.cpp` -> `avid_daemon.cpp:499-505,767-771
+  expected_result: Accumulate `256` rounds across 4 DMA slots (`4 x 64`) in daemon loop (plus `ring_push` rollover) -> verify
+    window `hist_x` sum equals `256` before epoch fit & resets cleanly to `0` after epoch (`subepoch_fast_adapt=false`)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-002.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-003
+  test_name: Observation window -> estimator
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/histogram_to_estimator/test_histogram_snapshot_delivery.cpp
+  production_target: avid_daemon.cpp:584` -> `lbfgs_solver.cpp:78
+  expected_result: Capture exact `hist_x` snapshot immediately prior to `fit_histogram` AND verify `compute_nll_from_histogram`
+    reads that exact snapshot (perturb 1 count in `hist_x[6]` -> NLL/grad changes proportionally)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-003.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-004
+  test_name: Estimator -> optimizer
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/optimizer_execution/test_solver_call_path.cpp
+  production_target: noise_model.cpp` -> `lbfgs_solver.cpp:96-169
+  expected_result: 'Verify `fit_histogram` passes `hist`, basis flag (`basis_z=false` X-checks vs `true` Z-checks), priors
+    `(p0, p_pair0)`, bounds `[1e-5, 0.45]`, and Pass-2 coupled prior into `run_projected_lbfgs_pass` *(note `DEF-L3-05`: tests
+    both `HistogramLBFGSSolver` & `LBFGSOptimizer`)*'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-004.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-005
+  test_name: Optimizer -> noise estimate
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/optimizer_execution/test_solver_call_path.cpp
+  production_target: lbfgs_solver.cpp` -> `avid_daemon.cpp:617,691
+  expected_result: Compare `g_model_z.theta_` after `fit_histogram` against inputs fed into `p_eff` and `AvidR2D2LSTMController::step_causal`
+    — exact bit match
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-005.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-006
+  test_name: Noise estimate -> LLR converter
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/estimator_to_llr/test_parameter_to_llr.cpp
+  production_target: noise_model.cpp:281-324`, `llr_quantizer.cpp:17-34
+  expected_result: Pass live `theta_` through `effective_p(0..8)` and `avid_quantize_and_validate_bank` / `to_pair_projected_q7_8_llr`
+    -> verify Q7.8 candidate outputs match independent `round(log((1-p_eff)/p_eff)*256)` on unprojected bank
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-006.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-007
+  test_name: LLR converter -> scheduler
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_commit_scheduling.cpp
+  production_target: llr_quantizer.cpp` -> `causal_scheduler.cpp:17-35
+  expected_result: Pipe candidate `int16_t cand_q78[9]` from quantizer directly into `avid_scheduler_schedule_commit` (`sched.pending_weights_q78`)
+    -> compare exact 9 words at scheduler ingress & poll egress
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-007.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-008
+  test_name: Burst detector -> scheduler
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_commit_scheduling.cpp
+  production_target: causal_scheduler.cpp:48` -> `avid_daemon.cpp:461-626
+  expected_result: Drive `avid_fast_detector_step` over `60`-round burst -> capture trigger round & `trigger_count` -> verify
+    sub-epoch trigger & `burst_score` feeding `step_causal` in `avid_daemon`
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-008.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-009
+  test_name: Scheduler -> safety FSM
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/fsm_to_hal/test_fsm_to_hal_action.cpp
+  production_target: avid_daemon.cpp:718-725` -> `fallback_fsm.cpp:17
+  expected_result: Pass `(est_ok, ddl_ok, bounds_ok, bus_ok, cand_q78)` into `avid_fallback_step` -> verify output `sel_q78`
+    & `should_commit` match FSM state decision
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-009.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-010
+  test_name: Safety FSM -> shadow bank
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/fsm_to_hal/test_fsm_to_hal_action.cpp
+  production_target: fallback_fsm.cpp` -> `weight_reg_driver.c:108-112
+  expected_result: 'Fault `bounds_ok=false` vs `all_ok=true`: verify `NORMAL_ADAPTIVE` writes `cand_q78` to shadow reg `WRD_OFF_SHADOW(0..8)`,
+    while `HOLD_LAST_GOOD` blocks commit (`should_commit==false`) leaving active shadow unchanged!'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-010.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-011
+  test_name: Shadow bank -> commit interface
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/fsm_to_hal/test_fsm_to_hal_action.cpp
+  production_target: weight_bank_driver.c`, `avid_hal.h:69-73
+  expected_result: Write `sel_q78` -> `avid_hal_write_weights_and_commit` (`0x048=1`) -> read `0x050` (`hw_epoch`) & active
+    reg `0x024..0x044` -> verify atomic swap & epoch bump
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-011.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-012
+  test_name: Commit response -> daemon
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/fsm_to_hal/test_fsm_to_hal_action.cpp
+  production_target: physical_backend.cpp`/`simulation_backend.cpp` -> `avid_daemon.cpp:761-971
+  expected_result: Inspect HAL `commit_operations`, `rejected_transactions`, `hw_epoch`, and `--metrics-out` JSON `epoch_commit_reconciled`,
+    checking fault response updates daemon stats & exit code
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-012.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-013
+  test_name: Nominal stationary operation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp
+  expected_result: Finite NLL, `fallback_events==0`, `epoch_commit_reconciled==true`, low variance estimates
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-013.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-014
+  test_name: Slowly drifting noise
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:170-175
+  expected_result: Estimated `theta[4], theta[12]` and active Q7.8 LLR track upward drift across epochs
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-014.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-015
+  test_name: Correlated-noise transition
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: noise_model.cpp:336-426`, `avid_daemon.cpp
+  expected_result: Hotspot pair LLRs adapt downward & outperform `static` B0 LER (`ler < static_b0_logical_error_rate` when
+    `backend=sim`)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-015.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-016
+  test_name: Burst disturbance
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:175-180,460-531
+  expected_result: '`decoded_rtl_transactions == 2048` (0 halted rounds); fast detector triggers cleanly while slow loop adapts
+    across windows'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-016.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-017
+  test_name: Delayed weight commit
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: weight_reg_driver.c:123-132`, `causal_scheduler.cpp
+  expected_result: Pending commit deferred until ready (`wrd_commit_and_wait`), epoch counter stays exact (`reconciled==true`)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-017.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-018
+  test_name: Reset recovery
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:736-741,808-809
+  expected_result: '`avid_hal_reset_rtl` resets controller hidden state (`reset_hidden`) & active bank; post-reset commits
+    resume & `epoch_commit_reconciled==true`'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-018.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-019
+  test_name: Busy decoder
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: weight_reg_driver.c:123-132
+  expected_result: '`wrd_commit_and_wait` times out safely (`-1`) instead of corrupting active weights midway'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-019.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-020
+  test_name: Variable iteration control
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:744-758`, `system_timing.yaml:9
+  expected_result: Hardware reg `0x054` receives exact `K in {1..5}`; `bp_core_cycles` reflects `2 + 5*K`
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-020.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-021
+  test_name: Fallback activation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:545-551,718-733
+  expected_result: '`fallback_events >= 1`; `SAFE_STATIC_PRIOR` / `HOLD` / `DEGRADED_BYPASS` activate accurately (`DEF-L3-07`)'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-021.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-022
+  test_name: Recovery after fallback
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:718-765`, `fallback_fsm.cpp:33
+  expected_result: Daemon returns to `AVID_FSM_NORMAL_ADAPTIVE`, resumes adaptive commits without permanent lock
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-022.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-023
+  test_name: Multiple update cycles
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp
+  expected_result: Monotonic epochs `1..13`, zero skipped/reordered weight banks
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-023.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-024
+  test_name: Concurrent ingress and optimization
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: dma_ingress_tap.cpp`, `lbfgs_solver.cpp
+  expected_result: Zero dropped/corrupted snapshots under valid buffer slack; explicit count accounting
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-024.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-025
+  test_name: Concurrent ingress and commit
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_hal.h`, `weight_commit_protocol.yaml
+  expected_result: Every syndrome decode completes atomically with either old valid epoch or new valid epoch (never mixed
+    half-written X/Z bank!)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-025.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-026
+  test_name: Observation-window timing
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: avid_daemon.cpp:509-511
+  expected_result: Configure `window_rounds in {256, 1000, 10000}` -> assert `acc_rounds == target_win` at every slow MAP
+    execution boundary (when no subepoch fast trigger fired)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-026.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-027
+  test_name: Evidence availability
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: Causal step-by-step execution
+  expected_result: Inject burst starting at `round=1000`; freeze stream at `round=999` -> verify slow MAP at `round=256, 512,
+    768` & fast detector `< 1000` show zero advance knowledge of future burst
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-027.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-028
+  test_name: Commit delay
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: causal_scheduler.cpp:21,29
+  expected_result: Set `commit_delay=100` in `avid_causal_scheduler_t` after `window_end=256` -> prove `poll_commit_ready`
+    stays `false` for rounds `256..355` and fires strictly at `round >= 356` (`t_c >= t_e + d_c`)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-028.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-029
+  test_name: Burst onset
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: causal_scheduler.cpp:48-76
+  expected_result: Start burst at `round=100` on `avid_fast_burst_detector_t` -> record exact `first_burst_evidence_round=100`
+    and trigger round `r_trig >= 103` (`16`-subwindow density >= `0.35`, debounce `4`)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-029.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-030
+  test_name: Burst end
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: causal_scheduler.cpp:71-74
+  expected_result: End 60-round burst at `round=160` (`return to sx=0`) -> record `burst_end=160` vs subsequent detector recovery
+    (`burst_active=false`) after window drains (`<= 16` rounds later)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-030.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-031
+  test_name: Slow-loop latency
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: stage_profiler.cpp:32-45`, `avid_daemon.cpp:679-681
+  expected_result: Measure real wall/CPU microseconds of `fit_histogram` + R2D2 + Q7.8 (`avid_stage_profiler_t` over 100 runs)
+    -> report `p50, p95, p99, max` us vs `10,000 us` budget
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-031.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-032
+  test_name: Fast-loop isolation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: cycle_accurate_bp_engine.cpp`, `system_timing.yaml
+  expected_result: 'Decoupled timing harness: run slow `HistogramLBFGSSolver::fit_histogram` on Thread A while Thread B executes
+    `CycleAccurateBPEngine::decode` -> verify zero shared blocking lock / fast-path decode cycle latency remains strictly
+    `17` cycles (`68 ns @ 250 MHz`)'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-032.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-033
+  test_name: Stale estimate protection
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: causal_scheduler.cpp`, daemon epoch guard
+  expected_result: Attempt to schedule/commit an estimate tagged `epoch_src < active_epoch_id` (or earlier `window_end`) after
+    newer epoch committed -> guard rejects stale overwrite
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-033.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-034
+  test_name: Delayed detection reporting
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: avid_daemon.cpp:181-187,461`, `system_timing.yaml
+  expected_result: Feed `short_burst_60us_vs_10ms` (`window=10000`, `60`-round burst at `r=9940..9999`) -> verify `avid_fast_burst_detector_t`
+    detects within `<= 20` rounds (`20 us`) ONLY via the 16-round fast path, whereas slow `10,000`-round MAP (`0.6%` dilution)
+    does NOT detect cleanly before `r=10,000`
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-034.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-035
+  test_name: Timescale claim validation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/scheduler_integration/test_fast_slow_loop_separation.cpp
+  production_target: system_timing.yaml`, `avid_daemon.cpp
+  expected_result: 'Cross-check reported metrics against measured execution: fast detector trigger rate (`<= 20 rounds`),
+    V1 sim epoch (`256 us`), V2 prod cadence (`10 ms`, `10,000` rounds), and BP cycle latency (`17` cycles)'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-035.json
+  acceptance_gates:
+  - G4
+  - G10
+- test_id: L3-FLOW-036
+  test_name: Probability propagation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: lbfgs_solver.cpp`, `avid_daemon.cpp
+  expected_result: Strictly increases `theta[4]` (`> 2x`)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-036.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-037
+  test_name: Histogram propagation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: noise_model.cpp:138`, `lbfgs_solver.cpp
+  expected_result: '`evaluate_nll_and_grad` & fitted `theta[4]` increase monotonically'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-037.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-038
+  test_name: Prior propagation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: noise_model.cpp:154-157
+  expected_result: Objective value & fitted `theta[4]` shift upward toward `0.15`
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-038.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-039
+  test_name: Window propagation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:250,509
+  expected_result: '`epochs_completed` changes strictly (`8` vs `2`) & variance shrinks'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-039.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-040
+  test_name: Threshold propagation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: causal_scheduler.cpp:38-46
+  expected_result: '`0.20` triggers (`trigger_count >= 1`); `0.80` triggers `0` times'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-040.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-041
+  test_name: LLR propagation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: llr_quantizer.cpp:8-15
+  expected_result: '`q78[4]` decreases strictly (smaller LLR = higher error probability)'
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-041.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-042
+  test_name: Commit propagation
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: weight_reg_driver.c:108-128
+  expected_result: Active register bank equals exact `bankB` bitwise
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-042.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-043
+  test_name: Static-output detection
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp
+  expected_result: Final NLL, action histograms, & `orbit_9class_rmse` differ cleanly (`no canned fixture output`)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-043.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-044
+  test_name: Component invocation trace
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:826-965
+  expected_result: Every stage invocation count `> 0` (`hal_mmio_writes, hal_mmio_reads, commits, lbfgs_iters, action_histogram`
+    sum `> 0`)
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-044.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-FLOW-045
+  test_name: Consumer-use trace
+  test_set: set3_pipeline_flow
+  primary_owner: tests/layer3/set3_pipeline_flow/end_to_end/test_stationary_flow.cpp
+  production_target: avid_daemon.cpp:695-765`, `cycle_accurate_bp_engine.cpp
+  expected_result: Downstream `CycleAccurateBPEngine::decode` decision & `wrd_read_active_weight` visibly react, proving zero
+    dead intermediate outputs
+  evidence_artifact: validation/layer3/raw_results/set3/L3-FLOW-045.json
+  acceptance_gates:
+  - G3
+  - G10
+- test_id: L3-EXEC-001
+  test_name: Clean C++ build
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: software/CMakeLists.txt
+  expected_result: Exits `0` with zero missing dependencies, emits `avid_daemon` and `test_baseline_suite`
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-001.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-002
+  test_name: Daemon initialization
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: avid_daemon.cpp:274-331
+  expected_result: Exits `0`, `r2d2_checkpoint_loaded == true`, `initial_boot_commits == 1`
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-002.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-003
+  test_name: Self-test
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: avid_daemon.cpp:774`, `test_baseline_suite.cpp
+  expected_result: Both complete genuine math/DMA/FSM/BP/R2D2 checks (`[ALL C++ BASELINE TESTS PASSED]`)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-003.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-004
+  test_name: Runtime configuration
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: avid_daemon.cpp:233-263,816-830
+  expected_result: Execute `avid_daemon` across distinct `--rounds`, `--window`, `--seed`, `--controller-mode static
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-004.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-005
+  test_name: Invalid configuration
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: avid_daemon.cpp:265-269
+  expected_result: Rejects cleanly with exit code `2` & explicit diagnostic message on stderr
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-005.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-006
+  test_name: Missing input
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: avid_daemon.cpp:280-305
+  expected_result: Safe startup failure (non-zero exit `1`/`2`, zero segfault)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-006.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-007
+  test_name: Repeated start/stop
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: avid_daemon.cpp
+  expected_result: Every run produces deterministic identical seed output (`zero cross-run state leakage`)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-007.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-008
+  test_name: Long-running daemon
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: avid_daemon.cpp
+  expected_result: Finishes cleanly (`rc=0`), flat RSS growth (`no unbounded memory leaks`), zero OOM
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-008.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-009
+  test_name: Multiple runtime cycles
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/startup_shutdown/test_daemon_startup.cpp
+  production_target: avid_daemon.cpp:808-836
+  expected_result: Continuous monotonic epoch state (`hw_epoch == 1 + adaptive_epoch_commits`)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-009.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-010
+  test_name: Shutdown
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/runtime_stress/test_long_running_daemon.cpp
+  production_target: avid_daemon.cpp:47-48,271-272,787-971
+  expected_result: Signal handler breaks `while (g_running)` loop cleanly, flushes `--metrics-out` JSON & closes HAL (`rc
+    == 0`)!
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-010.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-011
+  test_name: Histogram persistence
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/runtime_stress/test_long_running_daemon.cpp
+  production_target: avid_daemon.cpp:814-966` *(DEF-L3-09)*
+  expected_result: Check JSON telemetry (`decoded_rtl_transactions`, `r2d2_action_histogram`, window rounds) AND verify whether
+    raw 16-bin histogram snapshots persist to disk (`INCONCLUSIVE` / gap documented for `--metrics-out` summary-only schema)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-011.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-012
+  test_name: Estimate persistence
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/runtime_stress/test_long_running_daemon.cpp
+  production_target: avid_daemon.cpp:838-843
+  expected_result: Verify `orbit_9class_rmse`, `param_21_rmse`, `final_nll` persist in `--metrics-out` + document absence
+    of raw `theta_[0..20]` dump in daemon JSON (`DEF-L3-09`) unless diagnostic dump enabled
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-012.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-013
+  test_name: Optimizer diagnostics
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/runtime_stress/test_long_running_daemon.cpp
+  production_target: avid_daemon.cpp:838-841
+  expected_result: Assert `--metrics-out` saves `final_nll`, `legacy_marginal_nll`, `lbfgs_iterations`, `lbfgs_grad_inf_norm`
+    matching live `LBFGSFitDiagnostics`
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-013.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-014
+  test_name: Weight persistence
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/runtime_stress/test_long_running_daemon.cpp
+  production_target: physical_backend.cpp:54-62`, `weight_reg_driver.c
+  expected_result: Probe committed active weights via HAL MMIO read `0x100..0x148` & verify shadow/active equivalence after
+    swap
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-014.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-015
+  test_name: Epoch persistence
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/runtime_stress/test_long_running_daemon.cpp
+  production_target: avid_daemon.cpp:808-836
+  expected_result: Assert `initial_boot_commits`, `adaptive_epoch_commits`, `reset_cleared_commits`, `weight_bank_commits`,
+    `epoch_commit_reconciled` match cycle-by-cycle ledger
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-015.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-016
+  test_name: Safety-state persistence
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/runtime_stress/test_long_running_daemon.cpp
+  production_target: avid_daemon.cpp:731-733,837
+  expected_result: Assert `fallback_events` count matches `fallback_safety_trigger` activations & report explicit gap (`NOT_IMPLEMENTED`
+    / `INCONCLUSIVE`) where per-transition cause log file isn't persisted by daemon *(DEF-L3-09)*
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-016.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-017
+  test_name: Runtime provenance
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/persistence/test_warm_resume.cpp
+  production_target: avid_daemon.cpp:815-828
+  expected_result: Validate telemetry retains `r2d2_checkpoint_path`, `seed`, `scenario`, `backend`, `controller_mode` + compute
+    SHA-256 of `avid_daemon` binary & checkpoint in Python harness
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-017.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-018
+  test_name: Restart state
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/persistence/test_warm_resume.cpp
+  production_target: avid_daemon.cpp:274-331
+  expected_result: Restart `avid_daemon` cleanly -> verify documented fresh deterministic initialization from checkpoint (`r2d2_v1_trained.bin`)
+    & explicit note that warm disk-checkpoint restoration is not implemented (`INCONCLUSIVE` for warm resume, `PASS` for deterministic
+    clean reset!) *(DEF-L3-09)*
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-018.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-019
+  test_name: Log integrity
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/persistence/test_warm_resume.cpp
+  production_target: avid_daemon.cpp:808-965
+  expected_result: Validate valid JSON parsing, non-negative counters, `sum(r2d2_action_histogram) == epochs_completed` (in
+    `avid_r2d2` mode), `initial + adaptive - reset == hw_epoch`
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-019.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-020
+  test_name: Artifact reconstruction
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/persistence/test_warm_resume.cpp
+  production_target: avid_daemon.cpp:50-62,814-966
+  expected_result: Replay identical CLI flags + seed via reference script reading saved metrics JSON provenance and verify
+    exact bit-for-bit reproducible metric reconstruction!
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-020.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-021
+  test_name: Malformed packet
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/persistence/test_warm_resume.cpp
+  production_target: dma_ingress_tap.cpp:50-55`, `packet_validator.cpp
+  expected_result: Valid packets accumulate normally; corrupted packets rejected (`hist` unpolluted, `invalid_flag_count`
+    increments)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-021.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-022
+  test_name: Packet loss
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/persistence/test_warm_resume.cpp
+  production_target: packet_validator.cpp:44-50
+  expected_result: '`seq_gap_count` increments by `1`; loss explicitly counted'
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-022.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-023
+  test_name: Packet duplication
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: packet_validator.cpp:44-50
+  expected_result: Duplicate `7` fails sequence continuity check (`false`) avoiding double-count
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-023.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-024
+  test_name: Empty observation window
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: lbfgs_solver.cpp:84-94`, `avid_daemon.cpp:547,719
+  expected_result: '`fit_histogram` returns `0.0, converged=false`; `last_nll == 0.0 -> estimator_ok=false` triggers `HOLD_LAST_GOOD`'
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-024.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-025
+  test_name: Optimizer non-convergence
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: lbfgs_solver.cpp:177`, `avid_daemon.cpp:719
+  expected_result: Guarded pipeline checks `diag.converged` *(or rejects unphysical params)* preventing blind commit (`DEF-L3-05`)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-025.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-026
+  test_name: Optimizer NaN
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: llr_quantizer.cpp:21-24`, `fallback_fsm.cpp:45
+  expected_result: Quantizer returns `false` (`bounds_ok=false`) -> `SAFE_STATIC_PRIOR`; guarded NLL rejects `NaN` cleanly
+    *(DEF-L3-10)*
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-026.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-027
+  test_name: Out-of-bounds estimate
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: avid_daemon.cpp:549,695-697`, `llr_quantizer.cpp:21
+  expected_result: '`avid_quantize_and_validate_bank` returns `false`, replaces candidates with `0x0468`, triggers `SAFE_STATIC_PRIOR`'
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-027.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-028
+  test_name: Quantization overflow
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: llr_quantizer.cpp:11-33
+  expected_result: Saturates deterministically to `0x3000`/`0x0040` and flags `all_safe=false` on out-of-safe-range inputs
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-028.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-029
+  test_name: Commit timeout
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: simulation_backend.cpp:91-124
+  expected_result: '`send_bridge_request` returns `-1`, `timeout_transactions++`, `rejected_transactions++` (never reports
+    fake `OK`!)'
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-029.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-030
+  test_name: Epoch mismatch
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: simulation_backend.cpp:133-143
+  expected_result: '`send_bridge_request` rejects (`id_mismatch_errors++`) leaving active state untouched'
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-030.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-031
+  test_name: Decoder busy
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: weight_reg_driver.c:123-132
+  expected_result: '`wrd_commit_and_wait(..., 100)` returns `-1` cleanly'
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-031.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-032
+  test_name: Daemon restart
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/persistence/test_warm_resume.cpp
+  production_target: avid_daemon.cpp
+  expected_result: Relaunch succeeds cleanly with zero stale socket locks or corrupted binary load
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-032.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-033
+  test_name: Memory pressure
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: ring_buffer.h`, `lbfgs_optimizer.h
+  expected_result: Succeeds cleanly within low static footprint (~few MB) or exits gracefully without silent heap corruption
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-033.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-034
+  test_name: Repeated safety trigger
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: fallback_fsm.cpp:45-50
+  expected_result: FSM stabilizes cleanly in `AVID_FSM_SAFE_STATIC_PRIOR` (`state==2`) with bounded constant static weights
+    (`0x0468`)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-034.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-035
+  test_name: Recovery failure
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/fault_injection/test_malformed_packet_recovery.cpp
+  production_target: fallback_fsm.cpp:25-50
+  expected_result: FSM remains strictly locked in `SAFE_STATIC_PRIOR` or `DEGRADED_BYPASS` (never returns `NORMAL_ADAPTIVE`)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-035.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-036
+  test_name: Ingress throughput
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: dma_ingress_tap.cpp
+  expected_result: Stream `1,000,000` 64-bit packets through `avid_dma_ring_push_burst` + `consume_slot` in C++ harness; report
+    Mpkts/sec vs `1 MHz` requirement
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-036.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-037
+  test_name: Ingress latency
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: dma_ingress_tap.cpp
+  expected_result: Sample per-64-packet-burst consume time (`std::chrono::steady_clock` across `5,000` bursts) -> report `p50,
+    p95, p99, max` us
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-037.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-038
+  test_name: Estimator latency
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: lbfgs_solver.cpp`, `stage_profiler.cpp
+  expected_result: Benchmark `200` dual-basis `fit_histogram` + R2D2 calls in C++ (`clock_gettime` + `steady_clock`) -> report
+    `p50, p95, p99, max` us (x86_64 host + comparison vs `system_timing.yaml` 10 ms budget)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-038.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-039
+  test_name: Scheduler latency
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: causal_scheduler.cpp
+  expected_result: Benchmark `10,000` calls to `avid_scheduler_poll_commit_ready` & `avid_fast_detector_step` -> report `p50,
+    p95, p99, max` ns/us
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-039.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-040
+  test_name: Commit latency
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: physical_backend.cpp`, `simulation_backend.cpp
+  expected_result: Measure round-trip latency for `avid_hal_write_weights_and_commit` over `physical` (emulated MMIO) AND
+    `simulation` Unix socket bridge -> report `p50, p95, p99, max` us
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-040.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-041
+  test_name: Concurrent workload
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: C++ harness + `dma_ingress_tap`, `lbfgs_solver`, `wrd
+  expected_result: 'Spawn 3 C++ threads: ingress producer, mutex-guarded estimator solver, and telemetry/MMIO reader running
+    `5` seconds -> verify zero data races (`-fsanitize=thread` or deterministic invariants)'
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-041.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-042
+  test_name: CPU utilization
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: avid_daemon.cpp:812,849
+  expected_result: Extract `slow_loop_cpu_utilization_10ms_pct` from `avid_daemon` JSON + measure OS `/usr/bin/time` user+sys
+    CPU across `50,000` rounds
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-042.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-043
+  test_name: Memory utilization
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: r2d2_lstm_controller.h:299-311
+  expected_result: Measure `ru_maxrss` across short (`1,024`) vs long (`100,000`) round runs + verify `AvidR2D2LSTMController::get_memory_audit()`
+    static sizes (`total_params=19744, lbfgs_workspace=2688 B`)
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-043.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-044
+  test_name: Priority inversion
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: Fast vs slow isolation harness
+  expected_result: 'Lock/contention test: run heavy L-BFGS estimation loop on low-priority thread while timing high-rate `CycleAccurateBPEngine::decode`
+    calls on fast thread -> verify `p99` decode latency unimpacted'
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-044.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-EXEC-045
+  test_name: Timing overrun
+  test_set: set4_execution_recovery
+  primary_owner: tests/layer3/set4_execution_recovery/concurrency/test_race_conditions.cpp
+  production_target: stage_profiler.cpp:40-43`, `avid_daemon.cpp:679
+  expected_result: Configure `avid_profiler_init(&p, "est", 1.0)` (`1 us` artificially tight deadline!) -> run real `fit_histogram`
+    -> prove `avid_profiler_end` returns `false`, `deadline_misses > 0`, feeding `deadline_ok=false -> HOLD_LAST_GOOD`!
+  evidence_artifact: validation/layer3/raw_results/set4/L3-EXEC-045.json
+  acceptance_gates:
+  - G5
+  - G10
+- test_id: L3-MATH-001
+  test_name: Probability normalization
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/likelihood/test_dp_vs_bruteforce.cpp
+  production_target: noise_model.cpp:91-109
+  expected_result: theta) == 1.0` to `< 1e-14`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-001.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-002
+  test_name: Nonnegative probabilities
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/likelihood/test_dp_vs_bruteforce.cpp
+  production_target: noise_model.cpp:91-109
+  expected_result: theta) >= 0.0` even at boundary parameters `1e-6` and `0.49`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-002.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-003
+  test_name: Zero-event case
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/likelihood/test_dp_vs_bruteforce.cpp
+  production_target: noise_model.cpp:98-108
+  expected_result: Set `theta = [1e-6]*21` (and test exact `0.0` in pure reference) -> `P(0)` ~ `1.0`, sum of `s > 0` matches
+    exact `21 * 1e-6` first-order expansion
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-003.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-004
+  test_name: Certain-event case
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/likelihood/test_dp_vs_bruteforce.cpp
+  production_target: noise_model.cpp:102-104
+  expected_result: Set single edge `e` (with `g_e != 0`) to upper clamped bound `0.49` (vs `p_e -> 1.0` XOR swap property
+    `P'(s) = P(s ^ g_e)` in convolution algebra)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-004.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-005
+  test_name: Single-mechanism likelihood
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/likelihood/test_dp_vs_bruteforce.cpp
+  production_target: noise_model.cpp:96-108
+  expected_result: Turn on ONLY one mechanism `e` at `p_e = 0.08`, others `~0` -> verify `P(0) = 1 - p_e` and `P(g_e) = p_e`
+    (`< 1e-12` modulo `1e-6` clamp)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-005.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-006
+  test_name: Multi-mechanism likelihood
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/likelihood/test_dp_vs_bruteforce.cpp
+  production_target: noise_model.cpp:91-109
+  expected_result: 'Activate `k=8` distinct non-zero mechanisms (remaining `13` at `0` / `1e-6`): brute-force enumerate all
+    `2^8 = 256` fault subsets in Python -> assert max error `< 1e-12` against `NoiseModel::compute_joint_distribution()` across
+    both X and Z bases! *(Note `1e-6` floor shifts inactive channels by `~13e-6`, accounted for explicitly or tested with
+    floor matched!)*'
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-006.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-007
+  test_name: Syndrome XOR convolution
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/likelihood/test_dp_vs_bruteforce.cpp
+  production_target: noise_model.cpp:103,248-262
+  expected_result: Check exact Walsh-Hadamard identity `E[(-1)^{<u, s>}] = \prod_e (1 - 2 p_e)^{\mathbb{I}[<u, g_e> = 1]}`
+    across all 16 masks `u in 0..15` (`< 1e-13`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-007.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-008
+  test_name: Joint parameter model
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/likelihood/test_dp_vs_bruteforce.cpp
+  production_target: noise_model.cpp:31-47`, `parameter_schema.json
+  expected_result: Verify each `theta[e]` (`0..20`) strictly matches `parameter_schema.json` stabilizer XOR check signature
+    `H_X * e_Z` & `H_Z * e_X` (`g_{i,j} == g_i ^ g_j` on all 12 NN pairs!)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-008.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-009
+  test_name: Negative log-likelihood
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/gradient/test_finite_difference_gradient.cpp
+  production_target: noise_model.cpp:138-153
+  expected_result: theta)` (`< 1e-12`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-009.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-010
+  test_name: MAP regularization
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/gradient/test_finite_difference_gradient.cpp
+  production_target: noise_model.cpp:154-157
+  expected_result: Compare `nll(lambda=0.5) - nll(lambda=0.0)` against `0.5 * 0.5 *
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-010.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-011
+  test_name: Gradient calculation
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/gradient/test_finite_difference_gradient.cpp
+  production_target: noise_model.cpp:201-240
+  expected_result: Compare `compute_gradient_from_histogram` coset-inversion derivative against independent Python autodiff
+    / central finite differences (`eps=1e-7`) across all 21 coordinates (`< 1e-7`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-011.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-012
+  test_name: Hessian diagnostic
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/gradient/test_finite_difference_gradient.cpp
+  production_target: noise_model.cpp` + Set 5 oracle
+  expected_result: Compute exact `21 x 21` finite-difference Hessian of NLL around MAP optimum & compare eigenvalues against
+    Fisher Information `I(theta) + lambda * I_{21}`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-012.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-013
+  test_name: Gradient direction
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/gradient/test_finite_difference_gradient.cpp
+  production_target: lbfgs_optimizer.cpp:32-60`, `lbfgs_solver.cpp:20-58
+  expected_result: Verify two-loop recursion `d_k` satisfies `g^T d_k < 0` & projected steepest descent `-g_proj^T g < 0`
+    on non-stationary interior states
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-013.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-014
+  test_name: Line search
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/gradient/test_finite_difference_gradient.cpp
+  production_target: lbfgs_optimizer.cpp:65-83`, `lbfgs_solver.cpp:56-70
+  expected_result: Verify Armijo sufficient decrease condition `f(x_new) <= f(x_0) + 1e-4 * <g, x_new - x_0>` holds at every
+    accepted step
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-014.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-015
+  test_name: Bound constraints
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: noise_model.cpp:76-80
+  expected_result: Start near boundaries `0.00002` & `0.449` with adversarial histogram -> assert every intermediate and final
+    iterate remains strictly inside `[1e-5, 0.45]`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-015.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-016
+  test_name: Convergence criterion
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: lbfgs_solver.cpp:48,177`, `lbfgs_optimizer.cpp:99
+  expected_result: Check early stop at `
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-016.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-017
+  test_name: Maximum iterations
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: lbfgs_solver.cpp:109-176`, `lbfgs_optimizer.cpp:92
+  expected_result: Force tiny `max_iters in {1, 4, 8}` on far init -> assert executed iterations bounded exactly `<= max_iters`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-017.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-018
+  test_name: Initial-point sensitivity
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: lbfgs_solver.cpp
+  expected_result: Launch optimization from 5 corners `[1e-4, 0.005, 0.012, 0.10, 0.30]` on exact DP multinomial expectation
+    histogram -> verify identical stationary value on identifiable orbits
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-018.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-019
+  test_name: Ill-conditioned model
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: lbfgs_solver.cpp`, `lbfgs_optimizer.cpp
+  expected_result: Construct flat/high-condition problem (`prior_lambda_=1e-8`, near-collinear aliased bins) -> verify solver
+    remains finite, tracks conditioning & doesn't claim false accuracy when unconstrained
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-019.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-020
+  test_name: Flat likelihood
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: noise_model.cpp:223-226
+  expected_result: Drive `Z_3 Z_6` (`e=16, g=0`) & `Z_2 Z_5` (`e=19, g=0`) -> verify gradient wrt `NLL_data` is exact `0.0`,
+    estimate strictly stays at `prior_theta`, variance stays prior-dominated
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-020.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-021
+  test_name: Synthetic recovery
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: lbfgs_solver.cpp`, `noise_model.cpp
+  expected_result: theta_true))` on non-aliased hotspots (`q1, q4, q7`) -> recover `< 0.002` error on identifiable params
+    & `< 1e-3` on `orbit_9class_rmse`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-021.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-022
+  test_name: Model mismatch
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: lbfgs_solver.cpp
+  expected_result: Feed uniform empirical histogram `[100]*16` (maximally entropic, violates low-p assumption) -> expose large
+    KS/KL divergence & hitting box cap rather than low confidence
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-022.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-023
+  test_name: Prior sensitivity
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: noise_model.cpp:154-157,237
+  expected_result: Sweep `prior_lambda_` across `{0.0, 0.04, 0.5, 5.0}` keeping histogram constant -> assert monotone decrease
+    in `
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-023.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-024
+  test_name: DP/reference consistency
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/optimizer/test_lbfgs_standalone.cpp
+  production_target: Cross-validation against SciPy L-BFGS-B
+  expected_result: Compare objective & solution found by C++ `HistogramLBFGSSolver` / `LBFGSOptimizer` against `scipy.optimize.minimize(...,
+    method="L-BFGS-B")` on independent Python DP oracle
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-024.json
+  acceptance_gates:
+  - G6
+  - G10
+- test_id: L3-MATH-025
+  test_name: Jacobian rank
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/identifiability/test_jacobian_rank.cpp
+  production_target: parameter_schema.json:235-583`, `noise_model.cpp
+  expected_result: 'theta) / d theta_e` at baseline `theta`: verify **exact theoretical rank <= 9** (at most the 9 non-zero
+    quotient orbits in `parameter_schema.json`!)'
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-025.json
+  acceptance_gates:
+  - G7
+  - G10
+- test_id: L3-MATH-026
+  test_name: Fisher information
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/identifiability/test_jacobian_rank.cpp
+  production_target: noise_model.cpp
+  expected_result: Compute multinomial Fisher matrix `I(theta)_{a,b} = \sum_s (1/P(s)) (dP(s)/d\theta_a)(dP(s)/d\theta_b)`
+    (per shot & scaled by `W`) -> inspect full eigenspectrum (`lambda_1..lambda_21`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-026.json
+  acceptance_gates:
+  - G7
+  - G10
+- test_id: L3-MATH-027
+  test_name: Parameter correlation
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/identifiability/test_jacobian_rank.cpp
+  production_target: parameter_schema.json:270-583
+  expected_result: Extract regularized posterior covariance `(N * I(theta) + lambda * I_21)^{-1}` -> identify strongly anti-correlated
+    parameter pairs within shared orbits `(Z_0, ZZ_1_2)`, `(Z_2, Z_5, ZZ_0_1, ZZ_3_4)`, `(Z_3, Z_6, ZZ_4_5, ZZ_7_8)`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-027.json
+  acceptance_gates:
+  - G7
+  - G10
+- test_id: L3-MATH-028
+  test_name: Non-identifiable parameters
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/identifiability/test_jacobian_rank.cpp
+  production_target: noise_model.cpp:32-47
+  expected_result: Confirm strictly `12` zero-eigenvalue / null-space directions of unregularized `I(theta)`, specifically
+    including exact zero sensitivity on `ZZ_3_6` (`e=16`) and `ZZ_2_5` (`e=19`) in X-checks (`ZZ_0_1, ZZ_7_8` in Z-checks)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-028.json
+  acceptance_gates:
+  - G7
+  - G10
+- test_id: L3-MATH-029
+  test_name: Sample-size dependence
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/identifiability/test_jacobian_rank.cpp
+  production_target: Prior vs sample scaling (`DEF-L3-03`)
+  expected_result: Evaluate Cramer-Rao lower bound `sqrt((N*I + lambda*I)^{-1}_{ii})` across `N in {256, 1000, 10000}` ->
+    show identifiable `Z_1, Z_4, Z_7` shrink as `1/sqrt(N)` while null params stay capped by `1/sqrt(lambda)`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-029.json
+  acceptance_gates:
+  - G7
+  - G10
+- test_id: L3-MATH-030
+  test_name: Prior-dominated estimates
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/identifiability/test_jacobian_rank.cpp
+  production_target: noise_model.cpp:154-157
+  expected_result: Measure ratio of Fisher sample information to prior stiffness `lambda` for `(3,6)` & `(2,5)` -> confirm
+    `~100%` prior-dominated (`ratio == 0.0`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-030.json
+  acceptance_gates:
+  - G7
+  - G10
+- test_id: L3-MATH-031
+  test_name: Confidence calibration
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/identifiability/test_jacobian_rank.cpp
+  production_target: Estimator calibration report
+  expected_result: Verify empirical Monte Carlo SD across 30 trials matches asymptotic inverse-Hessian SE within statistical
+    factor on singleton orbits `{Z_1, Z_4, Z_7}`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-031.json
+  acceptance_gates:
+  - G7
+  - G10
+- test_id: L3-MATH-032
+  test_name: Alias construction
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/identifiability/test_jacobian_rank.cpp
+  production_target: parameter_schema.json:270-301
+  expected_result: 'Construct two distinct parameter vectors `theta^(A)` (high `Z_0`, low `ZZ_1_2`) vs `theta^(B)` (low `Z_0`,
+    high `ZZ_1_2`) satisfying exact equal `(1-2p_a)(1-2p_b)` on orbit `0x1`: prove exact identical `P_joint(0..15)` (`< 1e-14`)!'
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-032.json
+  acceptance_gates:
+  - G7
+  - G10
+- test_id: L3-MATH-033
+  test_name: LLR reference
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: llr_quantizer.cpp:8-15
+  expected_result: Sweep 100 `p in [1e-5, 0.49]` -> compare `avid_prob_to_q78_llr` vs Python `round(math.log((1-p)/p) * 256)`
+    (`diff == 0`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-033.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-034
+  test_name: Sign
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: llr_numeric_contract.yaml:8
+  expected_result: Confirm `p < 0.5 => LLR > 0` (`q78 > 0`, `0`-bit preferred), `p > 0.5 => LLR < 0` in direct log equation
+    (`clamped to 0.49` inside `avid_prob_to_q78_llr`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-034.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-035
+  test_name: Scaling
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: llr_numeric_contract.yaml:25`, `llr_quantizer.cpp:11
+  expected_result: Verify exact `2^8 = 256.0` scale factor (`LLR = 1.0 => 256`, `2.5 => 640`, `4.0 => 1024`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-035.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-036
+  test_name: Rounding
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: llr_quantizer.cpp:11`, `weight_reg_driver.h:30
+  expected_result: Test exact `.5` midpoints (`round(x * 256)`) in `llr_quantizer.cpp` (`std::lround`) vs `wrd_float_to_q78`
+    truncation (`DEF-L3-06`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-036.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-037
+  test_name: Saturation
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: llr_quantizer.h:13-15`, `llr_quantizer.cpp:12-30
+  expected_result: Assert signed 16-bit bounds `[-32768, 32767]` in `avid_prob_to_q78_llr` & `[0x0040, 0x3000]` safe bounds
+    in `avid_quantize_and_validate_bank`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-037.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-038
+  test_name: Dequantization
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: llr_quantizer.cpp
+  expected_result: Reconstruct `llr_deq = q78 / 256.0`, `p_deq = 1 / (1 + exp(llr_deq))`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-038.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-039
+  test_name: Error bound
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: llr_quantizer.cpp:11
+  expected_result: <= 1/512 + 1e-12` everywhere
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-039.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-040
+  test_name: Extreme probabilities
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: llr_quantizer.cpp:9,21-25
+  expected_result: Evaluate `p in {0, -1, 1e-12, 1e-5, 0.49, 0.5, 1.0, NaN, Inf}` cleanly across `avid_prob_to_q78_llr` &
+    `avid_quantize_and_validate_bank`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-040.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-041
+  test_name: Weight ordering
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: noise_model.cpp:281-311`, `weight_reg_driver.h
+  expected_result: Set distinct probabilities per qubit `q=0..8` -> verify `q78[0..8]` order matches `effective_p(0..8)` &
+    `NM_CHECK_CONN` qubit indices `0..8`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-041.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-042
+  test_name: Decoder compatibility
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/quantization/test_llr_formula.cpp
+  production_target: cycle_accurate_bp_engine.cpp:58-72,148-154`, `weight_reg_driver.c
+  expected_result: Write quantized `weights_q78[0..8]` through `wrd_write_all_weights -> wrd_commit` -> decode single-qubit
+    syndromes with `CycleAccurateBPEngine` verifying Q7.8 sign-magnitude/two's-complement bit interpretation matches RTL `weight_map_reg.sv`
+    contract
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-042.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-043
+  test_name: Evidence timestamp
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: causal_scheduler.cpp:17-23
+  expected_result: Record exact `window_end_round` passed to `avid_scheduler_schedule_commit` & burst trigger `round_idx`
+    -> match actual window end
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-043.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-044
+  test_name: Commit eligibility
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: causal_scheduler.cpp:25-36
+  expected_result: 'Across 50 random `(t_e, d_c)` pairs: verify `poll_commit_ready(sched, round_now)` is `false` for EVERY
+    `round_now < t_e + d_c` and `true` at `t_c == t_e + d_c`'
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-044.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-045
+  test_name: Epoch ordering
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: causal_scheduler.cpp:32
+  expected_result: Execute 20 scheduled commits -> verify `active_epoch_id` forms strict sequence `0, 1, 2, ..., 20` (and
+    `hw_epoch` strictly monotonic except explicit RTL reset)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-045.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-046
+  test_name: Stale update rejection
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: causal_scheduler.cpp` + guard
+  expected_result: Attempt to schedule commit with `window_end < current_round` / old epoch when newer commit is already active
+    or pending -> guarded scheduler rejects stale overwrite *(DEF-L3-08)*
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-046.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-047
+  test_name: Duplicate commit prevention
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: causal_scheduler.cpp:31,66-69
+  expected_result: Poll repeatedly at `t_c, t_c+1, ...` after single `schedule_commit` -> second poll returns `false`, firing
+    commit strictly once; sustained burst does not re-trigger `trigger_count`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-047.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-048
+  test_name: Busy-state handling
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: weight_reg_driver.c:123-132`, `weight_commit_protocol.yaml
+  expected_result: Emulate `bp_ready_in == 0` -> confirm `wrd_commit_and_wait` defers / times out cleanly instead of dropping
+    active bank integrity
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-048.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-049
+  test_name: Reset handling
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: causal_scheduler.cpp:7-15,38-46
+  expected_result: Call `avid_scheduler_init` (and `avid_fast_detector_init`) mid-pending commit -> verify `has_pending_commit=false`,
+    `active_epoch_id=0`, ring/debounce cleared
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-049.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-050
+  test_name: Timestamp causality
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: causal_scheduler.cpp`, `avid_daemon.cpp
+  expected_result: 'Prefix-equivalence oracle: feed common prefix `r=0..499` followed by divergent suffixes `A` vs `B` (`r=500..999`)
+    -> prove ALL decisions for `r <= 499` are bit-identical (`zero lookahead leakage`)'
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-050.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-051
+  test_name: Burst detection delay
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: causal_scheduler.cpp:48-76
+  expected_result: 'Inject burst at `r=B_0` with densities `0.38..1.0`: compute analytical trigger step from `16`-round sliding
+    sum `>= ceil(0.35 * 16) = 6` plus `4`-round debounce -> match C++ `avid_fast_detector_step` exact round!'
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-051.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-052
+  test_name: Slow-loop limitation
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/scheduler/test_window_length.cpp
+  production_target: system_timing.yaml:22-37
+  expected_result: 'Formally contrast 10 ms window (`N_a = 10,000`, dilution `60/10000 = 0.6%`) vs fast 16-round detector
+    (`N_b = 60`, `20 us` max trigger): assert `L3-FLOW-034` only credits fast detector for `< 60 us` detection!'
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-052.json
+  acceptance_gates:
+  - G8
+  - G10
+- test_id: L3-MATH-053
+  test_name: State completeness
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.h:9-14`, `fallback_fsm.cpp
+  expected_result: Evaluate every `(state in {0..3}) x (est_ok, deadline_ok, bounds_ok, bus_ok in {0,1}^4)` (`64` combinations)
+    — every pair returns defined valid state `0..3`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-053.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-054
+  test_name: Transition validity
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp:25-56
+  expected_result: Compare all `64` observed C++ transitions against exact mathematical transition relation extracted from
+    `fallback_fsm.cpp`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-054.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-055
+  test_name: Safety invariant
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp:25-55
+  expected_result: Whenever `bounds_ok == false` OR `estimator_ok == false` OR `deadline_ok == false` OR `bus_ok == false`,
+    verify candidate unsafe `cand_q78` NEVER appears in `out_selected_q78` with `should_commit == true`!
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-055.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-056
+  test_name: Fallback invariant
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp:28,47,53
+  expected_result: In `SAFE_STATIC_PRIOR(2)` & `DEGRADED_BYPASS(3)`, `out_selected_q78` ALWAYS equals `static_prior_q78`;
+    in `HOLD_LAST_GOOD(1)`, `out_selected_q78` equals `last_good_q78` & `out_should_commit == false`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-056.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-057
+  test_name: Recovery condition
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp:33-40
+  expected_result: Prove transition back to `NORMAL_ADAPTIVE` happens ONLY when `estimator_ok && deadline_ok && bounds_ok
+    && bus_ok == true` *(explicitly documenting `1`-step code behavior vs `fault_policy.yaml` 3-step spec, `DEF-L3-07`)*
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-057.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-058
+  test_name: Invalid event
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp
+  expected_result: Pass uninitialized/out-of-range integer state (`fsm.state = 99`) or null candidate pointer under faulted
+    input -> safe guarded behavior without committing unvalidated weights *(DEF-L3-10)*
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-058.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-059
+  test_name: Repeated fault
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp:42-50
+  expected_result: Drive `HOLD_LAST_GOOD` -> `3x` faults -> `SAFE_STATIC_PRIOR` -> `50x` more faults -> verify `consecutive_holds`
+    never overflows to trigger wrap bug & stays safe
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-059.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-060
+  test_name: Reset invariant
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp:7-15
+  expected_result: Call `avid_fallback_init(&fsm, AVID_Q78_DEFAULT)` from any degraded state -> verifies `state == NORMAL_ADAPTIVE`,
+    `consecutive_holds == 0`, `fallback_triggers == 0`, banks equal `default_q78`
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-060.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-061
+  test_name: Transition coverage
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp
+  expected_result: Construct explicit witness sequences visiting EVERY legal edge in the `4`-state graph (`NORMAL->HOLD`,
+    `HOLD->HOLD`, `HOLD->SAFE_STATIC`, `NORMAL->SAFE_STATIC(!bounds)`, `ANY->DEGRADED(!bus)`, `ANY->NORMAL`) (`100%` edge
+    coverage)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-061.json
+  acceptance_gates:
+  - G9
+  - G10
+- test_id: L3-MATH-062
+  test_name: Forbidden transition coverage
+  test_set: set5_control_mathematics
+  primary_owner: tests/layer3/set5_control_mathematics/safety_fsm/test_fsm_transitions.cpp
+  production_target: fallback_fsm.cpp
+  expected_result: Exhaustively prove over all `(state, inputs)` that forbidden transitions never occur (e.g., `!bus_ok` cannot
+    enter `NORMAL`/`HOLD`/`SAFE_STATIC`; `HOLD` cannot set `should_commit=true`; `!bounds_ok` cannot enter `HOLD`)
+  evidence_artifact: validation/layer3/raw_results/set5/L3-MATH-062.json
+  acceptance_gates:
+  - G9
+  - G10

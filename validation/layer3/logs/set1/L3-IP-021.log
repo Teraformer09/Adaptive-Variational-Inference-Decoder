@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-021
+Test Name: parameter_vector_dimension_21
+Status: PASS
+Source Commit: 88df97e
+Implementation File: software/src/inference/noise_model.h
+Implementation Function: NoiseModel::ParamVec, NM_N_QUBIT, NM_N_CROSSTALK, NM_N_PARAMS
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-021$" --output-on-failure
+Fixture: tests/layer3/fixtures/parameters/valid/default_21.txt
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Note: NoiseModel::ParamVec enforces dimension 21 at compile time via Eigen::Matrix<double, 21, 1>; runtime array loader for arbitrary-length double* does not exist separately from checkpoint/CLI initialization.
+

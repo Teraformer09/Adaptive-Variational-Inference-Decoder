@@ -1,0 +1,30 @@
+{
+  "test_id": "L3-IP-026",
+  "test_name": "regularization_lambda_validation_and_override",
+  "test_description": "Regularization / prior strength — test lambda=0, lambda>0, lambda<0, NaN, and inspect whether HistogramLBFGSSolver honors caller prior_lambda_",
+  "test_set": "set1_input_contracts",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "NoiseModel::prior_lambda_, HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "prior_lambda_ >= 0 finite; negative/NaN rejected; caller-configured lambda respected or contract discrepancy documented",
+  "independent_oracle": "architecture/estimator/parameter_schema.json prior_tether_lambda=0.5 vs NoiseModel(0.5) vs fit_histogram(0.04)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-026$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/correlated/corr_total1000.txt",
+  "expected": {
+    "lambda_contract": "Reject negative/NaN lambda and preserve configured prior_lambda_"
+  },
+  "actual": {
+    "lambda_contract": "Negative lambda=-5.0 accepted, NaN lambda->NLL=NaN, and fit_histogram overwrote caller lambda=2.5 to 0.040000"
+  },
+  "assertion_notes": [
+    "[ASSERT_NEAR FAILED] /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/estimator_inputs/test_prior_validation.cpp:31 |m.prior_lambda_ - 0.5| <= 1e-12 (actual=0.05, expected=0.5)",
+    "CONTRACT MISMATCH: HistogramLBFGSSolver::fit_histogram (lbfgs_solver.cpp:107) unconditionally overwrites `model.prior_lambda_ = 0.04`, discarding caller-configured lambda=2.5 and schema lambda=0.5!"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-026.log",
+    "validation/layer3/raw_results/set1/L3-IP-026.json"
+  ],
+  "duration_ms": 0.758,
+  "failure_classification": "UNGUARDED_LAMBDA_AND_HARDCODED_SOLVER_OVERRIDE"
+}

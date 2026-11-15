@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-039
+Test Name: active_decoder_weight_bank_readback
+Status: PASS
+Source Commit: 88df97e
+Implementation File: software/src/driver/weight_reg_driver.c, weight_bank_driver.c
+Implementation Function: wrd_open, wrd_write_all_weights, wrd_commit, wrd_read_active_weight, avid_weight_bank_write_and_commit
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-039$" --output-on-failure
+Fixture: none (emulated MMIO register file)
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Architectural note: weight_reg_driver.c implements a single 9-entry shadow bank (wrd_write_z_llr aliases wrd_write_x_llr).
+

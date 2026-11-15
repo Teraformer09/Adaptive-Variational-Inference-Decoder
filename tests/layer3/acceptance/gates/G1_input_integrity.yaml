@@ -1,0 +1,31 @@
+gate_id: G1
+gate_name: Input Integrity & Contract Conformance
+stage: set1_input_contracts
+blocking: true
+description: >
+  Every canonical Set 1 test (L3-IP-001 .. L3-IP-040), every C11 ABI verification
+  target (L3-ABI-001 .. L3-ABI-007), and every production daemon ingress integration
+  check (L3-INT-001 .. L3-INT-004) must achieve PASS with zero CONTRACT_MISMATCH,
+  FAIL, NOT_IMPLEMENTED, BLOCKED, or INCONCLUSIVE items, and all required Set 1
+  technical reports must be present.
+required_canonical_ids:
+  range: "L3-IP-001..L3-IP-040"
+required_c_abi_ids:
+  - L3-ABI-001
+  - L3-ABI-002
+  - L3-ABI-003
+  - L3-ABI-004
+  - L3-ABI-005
+  - L3-ABI-006
+  - L3-ABI-007
+required_integration_ids:
+  - L3-INT-001
+  - L3-INT-002
+  - L3-INT-003
+  - L3-INT-004
+required_reports:
+  - validation/layer3/reports/layer3_input_architecture_map.md
+  - validation/layer3/reports/packet_contract_comparison.md
+  - validation/layer3/reports/layer3_contract_discrepancies.md
+  - validation/layer3/reports/layer3_set1_execution_report.md
+pass_rule: "all_required_tests_equal_PASS_and_zero_contract_mismatches"

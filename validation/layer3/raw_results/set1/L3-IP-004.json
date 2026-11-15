@@ -1,0 +1,31 @@
+{
+  "test_id": "L3-IP-004",
+  "test_name": "packet_field_encoding_and_flags",
+  "test_description": "Field encoding — test VALID, OVERFLOW, PARITY_ERR, EPOCH_MARK combinations vs flags=0 and reserved upper flag bits [7:4]",
+  "test_set": "set1_input_contracts",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/ingress/packet_validator.cpp",
+  "implementation_function": "avid_validate_packet",
+  "input_contract": "Only defined flags [3:0] with VALID=1 and PARITY_ERR=0 accepted; flags=0 or reserved bits [7:4] rejected",
+  "independent_oracle": "Flag bitmask specification (VALID=0x01, OVERFLOW=0x02, PARITY_ERR=0x04, EPOCH_MARK=0x08; reserved[7:4]==0)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-004$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/invalid/reserved_upper_flags.bin",
+  "expected": {
+    "flags_0x00": "REJECT (false), invalid_flag_count++",
+    "flags_0xF1_reserved_bits": "REJECT (false), invalid_flag_count++"
+  },
+  "actual": {
+    "flags_0x00": "REJECT (false)",
+    "flags_0xF1_reserved_bits": "ACCEPT (true) — reserved bits [7:4] ignored"
+  },
+  "assertion_notes": [
+    "avid_validate_packet accepted packet with reserved flag bits 0xF0 set (flags=0xF1)"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-004.log",
+    "validation/layer3/raw_results/set1/L3-IP-004.json"
+  ],
+  "duration_ms": 1.007,
+  "failure_classification": "reserved_upper_flag_bits_accepted_without_validation"
+}

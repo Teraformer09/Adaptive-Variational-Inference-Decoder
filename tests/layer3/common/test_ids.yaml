@@ -1,0 +1,2675 @@
+schema_version: 1.0.0
+source_document: LAYER3_IMPLEMENTATION_TO_TEST_TRACEABILITY.md
+source_document_sha256: ead2fe2283bee579139df7fd92bfa0629dacaadbf971b5b565a2ca93f3d1b4c0
+total_test_ids: 243
+family_counts:
+  L3-IP: 40
+  L3-OP: 36
+  L3-STAT: 15
+  L3-FLOW: 45
+  L3-EXEC: 45
+  L3-MATH: 62
+allowed_statuses:
+- PASS
+- FAIL
+- BLOCKED
+- INCONCLUSIVE
+- NOT_IMPLEMENTED
+- CONTRACT_MISMATCH
+tests:
+- test_id: L3-IP-001
+  test_name: Valid packet ingress
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_valid.cpp
+  implementation_stage: implemented_set1
+  description: 'Valid packet ingress — Preconditions: Initialized `avid_packet_validator_t`; Procedure: Pack `(s_x=5, s_z=11,
+    seq=0, epoch=3, flags=AVID_PKT_FLAG_VALID)` -> unpack & validate'
+  expected_behavior: Returns `true`; decoded fields exact; `valid_count==1`
+  traceability_gate: G1
+  production_mapping: packet_validator.cpp:avid_pack_packet_u64,avid_validate_packet
+- test_id: L3-IP-002
+  test_name: Packet length
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_invalid.cpp
+  implementation_stage: implemented_set1
+  description: 'Packet length — Preconditions: Byte-buffer decoder for 64-bit word & `syndrome_packet_v1.yaml` 16B+4B frames;
+    Procedure: Feed buffers of size `0, 1, 7, 8, 9` B (and `15` B truncated YAML header)'
+  expected_behavior: Exact `8` B accepted; mismatched lengths rejected cleanly *(DEF-L3-01)*
+  traceability_gate: G1
+  production_mapping: packet_validator.h`, `syndrome_packet_v1.yaml
+- test_id: L3-IP-003
+  test_name: Packet version
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_endianness.cpp
+  implementation_stage: implemented_set1
+  description: 'Packet version — Preconditions: Bridge HAL & YAML header validator; Procedure: Feed `protocol_version=1` vs
+    `0, 2, 99` + stream magic `0xAAEC0002/0xAAEC0001` vs invalid `0xDEADBEEF`'
+  expected_behavior: Version `1` / valid magics accepted; others rejected (`rejected_transactions++`)
+  traceability_gate: G1
+  production_mapping: simulation_backend.cpp:133-138`, `syndrome_packet_v1.yaml
+- test_id: L3-IP-004
+  test_name: Field encoding
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_flags.cpp
+  implementation_stage: implemented_set1
+  description: 'Field encoding — Preconditions: Initialized validator; Procedure: Test valid flag combos `(VALID, OVERFLOW,
+    EPOCH_MARK)` vs `flags=0` or reserved upper flag bits `[7:4]` set'
+  expected_behavior: Missing `VALID` or malformed reserved flags rejected (`invalid_flag_count++`) *(DEF-L3-10)*
+  traceability_gate: G1
+  production_mapping: packet_validator.h:14-18`, `packet_validator.cpp:34-38
+- test_id: L3-IP-005
+  test_name: Syndrome bit range
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_field_decode.cpp
+  implementation_stage: implemented_set1
+  description: 'Syndrome bit range — Preconditions: Pack helper & HAL syndrome sender; Procedure: Test all 256 valid `(s_x
+    in 0..15, s_z in 0..15)` + check masking when passing `16, 255`'
+  expected_behavior: Bitwise `(raw & 0xF)`, `((raw>>4) & 0xF)` preserved; validator wrapper rejects `s_x/s_z >= 16`
+  traceability_gate: G1
+  production_mapping: packet_validator.cpp:23-24`, `avid_hal.h:341
+- test_id: L3-IP-006
+  test_name: Timestamp validity
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_epoch.cpp
+  implementation_stage: implemented_set1
+  description: 'Timestamp validity — Preconditions: `avid_fast_burst_detector_t` / causal scheduler + packet metadata wrapper;
+    Procedure: Feed monotonic rounds `t=0,1,2...` vs duplicate `t=5,5` vs backward `t=5,4`'
+  expected_behavior: Monotonic accepted; duplicate/backward rejected/flagged (`causal` check) *(DEF-L3-01/08)*
+  traceability_gate: G1
+  production_mapping: causal_scheduler.cpp`, `packet_validator.h` (capability check)
+- test_id: L3-IP-007
+  test_name: Sequence continuity
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_sequence.cpp
+  implementation_stage: implemented_set1
+  description: 'Sequence continuity — Preconditions: Validator after packet `seq=10`; Procedure: Feed `seq=11` (valid), then
+    skip to `seq=13` (gap), then repeat `seq=13` (duplicate)'
+  expected_behavior: '`seq=11 -> true`; `seq=13` after `11 -> false` & `seq_gap_count==1`; duplicate `seq=13 -> false` & gap/dup
+    count increments'
+  traceability_gate: G1
+  production_mapping: packet_validator.cpp:44-51
+- test_id: L3-IP-008
+  test_name: Packet corruption
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_no_side_effect.cpp
+  implementation_stage: implemented_set1
+  description: 'Packet corruption — Preconditions: Packet validator & stream parser; Procedure: Flip `AVID_PKT_FLAG_PARITY_ERR`
+    (`0x04`); separately check CRC/checksum field support'
+  expected_behavior: Parity-error packet rejected (`false`, `invalid_flag_count++`); absent hardware CRC field flagged explicitly
+    as `INCONCLUSIVE`/`PARITY_BIT_ONLY` *(DEF-L3-01)*
+  traceability_gate: G1
+  production_mapping: packet_validator.cpp:34-38
+- test_id: L3-IP-009
+  test_name: Packet truncation
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_boundary.cpp
+  implementation_stage: implemented_set1
+  description: 'Packet truncation — Preconditions: Unix socket JSON bridge & binary `--stim-bin` reader; Procedure: Write
+    partial JSON line without `\n` or EOF mid-`uint64_t` (`3` bytes)'
+  expected_behavior: Socket returns `-1` (`rejected_transactions++`); short binary frame flagged incomplete
+  traceability_gate: G1
+  production_mapping: simulation_backend.cpp:101-124`, `avid_daemon.cpp:400
+- test_id: L3-IP-010
+  test_name: Packet burst
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/dma_histogram
+  test_file: test_dma_ingress.cpp
+  implementation_stage: implemented_set1
+  description: 'Packet burst — Preconditions: `avid_dma_ring_t` (`4 slots x 64 pkts`); Procedure: Push 4 full bursts (`256`
+    pkts) consuming sequentially; then push a 5th burst while all 4 slots are `CPU_READY`'
+  expected_behavior: Consumed cadence sustains `0` drops (`overflow_drops==0`); unconsumed 5th burst cleanly returns `false`
+    and increments `overflow_drops==64`
+  traceability_gate: G1
+  production_mapping: dma_ingress_tap.cpp:16-34
+- test_id: L3-IP-011
+  test_name: Histogram dimensions
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/dma_histogram
+  test_file: test_histogram_accumulation.cpp
+  implementation_stage: implemented_set1
+  description: 'Histogram dimensions — Preconditions: `dma_ingress_tap` & `NoiseModel`; Procedure: Verify `hist_x[16]`, `hist_z[16]`
+    (`NM_N_STATES == 16`) across all 16 codes `0x0..0xF`'
+  expected_behavior: All 16 bins addressable, zero-indexed, out-of-bounds prevented by `& 0x0F`
+  traceability_gate: G1
+  production_mapping: dma_ingress_tap.cpp:52-53`, `noise_model.h:27
+- test_id: L3-IP-012
+  test_name: Histogram domain
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_histogram_input_validation.cpp
+  implementation_stage: implemented_set1
+  description: 'Histogram domain — Preconditions: `NoiseModel::compute_nll_from_histogram`; Procedure: Pass valid nonnegative
+    counts `[0, 100, ...]` vs test signed negative-cast guard in Python/C++ boundary'
+  expected_behavior: Valid nonnegative integers accepted cleanly; invalid negative counts rejected at validator
+  traceability_gate: G1
+  production_mapping: noise_model.cpp:138`, boundary wrapper
+- test_id: L3-IP-013
+  test_name: Empty histogram
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_empty_observation.cpp
+  implementation_stage: implemented_set1
+  description: 'Empty histogram — Preconditions: `NoiseModel` & `HistogramLBFGSSolver`; Procedure: Pass `hist = {0} * 16`
+    (`total == 0`) to `fit_histogram` & `evaluate_nll_and_grad`'
+  expected_behavior: Returns `0.0`, `grad == 0`, `diag.converged == false`, leaves `theta_` uncorrupted
+  traceability_gate: G1
+  production_mapping: lbfgs_solver.cpp:82-94`, `noise_model.cpp:144-146
+- test_id: L3-IP-014
+  test_name: Single-state histogram
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/dma_histogram
+  test_file: test_histogram_accumulation.cpp
+  implementation_stage: implemented_set1
+  description: 'Single-state histogram — Preconditions: Initialized `avid_dma_ring_t`; Procedure: Feed 64 valid packets all
+    with `s_x=6, s_z=9`'
+  expected_behavior: '`hist_x[6]==64`, all other X bins `0`; `hist_z[9]==64`, all other Z bins `0`'
+  traceability_gate: G1
+  production_mapping: dma_ingress_tap.cpp:51-54
+- test_id: L3-IP-015
+  test_name: Normalized histogram
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_histogram_input_validation.cpp
+  implementation_stage: implemented_set1
+  description: 'Normalized histogram — Preconditions: Known histogram `[800, 50, ..., 0]` (`total=1000`); Procedure: Compare
+    `NoiseModel::compute_nll_from_histogram` across scaled `hist` vs `10 * hist` (`10,000`)'
+  expected_behavior: Empirical bin proportions identical; NLL invariant under uniform scaling of counts (`DEF-L3-03`)
+  traceability_gate: G1
+  production_mapping: noise_model.cpp:147-152
+- test_id: L3-IP-016
+  test_name: Invalid normalization
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_histogram_input_validation.cpp
+  implementation_stage: implemented_set1
+  description: Invalid normalization
+  expected_behavior: Normalized PMF input checker in Set 1 wrapper
+  traceability_gate: G1
+  production_mapping: Validator contract (`tests/layer3/`)
+- test_id: L3-IP-017
+  test_name: Counter overflow
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/dma_histogram
+  test_file: test_histogram_overflow.cpp
+  implementation_stage: implemented_set1
+  description: 'Counter overflow — Preconditions: `dma_ingress_tap` & `NoiseModel` (`uint64_t total`); Procedure: Pass bins
+    near `UINT32_MAX / 2` across all 16 bins (`sum > 2^32`) into `compute_nll_from_histogram`, plus saturation test on `consume_slot`'
+  expected_behavior: '`uint64_t total` in `noise_model.cpp` does NOT wrap around at `2^32`; slot saturation/guard checked
+    *(DEF-L3-02)*'
+  traceability_gate: G1
+  production_mapping: noise_model.cpp:140`, `dma_ingress_tap.cpp
+- test_id: L3-IP-018
+  test_name: Window rollover
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/dma_histogram
+  test_file: test_histogram_reset.cpp
+  implementation_stage: implemented_set1
+  description: 'Window rollover — Preconditions: `ring_buffer_t` (`RING_WINDOW=10000`) & daemon epoch reset; Procedure: Fill
+    `ring_push` with `10,500` items (pattern A for first `500`, pattern B for `10,000`); inspect `ring_at` and daemon epoch
+    clear'
+  expected_behavior: Oldest `500` overwritten (`count==10000`); daemon zeros `hist_x, hist_z` after slow epoch
+  traceability_gate: G1
+  production_mapping: ring_buffer.h:35-46`, `avid_daemon.cpp:767-771
+- test_id: L3-IP-019
+  test_name: Concurrent histogram update
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/dma_histogram
+  test_file: test_histogram_snapshot.cpp
+  implementation_stage: implemented_set1
+  description: 'Concurrent histogram update — Preconditions: Multi-thread ingress/consumer harness; Procedure: Writer pushes
+    slots while estimator takes snapshot on another thread using explicit lock/snapshot protocol (and probe raw lock-free
+    slot state race behavior)'
+  expected_behavior: Synchronized snapshot stays internally consistent (`sum(hist) == expected valid pkts`); unsynchronized
+    race hazard documented *(DEF-L3-02)*
+  traceability_gate: G1
+  production_mapping: dma_ingress_tap.cpp
+- test_id: L3-IP-020
+  test_name: X/Z independence
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/dma_histogram
+  test_file: test_histogram_channel_isolation.cpp
+  implementation_stage: implemented_set1
+  description: 'X/Z independence — Preconditions: Dual ingress streams; Procedure: Feed bursts with random X patterns & constant
+    `s_z=0`, then constant `s_x=0` & random Z patterns'
+  expected_behavior: '`hist_x` invariant to Z stream changes and `hist_z` invariant to X stream changes (`syndrome_packet_v1.yaml`
+    invariant #1)'
+  traceability_gate: G1
+  production_mapping: dma_ingress_tap.cpp:52-53`, `syndrome_packet_v1.yaml:59
+- test_id: L3-IP-021
+  test_name: Parameter vector dimension
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_parameter_dimensions.cpp
+  implementation_stage: implemented_set1
+  description: 'Parameter vector dimension — Preconditions: `NoiseModel` & `parameter_schema.json`; Procedure: Assert `NM_N_PARAMS
+    == 21`, `NM_N_QUBIT == 9`, `NM_N_CROSSTALK == 12`, `ParamVec::SizeAtCompileTime == 21`'
+  expected_behavior: Exact 21-D schema verified; wrong-length inputs rejected in Python/C++ bridge
+  traceability_gate: G1
+  production_mapping: noise_model.h:23-25`, `parameter_schema.json:4
+- test_id: L3-IP-022
+  test_name: Parameter ordering
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_parameter_ordering.cpp
+  implementation_stage: implemented_set1
+  description: 'Parameter ordering — Preconditions: `NoiseModel`, `parameter_schema.json`, `NM_CROSSTALK_PAIRS`; Procedure:
+    Compare schema indices `0..20` (`Z_0..Z_8`, pairs `9..20`), XOR signatures `g_e`, and verify permuting `theta` changes
+    signature-matched NLL'
+  expected_behavior: Exact 1:1 ordering match with `parameter_schema.json`; permuted vector yields different/incorrect orbit
+    model as detected
+  traceability_gate: G1
+  production_mapping: noise_model.cpp:22-47`, `parameter_schema.json:11-233
+- test_id: L3-IP-023
+  test_name: Probability boundaries
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_parameter_bounds.cpp
+  implementation_stage: implemented_set1
+  description: 'Probability boundaries — Preconditions: `NoiseModel::validate_parameter_bounds` & `clamp_params`; Procedure:
+    Test `theta = 0.0`, `1e-5`, `0.25`, `0.45`, `0.499`, `0.50`, `1.0`'
+  expected_behavior: '`validate_parameter_bounds` accepts `[0.0, 0.5)` and rejects `>= 0.5`; `clamp_params` maps to `[1e-5,
+    0.45]`'
+  traceability_gate: G1
+  production_mapping: noise_model.cpp:76-89
+- test_id: L3-IP-024
+  test_name: Invalid probabilities
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_parameter_nan_inf.cpp
+  implementation_stage: implemented_set1
+  description: 'Invalid probabilities — Preconditions: `NoiseModel` & C++ boundary guard; Procedure: Test `-1e-6`, `0.51`,
+    `1.2`, `NaN`, `+Inf`, `-Inf`'
+  expected_behavior: '`validate_parameter_bounds` returns `false`; patched NLL/grad boundary rejects `NaN`/`Inf` instead of
+    silent clamp propagate *(DEF-L3-10)*'
+  traceability_gate: G1
+  production_mapping: noise_model.cpp:82-89`, guard patch
+- test_id: L3-IP-025
+  test_name: Prior dimensions
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_prior_validation.cpp
+  implementation_stage: implemented_set1
+  description: 'Prior dimensions — Preconditions: `NoiseModel.prior_theta_`; Procedure: Construct valid 21-D prior vector
+    vs 9-D / 20-D / 22-D vectors in schema/wrapper'
+  expected_behavior: Only 21-D finite prior accepted; wrong dimension rejected with `ValueError`
+  traceability_gate: G1
+  production_mapping: noise_model.h:148`, validator wrapper
+- test_id: L3-IP-026
+  test_name: Prior strength
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_prior_validation.cpp
+  implementation_stage: implemented_set1
+  description: 'Prior strength — Preconditions: `NoiseModel.prior_lambda_`; Procedure: Test `lambda = 0.0`, `0.04`, `0.5`,
+    boundary `1e6`, and negative `-0.1`'
+  expected_behavior: '`lambda=0.0` eliminates quadratic penalty; larger `lambda` pulls `theta` toward `prior_theta`; `lambda
+    < 0` rejected'
+  traceability_gate: G1
+  production_mapping: noise_model.cpp:154-157,237-239
+- test_id: L3-IP-027
+  test_name: Optimizer initialization
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_parameter_bounds.cpp
+  implementation_stage: implemented_set1
+  description: 'Optimizer initialization — Preconditions: `HistogramLBFGSSolver` & `LBFGSOptimizer`; Procedure: Initialize
+    `NoiseModel` at valid points (`p=0.005`, `0.012`, `0.10`, `[1e-5..0.45]`) and reset optimizer'
+  expected_behavior: Both solvers initialize with finite NLL and `hist_count_ == 0`
+  traceability_gate: G1
+  production_mapping: lbfgs_solver.cpp:16`, `lbfgs_optimizer.cpp:9-25
+- test_id: L3-IP-028
+  test_name: Invalid optimizer state
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_parameter_nan_inf.cpp
+  implementation_stage: implemented_set1
+  description: 'Invalid optimizer state — Preconditions: Initialized `NoiseModel` + solver wrapper; Procedure: Pass `NaN`,
+    `+Inf`, or `-0.05` `theta_` into guarded solver entry'
+  expected_behavior: Rejected cleanly (`NaN` / negative start cannot execute silent update step) *(DEF-L3-10)*
+  traceability_gate: G1
+  production_mapping: lbfgs_solver.cpp`, `noise_model.cpp
+- test_id: L3-IP-029
+  test_name: Missing observations
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/estimator_inputs
+  test_file: test_empty_observation.cpp
+  implementation_stage: implemented_set1
+  description: 'Missing observations — Preconditions: `HistogramLBFGSSolver` & `avid_daemon`; Procedure: Empty `hist={0}*16`
+    or sparse `total=3` rounds vs nominal `total=256`'
+  expected_behavior: '`total==0` returns early with `converged=false`; `total<W_min` keeps conservative fallback/uncertainty
+    behavior'
+  traceability_gate: G1
+  production_mapping: lbfgs_solver.cpp:84-94
+- test_id: L3-IP-030
+  test_name: Stale observations
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/packet
+  test_file: test_packet_epoch.cpp
+  implementation_stage: implemented_set1
+  description: 'Stale observations — Preconditions: `avid_dma_ring_t` + window epoch tracker; Procedure: Fill all 4 ring slots
+    causing overwrite (`overflow_drops > 0`) or pass epoch-tagged older window after epoch advance'
+  expected_behavior: Overrun increments `overflow_drops`; `epoch < current_epoch` window flagged stale and rejected before
+    commit
+  traceability_gate: G1
+  production_mapping: dma_ingress_tap.cpp:21-24`, `fault_policy.yaml:F03
+- test_id: L3-IP-031
+  test_name: Window configuration
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_consumption.cpp
+  implementation_stage: implemented_set1
+  description: 'Window configuration — Preconditions: `avid_daemon` & `avid_scheduler_init`; Procedure: Test `--window` =
+    `64, 256, 1024, 10000` vs `0, -16`'
+  expected_behavior: Positive valid lengths accepted; `<= 0` cleanly exits with rc `2`
+  traceability_gate: G1
+  production_mapping: avid_daemon.cpp:250-269
+- test_id: L3-IP-032
+  test_name: Commit delay
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_valid.cpp
+  implementation_stage: implemented_set1
+  description: 'Commit delay — Preconditions: `avid_causal_scheduler_t`; Procedure: Init with `commit_delay = 0, 1, 64, 256`
+    vs guard on negative/excessive invalid cast'
+  expected_behavior: Valid delays initialize cleanly and enforce `round_now >= end + delay`
+  traceability_gate: G1
+  production_mapping: causal_scheduler.cpp:7-15
+- test_id: L3-IP-033
+  test_name: Optimizer limits
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_bounds.cpp
+  implementation_stage: implemented_set1
+  description: 'Optimizer limits — Preconditions: `HistogramLBFGSSolver::fit_histogram` & `LBFGSOptimizer`; Procedure: Pass
+    `max_iters = 1, 10, 20, 50` vs `<= 0`; check `LBFGS_MAX_ITER=50`, `LBFGS_TOL=1e-6`'
+  expected_behavior: Executed passes respect iteration bounds; `max_iters <= 0` does zero steps safely / rejected
+  traceability_gate: G1
+  production_mapping: lbfgs_solver.cpp:44,109`, `lbfgs_optimizer.h:20-21
+- test_id: L3-IP-034
+  test_name: Burst threshold
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_bounds.cpp
+  implementation_stage: implemented_set1
+  description: 'Burst threshold — Preconditions: `avid_fast_detector_init`; Procedure: Pass valid `threshold=0.35, 0.50`,
+    `debounce=4` vs `threshold=0.0, -0.5, 1.5, NaN`'
+  expected_behavior: Out-of-`(0,1]` threshold either defaults/rejects explicitly without allowing `>=0` always-trigger bug
+  traceability_gate: G1
+  production_mapping: causal_scheduler.cpp:38-46
+- test_id: L3-IP-035
+  test_name: Decoder iteration limit
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_types.cpp
+  implementation_stage: implemented_set1
+  description: 'Decoder iteration limit — Preconditions: `CycleAccurateBPEngine` & `avid_hal_set_bp_iterations`; Procedure:
+    Test `K in {1, 2, 3, 4, 5}` (from `system_timing.yaml`) vs `K = 0, 99` in contract validator'
+  expected_behavior: Supported `K in 1..5` matches `cycles_fused = 2 + 5*K`; out-of-range flagged invalid
+  traceability_gate: G1
+  production_mapping: system_timing.yaml:8`, `cycle_accurate_bp_engine.cpp:143
+- test_id: L3-IP-036
+  test_name: Runtime telemetry
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_unknown_fields.cpp
+  implementation_stage: implemented_set1
+  description: 'Runtime telemetry — Preconditions: `avid_daemon --metrics-out` & `configs/schema.yaml` validator; Procedure:
+    Validate valid JSON/YAML config vs malformed unknown keys (`schema.yaml`), missing socket, invalid `--osd-mode 9`'
+  expected_behavior: '`schema.yaml` & `avid_daemon` reject invalid configs (`rc=2`) and populate complete valid telemetry'
+  traceability_gate: G1
+  production_mapping: avid_daemon.cpp:265-289`, `configs/schema.yaml
+- test_id: L3-IP-037
+  test_name: Epoch consistency
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_consumption.cpp
+  implementation_stage: implemented_set1
+  description: 'Epoch consistency — Preconditions: `weight_reg_driver` + `simulation_backend` + daemon reconciliation; Procedure:
+    Advance commits & compare packet `pkt.epoch_id` vs `wrd_read_epoch`, plus `init + adapt - reset == hw_epoch`'
+  expected_behavior: Exact epoch equality verified; mismatch flagged by bridge (`id_mismatch_errors`) & reconciler
+  traceability_gate: G1
+  production_mapping: weight_commit_protocol.yaml:6`, `avid_daemon.cpp:808-809
+- test_id: L3-IP-038
+  test_name: Safety FSM input
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_types.cpp
+  implementation_stage: implemented_set1
+  description: 'Safety FSM input — Preconditions: `avid_fallback_step`; Procedure: Drive valid combinations of 4 booleans
+    `(est_ok, ddl_ok, bnd_ok, bus_ok)` & check unknown state enum guard'
+  expected_behavior: All 16 boolean tuples map cleanly; corrupted state enum rejected/forced safe *(DEF-L3-10)*
+  traceability_gate: G1
+  production_mapping: fallback_fsm.cpp:17-56
+- test_id: L3-IP-039
+  test_name: Active weight bank
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_valid.cpp
+  implementation_stage: implemented_set1
+  description: 'Active weight bank — Preconditions: `wrd_handle_t` + `CycleAccurateBPEngine`; Procedure: Write 9 Q7.8 weights
+    (`0x0040..0x3000`) -> commit -> `wrd_read_active_weight(0..8)`'
+  expected_behavior: All 9 active bank slots reflect committed vector; out-of-range index returns safe `0`
+  traceability_gate: G1
+  production_mapping: weight_reg_driver.c:108-128
+- test_id: L3-IP-040
+  test_name: Shadow weight bank
+  test_set: set1_input_contracts
+  primary_directory: set1_input_contracts/runtime_config
+  test_file: test_config_bounds.cpp
+  implementation_stage: implemented_set1
+  description: 'Shadow weight bank — Preconditions: `avid_quantize_and_validate_bank` -> `wrd_write_all_weights`; Procedure:
+    Supply valid `[0x0040..0x3000]` bank vs bank containing `0`, negative Q7.8, or `> 0x3000`'
+  expected_behavior: Candidate only reaches active bank when `bounds_ok && should_commit`; invalid bank fails validation
+  traceability_gate: G1
+  production_mapping: llr_quantizer.cpp:17-34`, `fallback_fsm.cpp:45
+- test_id: L3-OP-001
+  test_name: Estimate dimensions
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Estimate dimensions
+  expected_behavior: Run `HistogramLBFGSSolver::fit_histogram` on valid 16-bin histogram -> check output vector length ==
+    `21` (`[0..8]` qubit, `[9..20]` pair)
+  traceability_gate: G2
+  production_mapping: noise_model.h:25
+- test_id: L3-OP-002
+  test_name: Estimate finiteness
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Estimate finiteness
+  expected_behavior: Assert all 21 `theta_(i)` and 21 `grad_(i)` are `std::isfinite` across 20 diverse histograms (sparse,
+    uniform, extreme hotspot)
+  traceability_gate: G2
+  production_mapping: noise_model.cpp`, `lbfgs_solver.cpp
+- test_id: L3-OP-003
+  test_name: Parameter bounds
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Parameter bounds
+  expected_behavior: Assert every fitted `theta_(i)` satisfies exact solver box `[1e-5, 0.45]` (and `< 0.5`)
+  traceability_gate: G2
+  production_mapping: noise_model.cpp:76-89
+- test_id: L3-OP-004
+  test_name: Objective output
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Objective output
+  expected_behavior: Verify returned NLL `>= 0.0`, finite, and equals `model.compute_nll_from_histogram(hist)` at final `theta_`
+  traceability_gate: G2
+  production_mapping: noise_model.cpp:138-159`, `lbfgs_solver.cpp:173
+- test_id: L3-OP-005
+  test_name: Gradient output
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Gradient output
+  expected_behavior: Inspect `model.grad()` after `fit_histogram` -> dimension `21`, finite, projected gradient norm matches
+    `diag.final_grad_inf_norm`
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp:20-33,175
+- test_id: L3-OP-006
+  test_name: Optimizer status
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Optimizer status
+  expected_behavior: Verify `LBFGSFitDiagnostics.converged` matches exact condition (`isfinite && nll > 0 && g_inf < 0.25`)
+    vs forced `max_iters=0` failure & `hist=0`
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp:85-93,171-178
+- test_id: L3-OP-007
+  test_name: Iteration count
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Iteration count
+  expected_behavior: Run with `max_iters=1, 6, 20` -> check `0 <= iterations_executed <= max_iters` matches actual backtracking
+    passes (`it1 + it2`)
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp:51,109-114,169,176
+- test_id: L3-OP-008
+  test_name: Initial/final objective
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Initial/final objective
+  expected_behavior: Assert `diag.initial_nll >= diag.final_joint_dp_nll` after monotonic Armijo descent (except where Pass
+    2 warm-start jump occurs — verify exact Pass 1/Pass 2 accounting!)
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp:105,172-173
+- test_id: L3-OP-009
+  test_name: Prior contribution
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Prior contribution
+  expected_behavior: Evaluate NLL with `prior_lambda_=0` vs `prior_lambda_=0.04` at same final `theta_` -> confirm difference
+    equals exact `0.5 * 0.04 *
+  traceability_gate: G2
+  production_mapping: noise_model.cpp:154-157
+- test_id: L3-OP-010
+  test_name: Insufficient evidence
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/estimator_output
+  test_file: test_parameter_output_shape.cpp
+  implementation_stage: planned_future_set
+  description: Insufficient evidence
+  expected_behavior: Feed `total=0` empty histogram & `total=5` sparse rounds -> `total=0` sets `converged=false, nll=0.0`;
+    `total=5` yields prior-dominated result (`sigma` wide)
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp:84-94
+- test_id: L3-OP-011
+  test_name: LLR dimension
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: LLR dimension
+  expected_behavior: Both `avid_quantize_and_validate_bank` & `NoiseModel::to_q7_8_llr` produce exact `int16_t[9]` outputs
+    (`NM_N_QUBIT==9`)
+  traceability_gate: G2
+  production_mapping: llr_quantizer.cpp:17`, `noise_model.cpp:302
+- test_id: L3-OP-012
+  test_name: Q7.8 encoding
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: Q7.8 encoding
+  expected_behavior: Test golden reference probabilities `{0.001, 0.01, 0.03, 0.05, 0.10, 0.20, 0.30}` against `llr_numeric_contract.yaml`
+    & `round(log((1-p)/p)*256)` (`<= 1` LSB)
+  traceability_gate: G2
+  production_mapping: llr_numeric_contract.yaml:33-40`, `llr_quantizer.cpp:11
+- test_id: L3-OP-013
+  test_name: Quantization rounding
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: Quantization rounding
+  expected_behavior: Check half-way and dense grid `llr * 256.0` under `std::lround` (`llr_quantizer.cpp`) vs truncating `wrd_float_to_q78`
+    (`DEF-L3-06`)
+  traceability_gate: G2
+  production_mapping: llr_quantizer.cpp:11`, `weight_reg_driver.h:30
+- test_id: L3-OP-014
+  test_name: Saturation
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: Saturation
+  expected_behavior: Feed `p=1e-7` (`llr ~ 16.1 -> 4126 < 0x3000`, note to trigger `> 0x3000` need `llr > 48` impossible at
+    `p>=1e-5`, so test `p=1e-5` -> `0x0B83`, `p=0.45` -> `0x0033 < 0x0040` triggers `AVID_Q78_MIN_SAFE` clamp + `all_safe=false`!)
+  traceability_gate: G2
+  production_mapping: llr_quantizer.cpp:27-30
+- test_id: L3-OP-015
+  test_name: Zero-probability handling
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: Zero-probability handling
+  expected_behavior: Pass `p=0.0` into `avid_prob_to_q78_llr` & `avid_quantize_and_validate_bank` -> no `Inf`/`NaN`; bank
+    returns `false` & safe `AVID_Q78_DEFAULT`
+  traceability_gate: G2
+  production_mapping: llr_quantizer.cpp:9,21-25
+- test_id: L3-OP-016
+  test_name: Unit-probability handling
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: Unit-probability handling
+  expected_behavior: Pass `p=1.0` & `p=0.5` -> `avid_prob_to_q78_llr` clamps `0.49` (`>0`); `avid_quantize_and_validate_bank`
+    rejects `>= 0.5` returning `false` & `AVID_Q78_DEFAULT`
+  traceability_gate: G2
+  production_mapping: llr_quantizer.cpp:9,21-25
+- test_id: L3-OP-017
+  test_name: Sign convention
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: Sign convention
+  expected_behavior: Verify monotonically decreasing `q78(p)` on `(0, 0.5)` and `p < 0.5 <=> q78 > 0` matching `llr_numeric_contract.yaml`
+    ("bit 0 preferred for `LLR > 0`")
+  traceability_gate: G2
+  production_mapping: llr_numeric_contract.yaml:8`, `llr_quantizer.cpp:10
+- test_id: L3-OP-018
+  test_name: Round-trip conversion
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: 'Round-trip conversion — Preconditions: Compute `p -> LLR -> q78 -> q78 / 256.0 -> 1/(1+exp(LLR_q))` over `p
+    in [1e-4, 0.45]` -> check `; Procedure: LLR_q - LLR'
+  expected_behavior: <= 1/512 + eps` where unsaturated
+  traceability_gate: G2
+  production_mapping: llr_quantizer.cpp:11
+- test_id: L3-OP-019
+  test_name: Parameter mapping
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: Parameter mapping
+  expected_behavior: Set single qubit `q=4` hot (`theta[4]=0.12`), others baseline -> verify ONLY `q=4` (plus any coupled
+    pairs on `4`) drops LLR relative to non-adjacent qubits
+  traceability_gate: G2
+  production_mapping: noise_model.cpp:281-311
+- test_id: L3-OP-020
+  test_name: Invalid estimate propagation
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/llr_quantization
+  test_file: test_q78_output.cpp
+  implementation_stage: planned_future_set
+  description: Invalid estimate propagation
+  expected_behavior: Inject `NaN`, `-0.1`, `0.6` into `p_eff` -> assert `avid_quantize_and_validate_bank` returns `false`,
+    `bounds_ok=false` blocks adaptive commit in FSM
+  traceability_gate: G2
+  production_mapping: llr_quantizer.cpp:21-24`, `fallback_fsm.cpp:45
+- test_id: L3-OP-021
+  test_name: Burst indication
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/scheduler_output
+  test_file: test_scheduler_decision.cpp
+  implementation_stage: planned_future_set
+  description: Burst indication
+  expected_behavior: Drive `avid_fast_burst_detector_t` with calm `sx=0` then dense `sx=0x2` -> verify `burst_active` and
+    return value boolean state
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp:48-76
+- test_id: L3-OP-022
+  test_name: Trigger timestamp
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/scheduler_output
+  test_file: test_scheduler_decision.cpp
+  implementation_stage: planned_future_set
+  description: Trigger timestamp
+  expected_behavior: Burst starts at `round=100` (`density >= 0.35`, `debounce=4`) -> check exact `round_idx` when `step()`
+    returns `true` (`100 <= r_trig <= 119`)
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp:64-70
+- test_id: L3-OP-023
+  test_name: Trigger latency
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/scheduler_output
+  test_file: test_scheduler_decision.cpp
+  implementation_stage: planned_future_set
+  description: Trigger latency
+  expected_behavior: Measure `r_trig - burst_start + 1` across `density in {0.4, 0.5, 1.0}` bursts -> stays in `[debounce,
+    20]` (never `<= 0` / retrospective!)
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp:45,64-70
+- test_id: L3-OP-024
+  test_name: Commit scheduling
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/scheduler_output
+  test_file: test_scheduler_decision.cpp
+  implementation_stage: planned_future_set
+  description: Commit scheduling
+  expected_behavior: '`avid_scheduler_schedule_commit(window_end=256, w)` with `commit_delay=32` -> `poll_commit_ready(287)==false`,
+    `poll_commit_ready(288)==true`'
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp:17-36
+- test_id: L3-OP-025
+  test_name: Epoch assignment
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/scheduler_output
+  test_file: test_scheduler_decision.cpp
+  implementation_stage: planned_future_set
+  description: Epoch assignment
+  expected_behavior: Poll `0, 1, 2` commits -> `active_epoch_id` increments strictly `0 -> 1 -> 2` matching committed weights
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp:32
+- test_id: L3-OP-026
+  test_name: Delayed evidence
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/scheduler_output
+  test_file: test_scheduler_decision.cpp
+  implementation_stage: planned_future_set
+  description: Delayed evidence
+  expected_behavior: Schedule commit for `t_target=500`, test re-scheduling with older `window_end` or late HAL response ->
+    guard ensures older timestamp cannot overwrite newer pending commit
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp` + scheduler guard
+- test_id: L3-OP-027
+  test_name: Duplicate trigger
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/scheduler_output
+  test_file: test_scheduler_decision.cpp
+  implementation_stage: planned_future_set
+  description: Duplicate trigger
+  expected_behavior: Feed sustained burst for `50` consecutive rounds -> assert `debounce_counter == debounce_rounds` triggers
+    once per burst window (`trigger_count==1`), NOT 40 duplicate commits
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp:65-69
+- test_id: L3-OP-028
+  test_name: No-evidence condition
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/scheduler_output
+  test_file: test_scheduler_decision.cpp
+  implementation_stage: planned_future_set
+  description: No-evidence condition
+  expected_behavior: Feed `10,000` stationary low-rate rounds (`p=0.012`, subwindow density well below `0.35` almost always;
+    inject constant `p < 0.01` & sub-threshold `5/16=0.3125 < 0.35`) -> exact `0` triggers below threshold
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp:64
+- test_id: L3-OP-029
+  test_name: FSM state output
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/fsm_output
+  test_file: test_fsm_action_output.cpp
+  implementation_stage: planned_future_set
+  description: FSM state output
+  expected_behavior: Check `fsm.state in {0, 1, 2, 3}` (`NORMAL_ADAPTIVE, HOLD_LAST_GOOD, SAFE_STATIC_PRIOR, DEGRADED_BYPASS`)
+    after every step
+  traceability_gate: G2
+  production_mapping: fallback_fsm.h:9-14
+- test_id: L3-OP-030
+  test_name: Safety transition
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/fsm_output
+  test_file: test_fsm_action_output.cpp
+  implementation_stage: planned_future_set
+  description: Safety transition
+  expected_behavior: Drive exact state sequence (`NORMAL -> HOLD -> HOLD -> SAFE_STATIC -> NORMAL -> DEGRADED -> NORMAL`)
+    verifying exact transition table
+  traceability_gate: G2
+  production_mapping: fallback_fsm.cpp:17-56
+- test_id: L3-OP-031
+  test_name: Fallback activation
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/fsm_output
+  test_file: test_fsm_action_output.cpp
+  implementation_stage: planned_future_set
+  description: Fallback activation
+  expected_behavior: Independently violate `estimator_ok=false`, `deadline_ok=false`, `bounds_ok=false`, `bus_ok=false` ->
+    verify fallback triggers (`fallback_triggers++`) and exact state
+  traceability_gate: G2
+  production_mapping: fallback_fsm.cpp:25-55
+- test_id: L3-OP-032
+  test_name: Recovery eligibility
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/fsm_output
+  test_file: test_fsm_action_output.cpp
+  implementation_stage: planned_future_set
+  description: Recovery eligibility
+  expected_behavior: 'From `HOLD_LAST_GOOD` & `SAFE_STATIC_PRIOR`: assert faulty steps keep non-`NORMAL` state; healthy step
+    (`all 4 true`) restores `NORMAL_ADAPTIVE` (and document `1`-step vs `yaml`''s `3`-step `DEF-L3-07`)'
+  traceability_gate: G2
+  production_mapping: fallback_fsm.cpp:33-40
+- test_id: L3-OP-033
+  test_name: Daemon health
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/fsm_output
+  test_file: test_fsm_action_output.cpp
+  implementation_stage: planned_future_set
+  description: Daemon health
+  expected_behavior: Run `avid_daemon --self-test` & scenario runs -> `rc==0` when HAL has `0` rejected tx, non-zero exit
+    when HAL errors or bad args
+  traceability_gate: G2
+  production_mapping: avid_daemon.cpp:774-778,971
+- test_id: L3-OP-034
+  test_name: Error reporting
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/fsm_output
+  test_file: test_fsm_action_output.cpp
+  implementation_stage: planned_future_set
+  description: Error reporting
+  expected_behavior: Corrupt packet (`PARITY_ERR`), malformed bridge msg, bad scenario (`--scenario invalid_configuration`)
+    -> counters increment (`invalid_flag_count`, `rejected_transactions`) & stderr reports explicitly
+  traceability_gate: G2
+  production_mapping: packet_validator.cpp:36`, `avid_daemon.cpp:265-269
+- test_id: L3-OP-035
+  test_name: Commit result
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/fsm_output
+  test_file: test_fsm_action_output.cpp
+  implementation_stage: planned_future_set
+  description: Commit result
+  expected_behavior: Inject HAL busy (`bp_ready=0`) vs normal commit -> verify `status_reg`, `hw_epoch`, and `epoch_commit_reconciled`
+    match actual hardware/sim state
+  traceability_gate: G2
+  production_mapping: weight_reg_driver.c:123-132`, `avid_daemon.cpp:808-836
+- test_id: L3-OP-036
+  test_name: Runtime counters
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/fsm_output
+  test_file: test_fsm_action_output.cpp
+  implementation_stage: planned_future_set
+  description: Runtime counters
+  expected_behavior: Compare `validator.valid_count`, `hal_total_transactions`, `hal_syndrome_packets`, `epochs_completed`,
+    `action_histogram` sum against exact ground-truth loop iteration counts
+  traceability_gate: G2
+  production_mapping: avid_daemon.cpp:826-965
+- test_id: L3-STAT-001
+  test_name: Single-parameter recovery
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_stationary_recovery.py
+  implementation_stage: planned_future_set
+  description: Single-parameter recovery
+  expected_behavior: Vary `theta[4]` (clean singleton orbit `0x6`) across `{0.015, 0.04, 0.08}` with `N=2000`, `30` seeds
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp`, `parameter_schema.json:482-498
+- test_id: L3-STAT-002
+  test_name: Multi-parameter recovery
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_stationary_recovery.py
+  implementation_stage: planned_future_set
+  description: Multi-parameter recovery — Vary `theta[1], theta[4], theta[7]` jointly across `30` seeds
+  expected_behavior: Track parameter vector RMSE, 9-class `compute_orbit_rmse`, and KL/TV predictive syndrome error
+  traceability_gate: G2
+  production_mapping: noise_model.cpp:264-279
+- test_id: L3-STAT-003
+  test_name: Independent-noise recovery
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_stationary_recovery.py
+  implementation_stage: planned_future_set
+  description: Independent-noise recovery — Pure independent `theta[0..8] ~ U[0.008, 0.03]` (`theta[9..20]=0`) over `30` seeds
+  expected_behavior: Compare orbit RMSE + non-aliased single-qubit recovery (`q1, q4, q7`) vs aliased pairs
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp
+- test_id: L3-STAT-004
+  test_name: Correlated-noise recovery
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_correlated_noise.py
+  implementation_stage: planned_future_set
+  description: Correlated-noise recovery — Turn on pairs `(1,2)`, `(4,5)`, `(6,7)` at `{0.03, 0.08}` (`30` seeds)
+  expected_behavior: Measure both `theta[9+k]` error and endpoint-disambiguated pair error + orbit RMSE separately from singles!
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp:131-166
+- test_id: L3-STAT-005
+  test_name: Measurement-noise recovery
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_model_mismatch.py
+  implementation_stage: planned_future_set
+  description: Measurement-noise recovery — Generate synthetic syndromes with phenomenological readout bit-flip `p_meas =
+    0.012` (`30` seeds)
+  expected_behavior: Measure parameter bias under readout misspecification vs readout-free case (`M9`)
+  traceability_gate: G2
+  production_mapping: avid_daemon.cpp:443-448
+- test_id: L3-STAT-006
+  test_name: Sample-size sensitivity
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_sample_size_sensitivity.py
+  implementation_stage: planned_future_set
+  description: Sample-size sensitivity — Sweep window `W in {256, 1000, 5000, 20000}` (`30` seeds each) on `Z_4`
+  expected_behavior: Empirical estimator variance & orbit RMSE strictly decrease monotonically with `W`
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp`, `noise_model.cpp
+- test_id: L3-STAT-007
+  test_name: Seed variation
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_seed_variance.py
+  implementation_stage: planned_future_set
+  description: Seed variation — `30` independent seeds across baseline & burst profiles
+  expected_behavior: Report mean, std, IQR, 5th/95th percentiles for NLL, orbit RMSE, 21-param RMSE
+  traceability_gate: G2
+  production_mapping: Set 2 statistical harness
+- test_id: L3-STAT-008
+  test_name: Prior sensitivity
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_prior_sensitivity.py
+  implementation_stage: planned_future_set
+  description: Prior sensitivity — Sweep `prior_lambda in {0.0, 0.04, 0.5, 5.0}` (`W=500`, `30` seeds)
+  expected_behavior: Quantify shrinkage bias toward `prior_theta` vs variance reduction curve
+  traceability_gate: G2
+  production_mapping: noise_model.cpp:154-157
+- test_id: L3-STAT-009
+  test_name: Initial-point sensitivity
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_initialization_sensitivity.py
+  implementation_stage: planned_future_set
+  description: Initial-point sensitivity — Initialize `theta` at `p0 in {0.002, 0.012, 0.05, 0.15}` before `fit_histogram`
+    on identical histograms (`30` cases)
+  expected_behavior: Measure spread across identifiable 9-class orbits vs unidentifiable null/aliased coordinates
+  traceability_gate: G2
+  production_mapping: lbfgs_solver.cpp:78
+- test_id: L3-STAT-010
+  test_name: Model mismatch
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_model_mismatch.py
+  implementation_stage: planned_future_set
+  description: Model mismatch
+  expected_behavior: Inject out-of-model 3-qubit streak (`{3,4,5}`) & asymmetric bias burst (`30` seeds)
+  traceability_gate: G2
+  production_mapping: avid_daemon.cpp:197-205
+- test_id: L3-STAT-011
+  test_name: Parameter identifiability
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_identifiable_parameter_recovery.py
+  implementation_stage: planned_future_set
+  description: Parameter identifiability — Jointly perturb aliased pairs `(Z_0, ZZ_1_2)` keeping XOR-orbit constant (`P(0x1)`
+    fixed) + null edges `ZZ_3_6, ZZ_2_5`
+  expected_behavior: Prove individual coordinates shift along null-space/prior while orbit probability recovers tightly (`DEF-L3-03`)
+  traceability_gate: G2
+  production_mapping: parameter_schema.json`, `noise_model.cpp
+- test_id: L3-STAT-012
+  test_name: Drift tracking
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_drift_recovery.py
+  implementation_stage: planned_future_set
+  description: Drift tracking — Slowly ramp `theta[4]` & `theta[9+3]` across `20` sequential windows (`30` seeds)
+  expected_behavior: Measure tracking lag (windows behind true ramp) and dynamic tracking RMSE
+  traceability_gate: G2
+  production_mapping: avid_daemon.cpp:170-175
+- test_id: L3-STAT-013
+  test_name: Burst contamination
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_burst_contamination.py
+  implementation_stage: planned_future_set
+  description: Burst contamination — Inject `60`-round burst inside `10,000`-round stationary window (`30` seeds)
+  expected_behavior: Measure tiny dilution effect (`0.6%` of window) on slow MAP vs immediate `20 us` fast detector trigger
+  traceability_gate: G2
+  production_mapping: system_timing.yaml
+- test_id: L3-STAT-014
+  test_name: Stationary false alarms
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_false_trigger_rate.py
+  implementation_stage: planned_future_set
+  description: Stationary false alarms — Run `50,000` stationary rounds (`p=0.012`, `30` seeds) through `avid_fast_burst_detector_t`
+  expected_behavior: Record empirical false-alarm trigger rate vs `density >= 0.35` binomial tail probability
+  traceability_gate: G2
+  production_mapping: causal_scheduler.cpp:48-76
+- test_id: L3-STAT-015
+  test_name: Statistical calibration
+  test_set: set2_output_statistics
+  primary_directory: set2_output_statistics/statistical
+  test_file: test_confidence_calibration.py
+  implementation_stage: planned_future_set
+  description: Statistical calibration
+  expected_behavior: Compute inverse observed Fisher std errors on identifiable singleton `Z_1, Z_4, Z_7` across `30` Monte
+    Carlo trials
+  traceability_gate: G2
+  production_mapping: noise_model.cpp`, Set 5C
+- test_id: L3-FLOW-001
+  test_name: Packet ingress -> histogram
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/ingress_to_histogram
+  test_file: test_packet_to_histogram.cpp
+  implementation_stage: planned_future_set
+  description: Packet ingress -> histogram
+  expected_behavior: Pack a known 64-bit sequence (`s_x in {0, 6}`, `s_z in {0, 9}`), push into `avid_dma_ring_t`, consume
+    slot -> verify exact bin delta `hist_x[6], hist_z[9]` matches unpacked packet count
+  traceability_gate: G3
+  production_mapping: packet_validator.cpp` -> `dma_ingress_tap.cpp:50-55
+- test_id: L3-FLOW-002
+  test_name: Histogram -> observation window
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/histogram_to_estimator
+  test_file: test_histogram_snapshot_delivery.cpp
+  implementation_stage: planned_future_set
+  description: Histogram -> observation window
+  expected_behavior: Accumulate `256` rounds across 4 DMA slots (`4 x 64`) in daemon loop (plus `ring_push` rollover) -> verify
+    window `hist_x` sum equals `256` before epoch fit & resets cleanly to `0` after epoch (`subepoch_fast_adapt=false`)
+  traceability_gate: G3
+  production_mapping: dma_ingress_tap.cpp` -> `avid_daemon.cpp:499-505,767-771
+- test_id: L3-FLOW-003
+  test_name: Observation window -> estimator
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/histogram_to_estimator
+  test_file: test_histogram_snapshot_delivery.cpp
+  implementation_stage: planned_future_set
+  description: Observation window -> estimator
+  expected_behavior: Capture exact `hist_x` snapshot immediately prior to `fit_histogram` AND verify `compute_nll_from_histogram`
+    reads that exact snapshot (perturb 1 count in `hist_x[6]` -> NLL/grad changes proportionally)
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:584` -> `lbfgs_solver.cpp:78
+- test_id: L3-FLOW-004
+  test_name: Estimator -> optimizer
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/optimizer_execution
+  test_file: test_solver_call_path.cpp
+  implementation_stage: planned_future_set
+  description: Estimator -> optimizer
+  expected_behavior: 'Verify `fit_histogram` passes `hist`, basis flag (`basis_z=false` X-checks vs `true` Z-checks), priors
+    `(p0, p_pair0)`, bounds `[1e-5, 0.45]`, and Pass-2 coupled prior into `run_projected_lbfgs_pass` *(note `DEF-L3-05`: tests
+    both `HistogramLBFGSSolver` & `LBFGSOptimizer`)*'
+  traceability_gate: G3
+  production_mapping: noise_model.cpp` -> `lbfgs_solver.cpp:96-169
+- test_id: L3-FLOW-005
+  test_name: Optimizer -> noise estimate
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/optimizer_execution
+  test_file: test_solver_call_path.cpp
+  implementation_stage: planned_future_set
+  description: Optimizer -> noise estimate
+  expected_behavior: Compare `g_model_z.theta_` after `fit_histogram` against inputs fed into `p_eff` and `AvidR2D2LSTMController::step_causal`
+    — exact bit match
+  traceability_gate: G3
+  production_mapping: lbfgs_solver.cpp` -> `avid_daemon.cpp:617,691
+- test_id: L3-FLOW-006
+  test_name: Noise estimate -> LLR converter
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/estimator_to_llr
+  test_file: test_parameter_to_llr.cpp
+  implementation_stage: planned_future_set
+  description: Noise estimate -> LLR converter
+  expected_behavior: Pass live `theta_` through `effective_p(0..8)` and `avid_quantize_and_validate_bank` / `to_pair_projected_q7_8_llr`
+    -> verify Q7.8 candidate outputs match independent `round(log((1-p_eff)/p_eff)*256)` on unprojected bank
+  traceability_gate: G3
+  production_mapping: noise_model.cpp:281-324`, `llr_quantizer.cpp:17-34
+- test_id: L3-FLOW-007
+  test_name: LLR converter -> scheduler
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_commit_scheduling.cpp
+  implementation_stage: planned_future_set
+  description: LLR converter -> scheduler
+  expected_behavior: Pipe candidate `int16_t cand_q78[9]` from quantizer directly into `avid_scheduler_schedule_commit` (`sched.pending_weights_q78`)
+    -> compare exact 9 words at scheduler ingress & poll egress
+  traceability_gate: G3
+  production_mapping: llr_quantizer.cpp` -> `causal_scheduler.cpp:17-35
+- test_id: L3-FLOW-008
+  test_name: Burst detector -> scheduler
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_commit_scheduling.cpp
+  implementation_stage: planned_future_set
+  description: Burst detector -> scheduler
+  expected_behavior: Drive `avid_fast_detector_step` over `60`-round burst -> capture trigger round & `trigger_count` -> verify
+    sub-epoch trigger & `burst_score` feeding `step_causal` in `avid_daemon`
+  traceability_gate: G3
+  production_mapping: causal_scheduler.cpp:48` -> `avid_daemon.cpp:461-626
+- test_id: L3-FLOW-009
+  test_name: Scheduler -> safety FSM
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/fsm_to_hal
+  test_file: test_fsm_to_hal_action.cpp
+  implementation_stage: planned_future_set
+  description: Scheduler -> safety FSM
+  expected_behavior: Pass `(est_ok, ddl_ok, bounds_ok, bus_ok, cand_q78)` into `avid_fallback_step` -> verify output `sel_q78`
+    & `should_commit` match FSM state decision
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:718-725` -> `fallback_fsm.cpp:17
+- test_id: L3-FLOW-010
+  test_name: Safety FSM -> shadow bank
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/fsm_to_hal
+  test_file: test_fsm_to_hal_action.cpp
+  implementation_stage: planned_future_set
+  description: Safety FSM -> shadow bank
+  expected_behavior: 'Fault `bounds_ok=false` vs `all_ok=true`: verify `NORMAL_ADAPTIVE` writes `cand_q78` to shadow reg `WRD_OFF_SHADOW(0..8)`,
+    while `HOLD_LAST_GOOD` blocks commit (`should_commit==false`) leaving active shadow unchanged!'
+  traceability_gate: G3
+  production_mapping: fallback_fsm.cpp` -> `weight_reg_driver.c:108-112
+- test_id: L3-FLOW-011
+  test_name: Shadow bank -> commit interface
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/fsm_to_hal
+  test_file: test_fsm_to_hal_action.cpp
+  implementation_stage: planned_future_set
+  description: Shadow bank -> commit interface
+  expected_behavior: Write `sel_q78` -> `avid_hal_write_weights_and_commit` (`0x048=1`) -> read `0x050` (`hw_epoch`) & active
+    reg `0x024..0x044` -> verify atomic swap & epoch bump
+  traceability_gate: G3
+  production_mapping: weight_bank_driver.c`, `avid_hal.h:69-73
+- test_id: L3-FLOW-012
+  test_name: Commit response -> daemon
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/fsm_to_hal
+  test_file: test_fsm_to_hal_action.cpp
+  implementation_stage: planned_future_set
+  description: Commit response -> daemon
+  expected_behavior: Inspect HAL `commit_operations`, `rejected_transactions`, `hw_epoch`, and `--metrics-out` JSON `epoch_commit_reconciled`,
+    checking fault response updates daemon stats & exit code
+  traceability_gate: G3
+  production_mapping: physical_backend.cpp`/`simulation_backend.cpp` -> `avid_daemon.cpp:761-971
+- test_id: L3-FLOW-013
+  test_name: Nominal stationary operation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Nominal stationary operation — `avid_daemon --scenario stationary_noise --rounds 1536 --window 256`
+  expected_behavior: Finite NLL, `fallback_events==0`, `epoch_commit_reconciled==true`, low variance estimates
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp
+- test_id: L3-FLOW-014
+  test_name: Slowly drifting noise
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Slowly drifting noise — `--scenario slowly_drifting_noise --rounds 2048 --window 256`
+  expected_behavior: Estimated `theta[4], theta[12]` and active Q7.8 LLR track upward drift across epochs
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:170-175
+- test_id: L3-FLOW-015
+  test_name: Correlated-noise transition
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Correlated-noise transition — Compare `stationary_noise` vs `correlated_noise` vs `heldout_multi_pair_12_67`
+  expected_behavior: Hotspot pair LLRs adapt downward & outperform `static` B0 LER (`ler < static_b0_logical_error_rate` when
+    `backend=sim`)
+  traceability_gate: G3
+  production_mapping: noise_model.cpp:336-426`, `avid_daemon.cpp
+- test_id: L3-FLOW-016
+  test_name: Burst disturbance
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Burst disturbance — `--scenario burst_disturbance --rounds 2048 --window 256`
+  expected_behavior: '`decoded_rtl_transactions == 2048` (0 halted rounds); fast detector triggers cleanly while slow loop
+    adapts across windows'
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:175-180,460-531
+- test_id: L3-FLOW-017
+  test_name: Delayed weight commit
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Delayed weight commit — Mock Unix bridge HAL holding `bp_ready=0` / delayed commit ack vs `--scenario delayed_weight_commit`
+  expected_behavior: Pending commit deferred until ready (`wrd_commit_and_wait`), epoch counter stays exact (`reconciled==true`)
+  traceability_gate: G3
+  production_mapping: weight_reg_driver.c:123-132`, `causal_scheduler.cpp
+- test_id: L3-FLOW-018
+  test_name: Reset recovery
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Reset recovery — `--scenario reset_recovery --rounds 1024 --window 256`
+  expected_behavior: '`avid_hal_reset_rtl` resets controller hidden state (`reset_hidden`) & active bank; post-reset commits
+    resume & `epoch_commit_reconciled==true`'
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:736-741,808-809
+- test_id: L3-FLOW-019
+  test_name: Busy decoder
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Busy decoder — Drive `status_reg` with `bp_ready=0, commit_pending=1` in emulated register file / mock bridge
+    (`--scenario busy_decoder`)
+  expected_behavior: '`wrd_commit_and_wait` times out safely (`-1`) instead of corrupting active weights midway'
+  traceability_gate: G3
+  production_mapping: weight_reg_driver.c:123-132
+- test_id: L3-FLOW-020
+  test_name: Variable iteration control
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Variable iteration control — `--scenario variable_k_adaptation` (`K=1..5`) + live R2D2 `bp_iterations` MMIO
+    `0x054` writes
+  expected_behavior: Hardware reg `0x054` receives exact `K in {1..5}`; `bp_core_cycles` reflects `2 + 5*K`
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:744-758`, `system_timing.yaml:9
+- test_id: L3-FLOW-021
+  test_name: Fallback activation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Fallback activation — `--scenario fallback_safety_trigger` (corrupt `hist_x=0, theta=0.65`) + injected `!deadline_ok`,
+    `!bus_ok`
+  expected_behavior: '`fallback_events >= 1`; `SAFE_STATIC_PRIOR` / `HOLD` / `DEGRADED_BYPASS` activate accurately (`DEF-L3-07`)'
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:545-551,718-733
+- test_id: L3-FLOW-022
+  test_name: Recovery after fallback
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Recovery after fallback — Epoch 1 corrupted (`fallback_safety_trigger`) -> Epochs 2..4 healthy contiguous packets
+  expected_behavior: Daemon returns to `AVID_FSM_NORMAL_ADAPTIVE`, resumes adaptive commits without permanent lock
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:718-765`, `fallback_fsm.cpp:33
+- test_id: L3-FLOW-023
+  test_name: Multiple update cycles
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Multiple update cycles — Run 12 consecutive epochs (`rounds=3072, window=256`)
+  expected_behavior: Monotonic epochs `1..13`, zero skipped/reordered weight banks
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp
+- test_id: L3-FLOW-024
+  test_name: Concurrent ingress and optimization
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Concurrent ingress and optimization — Multi-thread harness running continuous `avid_dma_ring_push_burst` at
+    high cadence while background thread fits histograms under mutex
+  expected_behavior: Zero dropped/corrupted snapshots under valid buffer slack; explicit count accounting
+  traceability_gate: G3
+  production_mapping: dma_ingress_tap.cpp`, `lbfgs_solver.cpp
+- test_id: L3-FLOW-025
+  test_name: Concurrent ingress and commit
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Concurrent ingress and commit — Inject syndrome decode stream (`avid_hal_send_syndrome`) concurrently while
+    shadow bank write + `0x048` commit executes on HAL/driver
+  expected_behavior: Every syndrome decode completes atomically with either old valid epoch or new valid epoch (never mixed
+    half-written X/Z bank!)
+  traceability_gate: G3
+  production_mapping: avid_hal.h`, `weight_commit_protocol.yaml
+- test_id: L3-FLOW-026
+  test_name: Observation-window timing
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Observation-window timing
+  expected_behavior: Configure `window_rounds in {256, 1000, 10000}` -> assert `acc_rounds == target_win` at every slow MAP
+    execution boundary (when no subepoch fast trigger fired)
+  traceability_gate: G4
+  production_mapping: avid_daemon.cpp:509-511
+- test_id: L3-FLOW-027
+  test_name: Evidence availability
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Evidence availability
+  expected_behavior: Inject burst starting at `round=1000`; freeze stream at `round=999` -> verify slow MAP at `round=256,
+    512, 768` & fast detector `< 1000` show zero advance knowledge of future burst
+  traceability_gate: G4
+  production_mapping: Causal step-by-step execution
+- test_id: L3-FLOW-028
+  test_name: Commit delay
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Commit delay
+  expected_behavior: Set `commit_delay=100` in `avid_causal_scheduler_t` after `window_end=256` -> prove `poll_commit_ready`
+    stays `false` for rounds `256..355` and fires strictly at `round >= 356` (`t_c >= t_e + d_c`)
+  traceability_gate: G4
+  production_mapping: causal_scheduler.cpp:21,29
+- test_id: L3-FLOW-029
+  test_name: Burst onset
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Burst onset
+  expected_behavior: Start burst at `round=100` on `avid_fast_burst_detector_t` -> record exact `first_burst_evidence_round=100`
+    and trigger round `r_trig >= 103` (`16`-subwindow density >= `0.35`, debounce `4`)
+  traceability_gate: G4
+  production_mapping: causal_scheduler.cpp:48-76
+- test_id: L3-FLOW-030
+  test_name: Burst end
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Burst end
+  expected_behavior: End 60-round burst at `round=160` (`return to sx=0`) -> record `burst_end=160` vs subsequent detector
+    recovery (`burst_active=false`) after window drains (`<= 16` rounds later)
+  traceability_gate: G4
+  production_mapping: causal_scheduler.cpp:71-74
+- test_id: L3-FLOW-031
+  test_name: Slow-loop latency
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Slow-loop latency
+  expected_behavior: Measure real wall/CPU microseconds of `fit_histogram` + R2D2 + Q7.8 (`avid_stage_profiler_t` over 100
+    runs) -> report `p50, p95, p99, max` us vs `10,000 us` budget
+  traceability_gate: G4
+  production_mapping: stage_profiler.cpp:32-45`, `avid_daemon.cpp:679-681
+- test_id: L3-FLOW-032
+  test_name: Fast-loop isolation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Fast-loop isolation
+  expected_behavior: 'Decoupled timing harness: run slow `HistogramLBFGSSolver::fit_histogram` on Thread A while Thread B
+    executes `CycleAccurateBPEngine::decode` -> verify zero shared blocking lock / fast-path decode cycle latency remains
+    strictly `17` cycles (`68 ns @ 250 MHz`)'
+  traceability_gate: G4
+  production_mapping: cycle_accurate_bp_engine.cpp`, `system_timing.yaml
+- test_id: L3-FLOW-033
+  test_name: Stale estimate protection
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Stale estimate protection
+  expected_behavior: Attempt to schedule/commit an estimate tagged `epoch_src < active_epoch_id` (or earlier `window_end`)
+    after newer epoch committed -> guard rejects stale overwrite
+  traceability_gate: G4
+  production_mapping: causal_scheduler.cpp`, daemon epoch guard
+- test_id: L3-FLOW-034
+  test_name: Delayed detection reporting
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Delayed detection reporting
+  expected_behavior: Feed `short_burst_60us_vs_10ms` (`window=10000`, `60`-round burst at `r=9940..9999`) -> verify `avid_fast_burst_detector_t`
+    detects within `<= 20` rounds (`20 us`) ONLY via the 16-round fast path, whereas slow `10,000`-round MAP (`0.6%` dilution)
+    does NOT detect cleanly before `r=10,000`
+  traceability_gate: G4
+  production_mapping: avid_daemon.cpp:181-187,461`, `system_timing.yaml
+- test_id: L3-FLOW-035
+  test_name: Timescale claim validation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/scheduler_integration
+  test_file: test_fast_slow_loop_separation.cpp
+  implementation_stage: planned_future_set
+  description: Timescale claim validation
+  expected_behavior: 'Cross-check reported metrics against measured execution: fast detector trigger rate (`<= 20 rounds`),
+    V1 sim epoch (`256 us`), V2 prod cadence (`10 ms`, `10,000` rounds), and BP cycle latency (`17` cycles)'
+  traceability_gate: G4
+  production_mapping: system_timing.yaml`, `avid_daemon.cpp
+- test_id: L3-FLOW-036
+  test_name: Probability propagation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Probability propagation — Change generator `p_4` from `0.012` -> `0.090` keeping RNG stream identical -> check
+    fitted `theta[4]`
+  expected_behavior: Strictly increases `theta[4]` (`> 2x`)
+  traceability_gate: G3
+  production_mapping: lbfgs_solver.cpp`, `avid_daemon.cpp
+- test_id: L3-FLOW-037
+  test_name: Histogram propagation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Histogram propagation — Add `+200` counts directly to `hist[6]` (`Z_4` signature) keeping other bins identical
+  expected_behavior: '`evaluate_nll_and_grad` & fitted `theta[4]` increase monotonically'
+  traceability_gate: G3
+  production_mapping: noise_model.cpp:138`, `lbfgs_solver.cpp
+- test_id: L3-FLOW-038
+  test_name: Prior propagation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Prior propagation — Change `prior_theta_(4)` from `0.01` -> `0.15` (`prior_lambda_=2.0`) on small sample `N=50`
+  expected_behavior: Objective value & fitted `theta[4]` shift upward toward `0.15`
+  traceability_gate: G3
+  production_mapping: noise_model.cpp:154-157
+- test_id: L3-FLOW-039
+  test_name: Window propagation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Window propagation — Run daemon with `--window 128` vs `--window 512` at `--rounds 1024`
+  expected_behavior: '`epochs_completed` changes strictly (`8` vs `2`) & variance shrinks'
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:250,509
+- test_id: L3-FLOW-040
+  test_name: Threshold propagation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Threshold propagation — Init `avid_fast_detector_init` with `threshold=0.20` vs `0.80` on fixed `50%`-density
+    stream
+  expected_behavior: '`0.20` triggers (`trigger_count >= 1`); `0.80` triggers `0` times'
+  traceability_gate: G3
+  production_mapping: causal_scheduler.cpp:38-46
+- test_id: L3-FLOW-041
+  test_name: LLR propagation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: LLR propagation — Raise fitted `theta[4]` -> run quantizer -> inspect `q78[4]`
+  expected_behavior: '`q78[4]` decreases strictly (smaller LLR = higher error probability)'
+  traceability_gate: G3
+  production_mapping: llr_quantizer.cpp:8-15
+- test_id: L3-FLOW-042
+  test_name: Commit propagation
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Commit propagation — Write two distinct candidate banks `bankA != bankB` through `wrd_write_all_weights` ->
+    commit -> `wrd_read_active_weight`
+  expected_behavior: Active register bank equals exact `bankB` bitwise
+  traceability_gate: G3
+  production_mapping: weight_reg_driver.c:108-128
+- test_id: L3-FLOW-043
+  test_name: Static-output detection
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Static-output detection — Run two distinct seeds/scenarios (`stationary_noise` vs `correlated_noise`) to fresh
+    `--metrics-out` files (after wiping prior artifacts)
+  expected_behavior: Final NLL, action histograms, & `orbit_9class_rmse` differ cleanly (`no canned fixture output`)
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp
+- test_id: L3-FLOW-044
+  test_name: Component invocation trace
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Component invocation trace — Instrument test driver counters / HAL stats across `avid_dma_ring`, `HistogramLBFGSSolver`,
+    `AvidR2D2LSTMController`, `avid_quantize`, `avid_fallback_step`, `avid_hal`
+  expected_behavior: Every stage invocation count `> 0` (`hal_mmio_writes, hal_mmio_reads, commits, lbfgs_iters, action_histogram`
+    sum `> 0`)
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:826-965
+- test_id: L3-FLOW-045
+  test_name: Consumer-use trace
+  test_set: set3_pipeline_flow
+  primary_directory: set3_pipeline_flow/end_to_end
+  test_file: test_stationary_flow.cpp
+  implementation_stage: planned_future_set
+  description: Consumer-use trace — Corrupt candidate `q78[0]` right before `avid_fallback_step` / tamper shadow weight before
+    `wrd_commit`
+  expected_behavior: Downstream `CycleAccurateBPEngine::decode` decision & `wrd_read_active_weight` visibly react, proving
+    zero dead intermediate outputs
+  traceability_gate: G3
+  production_mapping: avid_daemon.cpp:695-765`, `cycle_accurate_bp_engine.cpp
+- test_id: L3-EXEC-001
+  test_name: Clean C++ build
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Clean C++ build — Remove build dir (`tmp_path`), run `cmake -S software -B <build> -DCMAKE_BUILD_TYPE=Release
+    && cmake --build <build> -j2`
+  expected_behavior: Exits `0` with zero missing dependencies, emits `avid_daemon` and `test_baseline_suite`
+  traceability_gate: G5
+  production_mapping: software/CMakeLists.txt
+- test_id: L3-EXEC-002
+  test_name: Daemon initialization
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Daemon initialization — Launch `./avid_daemon --self-test --metrics-out out.json` checking startup banner,
+    R2D2 checkpoint load, HAL open, initial boot commit
+  expected_behavior: Exits `0`, `r2d2_checkpoint_loaded == true`, `initial_boot_commits == 1`
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:274-331
+- test_id: L3-EXEC-003
+  test_name: Self-test
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Self-test — Run `./avid_daemon --self-test` & `./test_baseline_suite`
+  expected_behavior: Both complete genuine math/DMA/FSM/BP/R2D2 checks (`[ALL C++ BASELINE TESTS PASSED]`)
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:774`, `test_baseline_suite.cpp
+- test_id: L3-EXEC-004
+  test_name: Runtime configuration
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Runtime configuration
+  expected_behavior: Execute `avid_daemon` across distinct `--rounds`, `--window`, `--seed`, `--controller-mode static
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:233-263,816-830
+- test_id: L3-EXEC-005
+  test_name: Invalid configuration
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Invalid configuration — Launch `./avid_daemon --scenario invalid_configuration`, `--window 0`, `--rounds -5`,
+    `--osd-mode 9`
+  expected_behavior: Rejects cleanly with exit code `2` & explicit diagnostic message on stderr
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:265-269
+- test_id: L3-EXEC-006
+  test_name: Missing input
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Missing input — Launch `./avid_daemon --checkpoint /no/such.bin` & `--stim-bin /no/such.bin` & `--backend sim
+    --socket /no/such.sock`
+  expected_behavior: Safe startup failure (non-zero exit `1`/`2`, zero segfault)
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:280-305
+- test_id: L3-EXEC-007
+  test_name: Repeated start/stop
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Repeated start/stop — Spawn `avid_daemon` cleanly 10 times sequentially in `tmp_path`
+  expected_behavior: Every run produces deterministic identical seed output (`zero cross-run state leakage`)
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp
+- test_id: L3-EXEC-008
+  test_name: Long-running daemon
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Long-running daemon — Run `avid_daemon --rounds 50000 --window 256` (~200 epochs) sampling RSS & runtime
+  expected_behavior: Finishes cleanly (`rc=0`), flat RSS growth (`no unbounded memory leaks`), zero OOM
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp
+- test_id: L3-EXEC-009
+  test_name: Multiple runtime cycles
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/startup_shutdown
+  test_file: test_daemon_startup.cpp
+  implementation_stage: planned_future_set
+  description: Multiple runtime cycles — Run 20 slow adaptation epochs checking continuous `hw_epoch`, `adaptive_epoch_commits`,
+    finite `param_21_rmse`
+  expected_behavior: Continuous monotonic epoch state (`hw_epoch == 1 + adaptive_epoch_commits`)
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:808-836
+- test_id: L3-EXEC-010
+  test_name: Shutdown
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/runtime_stress
+  test_file: test_long_running_daemon.cpp
+  implementation_stage: planned_future_set
+  description: Shutdown — Send `SIGTERM` / `SIGINT` mid-run to `avid_daemon` (`--rounds 5000000`)
+  expected_behavior: Signal handler breaks `while (g_running)` loop cleanly, flushes `--metrics-out` JSON & closes HAL (`rc
+    == 0`)!
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:47-48,271-272,787-971
+- test_id: L3-EXEC-011
+  test_name: Histogram persistence
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/runtime_stress
+  test_file: test_long_running_daemon.cpp
+  implementation_stage: planned_future_set
+  description: Histogram persistence
+  expected_behavior: Check JSON telemetry (`decoded_rtl_transactions`, `r2d2_action_histogram`, window rounds) AND verify
+    whether raw 16-bin histogram snapshots persist to disk (`INCONCLUSIVE` / gap documented for `--metrics-out` summary-only
+    schema)
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:814-966` *(DEF-L3-09)*
+- test_id: L3-EXEC-012
+  test_name: Estimate persistence
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/runtime_stress
+  test_file: test_long_running_daemon.cpp
+  implementation_stage: planned_future_set
+  description: Estimate persistence
+  expected_behavior: Verify `orbit_9class_rmse`, `param_21_rmse`, `final_nll` persist in `--metrics-out` + document absence
+    of raw `theta_[0..20]` dump in daemon JSON (`DEF-L3-09`) unless diagnostic dump enabled
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:838-843
+- test_id: L3-EXEC-013
+  test_name: Optimizer diagnostics
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/runtime_stress
+  test_file: test_long_running_daemon.cpp
+  implementation_stage: planned_future_set
+  description: Optimizer diagnostics
+  expected_behavior: Assert `--metrics-out` saves `final_nll`, `legacy_marginal_nll`, `lbfgs_iterations`, `lbfgs_grad_inf_norm`
+    matching live `LBFGSFitDiagnostics`
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:838-841
+- test_id: L3-EXEC-014
+  test_name: Weight persistence
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/runtime_stress
+  test_file: test_long_running_daemon.cpp
+  implementation_stage: planned_future_set
+  description: Weight persistence
+  expected_behavior: Probe committed active weights via HAL MMIO read `0x100..0x148` & verify shadow/active equivalence after
+    swap
+  traceability_gate: G5
+  production_mapping: physical_backend.cpp:54-62`, `weight_reg_driver.c
+- test_id: L3-EXEC-015
+  test_name: Epoch persistence
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/runtime_stress
+  test_file: test_long_running_daemon.cpp
+  implementation_stage: planned_future_set
+  description: Epoch persistence
+  expected_behavior: Assert `initial_boot_commits`, `adaptive_epoch_commits`, `reset_cleared_commits`, `weight_bank_commits`,
+    `epoch_commit_reconciled` match cycle-by-cycle ledger
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:808-836
+- test_id: L3-EXEC-016
+  test_name: Safety-state persistence
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/runtime_stress
+  test_file: test_long_running_daemon.cpp
+  implementation_stage: planned_future_set
+  description: Safety-state persistence
+  expected_behavior: Assert `fallback_events` count matches `fallback_safety_trigger` activations & report explicit gap (`NOT_IMPLEMENTED`
+    / `INCONCLUSIVE`) where per-transition cause log file isn't persisted by daemon *(DEF-L3-09)*
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:731-733,837
+- test_id: L3-EXEC-017
+  test_name: Runtime provenance
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/persistence
+  test_file: test_warm_resume.cpp
+  implementation_stage: planned_future_set
+  description: Runtime provenance
+  expected_behavior: Validate telemetry retains `r2d2_checkpoint_path`, `seed`, `scenario`, `backend`, `controller_mode` +
+    compute SHA-256 of `avid_daemon` binary & checkpoint in Python harness
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:815-828
+- test_id: L3-EXEC-018
+  test_name: Restart state
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/persistence
+  test_file: test_warm_resume.cpp
+  implementation_stage: planned_future_set
+  description: Restart state
+  expected_behavior: Restart `avid_daemon` cleanly -> verify documented fresh deterministic initialization from checkpoint
+    (`r2d2_v1_trained.bin`) & explicit note that warm disk-checkpoint restoration is not implemented (`INCONCLUSIVE` for warm
+    resume, `PASS` for deterministic clean reset!) *(DEF-L3-09)*
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:274-331
+- test_id: L3-EXEC-019
+  test_name: Log integrity
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/persistence
+  test_file: test_warm_resume.cpp
+  implementation_stage: planned_future_set
+  description: Log integrity
+  expected_behavior: Validate valid JSON parsing, non-negative counters, `sum(r2d2_action_histogram) == epochs_completed`
+    (in `avid_r2d2` mode), `initial + adaptive - reset == hw_epoch`
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:808-965
+- test_id: L3-EXEC-020
+  test_name: Artifact reconstruction
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/persistence
+  test_file: test_warm_resume.cpp
+  implementation_stage: planned_future_set
+  description: Artifact reconstruction
+  expected_behavior: Replay identical CLI flags + seed via reference script reading saved metrics JSON provenance and verify
+    exact bit-for-bit reproducible metric reconstruction!
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:50-62,814-966
+- test_id: L3-EXEC-021
+  test_name: Malformed packet
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/persistence
+  test_file: test_warm_resume.cpp
+  implementation_stage: planned_future_set
+  description: Malformed packet — Inject packet with `flags=0` and packet with `PARITY_ERR` inside a valid DMA slot
+  expected_behavior: Valid packets accumulate normally; corrupted packets rejected (`hist` unpolluted, `invalid_flag_count`
+    increments)
+  traceability_gate: G5
+  production_mapping: dma_ingress_tap.cpp:50-55`, `packet_validator.cpp
+- test_id: L3-EXEC-022
+  test_name: Packet loss
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/persistence
+  test_file: test_warm_resume.cpp
+  implementation_stage: planned_future_set
+  description: Packet loss — Drop `seq=5` cleanly (`4 -> 6`) in ingress stream
+  expected_behavior: '`seq_gap_count` increments by `1`; loss explicitly counted'
+  traceability_gate: G5
+  production_mapping: packet_validator.cpp:44-50
+- test_id: L3-EXEC-023
+  test_name: Packet duplication
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Packet duplication — Repeat `seq=7` back-to-back (`6, 7, 7, 8`)
+  expected_behavior: Duplicate `7` fails sequence continuity check (`false`) avoiding double-count
+  traceability_gate: G5
+  production_mapping: packet_validator.cpp:44-50
+- test_id: L3-EXEC-024
+  test_name: Empty observation window
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Empty observation window — Force `hist = {0}*16` in solver & `fallback_safety_trigger` epoch `1` in daemon
+  expected_behavior: '`fit_histogram` returns `0.0, converged=false`; `last_nll == 0.0 -> estimator_ok=false` triggers `HOLD_LAST_GOOD`'
+  traceability_gate: G5
+  production_mapping: lbfgs_solver.cpp:84-94`, `avid_daemon.cpp:547,719
+- test_id: L3-EXEC-025
+  test_name: Optimizer non-convergence
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Optimizer non-convergence — Set `max_iters=0` or inject bad start checking `diag.converged == false`
+  expected_behavior: Guarded pipeline checks `diag.converged` *(or rejects unphysical params)* preventing blind commit (`DEF-L3-05`)
+  traceability_gate: G5
+  production_mapping: lbfgs_solver.cpp:177`, `avid_daemon.cpp:719
+- test_id: L3-EXEC-026
+  test_name: Optimizer NaN
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Optimizer NaN — Inject `NaN` probability into `NoiseModel::theta_` / solver input & `p_eff` into `avid_quantize_and_validate_bank`
+  expected_behavior: Quantizer returns `false` (`bounds_ok=false`) -> `SAFE_STATIC_PRIOR`; guarded NLL rejects `NaN` cleanly
+    *(DEF-L3-10)*
+  traceability_gate: G5
+  production_mapping: llr_quantizer.cpp:21-24`, `fallback_fsm.cpp:45
+- test_id: L3-EXEC-027
+  test_name: Out-of-bounds estimate
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Out-of-bounds estimate — Set `theta[0..8] = 0.65` (`fallback_safety_trigger`) -> `p_eff = 0.65 >= 0.5`
+  expected_behavior: '`avid_quantize_and_validate_bank` returns `false`, replaces candidates with `0x0468`, triggers `SAFE_STATIC_PRIOR`'
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:549,695-697`, `llr_quantizer.cpp:21
+- test_id: L3-EXEC-028
+  test_name: Quantization overflow
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Quantization overflow — Force extreme `p=1e-12` (`llr*256 ~ 7073`) & `p=0.489` (`q78 ~ 11 < 0x0040`)
+  expected_behavior: Saturates deterministically to `0x3000`/`0x0040` and flags `all_safe=false` on out-of-safe-range inputs
+  traceability_gate: G5
+  production_mapping: llr_quantizer.cpp:11-33
+- test_id: L3-EXEC-029
+  test_name: Commit timeout
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Commit timeout — Connect `simulation_backend` to Python Unix-socket mock server that stalls `SYNDROME_TRANSFER`/`COMMIT`
+    past `timeout_ms` (`SO_RCVTIMEO`)
+  expected_behavior: '`send_bridge_request` returns `-1`, `timeout_transactions++`, `rejected_transactions++` (never reports
+    fake `OK`!)'
+  traceability_gate: G5
+  production_mapping: simulation_backend.cpp:91-124
+- test_id: L3-EXEC-030
+  test_name: Epoch mismatch
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Epoch mismatch — Mock bridge responds with wrong `transaction_id` (`tx_id + 99`) or unexpected `protocol_version`
+  expected_behavior: '`send_bridge_request` rejects (`id_mismatch_errors++`) leaving active state untouched'
+  traceability_gate: G5
+  production_mapping: simulation_backend.cpp:133-143
+- test_id: L3-EXEC-031
+  test_name: Decoder busy
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Decoder busy — Lock emulated `status_reg` bit 0 (`commit_pending=1`) in `wrd_handle_t`
+  expected_behavior: '`wrd_commit_and_wait(..., 100)` returns `-1` cleanly'
+  traceability_gate: G5
+  production_mapping: weight_reg_driver.c:123-132
+- test_id: L3-EXEC-032
+  test_name: Daemon restart
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/persistence
+  test_file: test_warm_resume.cpp
+  implementation_stage: planned_future_set
+  description: Daemon restart — Terminate (`SIGKILL` / `SIGTERM`) mid-run -> relaunch clean `avid_daemon` on clean socket/files
+  expected_behavior: Relaunch succeeds cleanly with zero stale socket locks or corrupted binary load
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp
+- test_id: L3-EXEC-033
+  test_name: Memory pressure
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Memory pressure — Run `avid_daemon` under `resource.setrlimit(RLIMIT_AS, ...)` / tight heap cap
+  expected_behavior: Succeeds cleanly within low static footprint (~few MB) or exits gracefully without silent heap corruption
+  traceability_gate: G5
+  production_mapping: ring_buffer.h`, `lbfgs_optimizer.h
+- test_id: L3-EXEC-034
+  test_name: Repeated safety trigger
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Repeated safety trigger — Trigger `avid_fallback_step` with failures for `100` consecutive calls
+  expected_behavior: FSM stabilizes cleanly in `AVID_FSM_SAFE_STATIC_PRIOR` (`state==2`) with bounded constant static weights
+    (`0x0468`)
+  traceability_gate: G5
+  production_mapping: fallback_fsm.cpp:45-50
+- test_id: L3-EXEC-035
+  test_name: Recovery failure
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/fault_injection
+  test_file: test_malformed_packet_recovery.cpp
+  implementation_stage: planned_future_set
+  description: Recovery failure — Keep `bounds_ok=false` or `bus_ok=false` while trying to recover
+  expected_behavior: FSM remains strictly locked in `SAFE_STATIC_PRIOR` or `DEGRADED_BYPASS` (never returns `NORMAL_ADAPTIVE`)
+  traceability_gate: G5
+  production_mapping: fallback_fsm.cpp:25-50
+- test_id: L3-EXEC-036
+  test_name: Ingress throughput
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Ingress throughput
+  expected_behavior: Stream `1,000,000` 64-bit packets through `avid_dma_ring_push_burst` + `consume_slot` in C++ harness;
+    report Mpkts/sec vs `1 MHz` requirement
+  traceability_gate: G5
+  production_mapping: dma_ingress_tap.cpp
+- test_id: L3-EXEC-037
+  test_name: Ingress latency
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Ingress latency
+  expected_behavior: Sample per-64-packet-burst consume time (`std::chrono::steady_clock` across `5,000` bursts) -> report
+    `p50, p95, p99, max` us
+  traceability_gate: G5
+  production_mapping: dma_ingress_tap.cpp
+- test_id: L3-EXEC-038
+  test_name: Estimator latency
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Estimator latency
+  expected_behavior: Benchmark `200` dual-basis `fit_histogram` + R2D2 calls in C++ (`clock_gettime` + `steady_clock`) ->
+    report `p50, p95, p99, max` us (x86_64 host + comparison vs `system_timing.yaml` 10 ms budget)
+  traceability_gate: G5
+  production_mapping: lbfgs_solver.cpp`, `stage_profiler.cpp
+- test_id: L3-EXEC-039
+  test_name: Scheduler latency
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Scheduler latency
+  expected_behavior: Benchmark `10,000` calls to `avid_scheduler_poll_commit_ready` & `avid_fast_detector_step` -> report
+    `p50, p95, p99, max` ns/us
+  traceability_gate: G5
+  production_mapping: causal_scheduler.cpp
+- test_id: L3-EXEC-040
+  test_name: Commit latency
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Commit latency
+  expected_behavior: Measure round-trip latency for `avid_hal_write_weights_and_commit` over `physical` (emulated MMIO) AND
+    `simulation` Unix socket bridge -> report `p50, p95, p99, max` us
+  traceability_gate: G5
+  production_mapping: physical_backend.cpp`, `simulation_backend.cpp
+- test_id: L3-EXEC-041
+  test_name: Concurrent workload
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Concurrent workload
+  expected_behavior: 'Spawn 3 C++ threads: ingress producer, mutex-guarded estimator solver, and telemetry/MMIO reader running
+    `5` seconds -> verify zero data races (`-fsanitize=thread` or deterministic invariants)'
+  traceability_gate: G5
+  production_mapping: C++ harness + `dma_ingress_tap`, `lbfgs_solver`, `wrd
+- test_id: L3-EXEC-042
+  test_name: CPU utilization
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: CPU utilization
+  expected_behavior: Extract `slow_loop_cpu_utilization_10ms_pct` from `avid_daemon` JSON + measure OS `/usr/bin/time` user+sys
+    CPU across `50,000` rounds
+  traceability_gate: G5
+  production_mapping: avid_daemon.cpp:812,849
+- test_id: L3-EXEC-043
+  test_name: Memory utilization
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Memory utilization
+  expected_behavior: Measure `ru_maxrss` across short (`1,024`) vs long (`100,000`) round runs + verify `AvidR2D2LSTMController::get_memory_audit()`
+    static sizes (`total_params=19744, lbfgs_workspace=2688 B`)
+  traceability_gate: G5
+  production_mapping: r2d2_lstm_controller.h:299-311
+- test_id: L3-EXEC-044
+  test_name: Priority inversion
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Priority inversion
+  expected_behavior: 'Lock/contention test: run heavy L-BFGS estimation loop on low-priority thread while timing high-rate
+    `CycleAccurateBPEngine::decode` calls on fast thread -> verify `p99` decode latency unimpacted'
+  traceability_gate: G5
+  production_mapping: Fast vs slow isolation harness
+- test_id: L3-EXEC-045
+  test_name: Timing overrun
+  test_set: set4_execution_recovery
+  primary_directory: set4_execution_recovery/concurrency
+  test_file: test_race_conditions.cpp
+  implementation_stage: planned_future_set
+  description: Timing overrun
+  expected_behavior: Configure `avid_profiler_init(&p, "est", 1.0)` (`1 us` artificially tight deadline!) -> run real `fit_histogram`
+    -> prove `avid_profiler_end` returns `false`, `deadline_misses > 0`, feeding `deadline_ok=false -> HOLD_LAST_GOOD`!
+  traceability_gate: G5
+  production_mapping: stage_profiler.cpp:40-43`, `avid_daemon.cpp:679
+- test_id: L3-MATH-001
+  test_name: Probability normalization
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/likelihood
+  test_file: test_dp_vs_bruteforce.cpp
+  implementation_stage: planned_future_set
+  description: 'Probability normalization — Across 20 random valid `theta_[0..20]` vectors (X-checks & Z-checks): assert `\sum_{s=0}^{15}
+    P_joint(s'
+  expected_behavior: theta) == 1.0` to `< 1e-14`
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:91-109
+- test_id: L3-MATH-002
+  test_name: Nonnegative probabilities
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/likelihood
+  test_file: test_dp_vs_bruteforce.cpp
+  implementation_stage: planned_future_set
+  description: Nonnegative probabilities — Assert every `P_joint(s
+  expected_behavior: theta) >= 0.0` even at boundary parameters `1e-6` and `0.49`
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:91-109
+- test_id: L3-MATH-003
+  test_name: Zero-event case
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/likelihood
+  test_file: test_dp_vs_bruteforce.cpp
+  implementation_stage: planned_future_set
+  description: Zero-event case
+  expected_behavior: Set `theta = [1e-6]*21` (and test exact `0.0` in pure reference) -> `P(0)` ~ `1.0`, sum of `s > 0` matches
+    exact `21 * 1e-6` first-order expansion
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:98-108
+- test_id: L3-MATH-004
+  test_name: Certain-event case
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/likelihood
+  test_file: test_dp_vs_bruteforce.cpp
+  implementation_stage: planned_future_set
+  description: Certain-event case
+  expected_behavior: Set single edge `e` (with `g_e != 0`) to upper clamped bound `0.49` (vs `p_e -> 1.0` XOR swap property
+    `P'(s) = P(s ^ g_e)` in convolution algebra)
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:102-104
+- test_id: L3-MATH-005
+  test_name: Single-mechanism likelihood
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/likelihood
+  test_file: test_dp_vs_bruteforce.cpp
+  implementation_stage: planned_future_set
+  description: Single-mechanism likelihood
+  expected_behavior: Turn on ONLY one mechanism `e` at `p_e = 0.08`, others `~0` -> verify `P(0) = 1 - p_e` and `P(g_e) =
+    p_e` (`< 1e-12` modulo `1e-6` clamp)
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:96-108
+- test_id: L3-MATH-006
+  test_name: Multi-mechanism likelihood
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/likelihood
+  test_file: test_dp_vs_bruteforce.cpp
+  implementation_stage: planned_future_set
+  description: Multi-mechanism likelihood
+  expected_behavior: 'Activate `k=8` distinct non-zero mechanisms (remaining `13` at `0` / `1e-6`): brute-force enumerate
+    all `2^8 = 256` fault subsets in Python -> assert max error `< 1e-12` against `NoiseModel::compute_joint_distribution()`
+    across both X and Z bases! *(Note `1e-6` floor shifts inactive channels by `~13e-6`, accounted for explicitly or tested
+    with floor matched!)*'
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:91-109
+- test_id: L3-MATH-007
+  test_name: Syndrome XOR convolution
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/likelihood
+  test_file: test_dp_vs_bruteforce.cpp
+  implementation_stage: planned_future_set
+  description: Syndrome XOR convolution
+  expected_behavior: Check exact Walsh-Hadamard identity `E[(-1)^{<u, s>}] = \prod_e (1 - 2 p_e)^{\mathbb{I}[<u, g_e> = 1]}`
+    across all 16 masks `u in 0..15` (`< 1e-13`)
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:103,248-262
+- test_id: L3-MATH-008
+  test_name: Joint parameter model
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/likelihood
+  test_file: test_dp_vs_bruteforce.cpp
+  implementation_stage: planned_future_set
+  description: Joint parameter model
+  expected_behavior: Verify each `theta[e]` (`0..20`) strictly matches `parameter_schema.json` stabilizer XOR check signature
+    `H_X * e_Z` & `H_Z * e_X` (`g_{i,j} == g_i ^ g_j` on all 12 NN pairs!)
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:31-47`, `parameter_schema.json
+- test_id: L3-MATH-009
+  test_name: Negative log-likelihood
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/gradient
+  test_file: test_finite_difference_gradient.cpp
+  implementation_stage: planned_future_set
+  description: Negative log-likelihood — Compare `compute_nll_from_histogram` (with `prior_lambda_=0`) against reference empirical
+    cross-entropy `-\sum_s (hist[s]/N) \log P_ref(s
+  expected_behavior: theta)` (`< 1e-12`)
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:138-153
+- test_id: L3-MATH-010
+  test_name: MAP regularization
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/gradient
+  test_file: test_finite_difference_gradient.cpp
+  implementation_stage: planned_future_set
+  description: MAP regularization
+  expected_behavior: Compare `nll(lambda=0.5) - nll(lambda=0.0)` against `0.5 * 0.5 *
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:154-157
+- test_id: L3-MATH-011
+  test_name: Gradient calculation
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/gradient
+  test_file: test_finite_difference_gradient.cpp
+  implementation_stage: planned_future_set
+  description: Gradient calculation
+  expected_behavior: Compare `compute_gradient_from_histogram` coset-inversion derivative against independent Python autodiff
+    / central finite differences (`eps=1e-7`) across all 21 coordinates (`< 1e-7`)
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:201-240
+- test_id: L3-MATH-012
+  test_name: Hessian diagnostic
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/gradient
+  test_file: test_finite_difference_gradient.cpp
+  implementation_stage: planned_future_set
+  description: Hessian diagnostic
+  expected_behavior: Compute exact `21 x 21` finite-difference Hessian of NLL around MAP optimum & compare eigenvalues against
+    Fisher Information `I(theta) + lambda * I_{21}`
+  traceability_gate: G6
+  production_mapping: noise_model.cpp` + Set 5 oracle
+- test_id: L3-MATH-013
+  test_name: Gradient direction
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/gradient
+  test_file: test_finite_difference_gradient.cpp
+  implementation_stage: planned_future_set
+  description: Gradient direction
+  expected_behavior: Verify two-loop recursion `d_k` satisfies `g^T d_k < 0` & projected steepest descent `-g_proj^T g < 0`
+    on non-stationary interior states
+  traceability_gate: G6
+  production_mapping: lbfgs_optimizer.cpp:32-60`, `lbfgs_solver.cpp:20-58
+- test_id: L3-MATH-014
+  test_name: Line search
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/gradient
+  test_file: test_finite_difference_gradient.cpp
+  implementation_stage: planned_future_set
+  description: Line search
+  expected_behavior: Verify Armijo sufficient decrease condition `f(x_new) <= f(x_0) + 1e-4 * <g, x_new - x_0>` holds at every
+    accepted step
+  traceability_gate: G6
+  production_mapping: lbfgs_optimizer.cpp:65-83`, `lbfgs_solver.cpp:56-70
+- test_id: L3-MATH-015
+  test_name: Bound constraints
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Bound constraints
+  expected_behavior: Start near boundaries `0.00002` & `0.449` with adversarial histogram -> assert every intermediate and
+    final iterate remains strictly inside `[1e-5, 0.45]`
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:76-80
+- test_id: L3-MATH-016
+  test_name: Convergence criterion
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Convergence criterion
+  expected_behavior: Check early stop at `
+  traceability_gate: G6
+  production_mapping: lbfgs_solver.cpp:48,177`, `lbfgs_optimizer.cpp:99
+- test_id: L3-MATH-017
+  test_name: Maximum iterations
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Maximum iterations
+  expected_behavior: Force tiny `max_iters in {1, 4, 8}` on far init -> assert executed iterations bounded exactly `<= max_iters`
+  traceability_gate: G6
+  production_mapping: lbfgs_solver.cpp:109-176`, `lbfgs_optimizer.cpp:92
+- test_id: L3-MATH-018
+  test_name: Initial-point sensitivity
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Initial-point sensitivity
+  expected_behavior: Launch optimization from 5 corners `[1e-4, 0.005, 0.012, 0.10, 0.30]` on exact DP multinomial expectation
+    histogram -> verify identical stationary value on identifiable orbits
+  traceability_gate: G6
+  production_mapping: lbfgs_solver.cpp
+- test_id: L3-MATH-019
+  test_name: Ill-conditioned model
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Ill-conditioned model
+  expected_behavior: Construct flat/high-condition problem (`prior_lambda_=1e-8`, near-collinear aliased bins) -> verify solver
+    remains finite, tracks conditioning & doesn't claim false accuracy when unconstrained
+  traceability_gate: G6
+  production_mapping: lbfgs_solver.cpp`, `lbfgs_optimizer.cpp
+- test_id: L3-MATH-020
+  test_name: Flat likelihood
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Flat likelihood
+  expected_behavior: Drive `Z_3 Z_6` (`e=16, g=0`) & `Z_2 Z_5` (`e=19, g=0`) -> verify gradient wrt `NLL_data` is exact `0.0`,
+    estimate strictly stays at `prior_theta`, variance stays prior-dominated
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:223-226
+- test_id: L3-MATH-021
+  test_name: Synthetic recovery
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Synthetic recovery — Feed exact noiseless infinite-sample expectation histogram `round(100000 * P(s
+  expected_behavior: theta_true))` on non-aliased hotspots (`q1, q4, q7`) -> recover `< 0.002` error on identifiable params
+    & `< 1e-3` on `orbit_9class_rmse`
+  traceability_gate: G6
+  production_mapping: lbfgs_solver.cpp`, `noise_model.cpp
+- test_id: L3-MATH-022
+  test_name: Model mismatch
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Model mismatch
+  expected_behavior: Feed uniform empirical histogram `[100]*16` (maximally entropic, violates low-p assumption) -> expose
+    large KS/KL divergence & hitting box cap rather than low confidence
+  traceability_gate: G6
+  production_mapping: lbfgs_solver.cpp
+- test_id: L3-MATH-023
+  test_name: Prior sensitivity
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: Prior sensitivity
+  expected_behavior: Sweep `prior_lambda_` across `{0.0, 0.04, 0.5, 5.0}` keeping histogram constant -> assert monotone decrease
+    in `
+  traceability_gate: G6
+  production_mapping: noise_model.cpp:154-157,237
+- test_id: L3-MATH-024
+  test_name: DP/reference consistency
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/optimizer
+  test_file: test_lbfgs_standalone.cpp
+  implementation_stage: planned_future_set
+  description: DP/reference consistency
+  expected_behavior: Compare objective & solution found by C++ `HistogramLBFGSSolver` / `LBFGSOptimizer` against `scipy.optimize.minimize(...,
+    method="L-BFGS-B")` on independent Python DP oracle
+  traceability_gate: G6
+  production_mapping: Cross-validation against SciPy L-BFGS-B
+- test_id: L3-MATH-025
+  test_name: Jacobian rank
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/identifiability
+  test_file: test_jacobian_rank.cpp
+  implementation_stage: planned_future_set
+  description: Jacobian rank — Compute `16 x 21` sensitivity Jacobian `J_{s,e} = d P(s
+  expected_behavior: 'theta) / d theta_e` at baseline `theta`: verify **exact theoretical rank <= 9** (at most the 9 non-zero
+    quotient orbits in `parameter_schema.json`!)'
+  traceability_gate: G7
+  production_mapping: parameter_schema.json:235-583`, `noise_model.cpp
+- test_id: L3-MATH-026
+  test_name: Fisher information
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/identifiability
+  test_file: test_jacobian_rank.cpp
+  implementation_stage: planned_future_set
+  description: Fisher information
+  expected_behavior: Compute multinomial Fisher matrix `I(theta)_{a,b} = \sum_s (1/P(s)) (dP(s)/d\theta_a)(dP(s)/d\theta_b)`
+    (per shot & scaled by `W`) -> inspect full eigenspectrum (`lambda_1..lambda_21`)
+  traceability_gate: G7
+  production_mapping: noise_model.cpp
+- test_id: L3-MATH-027
+  test_name: Parameter correlation
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/identifiability
+  test_file: test_jacobian_rank.cpp
+  implementation_stage: planned_future_set
+  description: Parameter correlation
+  expected_behavior: Extract regularized posterior covariance `(N * I(theta) + lambda * I_21)^{-1}` -> identify strongly anti-correlated
+    parameter pairs within shared orbits `(Z_0, ZZ_1_2)`, `(Z_2, Z_5, ZZ_0_1, ZZ_3_4)`, `(Z_3, Z_6, ZZ_4_5, ZZ_7_8)`
+  traceability_gate: G7
+  production_mapping: parameter_schema.json:270-583
+- test_id: L3-MATH-028
+  test_name: Non-identifiable parameters
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/identifiability
+  test_file: test_jacobian_rank.cpp
+  implementation_stage: planned_future_set
+  description: Non-identifiable parameters
+  expected_behavior: Confirm strictly `12` zero-eigenvalue / null-space directions of unregularized `I(theta)`, specifically
+    including exact zero sensitivity on `ZZ_3_6` (`e=16`) and `ZZ_2_5` (`e=19`) in X-checks (`ZZ_0_1, ZZ_7_8` in Z-checks)
+  traceability_gate: G7
+  production_mapping: noise_model.cpp:32-47
+- test_id: L3-MATH-029
+  test_name: Sample-size dependence
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/identifiability
+  test_file: test_jacobian_rank.cpp
+  implementation_stage: planned_future_set
+  description: Sample-size dependence
+  expected_behavior: Evaluate Cramer-Rao lower bound `sqrt((N*I + lambda*I)^{-1}_{ii})` across `N in {256, 1000, 10000}` ->
+    show identifiable `Z_1, Z_4, Z_7` shrink as `1/sqrt(N)` while null params stay capped by `1/sqrt(lambda)`
+  traceability_gate: G7
+  production_mapping: Prior vs sample scaling (`DEF-L3-03`)
+- test_id: L3-MATH-030
+  test_name: Prior-dominated estimates
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/identifiability
+  test_file: test_jacobian_rank.cpp
+  implementation_stage: planned_future_set
+  description: Prior-dominated estimates
+  expected_behavior: Measure ratio of Fisher sample information to prior stiffness `lambda` for `(3,6)` & `(2,5)` -> confirm
+    `~100%` prior-dominated (`ratio == 0.0`)
+  traceability_gate: G7
+  production_mapping: noise_model.cpp:154-157
+- test_id: L3-MATH-031
+  test_name: Confidence calibration
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/identifiability
+  test_file: test_jacobian_rank.cpp
+  implementation_stage: planned_future_set
+  description: Confidence calibration
+  expected_behavior: Verify empirical Monte Carlo SD across 30 trials matches asymptotic inverse-Hessian SE within statistical
+    factor on singleton orbits `{Z_1, Z_4, Z_7}`
+  traceability_gate: G7
+  production_mapping: Estimator calibration report
+- test_id: L3-MATH-032
+  test_name: Alias construction
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/identifiability
+  test_file: test_jacobian_rank.cpp
+  implementation_stage: planned_future_set
+  description: Alias construction
+  expected_behavior: 'Construct two distinct parameter vectors `theta^(A)` (high `Z_0`, low `ZZ_1_2`) vs `theta^(B)` (low
+    `Z_0`, high `ZZ_1_2`) satisfying exact equal `(1-2p_a)(1-2p_b)` on orbit `0x1`: prove exact identical `P_joint(0..15)`
+    (`< 1e-14`)!'
+  traceability_gate: G7
+  production_mapping: parameter_schema.json:270-301
+- test_id: L3-MATH-033
+  test_name: LLR reference
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: LLR reference
+  expected_behavior: Sweep 100 `p in [1e-5, 0.49]` -> compare `avid_prob_to_q78_llr` vs Python `round(math.log((1-p)/p) *
+    256)` (`diff == 0`)
+  traceability_gate: G8
+  production_mapping: llr_quantizer.cpp:8-15
+- test_id: L3-MATH-034
+  test_name: Sign
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: Sign
+  expected_behavior: Confirm `p < 0.5 => LLR > 0` (`q78 > 0`, `0`-bit preferred), `p > 0.5 => LLR < 0` in direct log equation
+    (`clamped to 0.49` inside `avid_prob_to_q78_llr`)
+  traceability_gate: G8
+  production_mapping: llr_numeric_contract.yaml:8
+- test_id: L3-MATH-035
+  test_name: Scaling
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: Scaling
+  expected_behavior: Verify exact `2^8 = 256.0` scale factor (`LLR = 1.0 => 256`, `2.5 => 640`, `4.0 => 1024`)
+  traceability_gate: G8
+  production_mapping: llr_numeric_contract.yaml:25`, `llr_quantizer.cpp:11
+- test_id: L3-MATH-036
+  test_name: Rounding
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: Rounding
+  expected_behavior: Test exact `.5` midpoints (`round(x * 256)`) in `llr_quantizer.cpp` (`std::lround`) vs `wrd_float_to_q78`
+    truncation (`DEF-L3-06`)
+  traceability_gate: G8
+  production_mapping: llr_quantizer.cpp:11`, `weight_reg_driver.h:30
+- test_id: L3-MATH-037
+  test_name: Saturation
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: Saturation
+  expected_behavior: Assert signed 16-bit bounds `[-32768, 32767]` in `avid_prob_to_q78_llr` & `[0x0040, 0x3000]` safe bounds
+    in `avid_quantize_and_validate_bank`
+  traceability_gate: G8
+  production_mapping: llr_quantizer.h:13-15`, `llr_quantizer.cpp:12-30
+- test_id: L3-MATH-038
+  test_name: Dequantization
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: Dequantization
+  expected_behavior: Reconstruct `llr_deq = q78 / 256.0`, `p_deq = 1 / (1 + exp(llr_deq))`
+  traceability_gate: G8
+  production_mapping: llr_quantizer.cpp
+- test_id: L3-MATH-039
+  test_name: Error bound
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: 'Error bound — Preconditions: Over unsaturated range `0x0040..0x3000`, assert `; Procedure: q78/256.0 - log((1-p)/p)'
+  expected_behavior: <= 1/512 + 1e-12` everywhere
+  traceability_gate: G8
+  production_mapping: llr_quantizer.cpp:11
+- test_id: L3-MATH-040
+  test_name: Extreme probabilities
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: Extreme probabilities
+  expected_behavior: Evaluate `p in {0, -1, 1e-12, 1e-5, 0.49, 0.5, 1.0, NaN, Inf}` cleanly across `avid_prob_to_q78_llr`
+    & `avid_quantize_and_validate_bank`
+  traceability_gate: G8
+  production_mapping: llr_quantizer.cpp:9,21-25
+- test_id: L3-MATH-041
+  test_name: Weight ordering
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: Weight ordering
+  expected_behavior: Set distinct probabilities per qubit `q=0..8` -> verify `q78[0..8]` order matches `effective_p(0..8)`
+    & `NM_CHECK_CONN` qubit indices `0..8`
+  traceability_gate: G8
+  production_mapping: noise_model.cpp:281-311`, `weight_reg_driver.h
+- test_id: L3-MATH-042
+  test_name: Decoder compatibility
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/quantization
+  test_file: test_llr_formula.cpp
+  implementation_stage: planned_future_set
+  description: Decoder compatibility
+  expected_behavior: Write quantized `weights_q78[0..8]` through `wrd_write_all_weights -> wrd_commit` -> decode single-qubit
+    syndromes with `CycleAccurateBPEngine` verifying Q7.8 sign-magnitude/two's-complement bit interpretation matches RTL `weight_map_reg.sv`
+    contract
+  traceability_gate: G8
+  production_mapping: cycle_accurate_bp_engine.cpp:58-72,148-154`, `weight_reg_driver.c
+- test_id: L3-MATH-043
+  test_name: Evidence timestamp
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Evidence timestamp
+  expected_behavior: Record exact `window_end_round` passed to `avid_scheduler_schedule_commit` & burst trigger `round_idx`
+    -> match actual window end
+  traceability_gate: G8
+  production_mapping: causal_scheduler.cpp:17-23
+- test_id: L3-MATH-044
+  test_name: Commit eligibility
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Commit eligibility
+  expected_behavior: 'Across 50 random `(t_e, d_c)` pairs: verify `poll_commit_ready(sched, round_now)` is `false` for EVERY
+    `round_now < t_e + d_c` and `true` at `t_c == t_e + d_c`'
+  traceability_gate: G8
+  production_mapping: causal_scheduler.cpp:25-36
+- test_id: L3-MATH-045
+  test_name: Epoch ordering
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Epoch ordering
+  expected_behavior: Execute 20 scheduled commits -> verify `active_epoch_id` forms strict sequence `0, 1, 2, ..., 20` (and
+    `hw_epoch` strictly monotonic except explicit RTL reset)
+  traceability_gate: G8
+  production_mapping: causal_scheduler.cpp:32
+- test_id: L3-MATH-046
+  test_name: Stale update rejection
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Stale update rejection
+  expected_behavior: Attempt to schedule commit with `window_end < current_round` / old epoch when newer commit is already
+    active or pending -> guarded scheduler rejects stale overwrite *(DEF-L3-08)*
+  traceability_gate: G8
+  production_mapping: causal_scheduler.cpp` + guard
+- test_id: L3-MATH-047
+  test_name: Duplicate commit prevention
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Duplicate commit prevention
+  expected_behavior: Poll repeatedly at `t_c, t_c+1, ...` after single `schedule_commit` -> second poll returns `false`, firing
+    commit strictly once; sustained burst does not re-trigger `trigger_count`
+  traceability_gate: G8
+  production_mapping: causal_scheduler.cpp:31,66-69
+- test_id: L3-MATH-048
+  test_name: Busy-state handling
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Busy-state handling
+  expected_behavior: Emulate `bp_ready_in == 0` -> confirm `wrd_commit_and_wait` defers / times out cleanly instead of dropping
+    active bank integrity
+  traceability_gate: G8
+  production_mapping: weight_reg_driver.c:123-132`, `weight_commit_protocol.yaml
+- test_id: L3-MATH-049
+  test_name: Reset handling
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Reset handling
+  expected_behavior: Call `avid_scheduler_init` (and `avid_fast_detector_init`) mid-pending commit -> verify `has_pending_commit=false`,
+    `active_epoch_id=0`, ring/debounce cleared
+  traceability_gate: G8
+  production_mapping: causal_scheduler.cpp:7-15,38-46
+- test_id: L3-MATH-050
+  test_name: Timestamp causality
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Timestamp causality
+  expected_behavior: 'Prefix-equivalence oracle: feed common prefix `r=0..499` followed by divergent suffixes `A` vs `B` (`r=500..999`)
+    -> prove ALL decisions for `r <= 499` are bit-identical (`zero lookahead leakage`)'
+  traceability_gate: G8
+  production_mapping: causal_scheduler.cpp`, `avid_daemon.cpp
+- test_id: L3-MATH-051
+  test_name: Burst detection delay
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Burst detection delay
+  expected_behavior: 'Inject burst at `r=B_0` with densities `0.38..1.0`: compute analytical trigger step from `16`-round
+    sliding sum `>= ceil(0.35 * 16) = 6` plus `4`-round debounce -> match C++ `avid_fast_detector_step` exact round!'
+  traceability_gate: G8
+  production_mapping: causal_scheduler.cpp:48-76
+- test_id: L3-MATH-052
+  test_name: Slow-loop limitation
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/scheduler
+  test_file: test_window_length.cpp
+  implementation_stage: planned_future_set
+  description: Slow-loop limitation
+  expected_behavior: 'Formally contrast 10 ms window (`N_a = 10,000`, dilution `60/10000 = 0.6%`) vs fast 16-round detector
+    (`N_b = 60`, `20 us` max trigger): assert `L3-FLOW-034` only credits fast detector for `< 60 us` detection!'
+  traceability_gate: G8
+  production_mapping: system_timing.yaml:22-37
+- test_id: L3-MATH-053
+  test_name: State completeness
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: State completeness
+  expected_behavior: Evaluate every `(state in {0..3}) x (est_ok, deadline_ok, bounds_ok, bus_ok in {0,1}^4)` (`64` combinations)
+    — every pair returns defined valid state `0..3`
+  traceability_gate: G9
+  production_mapping: fallback_fsm.h:9-14`, `fallback_fsm.cpp
+- test_id: L3-MATH-054
+  test_name: Transition validity
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Transition validity
+  expected_behavior: Compare all `64` observed C++ transitions against exact mathematical transition relation extracted from
+    `fallback_fsm.cpp`
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp:25-56
+- test_id: L3-MATH-055
+  test_name: Safety invariant
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Safety invariant
+  expected_behavior: Whenever `bounds_ok == false` OR `estimator_ok == false` OR `deadline_ok == false` OR `bus_ok == false`,
+    verify candidate unsafe `cand_q78` NEVER appears in `out_selected_q78` with `should_commit == true`!
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp:25-55
+- test_id: L3-MATH-056
+  test_name: Fallback invariant
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Fallback invariant
+  expected_behavior: In `SAFE_STATIC_PRIOR(2)` & `DEGRADED_BYPASS(3)`, `out_selected_q78` ALWAYS equals `static_prior_q78`;
+    in `HOLD_LAST_GOOD(1)`, `out_selected_q78` equals `last_good_q78` & `out_should_commit == false`
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp:28,47,53
+- test_id: L3-MATH-057
+  test_name: Recovery condition
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Recovery condition
+  expected_behavior: Prove transition back to `NORMAL_ADAPTIVE` happens ONLY when `estimator_ok && deadline_ok && bounds_ok
+    && bus_ok == true` *(explicitly documenting `1`-step code behavior vs `fault_policy.yaml` 3-step spec, `DEF-L3-07`)*
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp:33-40
+- test_id: L3-MATH-058
+  test_name: Invalid event
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Invalid event
+  expected_behavior: Pass uninitialized/out-of-range integer state (`fsm.state = 99`) or null candidate pointer under faulted
+    input -> safe guarded behavior without committing unvalidated weights *(DEF-L3-10)*
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp
+- test_id: L3-MATH-059
+  test_name: Repeated fault
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Repeated fault
+  expected_behavior: Drive `HOLD_LAST_GOOD` -> `3x` faults -> `SAFE_STATIC_PRIOR` -> `50x` more faults -> verify `consecutive_holds`
+    never overflows to trigger wrap bug & stays safe
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp:42-50
+- test_id: L3-MATH-060
+  test_name: Reset invariant
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Reset invariant
+  expected_behavior: Call `avid_fallback_init(&fsm, AVID_Q78_DEFAULT)` from any degraded state -> verifies `state == NORMAL_ADAPTIVE`,
+    `consecutive_holds == 0`, `fallback_triggers == 0`, banks equal `default_q78`
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp:7-15
+- test_id: L3-MATH-061
+  test_name: Transition coverage
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Transition coverage
+  expected_behavior: Construct explicit witness sequences visiting EVERY legal edge in the `4`-state graph (`NORMAL->HOLD`,
+    `HOLD->HOLD`, `HOLD->SAFE_STATIC`, `NORMAL->SAFE_STATIC(!bounds)`, `ANY->DEGRADED(!bus)`, `ANY->NORMAL`) (`100%` edge
+    coverage)
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp
+- test_id: L3-MATH-062
+  test_name: Forbidden transition coverage
+  test_set: set5_control_mathematics
+  primary_directory: set5_control_mathematics/safety_fsm
+  test_file: test_fsm_transitions.cpp
+  implementation_stage: planned_future_set
+  description: Forbidden transition coverage
+  expected_behavior: Exhaustively prove over all `(state, inputs)` that forbidden transitions never occur (e.g., `!bus_ok`
+    cannot enter `NORMAL`/`HOLD`/`SAFE_STATIC`; `HOLD` cannot set `should_commit=true`; `!bounds_ok` cannot enter `HOLD`)
+  traceability_gate: G9
+  production_mapping: fallback_fsm.cpp

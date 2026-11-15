@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-INT-001
+Test Name: production_daemon_ingress_path_audit
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/inference/avid_daemon.cpp
+Implementation Function: main (--stim-bin fread -> avid_unpack_packet_u64 -> avid_pack_packet_u64 -> avid_dma_ring_push_burst)
+Execution Command: ctest --test-dir build/layer3 -R "^L3-INT-001$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/truncated_3B.bin
+Failure Classification: DAEMON_STIM_BIN_BYPASSES_PACKET_VALIDATOR
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+PRODUCTION INGRESS BYPASS: `avid_daemon.cpp:398-408,491` accepts a 3-byte truncated `--stim-bin` with rc=0 (synthesizing sx=0, sz=0 on short `fread`) AND unpacks `--stim-bin` words via `avid_unpack_packet_u64` without calling `avid_validate_packet`, then re-packs every word with fresh `AVID_PKT_FLAG_VALID` and `seq_gen++` before `avid_dma_ring_push_burst`!
+

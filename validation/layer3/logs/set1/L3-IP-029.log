@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-029
+Test Name: sparse_sample_window_w_min_check
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/estimator/lbfgs_solver.cpp
+Implementation Function: HistogramLBFGSSolver::fit_histogram
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-029$" --output-on-failure
+Fixture: tests/layer3/fixtures/histograms/sparse/sparse_total3.txt
+Failure Classification: MISSING_MINIMUM_SAMPLE_GUARD_SPARSE_OVERFIT
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Sparse N=3 fit: converged=true, iters=7, theta_(4) jumped from 0.012 to 0.450000
+DEFECT: HistogramLBFGSSolver::fit_histogram has no W_min minimum-sample guard (only checks `total == 0`); on just 3 rounds (hist[6]=2, hist[0]=1), it reports converged=true and swings theta_(4) from 0.012 to 0.450000!
+

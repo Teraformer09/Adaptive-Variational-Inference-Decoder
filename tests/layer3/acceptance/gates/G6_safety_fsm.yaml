@@ -1,0 +1,12 @@
+gate_id: G6
+gate_name: Four-State Safety Fallback FSM & Hardware Protection
+stage: set2_set3_set5
+blocking: true
+description: >
+  4-state fallback machine (NORMAL_ADAPTIVE, HOLD_LAST_GOOD, SAFE_STATIC_PRIOR,
+  DEGRADED_BYPASS) blocks unsafe commits and recovers deterministically per fault_policy.yaml.
+required_families:
+  - "L3-OP-029..L3-OP-036"
+  - "L3-FLOW-009..L3-FLOW-012"
+  - "L3-MATH-053..L3-MATH-062"
+pass_rule: "deferred_until_set2_set3_set5_authorized"

@@ -1,0 +1,10 @@
+gate_id: G8
+gate_name: Runtime Execution, Memory Zero-Allocation, & Fault Recovery
+stage: set4_execution_recovery
+blocking: true
+description: >
+  Long-running daemon stability, ASan/UBSan/TSan cleanliness, zero hot-loop heap
+  allocation, warm/cold persistence, and graceful fault recovery.
+required_families:
+  - "L3-EXEC-001..L3-EXEC-045"
+pass_rule: "deferred_until_set4_authorized"

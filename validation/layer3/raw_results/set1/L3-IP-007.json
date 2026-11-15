@@ -1,0 +1,30 @@
+{
+  "test_id": "L3-IP-007",
+  "test_name": "packet_sequence_continuity",
+  "test_description": "Sequence continuity — test monotonic seq (10->11), gap (11->13), duplicate (13->13), UINT32_MAX->0 rollover, and out-of-order recovery (11->999->12)",
+  "test_set": "set1_input_contracts",
+  "status": "FAIL",
+  "source_commit": "88df97e",
+  "implementation_file": "software/src/ingress/packet_validator.cpp",
+  "implementation_function": "avid_validate_packet",
+  "input_contract": "Monotonic +1 (mod 2^32) accepted; gaps and duplicates counted distinctly without corrupting expected sequence on spoofed/out-of-order packet",
+  "independent_oracle": "Monotonic sequence counter state machine",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-007$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/boundary/seq_rollover_pair.bin",
+  "expected": {
+    "seq_10_11_gap13_dup13_rollover": "10,11,rollover ACCEPT; gap 13 & dup 13 REJECT with distinct gap vs duplicate tracking and without poisoning last_seq_id on single corrupt seq"
+  },
+  "actual": {
+    "legit_seq12_after_rejected_999": "REJECT (last_seq_id overwritten by rejected packet 999)",
+    "seq_10_11_gap13_dup13_rollover": "10,11,rollover ACCEPT; gap 13 & dup 13 REJECT (both increment seq_gap_count)"
+  },
+  "assertion_notes": [
+    "Rejected packet seq=999 mutated v->last_seq_id=999, causing legitimate next packet seq=12 to fail"
+  ],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-007.log",
+    "validation/layer3/raw_results/set1/L3-IP-007.json"
+  ],
+  "duration_ms": 0.760,
+  "failure_classification": "rejected_sequence_packet_mutates_validator_last_seq_id_and_lacks_duplicate_counter"
+}

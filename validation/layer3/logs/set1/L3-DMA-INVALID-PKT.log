@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-DMA-INVALID-PKT
+Test Name: histogram_invalid_packet_exclusion
+Status: PASS
+Source Commit: 88df97e
+Implementation File: software/src/ingress/dma_ingress_tap.cpp
+Implementation Function: avid_dma_ring_consume_slot
+Execution Command: ctest --test-dir build/layer3 -R "^L3-DMA-INVALID-PKT$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/parity_err_flag.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

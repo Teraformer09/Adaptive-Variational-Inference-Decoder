@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-016
+Test Name: normalized_empirical_distribution_input_check
+Status: NOT_IMPLEMENTED
+Source Commit: 88df97e
+Implementation File: software/src/inference/noise_model.h
+Implementation Function: absent float/double empirical PMF input API in software/src/
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-016$" --output-on-failure
+Fixture: none (interface contract audit)
+Failure Classification: NO_NORMALIZED_FLOAT_HISTOGRAM_API_IN_LAYER3
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Audited NoiseModel, JointDPEstimator, and HistogramLBFGSSolver in software/src/: all Layer 3 estimator entrypoints accept raw integer counts (`const uint32_t hist[16]` or `ring_buffer_t`) only.
+Note: deployment/cpp/r2d2_runtime.cpp computes normalized empirical histograms internally from `uint32_t hist_x[16]` / `acc_rounds`, and no standalone normalized floating-point distribution validator exists in Layer 3.
+

@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-026
+Test Name: regularization_lambda_validation_and_override
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp
+Implementation Function: NoiseModel::prior_lambda_, HistogramLBFGSSolver::fit_histogram
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-026$" --output-on-failure
+Fixture: tests/layer3/fixtures/histograms/correlated/corr_total1000.txt
+Failure Classification: UNGUARDED_LAMBDA_AND_HARDCODED_SOLVER_OVERRIDE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+[ASSERT_NEAR FAILED] /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/estimator_inputs/test_prior_validation.cpp:31 |m.prior_lambda_ - 0.5| <= 1e-12 (actual=0.05, expected=0.5)
+CONTRACT MISMATCH: HistogramLBFGSSolver::fit_histogram (lbfgs_solver.cpp:107) unconditionally overwrites `model.prior_lambda_ = 0.04`, discarding caller-configured lambda=2.5 and schema lambda=0.5!
+

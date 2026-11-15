@@ -1,0 +1,19 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-CFG-MISSING
+Test Name: missing_required_runtime_inputs
+Status: FAIL
+Source Commit: 88df97e
+Implementation File: software/src/inference/avid_daemon.cpp
+Implementation Function: main CLI & required resource validation (--checkpoint, --stim-bin)
+Execution Command: ctest --test-dir build/layer3 -R "^L3-CFG-MISSING$" --output-on-failure
+Fixture: tests/layer3/fixtures/configs/invalid/missing_required.yaml
+Failure Classification: DANGLING_CLI_ARGUMENT_SILENTLY_IGNORED
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+[ASSERT_EQ FAILED] /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/runtime_config/test_config_missing.cpp:25 (r_no_ckpt.exit_code == 2) actual=0 expected=2
+[ASSERT_TRUE FAILED] /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/runtime_config/test_config_missing.cpp:26 (r_no_ckpt.stderr_text.find("requires a valid R2D2 checkpoint") != std::string::npos) was false
+[ASSERT_TRUE FAILED] /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/runtime_config/test_config_missing.cpp:31 (r_bad_ckpt.stderr_text.find("Failed to load R2D2 checkpoint") != std::string::npos) was false
+[ASSERT_TRUE FAILED] /tmp/avid_layer3_work/tests/layer3/set1_input_contracts/runtime_config/test_config_missing.cpp:36 (r_bad_stim.stderr_text.find("Failed to open --stim-bin") != std::string::npos) was false
+Dangling `--window` without value exited with rc=0 (silently ignored dangling flag and ran with default window=256!)
+DEFECT: Dangling `--window` flag with missing argument at end of argv is silently ignored (`i + 1 < argc` check falls through with no `else` error)!
+
