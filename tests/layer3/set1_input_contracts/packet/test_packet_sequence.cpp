@@ -26,15 +26,16 @@ int main(int argc, char **argv) {
     bool ok11 = avid_validate_packet(&val, avid_pack_packet_u64(1, 2, 11, 1, AVID_PKT_FLAG_VALID), &pkt);
     bool ok13_gap = avid_validate_packet(&val, avid_pack_packet_u64(1, 2, 13, 1, AVID_PKT_FLAG_VALID), &pkt);
     uint64_t gaps_after_13 = val.seq_gap_count;
-    bool ok13_dup = avid_validate_packet(&val, avid_pack_packet_u64(1, 2, 13, 1, AVID_PKT_FLAG_VALID), &pkt);
-    uint64_t gaps_after_dup = val.seq_gap_count;
+    bool ok11_dup = avid_validate_packet(&val, avid_pack_packet_u64(1, 2, 11, 1, AVID_PKT_FLAG_VALID), &pkt);
+    uint64_t dups_after_11 = val.seq_dup_count;
 
     ASSERT_TRUE(ok10);
     ASSERT_TRUE(ok11);
     ASSERT_FALSE(ok13_gap);
     ASSERT_EQ(gaps_after_13, 1ULL);
-    ASSERT_FALSE(ok13_dup);
-    ASSERT_EQ(gaps_after_dup, 2ULL);
+    ASSERT_FALSE(ok11_dup);
+    ASSERT_EQ(dups_after_11, 1ULL);
+    ASSERT_EQ(val.seq_gap_count, 2ULL);
 
     /* Rollover UINT32_MAX -> 0 */
     std::vector<uint64_t> roll;

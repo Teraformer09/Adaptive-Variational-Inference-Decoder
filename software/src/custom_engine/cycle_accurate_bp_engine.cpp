@@ -133,14 +133,27 @@ static void run_check_node_minsum(uint8_t synd_bit,
 }
 
 CycleAccurateBPEngine::CycleAccurateBPEngine(int default_K, double clk_mhz)
-    : default_K_(default_K), clk_period_ns_(1000.0 / clk_mhz) {}
+    : default_K_(std::clamp(default_K, BP_MIN_ITER, BP_MAX_ITER)),
+      clk_period_ns_(1000.0 / ((clk_mhz > 0.0) ? clk_mhz : 250.0)) {}
 
 avid_bp_result_t CycleAccurateBPEngine::decode(
     uint8_t syndrome_mask,
     const int16_t active_weights_q78[BP_N_VARS],
     int K) const {
 
-    const int iters = (K > 0) ? K : default_K_;
+    if (!active_weights_q78 || (K != -1 && !is_valid_iteration_count(K))) {
+        avid_bp_result_t invalid_res{};
+        invalid_res.syndrome_mask      = syndrome_mask & 0x0Fu;
+        invalid_res.correction_mask    = 0;
+        invalid_res.iterations_K       = 0;
+        invalid_res.cycles_fused       = 0;
+        invalid_res.cycles_legacy      = 0;
+        invalid_res.latency_ns_fused   = 0.0;
+        invalid_res.syndrome_satisfied = false;
+        return invalid_res;
+    }
+
+    const int iters = (K == -1) ? default_K_ : K;
     int16_t priors[BP_N_VARS];
     int16_t posterior[BP_N_VARS];
     int16_t v2c_msg[BP_N_VARS][BP_MAX_DEG];

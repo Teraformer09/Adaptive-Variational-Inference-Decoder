@@ -4,6 +4,7 @@
 #include "control/fallback_fsm.h"
 #include "driver/weight_reg_driver.h"
 #include "driver/weight_bank_driver.h"
+#include "hal/avid_hal.h"
 #include <dlfcn.h>
 
 int main(int argc, char **argv) {
@@ -27,7 +28,19 @@ int main(int argc, char **argv) {
     C_ABI_CHECK_EQ_ZU(&ctx, (size_t)wrd_read_active_weight(&wrd, 0), 1024, "wrd_read_active_weight(0) == 1024");
     wrd_close(&wrd);
 
-    /* 2. Check extern "C" linkage on causal_scheduler.h & fallback_fsm.h */
+    /* 2. Direct C11 calls & extern "C" linkage check on causal_scheduler.h & fallback_fsm.h */
+    avid_causal_scheduler_t sched;
+    avid_scheduler_init(&sched, 16, 10000, 4);
+    C_ABI_CHECK_EQ_ZU(&ctx, (size_t)sched.commit_delay_rounds, 4, "avid_scheduler_init C11 call sets commit_delay_rounds == 4");
+
+    avid_fast_burst_detector_t det;
+    avid_fast_detector_init(&det, 0.35, 4);
+    C_ABI_CHECK_EQ_ZU(&ctx, (size_t)det.subwindow_rounds, 16, "avid_fast_detector_init C11 call sets subwindow_rounds == 16");
+
+    avid_fallback_fsm_t fsm;
+    avid_fallback_init(&fsm, 1024);
+    C_ABI_CHECK_EQ_ZU(&ctx, (size_t)fsm.state, (size_t)AVID_FSM_NORMAL_ADAPTIVE, "avid_fallback_init C11 call sets NORMAL_ADAPTIVE");
+
     void *c_sched_sym = dlsym(NULL, "avid_scheduler_init");
     void *c_det_sym   = dlsym(NULL, "avid_fast_detector_init");
     void *c_fsm_sym   = dlsym(NULL, "avid_fallback_init");

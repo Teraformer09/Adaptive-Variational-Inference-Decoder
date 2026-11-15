@@ -103,7 +103,7 @@ foreach(pair IN LISTS SET1_CANONICAL_TESTS)
         COMMAND ${exe_tgt}
             --test-id ${tid}
             --repo-root ${AVID_REPO_ROOT}
-            --validation-dir ${AVID_REPO_ROOT}/validation/layer3
+            --validation-dir ${AVID_VALIDATION_DIR}
             --daemon-bin $<TARGET_FILE:avid_daemon_under_test>
     )
 endforeach()
@@ -127,7 +127,7 @@ foreach(pair IN LISTS SET1_SUPPLEMENTARY_TESTS)
         COMMAND ${exe_tgt}
             --test-id ${tid}
             --repo-root ${AVID_REPO_ROOT}
-            --validation-dir ${AVID_REPO_ROOT}/validation/layer3
+            --validation-dir ${AVID_VALIDATION_DIR}
             --daemon-bin $<TARGET_FILE:avid_daemon_under_test>
     )
 endforeach()

@@ -16,6 +16,9 @@ static uint64_t monotonic_ns() {
 }
 
 void avid_profiler_init(avid_stage_profiler_t *p, const char *name, double deadline_us) {
+    if (!p) {
+        return;
+    }
     p->stage_name      = name;
     p->deadline_us     = deadline_us;
     p->start_ns        = 0;
@@ -26,10 +29,16 @@ void avid_profiler_init(avid_stage_profiler_t *p, const char *name, double deadl
 }
 
 void avid_profiler_begin(avid_stage_profiler_t *p) {
+    if (!p) {
+        return;
+    }
     p->start_ns = monotonic_ns();
 }
 
 bool avid_profiler_end(avid_stage_profiler_t *p) {
+    if (!p) {
+        return false;
+    }
     uint64_t end_ns = monotonic_ns();
     double elapsed_us = (double)(end_ns - p->start_ns) * 1e-3;
     p->last_elapsed_us = elapsed_us;

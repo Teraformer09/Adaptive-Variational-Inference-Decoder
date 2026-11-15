@@ -27,36 +27,45 @@ int main(int argc, char **argv) {
         ctx.record().fixture = "none";
 
         avid_fast_burst_detector_t det_valid{};
-        avid_fast_detector_init(&det_valid, 0.35, 4);
+        ASSERT_TRUE(avid_fast_detector_init_checked(&det_valid, 0.35, 4));
+        ASSERT_TRUE(det_valid.config_valid);
         ASSERT_NEAR(det_valid.density_threshold, 0.35, 1e-12);
         ASSERT_EQ(det_valid.debounce_rounds, 4u);
 
-        /* Negative threshold falls back to 0.35 internally without returning an error */
-        avid_fast_burst_detector_t det_neg{};
-        avid_fast_detector_init(&det_neg, -0.2, 0);
-        ctx.log("Negative threshold=-0.2 silently defaulted to " + std::to_string(det_neg.density_threshold));
+        avid_fast_burst_detector_t det_one{};
+        ASSERT_TRUE(avid_fast_detector_init_checked(&det_one, 1.0, 4));
+        ASSERT_TRUE(det_one.config_valid);
 
-        /* Unphysical threshold = 1.5 (>1.0 maximum possible density) and +Inf */
-        avid_fast_burst_detector_t det_hi{}, det_inf{};
+        /* Invalid thresholds: -0.2, 0.0, 1.5, NaN, +Inf, and NULL pointer must be rejected */
+        avid_fast_burst_detector_t det_bad{};
+        ASSERT_FALSE(avid_fast_detector_init_checked(nullptr, 0.35, 4));
+        ASSERT_FALSE(avid_fast_detector_init_checked(&det_bad, -0.2, 4));
+        ASSERT_FALSE(det_bad.config_valid);
+        ASSERT_FALSE(avid_fast_detector_init_checked(&det_bad, 0.0, 4));
+        ASSERT_FALSE(det_bad.config_valid);
+        ASSERT_FALSE(avid_fast_detector_init_checked(&det_bad, 1.5, 4));
+        ASSERT_FALSE(det_bad.config_valid);
+        ASSERT_FALSE(avid_fast_detector_init_checked(&det_bad, std::numeric_limits<double>::quiet_NaN(), 4));
+        ASSERT_FALSE(det_bad.config_valid);
+        ASSERT_FALSE(avid_fast_detector_init_checked(&det_bad, std::numeric_limits<double>::infinity(), 4));
+        ASSERT_FALSE(det_bad.config_valid);
+
+        /* Even legacy void wrapper clamps out-of-range 1.5/+Inf to safe default 0.35 so burst detection remains functional */
+        avid_fast_burst_detector_t det_hi{};
         avid_fast_detector_init(&det_hi, 1.5, 4);
-        avid_fast_detector_init(&det_inf, std::numeric_limits<double>::infinity(), 4);
-
+        ASSERT_FALSE(det_hi.config_valid);
         bool triggered_on_100pct_burst = false;
         for (uint64_t r = 0; r < 64; ++r) {
             if (avid_fast_detector_step(&det_hi, r, 0xF, 0xF)) {
                 triggered_on_100pct_burst = true;
             }
         }
-        if (det_hi.density_threshold == 1.5 && !triggered_on_100pct_burst) {
-            ctx.record_failure("DEFECT: avid_fast_detector_init (`causal_scheduler.cpp:43`) checks `density_threshold > 0.0` only with NO `<= 1.0` or `std::isfinite` upper bound! `threshold=1.5` and `+Inf` are accepted, permanently disabling burst detection even under 100% syndrome saturation!");
-        }
+        ASSERT_TRUE(triggered_on_100pct_burst);
 
         ctx.record().expected["burst_threshold_bounds"] = "Reject threshold <= 0, > 1.0, NaN, and +Inf";
         ctx.record().actual["burst_threshold_bounds"] =
-            "threshold=1.5 accepted (density_threshold=" + std::to_string(det_hi.density_threshold) +
-            ", triggered_under_100pct_burst=" + (triggered_on_100pct_burst ? "true" : "false") +
-            "); +Inf accepted (" + std::string(std::isinf(det_inf.density_threshold) ? "inf" : "finite") + ")";
-        return ctx.finalize(TestStatus::FAIL, "MISSING_UPPER_BOUND_ON_BURST_DENSITY_THRESHOLD");
+            "avid_fast_detector_init_checked rejects -0.2, 0.0, 1.5, NaN, +Inf, nullptr (false, config_valid=false) and accepts (0.35, 1.0)";
+        return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
     }
 
     if (opts.test_id == "L3-IP-040") {
@@ -138,18 +147,15 @@ int main(int argc, char **argv) {
     int iters_1    = run_with_cap(1);
     int iters_20   = run_with_cap(20);
 
-    ASSERT_TRUE(iters_20 <= 20);
-    if (iters_0 > 0 || iters_neg5 > 0 || iters_1 > 1) {
-        ctx.record_failure("DEFECT: HistogramLBFGSSolver::fit_histogram (`lbfgs_solver.cpp:109-110`) computes `pass1_iters = std::max(6, max_iters / 2)` and `pass2_iters = std::max(6, max_iters - pass1_iters)`! Requesting max_iters=0 executed " +
-                           std::to_string(iters_0) + " iterations, max_iters=-5 executed " +
-                           std::to_string(iters_neg5) + ", and max_iters=1 executed " +
-                           std::to_string(iters_1) + " iterations (violating the iteration budget cap)!");
-    }
+    ASSERT_EQ(iters_neg5, 0);
+    ASSERT_EQ(iters_0, 0);
+    ASSERT_TRUE(iters_1 >= 0 && iters_1 <= 1);
+    ASSERT_TRUE(iters_20 > 0 && iters_20 <= 20);
 
     ctx.record().expected["iteration_cap"] = "max_iters<=0 rejected or 0 iters; max_iters=1 -> <=1 iter; max_iters=20 -> <=20 iters";
     ctx.record().actual["iteration_cap"] =
         "iters(-5)=" + std::to_string(iters_neg5) + ", iters(0)=" + std::to_string(iters_0) +
         ", iters(1)=" + std::to_string(iters_1) + ", iters(20)=" + std::to_string(iters_20);
 
-    return ctx.finalize(TestStatus::FAIL, "SOLVER_MINIMUM_CLAMP_VIOLATES_MAX_ITERS_BUDGET");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }

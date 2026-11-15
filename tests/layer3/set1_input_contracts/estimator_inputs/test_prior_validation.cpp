@@ -44,28 +44,35 @@ int main(int argc, char **argv) {
         m.prior_lambda_ = std::numeric_limits<double>::quiet_NaN();
         double nll_nan_lam = m.compute_nll_from_histogram(hist.data());
 
-        if (nll_neg_lam < nll_lam0) {
-            ctx.record_failure("DEFECT: NoiseModel::prior_lambda_ is an unguarded public double; negative prior_lambda_=-5.0 is accepted and rewards diverging away from prior_theta_!");
-        }
-        if (std::isnan(nll_nan_lam)) {
-            ctx.record_failure("DEFECT: NaN prior_lambda_ is accepted without validation and corrupts NLL with NaN!");
-        }
+        ASSERT_TRUE(std::isinf(nll_neg_lam));
+        ASSERT_FALSE(std::isnan(nll_neg_lam));
+        ASSERT_TRUE(std::isinf(nll_nan_lam));
+        ASSERT_FALSE(std::isnan(nll_nan_lam));
 
-        /* Test whether HistogramLBFGSSolver::fit_histogram respects caller prior_lambda_ = 2.5 */
+        /* Test that HistogramLBFGSSolver::fit_histogram preserves caller prior_lambda_ = 2.5 */
         HistogramLBFGSSolver solver;
         NoiseModel m_fit;
         m_fit.init(0.012, 0.004);
         m_fit.prior_lambda_ = 2.5;
-        solver.fit_histogram(m_fit, hist.data(), 12, nullptr);
-        if (std::abs(m_fit.prior_lambda_ - 0.04) < 1e-12) {
-            ctx.record_failure("CONTRACT MISMATCH: HistogramLBFGSSolver::fit_histogram (lbfgs_solver.cpp:107) unconditionally overwrites `model.prior_lambda_ = 0.04`, discarding caller-configured lambda=2.5 and schema lambda=0.5!");
-        }
+        LBFGSFitDiagnostics diag_fit{};
+        double nll_fit = solver.fit_histogram(m_fit, hist.data(), 12, &diag_fit);
+        ASSERT_FINITE(nll_fit);
+        ASSERT_NEAR(m_fit.prior_lambda_, 2.5, 1e-12);
+
+        /* Also verify solver rejects negative prior_lambda_ */
+        NoiseModel m_bad_lam;
+        m_bad_lam.init(0.012, 0.004);
+        m_bad_lam.prior_lambda_ = -1.0;
+        LBFGSFitDiagnostics diag_bad{};
+        double nll_bad_fit = solver.fit_histogram(m_bad_lam, hist.data(), 12, &diag_bad);
+        ASSERT_TRUE(std::isinf(nll_bad_fit));
+        ASSERT_FALSE(diag_bad.converged);
 
         ctx.record().expected["lambda_contract"] = "Reject negative/NaN lambda and preserve configured prior_lambda_";
         ctx.record().actual["lambda_contract"] =
-            "Negative lambda=-5.0 accepted, NaN lambda->NLL=NaN, and fit_histogram overwrote caller lambda=2.5 to " +
-            std::to_string(m_fit.prior_lambda_);
-        return ctx.finalize(TestStatus::FAIL, "UNGUARDED_LAMBDA_AND_HARDCODED_SOLVER_OVERRIDE");
+            "Negative (-5.0, -1.0) and NaN prior_lambda_ rejected (+Inf); caller prior_lambda_=2.5 preserved (" +
+            std::to_string(m_fit.prior_lambda_) + ")";
+        return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
     }
 
     TestContext ctx(opts, "L3-IP-025", "prior_vector_validation_and_schema_consistency",
@@ -74,31 +81,38 @@ int main(int argc, char **argv) {
     ctx.record().test_description =
         "Prior configuration — verify prior_theta_ initialization, check consistency with parameter_schema.json default_prior, and test invalid prior_theta_ values";
     ctx.record().input_contract = "Valid 21-element prior_theta_ in (0, 0.5) consistent with parameter_schema.json";
-    ctx.record().independent_oracle = "architecture/estimator/parameter_schema.json default_prior (0.012 single, 0.008 pair) vs NoiseModel::init(0.012, 0.004)";
+    ctx.record().independent_oracle = "architecture/estimator/parameter_schema.json default_prior (0.012 single, 0.008 pair)";
     ctx.record().fixture = "tests/layer3/fixtures/parameters/priors/default_prior_21.txt";
 
     NoiseModel m;
-    /* Note: Default constructor sets prior_theta_=(0.012, 0.003), init() defaults to (0.012, 0.004), parameter_schema.json specifies (0.012, 0.008)! */
     NoiseModel m_ctor_only;
+    double ctor_single_prior = m_ctor_only.prior_theta_(0);
     double ctor_pair_prior = m_ctor_only.prior_theta_(9);
     m.init();
+    double init_single_prior = m.prior_theta_(0);
     double init_pair_prior = m.prior_theta_(9);
 
-    if (std::abs(ctor_pair_prior - init_pair_prior) > 1e-9 || std::abs(init_pair_prior - 0.008) > 1e-9) {
-        ctx.record_failure("SCHEMA DISCREPANCY: pair default_prior is 0.003 in NoiseModel(), 0.004 in NoiseModel::init(), and 0.008 in architecture/estimator/parameter_schema.json!");
-    }
+    ASSERT_NEAR(ctor_single_prior, 0.012, 1e-12);
+    ASSERT_NEAR(init_single_prior, 0.012, 1e-12);
+    ASSERT_NEAR(ctor_pair_prior, 0.008, 1e-12);
+    ASSERT_NEAR(init_pair_prior, 0.008, 1e-12);
 
-    /* Inject invalid NaN and negative values into public prior_theta_ */
+    /* Inject invalid NaN and negative values into public prior_theta_ -> must be rejected cleanly */
     m.prior_theta_(0) = std::numeric_limits<double>::quiet_NaN();
     double nll_bad_prior = m.compute_nll_from_histogram(hist.data());
-    if (std::isnan(nll_bad_prior)) {
-        ctx.record_failure("DEFECT: NoiseModel::prior_theta_ has no setter/bounds check; NaN in prior_theta_(0) propagates directly into NLL and gradient!");
-    }
+    ASSERT_TRUE(std::isinf(nll_bad_prior));
+    ASSERT_FALSE(std::isnan(nll_bad_prior));
 
-    ctx.record().expected["prior_validation"] = "Consistent default prior across constructor/init/schema and rejection of NaN/negative prior_theta_";
+    m.init();
+    m.prior_theta_(9) = -0.05;
+    double nll_neg_prior = m.compute_nll_from_histogram(hist.data());
+    ASSERT_TRUE(std::isinf(nll_neg_prior));
+    ASSERT_FALSE(std::isnan(nll_neg_prior));
+
+    ctx.record().expected["prior_validation"] = "Consistent default prior (0.012, 0.008) across constructor/init/schema and rejection of NaN/negative prior_theta_";
     ctx.record().actual["prior_validation"] =
         "ctor_pair=" + std::to_string(ctor_pair_prior) + ", init_pair=" + std::to_string(init_pair_prior) +
-        ", schema_pair=0.008; NaN prior_theta_(0) produced NLL=NaN";
+        " (matches schema 0.008); NaN and negative prior_theta_ rejected cleanly (+Inf)";
 
-    return ctx.finalize(TestStatus::FAIL, "UNGUARDED_PRIOR_VECTOR_AND_DEFAULT_DRIFT");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }

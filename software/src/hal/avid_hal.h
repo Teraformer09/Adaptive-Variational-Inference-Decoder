@@ -6,13 +6,17 @@
  * =========================================================================*/
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 #include "../driver/weight_reg_driver.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define AVID_HAL_MIN_BP_ITER 1u
+#define AVID_HAL_MAX_BP_ITER 5u
 
 typedef enum {
     AVID_HAL_BACKEND_PHYSICAL   = 0,
@@ -42,6 +46,7 @@ typedef struct {
     uint32_t                timeout_ms;
     wrd_handle_t            phys_wrd;
     avid_hal_stats_t        stats;
+    uint32_t                active_k_iter;
 } avid_hal_t;
 
 int  avid_hal_open(avid_hal_t *hal,

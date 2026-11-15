@@ -30,26 +30,44 @@ int main(int argc, char **argv) {
 
     std::string yaml_contract;
     ASSERT_TRUE(load_text_fixture(ctx.env().repo_root + "/architecture/contracts/syndrome_packet_v1.yaml", yaml_contract));
-    bool yaml_specifies_16b_header = yaml_contract.find("header_size_bytes: 16") != std::string::npos;
-    bool yaml_specifies_4b_packet = yaml_contract.find("packet_size_bytes: 4") != std::string::npos;
-    ASSERT_TRUE(yaml_specifies_16b_header);
-    ASSERT_TRUE(yaml_specifies_4b_packet);
+    bool yaml_specifies_8b_packet = yaml_contract.find("packet_size_bytes: 8") != std::string::npos;
+    bool yaml_specifies_8b_framing = yaml_contract.find("byte_length_multiple_of: 8") != std::string::npos;
+    ASSERT_TRUE(yaml_specifies_8b_packet);
+    ASSERT_TRUE(yaml_specifies_8b_framing);
+    ASSERT_EQ(static_cast<size_t>(AVID_PKT_WIRE_BYTES), static_cast<size_t>(8));
 
-    ctx.log("Fixture sizes loaded: " + std::to_string(b0.size()) + ", " + std::to_string(b3.size()) + ", " +
-            std::to_string(b7.size()) + ", " + std::to_string(b8.size()) + ", " + std::to_string(b9.size()) +
-            ", " + std::to_string(b15.size()) + ", " + std::to_string(b24.size()) + " bytes.");
-    ctx.log("C implementation wire word size: sizeof(uint64_t) = 8 bytes; unpacked struct sizeof(avid_syndrome_packet_t) = " +
-            std::to_string(sizeof(avid_syndrome_packet_t)) + " bytes.");
-    ctx.log("packet_validator.h exposes NO (const uint8_t *buf, size_t len) entrypoint; it accepts uint64_t by value only.");
-    ctx.log("syndrome_packet_v1.yaml specifies header_size_bytes=16 and packet_size_bytes=4 (32-bit DMA word).");
+    avid_packet_validator_t val{};
+    avid_validator_init(&val);
+    avid_syndrome_packet_t out{};
 
+    /* Single-packet byte-buffer validation: ONLY exact 8-byte buffer with valid packet fields accepted */
+    ASSERT_FALSE(avid_validate_packet_bytes(&val, b0.data(), b0.size(), &out));
+    ASSERT_FALSE(avid_validate_packet_bytes(&val, b3.data(), b3.size(), &out));
+    ASSERT_FALSE(avid_validate_packet_bytes(&val, b7.data(), b7.size(), &out));
+    ASSERT_FALSE(avid_validate_packet_bytes(&val, b9.data(), b9.size(), &out));
+    ASSERT_FALSE(avid_validate_packet_bytes(&val, b15.data(), b15.size(), &out));
+    ASSERT_FALSE(avid_validate_packet_bytes(&val, b24.data(), b24.size(), &out));
+    ASSERT_FALSE(avid_validate_packet_bytes(&val, nullptr, 8u, &out));
+    ASSERT_TRUE(avid_validate_packet_bytes(&val, b8.data(), b8.size(), &out));
+
+    /* Multi-packet binary stream framing validation: non-null, positive multiple of 8 bytes required */
+    uint8_t dummy = 0;
+    ASSERT_FALSE(avid_validate_stream_framing(nullptr, 8u));
+    ASSERT_FALSE(avid_validate_stream_framing(&dummy, b0.size()));
+    ASSERT_FALSE(avid_validate_stream_framing(b3.data(), b3.size()));
+    ASSERT_FALSE(avid_validate_stream_framing(b7.data(), b7.size()));
+    ASSERT_TRUE(avid_validate_stream_framing(b8.data(), b8.size()));
+    ASSERT_FALSE(avid_validate_stream_framing(b9.data(), b9.size()));
+    ASSERT_FALSE(avid_validate_stream_framing(b15.data(), b15.size()));
+    ASSERT_TRUE(avid_validate_stream_framing(b24.data(), b24.size()));
+
+    ctx.log("Verified authoritative A05/Q11 8-byte wire contract across syndrome_packet_v1.yaml (v1.1.0) and packet_validator.h.");
     ctx.record().expected["wire_contract"] =
-        "Agreement between architecture/contracts/syndrome_packet_v1.yaml and packet_validator.h, plus explicit byte-length rejection for != packet_size";
-    ctx.record().actual["c_wire_size_bytes"] = "8 (uint64_t by value; no byte-length parameter)";
+        "Exact 8-byte packet framing in syndrome_packet_v1.yaml & packet_validator.h; non-8-byte packet buffers rejected";
+    ctx.record().actual["c_wire_size_bytes"] = "8 (AVID_PACKET_WIRE_BYTES=8; avid_validate_packet_bytes & avid_validate_stream_framing)";
     ctx.record().actual["c_unpacked_struct_bytes"] = std::to_string(sizeof(avid_syndrome_packet_t));
-    ctx.record().actual["yaml_contract_bytes"] = "16-byte stream header + 4-byte per-round word";
-    ctx.record().evidence.push_back("validation/layer3/reports/packet_contract_comparison.md");
+    ctx.record().actual["yaml_contract_bytes"] = "8-byte little-endian uint64_t DMA packet + 16-bit AXI-Stream RTL word";
+    ctx.record().evidence.push_back("validation/layer3/reports/packet_contract_decision.md");
 
-    return ctx.finalize(TestStatus::CONTRACT_MISMATCH,
-                        "wire_packet_length_and_api_mismatch_64bit_u64_vs_yaml_16B_hdr_plus_4B_word");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }

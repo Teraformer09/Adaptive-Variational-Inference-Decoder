@@ -9,7 +9,12 @@
  * =========================================================================*/
 #pragma once
 #include <stdint.h>
+#include <stddef.h>
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define RING_WINDOW    10000     /* W: syndrome history window */
 #define RING_N_CHECK_X     4    /* d=3: 4 X-stabilizers */
@@ -29,11 +34,13 @@ typedef struct {
 } ring_buffer_t;
 
 static inline void ring_init(ring_buffer_t *rb) {
+    if (!rb) return;
     memset(rb, 0, sizeof(*rb));
 }
 
-/* Push one syndrome round.  Overwrites oldest entry once full. */
+/* Push one syndrome round. Overwrites oldest entry once full. */
 static inline void ring_push(ring_buffer_t *rb, const syndrome_round_t *s) {
+    if (!rb || !s) return;
     rb->buf[rb->head] = *s;
     rb->head = (rb->head + 1) % RING_WINDOW;
     if (rb->count < RING_WINDOW) rb->count++;
@@ -41,6 +48,13 @@ static inline void ring_push(ring_buffer_t *rb, const syndrome_round_t *s) {
 
 /* Read-only access: index 0 = oldest, count-1 = newest */
 static inline const syndrome_round_t *ring_at(const ring_buffer_t *rb, int idx) {
+    if (!rb || rb->count <= 0 || idx < 0 || idx >= rb->count) {
+        return NULL;
+    }
     int real = (rb->head - rb->count + idx + RING_WINDOW * 2) % RING_WINDOW;
     return &rb->buf[real];
 }
+
+#ifdef __cplusplus
+}
+#endif

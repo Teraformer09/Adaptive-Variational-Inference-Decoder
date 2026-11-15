@@ -7,6 +7,10 @@
 #include <stdbool.h>
 #include "packet_validator.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define AVID_DMA_NUM_SLOTS       4
 #define AVID_DMA_SLOT_PACKETS    64
 
@@ -29,9 +33,19 @@ typedef struct {
     int                     read_slot_idx;
     uint64_t                overflow_drops;
     avid_packet_validator_t validator;
+    /* Synchronized epoch-fencing & atomic snapshot extensions (C11/C++17 layout-identical) */
+    uint8_t                 spinlock_flag;
+    bool                    has_active_epoch;
+    uint16_t                active_epoch_id;
+    uint64_t                stale_epoch_drops;
+    uint32_t                accum_hist_x[16];
+    uint32_t                accum_hist_z[16];
 } avid_dma_ring_t;
 
 void avid_dma_ring_init(avid_dma_ring_t *ring);
+
+/* Optional epoch fence: rejects any packet with pkt.epoch_id < epoch_id */
+void avid_dma_ring_set_active_epoch(avid_dma_ring_t *ring, uint16_t epoch_id);
 
 /* Producer (PL DMA emulation / hardware tap): acquire FREE slot, write burst, mark CPU_READY */
 bool avid_dma_ring_push_burst(avid_dma_ring_t *ring, const uint64_t *pkts, uint32_t n_pkts);
@@ -41,3 +55,12 @@ bool avid_dma_ring_consume_slot(avid_dma_ring_t *ring,
                                 uint32_t hist_x[16],
                                 uint32_t hist_z[16],
                                 uint32_t *out_valid_packets);
+
+/* Thread-safe synchronized snapshot and zero-reset of internal 16-bin X/Z histograms */
+bool avid_dma_ring_snapshot_and_reset(avid_dma_ring_t *ring,
+                                      uint32_t out_hist_x[16],
+                                      uint32_t out_hist_z[16]);
+
+#ifdef __cplusplus
+}
+#endif

@@ -4,6 +4,8 @@
 #pragma once
 #include "../inference/lbfgs_optimizer.h"
 
+#define AVID_SOLVER_MIN_WINDOW_SAMPLES 16u
+
 struct LBFGSFitDiagnostics {
     double initial_nll;
     double final_joint_dp_nll;

@@ -1,6 +1,13 @@
 /* ===========================================================================
- * dma_manager.c — Xilinx AXI DMA Simple Mode User-Space Driver (Portable)
+ * dma_manager.c — Xilinx AXI DMA Simple Mode User-Space Driver (Portable C11)
  * =========================================================================*/
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE
+#endif
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #include "dma_manager.h"
 
 #include <fcntl.h>
@@ -33,6 +40,9 @@ static inline uint32_t dma_reg_read(void *base, uint32_t off) {
 }
 
 int dma_open(dma_handle_t *h, uint32_t dma_base_addr) {
+    if (!h) {
+        return -1;
+    }
     memset(h, 0, sizeof(*h));
     h->fd_mem = open("/dev/mem", O_RDWR | O_SYNC);
     if (h->fd_mem < 0) {
@@ -55,7 +65,8 @@ int dma_open(dma_handle_t *h, uint32_t dma_base_addr) {
     h->max_syndrome_bytes = DDR_BUFFER_SIZE;
     dma_reg_write(h->dma_base, DMA_MM2S_CONTROL, DMA_CTRL_RESET);
     dma_reg_write(h->dma_base, DMA_S2MM_CONTROL, DMA_CTRL_RESET);
-    usleep(10);
+    struct timespec req = {0, 10000L};
+    nanosleep(&req, NULL);
     dma_reg_write(h->dma_base, DMA_MM2S_CONTROL, DMA_CTRL_RUN | DMA_CTRL_IOC_IRQEN);
     dma_reg_write(h->dma_base, DMA_S2MM_CONTROL, DMA_CTRL_RUN | DMA_CTRL_IOC_IRQEN);
     return 0;
@@ -66,6 +77,9 @@ err:
 }
 
 void dma_close(dma_handle_t *h) {
+    if (!h) {
+        return;
+    }
     if (h->syndrome_buf   && h->syndrome_buf   != MAP_FAILED) munmap(h->syndrome_buf,   DDR_BUFFER_SIZE);
     if (h->correction_buf && h->correction_buf != MAP_FAILED) munmap(h->correction_buf, DDR_BUFFER_SIZE);
     if (h->dma_base       && h->dma_base       != MAP_FAILED) munmap(h->dma_base,       DMA_MAP_SIZE);
@@ -74,13 +88,18 @@ void dma_close(dma_handle_t *h) {
 }
 
 int dma_load_syndromes(dma_handle_t *h, const void *data, size_t n_bytes) {
-    if (n_bytes > h->max_syndrome_bytes) return -1;
+    if (!h || !h->syndrome_buf || !data || n_bytes == 0u || n_bytes > h->max_syndrome_bytes) {
+        return -1;
+    }
     memcpy(h->syndrome_buf, data, n_bytes);
     dma_memory_barrier();
     return 0;
 }
 
 int dma_start_stream(dma_handle_t *h, size_t syndrome_bytes, size_t correction_bytes) {
+    if (!h || !h->dma_base) {
+        return -1;
+    }
     dma_reg_write(h->dma_base, DMA_S2MM_DST_ADDR, DDR_CORRECT_PHYS);
     dma_reg_write(h->dma_base, DMA_S2MM_LENGTH,   (uint32_t)correction_bytes);
     dma_reg_write(h->dma_base, DMA_MM2S_SRC_ADDR, DDR_SYNDROME_PHYS);
@@ -89,6 +108,9 @@ int dma_start_stream(dma_handle_t *h, size_t syndrome_bytes, size_t correction_b
 }
 
 int dma_wait_complete(dma_handle_t *h, int timeout_us) {
+    if (!h || !h->dma_base || timeout_us < 0) {
+        return -1;
+    }
     struct timespec ts_start, ts_now;
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
@@ -105,6 +127,9 @@ int dma_wait_complete(dma_handle_t *h, int timeout_us) {
 }
 
 int dma_read_corrections(dma_handle_t *h, void *out_buf, size_t n_bytes) {
+    if (!h || !h->correction_buf || !out_buf || n_bytes > DDR_BUFFER_SIZE) {
+        return -1;
+    }
     dma_memory_barrier();
     memcpy(out_buf, h->correction_buf, n_bytes);
     return 0;

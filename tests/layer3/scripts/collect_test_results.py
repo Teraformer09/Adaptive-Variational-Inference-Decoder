@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 collect_test_results.py — Aggregates Set 1 Canonical, C11 ABI, Supplementary/Integration,
-and ASan/UBSan results into structured manifests and an immutable run snapshot.
+and ASan/UBSan results into structured manifests for the active validation directory.
 """
 
 import argparse
@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import shutil
+import subprocess
 import sys
 
 
@@ -27,13 +28,16 @@ def sha256_file(path: str) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo-root", default="/tmp/avid_layer3_work")
+    ap.add_argument("--validation-dir", default="")
     ap.add_argument("--sanitizer-ctest-rc", type=int, default=0)
-    ap.add_argument("--run-id", default="88df97e_set1_baseline")
+    ap.add_argument("--run-id", default="remediated_set1_v1")
     args = ap.parse_args()
 
-    r = args.repo_root
-    val_dir = os.path.join(r, "validation/layer3")
+    r = os.path.abspath(args.repo_root)
+    val_dir = os.path.abspath(args.validation_dir) if args.validation_dir else os.path.join(r, "validation/layer3")
     raw_dir = os.path.join(val_dir, "raw_results/set1")
+
+    head_commit = subprocess.check_output(["git", "-C", r, "rev-parse", "HEAD"], text=True).strip()
 
     canonical_ids = [f"L3-IP-{i:03d}" for i in range(1, 41)]
     c_abi_ids = [f"L3-ABI-{i:03d}" for i in range(1, 8)]
@@ -78,9 +82,12 @@ def main():
 
     now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     set1_summary = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "generated_at_utc": now_utc,
-        "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+        "run_id": args.run_id,
+        "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+        "initial_validation_commit": "be50761cc6f4cc0c31f79555aa3f69ccd911563d",
+        "source_commit": head_commit,
         "branch": "layer3-slow-loop-software",
         "stage": "set1_input_contracts",
         "sanitizer_ctest_exit_code": args.sanitizer_ctest_rc,
@@ -108,6 +115,7 @@ def main():
     test_manifest = {
         "schema_version": "1.0.0",
         "generated_at_utc": now_utc,
+        "run_id": args.run_id,
         "total_canonical_layer3_ids": 243,
         "executed_in_stage": {
             "canonical_set1_ids": canonical_ids,
@@ -126,11 +134,12 @@ def main():
         wf.write("\n")
 
     val_manifest = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "generated_at_utc": now_utc,
         "run_id": args.run_id,
-        "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
-        "results_file": "validation/layer3/results/set1_input_contracts.json",
+        "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+        "source_commit": head_commit,
+        "results_file": os.path.relpath(out_set1, r),
         "results_sha256": sha256_file(out_set1),
         "canonical_status_counts": status_counts,
         "c_abi_status_counts": c_abi_counts,
@@ -141,16 +150,13 @@ def main():
         json.dump(val_manifest, wf, indent=2)
         wf.write("\n")
 
-    # Archive immutable snapshot under validation/layer3/runs/<run_id>/
-    snap_dir = os.path.join(val_dir, "runs", args.run_id)
-    if os.path.exists(snap_dir):
-        shutil.rmtree(snap_dir)
-    os.makedirs(snap_dir, exist_ok=True)
-    shutil.copy2(out_set1, os.path.join(snap_dir, "set1_input_contracts.json"))
-    for mf in ("source_manifest.json", "environment_manifest.json", "build_manifest.json", "test_manifest.json", "validation_manifest.json"):
-        src_mf = os.path.join(man_dir, mf)
-        if os.path.exists(src_mf):
-            shutil.copy2(src_mf, os.path.join(snap_dir, mf))
+    # Also copy flat convenience copies at root of run directory when val_dir is a run dir
+    if os.path.basename(os.path.dirname(val_dir)) == "runs":
+        shutil.copy2(out_set1, os.path.join(val_dir, "set1_input_contracts.json"))
+        for mf in ("source_manifest.json", "environment_manifest.json", "build_manifest.json", "test_manifest.json", "validation_manifest.json"):
+            src_mf = os.path.join(man_dir, mf)
+            if os.path.exists(src_mf):
+                shutil.copy2(src_mf, os.path.join(val_dir, mf))
 
     print(
         f"[collect_test_results] Aggregated 40 L3-IP ({status_counts}) + "

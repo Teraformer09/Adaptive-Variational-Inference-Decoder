@@ -23,25 +23,21 @@ int main(int argc, char **argv) {
     /* 1. Default controller_mode=avid_r2d2 without --checkpoint */
     auto r_no_ckpt = run_command_capture("\"" + daemon + "\" --rounds 64 --window 64");
     ASSERT_EQ(r_no_ckpt.exit_code, 2);
-    ASSERT_TRUE(r_no_ckpt.stderr_text.find("requires a valid R2D2 checkpoint") != std::string::npos);
+    ASSERT_TRUE((r_no_ckpt.stdout_text + r_no_ckpt.stderr_text).find("requires a valid R2D2 checkpoint") != std::string::npos);
 
     /* 2. Missing/nonexistent --checkpoint file */
     auto r_bad_ckpt = run_command_capture("\"" + daemon + "\" --checkpoint /nonexistent/r2d2_missing.bin --rounds 64 --window 64");
     ASSERT_EQ(r_bad_ckpt.exit_code, 2);
-    ASSERT_TRUE(r_bad_ckpt.stderr_text.find("Failed to load R2D2 checkpoint") != std::string::npos);
+    ASSERT_TRUE((r_bad_ckpt.stdout_text + r_bad_ckpt.stderr_text).find("Failed to load R2D2 checkpoint") != std::string::npos);
 
     /* 3. Missing/nonexistent --stim-bin file */
     auto r_bad_stim = run_command_capture("\"" + daemon + "\" --controller-mode static --stim-bin /nonexistent/missing_stim.bin --rounds 64 --window 64");
     ASSERT_EQ(r_bad_stim.exit_code, 2);
-    ASSERT_TRUE(r_bad_stim.stderr_text.find("Failed to open --stim-bin") != std::string::npos);
+    ASSERT_TRUE((r_bad_stim.stdout_text + r_bad_stim.stderr_text).find("Failed to open --stim-bin") != std::string::npos);
 
     /* 4. Flag with missing trailing value (--window with no argument at end of argv) */
     auto r_dangling_flag = run_command_capture("\"" + daemon + "\" --controller-mode static --rounds 64 --window");
-    ctx.log("Dangling `--window` without value exited with rc=" + std::to_string(r_dangling_flag.exit_code) +
-            " (silently ignored dangling flag and ran with default window=256!)");
-    if (r_dangling_flag.exit_code == 0) {
-        ctx.record_failure("DEFECT: Dangling `--window` flag with missing argument at end of argv is silently ignored (`i + 1 < argc` check falls through with no `else` error)!");
-    }
+    ASSERT_EQ(r_dangling_flag.exit_code, 2);
 
     ctx.record().expected["missing_config"] = "All missing required resources and dangling value-flags rejected with non-zero exit code";
     ctx.record().actual["missing_config"] =

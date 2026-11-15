@@ -1,5 +1,8 @@
 #include "c_abi_harness.h"
 #include "ingress/packet_validator.h"
+#include "ingress/dma_ingress_tap.h"
+#include "control/causal_scheduler.h"
+#include "control/fallback_fsm.h"
 #include "estimator/llr_quantizer.h"
 #include "driver/weight_bank_driver.h"
 
@@ -44,6 +47,24 @@ static int probe_quantize_null_out(void *arg) {
     return ok ? 0 : 1;
 }
 
+static int probe_dma_ring_null(void *arg) {
+    (void)arg;
+    avid_dma_ring_init(NULL);
+    return 0;
+}
+
+static int probe_scheduler_null(void *arg) {
+    (void)arg;
+    avid_scheduler_init(NULL, 16, 10000, 4);
+    return 0;
+}
+
+static int probe_fallback_null(void *arg) {
+    (void)arg;
+    avid_fallback_init(NULL, 1024);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     c_abi_ctx_t ctx;
     c_abi_init(&ctx, argc, argv, "L3-ABI-006", "c_abi_null_pointer_safety",
@@ -68,10 +89,14 @@ int main(int argc, char **argv) {
         {"avid_validate_packet(..., NULL)", probe_validate_null_out},
         {"avid_quantize_and_validate_bank(NULL, out)", probe_quantize_null_in},
         {"avid_quantize_and_validate_bank(p, NULL)", probe_quantize_null_out},
+        {"avid_dma_ring_init(NULL)", probe_dma_ring_null},
+        {"avid_scheduler_init(NULL, 4)", probe_scheduler_null},
+        {"avid_fallback_init(NULL, 1024)", probe_fallback_null},
     };
 
     int crash_count = 0;
-    for (size_t i = 0; i < sizeof(probes) / sizeof(probes[0]); ++i) {
+    const size_t n_probes = sizeof(probes) / sizeof(probes[0]);
+    for (size_t i = 0; i < n_probes; ++i) {
         int signaled = 0, sig = 0;
         int rc = c_abi_run_isolated_probe(probes[i].fn, NULL, &signaled, &sig);
         if (signaled || rc >= 128) {
@@ -86,9 +111,15 @@ int main(int argc, char **argv) {
 
     snprintf(ctx.expected_summary, sizeof(ctx.expected_summary),
              "Zero SIGSEGV/SIGABRT crashes when NULL pointers are passed across C ABI entrypoints");
-    snprintf(ctx.actual_summary, sizeof(ctx.actual_summary),
-             "avid_weight_bank_write_and_commit(NULL)=-1 (safe), but %d/6 packet_validator & llr_quantizer C entrypoints crashed on NULL pointer",
-             crash_count);
+    if (crash_count == 0) {
+        snprintf(ctx.actual_summary, sizeof(ctx.actual_summary),
+                 "avid_weight_bank_write_and_commit(NULL)=-1 and all %zu/%zu C ABI NULL probes guarded safely (0 crashes)",
+                 n_probes, n_probes);
+    } else {
+        snprintf(ctx.actual_summary, sizeof(ctx.actual_summary),
+                 "avid_weight_bank_write_and_commit(NULL)=-1 (safe), %d/%zu C entrypoints crashed on NULL pointer",
+                 crash_count, n_probes);
+    }
 
     return c_abi_finalize(&ctx, (crash_count == 0 && ctx.checks_failed == 0) ? "PASS" : "FAIL",
                           (crash_count > 0) ? "C_ABI_UNGUARDED_NULL_DEREFERENCE" : "");

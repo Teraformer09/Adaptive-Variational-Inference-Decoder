@@ -120,7 +120,7 @@ void c_abi_cxx_get_dma_handle_layout(c_abi_struct_metrics_t *out) {
     out->off4  = offsetof(dma_handle_t, max_syndrome_bytes);
 }
 
-static volatile const void *g_retained_syms[5];
+const void * volatile g_retained_syms[5];
 
 void c_abi_cxx_retain_prod_symbols(void) {
     g_retained_syms[0] = reinterpret_cast<const void *>(&avid_validator_init);

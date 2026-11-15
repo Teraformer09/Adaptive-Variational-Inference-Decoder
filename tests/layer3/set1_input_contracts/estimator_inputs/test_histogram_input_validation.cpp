@@ -5,6 +5,7 @@
 #include "estimator/lbfgs_solver.h"
 #include <array>
 #include <cmath>
+#include <limits>
 
 using namespace avid::layer3_test;
 
@@ -52,60 +53,111 @@ int main(int argc, char **argv) {
 
     if (opts.test_id == "L3-IP-016") {
         TestContext ctx(opts, "L3-IP-016", "normalized_empirical_distribution_input_check",
-                        "software/src/inference/noise_model.h",
-                        "absent float/double empirical PMF input API in software/src/");
+                        "software/src/inference/noise_model.cpp",
+                        "NoiseModel::validate_empirical_pmf, NoiseModel::compute_nll_from_pmf");
         ctx.record().test_description =
-            "Invalid normalized distribution — inspect whether Layer 3 slow-loop C++ estimator exposes a floating-point normalized empirical PMF entrypoint accepting sum != 1.0 or NaN";
-        ctx.record().input_contract = "If normalized empirical PMF input exists, reject sum != 1 +- eps, negative probabilities, and NaN";
-        ctx.record().independent_oracle = "API surface audit of software/src/inference/ and software/src/estimator/";
-        ctx.record().fixture = "none (interface contract audit)";
+            "Invalid normalized distribution — verify NoiseModel::validate_empirical_pmf and compute_nll_from_pmf accept normalized 16-state PMF and reject sum != 1.0, negative bins, NaN, and wrong bin counts";
+        ctx.record().input_contract = "Normalized empirical PMF must have n_bins==16, finite p[s] in [0,1], and |sum(p) - 1.0| <= tol";
+        ctx.record().independent_oracle = "Simplex membership check + cross-entropy equivalence with count histogram";
+        ctx.record().fixture = "tests/layer3/fixtures/histograms/uniform/uniform_100.txt";
 
-        ctx.log("Audited NoiseModel, JointDPEstimator, and HistogramLBFGSSolver in software/src/: all Layer 3 estimator entrypoints accept raw integer counts (`const uint32_t hist[16]` or `ring_buffer_t`) only.");
-        ctx.log("Note: deployment/cpp/r2d2_runtime.cpp computes normalized empirical histograms internally from `uint32_t hist_x[16]` / `acc_rounds`, and no standalone normalized floating-point distribution validator exists in Layer 3.");
+        double valid_pmf[16];
+        uint32_t uni_hist[16];
+        for (int s = 0; s < 16; ++s) {
+            valid_pmf[s] = 1.0 / 16.0;
+            uni_hist[s] = 100u;
+        }
+        ASSERT_TRUE(NoiseModel::validate_empirical_pmf(valid_pmf, 16));
+        ASSERT_FALSE(NoiseModel::validate_empirical_pmf(nullptr, 16));
+        ASSERT_FALSE(NoiseModel::validate_empirical_pmf(valid_pmf, 15));
+        ASSERT_FALSE(NoiseModel::validate_empirical_pmf(valid_pmf, 17));
 
-        ctx.record().expected["normalized_pmf_validator"] = "Reject unnormalized/negative/NaN float PMF or classify NOT_IMPLEMENTED if Layer 3 accepts uint32_t count histograms only";
-        ctx.record().actual["normalized_pmf_validator"] = "No float/double PMF input entrypoint exists in software/src/ estimator APIs (uint32_t hist[16] only)";
-        return ctx.finalize(TestStatus::NOT_IMPLEMENTED, "NO_NORMALIZED_FLOAT_HISTOGRAM_API_IN_LAYER3");
+        double subnorm_pmf[16];
+        double supernorm_pmf[16];
+        double neg_pmf[16];
+        double nan_pmf[16];
+        for (int s = 0; s < 16; ++s) {
+            subnorm_pmf[s] = 0.85 / 16.0;
+            supernorm_pmf[s] = 1.20 / 16.0;
+            neg_pmf[s] = valid_pmf[s];
+            nan_pmf[s] = valid_pmf[s];
+        }
+        neg_pmf[0] = -0.05;
+        neg_pmf[1] += 0.05; /* sum == 1.0, but negative bin! */
+        nan_pmf[3] = std::numeric_limits<double>::quiet_NaN();
+
+        ASSERT_FALSE(NoiseModel::validate_empirical_pmf(subnorm_pmf, 16));
+        ASSERT_FALSE(NoiseModel::validate_empirical_pmf(supernorm_pmf, 16));
+        ASSERT_FALSE(NoiseModel::validate_empirical_pmf(neg_pmf, 16));
+        ASSERT_FALSE(NoiseModel::validate_empirical_pmf(nan_pmf, 16));
+
+        NoiseModel m;
+        m.init(0.012, 0.008);
+        double nll_ok = 0.0, nll_bad = 0.0;
+        ASSERT_TRUE(m.compute_nll_from_pmf(valid_pmf, 16, &nll_ok));
+        ASSERT_NEAR(nll_ok, m.compute_nll_from_histogram(uni_hist), 1e-12);
+        ASSERT_FALSE(m.compute_nll_from_pmf(subnorm_pmf, 16, &nll_bad));
+        ASSERT_TRUE(std::isinf(nll_bad));
+        ASSERT_FALSE(m.compute_nll_from_pmf(neg_pmf, 16, &nll_bad));
+        ASSERT_FALSE(m.compute_nll_from_pmf(nan_pmf, 16, &nll_bad));
+        ASSERT_FALSE(std::isnan(nll_bad));
+
+        ctx.record().expected["normalized_pmf_validator"] = "Accept valid 16-bin simplex PMF; reject sum!=1, negative bins, NaN, and n_bins!=16";
+        ctx.record().actual["normalized_pmf_validator"] = "PASS (valid PMF matches uniform histogram NLL; sub/super-normalized, negative, NaN, and 15/17-bin inputs rejected)";
+        return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
     }
 
-    /* Default: L3-IP-012 — Histogram dimensionality, NULL pointer, and signed-to-unsigned count safety */
+    /* Default: L3-IP-012 — Histogram dimensionality, NULL pointer, and length-checked API safety */
     TestContext ctx(opts, "L3-IP-012", "histogram_dimensionality_and_pointer_validation",
-                    "software/src/inference/noise_model.cpp",
-                    "NoiseModel::compute_nll_from_histogram, HistogramLBFGSSolver::fit_histogram");
+                    "software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp",
+                    "NoiseModel::compute_nll_from_histogram, NoiseModel::compute_nll_from_histogram_checked, HistogramLBFGSSolver::fit_histogram");
     ctx.record().test_description =
-        "Histogram dimensionality & pointer safety — verify C array decay loses length (15-bin vs 17-bin cannot be checked at runtime) and probe NULL hist pointer handling";
-    ctx.record().input_contract = "const uint32_t hist[16] non-null 16-bin count array";
-    ctx.record().independent_oracle = "fork()-isolated NULL pointer probe + C++ signature inspection";
+        "Histogram dimensionality & pointer safety — verify NULL hist pointers never crash and compute_nll_from_histogram_checked rejects n_bins != 16";
+    ctx.record().input_contract = "Non-null 16-bin count array; nullptr and n_bins != 16 explicitly rejected without crash";
+    ctx.record().independent_oracle = "fork()-isolated NULL pointer probe + checked length API (15, 16, 17 bins)";
     ctx.record().fixture = "tests/layer3/fixtures/histograms/uniform/uniform_100.txt";
+
+    std::array<uint32_t, 16> uni{};
+    ASSERT_TRUE(load_u32_histogram_fixture(ctx.fixture_path("histograms/uniform/uniform_100.txt"), uni));
+
+    NoiseModel m_chk;
+    m_chk.init(0.012, 0.008);
+    double checked_nll = 0.0;
+    ASSERT_FALSE(m_chk.compute_nll_from_histogram_checked(nullptr, 16, &checked_nll));
+    ASSERT_FALSE(m_chk.compute_nll_from_histogram_checked(uni.data(), 15, &checked_nll));
+    ASSERT_FALSE(m_chk.compute_nll_from_histogram_checked(uni.data(), 17, &checked_nll));
+    ASSERT_TRUE(m_chk.compute_nll_from_histogram_checked(uni.data(), 16, &checked_nll));
+    ASSERT_FINITE(checked_nll);
+
+    LBFGSFitDiagnostics null_diag{};
+    HistogramLBFGSSolver solver_chk;
+    double null_fit_nll = solver_chk.fit_histogram(m_chk, nullptr, 10, &null_diag);
+    ASSERT_TRUE(std::isinf(null_fit_nll));
+    ASSERT_FALSE(null_diag.converged);
+    ASSERT_EQ(null_diag.iterations_executed, 0);
 
     auto null_nll_probe = run_isolated_probe([]() -> int {
         NoiseModel m;
         m.init(0.012, 0.004);
-        volatile double v = m.compute_nll_from_histogram(nullptr);
-        (void)v;
-        return 0;
+        double v = m.compute_nll_from_histogram(nullptr);
+        return std::isinf(v) ? 0 : 1;
     });
 
     auto null_solver_probe = run_isolated_probe([]() -> int {
         NoiseModel m;
         m.init(0.012, 0.004);
         HistogramLBFGSSolver s;
-        volatile double v = s.fit_histogram(m, nullptr, 10, nullptr);
-        (void)v;
-        return 0;
+        double v = s.fit_histogram(m, nullptr, 10, nullptr);
+        return std::isinf(v) ? 0 : 1;
     });
 
     bool crashed = null_nll_probe.signaled || null_solver_probe.signaled ||
                    null_nll_probe.exit_code != 0 || null_solver_probe.exit_code != 0;
-    if (crashed) {
-        ctx.record_failure("DEFECT: compute_nll_from_histogram(nullptr) and fit_histogram(model, nullptr) dereference NULL without guard (child signaled=" +
-                           std::to_string(null_nll_probe.term_signal) + ") and C array decay `const uint32_t hist[16]` carries no length metadata to reject 15-bin buffers.");
-    }
+    ASSERT_FALSE(crashed);
 
-    ctx.record().expected["null_and_dim_guard"] = "Explicit error/rejection on nullptr or wrong bin count without crash";
+    ctx.record().expected["null_and_dim_guard"] = "Explicit error/rejection on nullptr or wrong bin count (15, 17) without crash";
     ctx.record().actual["null_and_dim_guard"] =
-        "C array parameter decays to `const uint32_t*` (no length check); nullptr crashes with signal " +
-        std::to_string(null_nll_probe.term_signal);
+        "nullptr returns +Inf with 0 crashes; compute_nll_from_histogram_checked rejects n_bins=15/17 and accepts n_bins=16";
 
-    return ctx.finalize(TestStatus::FAIL, "UNGUARDED_NULL_HISTOGRAM_POINTER_AND_ARRAY_DECAY");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }

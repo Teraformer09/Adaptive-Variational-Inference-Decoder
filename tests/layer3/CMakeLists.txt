@@ -15,6 +15,7 @@ option(AVID_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" OFF)
 
 set(AVID_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 get_filename_component(AVID_REPO_ROOT "${AVID_REPO_ROOT}" REALPATH)
+set(AVID_VALIDATION_DIR "${AVID_REPO_ROOT}/validation/layer3" CACHE PATH "Output validation directory for test logs and raw_results")
 
 set(AVID_SANITIZER_FLAGS "")
 if(AVID_ENABLE_ASAN)
@@ -54,10 +55,10 @@ set(AVID_PROD_SOURCES
 )
 
 add_library(avid_layer3_prod STATIC ${AVID_PROD_SOURCES})
-target_compile_definitions(avid_layer3_prod PUBLIC EIGEN_DONT_PARALLELIZE PRIVATE _DEFAULT_SOURCE _POSIX_C_SOURCE=200809L)
+target_compile_definitions(avid_layer3_prod PUBLIC EIGEN_DONT_PARALLELIZE)
 target_compile_options(avid_layer3_prod PRIVATE -Wall -g)
 
-# Use software/include consistently because avid_daemon.cpp accesses theta_.data_ directly
+# Include both software/src and software/include across Layer 3 production translation units
 target_include_directories(avid_layer3_prod PUBLIC
     ${AVID_REPO_ROOT}/software/src
     ${AVID_REPO_ROOT}/software/include

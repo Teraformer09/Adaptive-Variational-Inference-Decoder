@@ -31,22 +31,20 @@ int main(int argc, char **argv) {
         double nll = solver.fit_histogram(m, sparse_hist.data(), 20, &diag);
 
         ASSERT_FINITE(nll);
-        double jumped_q4 = m.theta_(4); /* Qubit 4 has X-signature 6 */
-        ctx.log("Sparse N=3 fit: converged=" + std::string(diag.converged ? "true" : "false") +
+        ASSERT_FALSE(diag.converged);
+        ASSERT_EQ(diag.iterations_executed, 0);
+        double held_q4 = m.theta_(4); /* Qubit 4 has X-signature 6 */
+        ASSERT_NEAR(held_q4, 0.012, 1e-12);
+        ctx.log("Sparse N=3 (< W_min=16) fit held prior safely: converged=" + std::string(diag.converged ? "true" : "false") +
                 ", iters=" + std::to_string(diag.iterations_executed) +
-                ", theta_(4) jumped from 0.012 to " + std::to_string(jumped_q4));
+                ", theta_(4) preserved at " + std::to_string(held_q4));
 
-        /* Because fit_histogram sets prior_lambda_=0.04 unscaled by W, 2 counts in bin 6 drive theta_(4) > 0.30 (>25x jump on 3 samples!) */
-        if (diag.converged && jumped_q4 > 0.20) {
-            ctx.record_failure("DEFECT: HistogramLBFGSSolver::fit_histogram has no W_min minimum-sample guard (only checks `total == 0`); on just 3 rounds (hist[6]=2, hist[0]=1), it reports converged=true and swings theta_(4) from 0.012 to " +
-                               std::to_string(jumped_q4) + "!");
-        }
-
-        ctx.record().expected["sparse_sample_behavior"] = "Enforce W_min hold/fallback or prior-dominated bound on N=3 samples";
+        ctx.record().expected["sparse_sample_behavior"] = "Enforce W_min=16 hold/fallback on N=3 samples without overfitting";
         ctx.record().actual["sparse_sample_behavior"] =
-            "No W_min check (total==0 only); converged=" + std::string(diag.converged ? "true" : "false") +
-            ", theta_(4)=" + std::to_string(jumped_q4);
-        return ctx.finalize(TestStatus::FAIL, "MISSING_MINIMUM_SAMPLE_GUARD_SPARSE_OVERFIT");
+            "W_min=16 enforced; converged=" + std::string(diag.converged ? "true" : "false") +
+            ", iterations=" + std::to_string(diag.iterations_executed) +
+            ", theta_(4)=" + std::to_string(held_q4);
+        return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
     }
 
     TestContext ctx(opts, "L3-IP-013", "empty_zero_count_histogram_handling",

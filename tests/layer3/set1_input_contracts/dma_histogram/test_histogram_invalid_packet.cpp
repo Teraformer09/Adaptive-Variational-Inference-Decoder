@@ -22,9 +22,9 @@ int main(int argc, char **argv) {
         avid_pack_packet_u64(2, 3, 0, 1, AVID_PKT_FLAG_VALID),                          /* valid seq=0 */
         avid_pack_packet_u64(8, 9, 1, 1, 0x00u),                                        /* invalid: VALID=0 */
         avid_pack_packet_u64(10, 11, 1, 1, AVID_PKT_FLAG_VALID | AVID_PKT_FLAG_PARITY_ERR), /* invalid: PARITY_ERR */
-        avid_pack_packet_u64(4, 5, 1, 1, AVID_PKT_FLAG_VALID),                          /* valid seq=1 (since rejected flag pkts did not advance last_seq_id) */
-        avid_pack_packet_u64(12, 13, 5, 1, AVID_PKT_FLAG_VALID),                        /* invalid: seq gap 1->5 */
-        avid_pack_packet_u64(7, 14, 6, 1, AVID_PKT_FLAG_VALID)                          /* valid after last_seq_id became 5 -> 6 */
+        avid_pack_packet_u64(4, 5, 1, 1, AVID_PKT_FLAG_VALID),                          /* valid seq=1 (rejected flag pkts did not advance last_seq_id) */
+        avid_pack_packet_u64(12, 13, 5, 1, AVID_PKT_FLAG_VALID),                        /* invalid: seq gap 1->5 (does not overwrite last_seq_id=1) */
+        avid_pack_packet_u64(7, 14, 2, 1, AVID_PKT_FLAG_VALID)                          /* valid seq=2 (legitimate next packet after seq=1) */
     };
 
     HistogramPair ref = compute_reference_histogram_from_u64_stream(mixed);

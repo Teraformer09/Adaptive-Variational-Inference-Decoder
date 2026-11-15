@@ -6,6 +6,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstring>
+#include <limits>
 
 const int NM_CHECK_CONN[NM_N_CHECK][4] = {
     {0, 1, 0, 0},
@@ -46,7 +47,6 @@ const uint8_t NM_EVENT_SIGNATURES_Z_BASIS[NM_N_PARAMS] = {
     0x4u, 0x1u, 0x8u, 0x1u, 0x8u, 0x2u
 };
 
-/* The 9 non-zero observable syndrome-signature orbit codes in X-check and Z-check bases */
 const uint8_t NM_OBSERVABLE_ORBIT_CODES_X[NM_N_ORBITS] = {
     0x1u, 0x2u, 0x3u, 0x4u, 0x5u, 0x6u, 0x8u, 0xAu, 0xCu
 };
@@ -55,18 +55,27 @@ const uint8_t NM_OBSERVABLE_ORBIT_CODES_Z[NM_N_ORBITS] = {
     0x1u, 0x2u, 0x3u, 0x4u, 0x5u, 0x8u, 0x9u, 0xAu, 0xCu
 };
 
-NoiseModel::NoiseModel() : prior_lambda_(0.05), basis_z_(false) {
-    init(0.012, 0.004);
+static inline double sanitize_prob(double p, double fallback = 0.012) {
+    if (!std::isfinite(p)) {
+        return fallback;
+    }
+    return std::clamp(p, 1e-6, 0.49);
+}
+
+NoiseModel::NoiseModel() : prior_lambda_(0.5), basis_z_(false) {
+    init(0.012, 0.008);
 }
 
 void NoiseModel::init(double p0, double p_pair0) {
+    const double s0 = sanitize_prob(p0, 0.012);
+    const double c0 = sanitize_prob(p_pair0, 0.008);
     for (int i = 0; i < NM_N_QUBIT; i++) {
-        theta_(i) = p0;
-        prior_theta_(i) = p0;
+        theta_(i) = s0;
+        prior_theta_(i) = s0;
     }
     for (int k = 0; k < NM_N_CROSSTALK; k++) {
-        theta_(NM_N_QUBIT + k) = p_pair0;
-        prior_theta_(NM_N_QUBIT + k) = p_pair0;
+        theta_(NM_N_QUBIT + k) = c0;
+        prior_theta_(NM_N_QUBIT + k) = c0;
     }
     grad_.setZero();
     compute_joint_distribution();
@@ -75,7 +84,11 @@ void NoiseModel::init(double p0, double p_pair0) {
 
 void NoiseModel::clamp_params() {
     for (int i = 0; i < NM_N_PARAMS; i++) {
-        theta_(i) = std::clamp(theta_(i), 1e-5, 0.45);
+        if (!std::isfinite(theta_(i))) {
+            theta_(i) = (i < NM_N_QUBIT) ? 0.012 : 0.008;
+        } else {
+            theta_(i) = std::clamp(theta_(i), 1e-5, 0.45);
+        }
     }
 }
 
@@ -88,6 +101,12 @@ bool NoiseModel::validate_parameter_bounds(const ParamVec &theta) {
     return true;
 }
 
+bool NoiseModel::has_valid_hyperparameters() const {
+    return validate_parameter_bounds(prior_theta_) &&
+           std::isfinite(prior_lambda_) &&
+           (prior_lambda_ >= 0.0);
+}
+
 void NoiseModel::compute_joint_distribution() {
     p_joint_.setZero();
     p_joint_(0) = 1.0;
@@ -95,7 +114,7 @@ void NoiseModel::compute_joint_distribution() {
     double next_dist[NM_N_STATES];
     for (int e = 0; e < NM_N_PARAMS; e++) {
         const uint8_t g = event_signature(e);
-        const double pe = std::clamp(theta_(e), 1e-6, 0.49);
+        const double pe = sanitize_prob(theta_(e), (e < NM_N_QUBIT) ? 0.012 : 0.008);
         if (g == 0u || pe == 0.0) {
             continue;
         }
@@ -110,10 +129,10 @@ void NoiseModel::compute_joint_distribution() {
 
 void NoiseModel::compute_p_eff() {
     for (int v = 0; v < NM_N_QUBIT; v++) {
-        double p_acc = std::clamp(theta_(v), 1e-6, 0.49);
+        double p_acc = sanitize_prob(theta_(v), 0.012);
         for (int k = 0; k < NM_N_CROSSTALK; k++) {
             if (NM_CROSSTALK_PAIRS[k].i == v || NM_CROSSTALK_PAIRS[k].j == v) {
-                double pe = std::clamp(theta_(NM_N_QUBIT + k), 1e-6, 0.49);
+                double pe = sanitize_prob(theta_(NM_N_QUBIT + k), 0.008);
                 p_acc = p_acc * (1.0 - pe) + (1.0 - p_acc) * pe;
             }
         }
@@ -122,21 +141,36 @@ void NoiseModel::compute_p_eff() {
 }
 
 void NoiseModel::extract_histogram(const ring_buffer_t &rb, uint32_t hist[NM_N_STATES]) const {
+    if (!hist) {
+        return;
+    }
     std::memset(hist, 0, sizeof(uint32_t) * NM_N_STATES);
     const int W = rb.count;
     for (int t = 0; t < W; t++) {
         const syndrome_round_t *sr = ring_at(&rb, t);
+        if (!sr) {
+            continue;
+        }
         uint8_t mask = 0;
         for (int c = 0; c < NM_N_CHECK; c++) {
             uint8_t bit = basis_z_ ? (sr->z[c] & 1u) : (sr->x[c] & 1u);
             mask |= (uint8_t)(bit << c);
         }
-        hist[mask & 0x0Fu]++;
+        if (hist[mask & 0x0Fu] < UINT32_MAX) {
+            hist[mask & 0x0Fu]++;
+        }
     }
 }
 
 double NoiseModel::compute_nll_from_histogram(const uint32_t hist[NM_N_STATES]) {
     compute_joint_distribution();
+    if (!hist) {
+        return std::numeric_limits<double>::infinity();
+    }
+    if (!validate_parameter_bounds(theta_) || !has_valid_hyperparameters()) {
+        return std::numeric_limits<double>::infinity();
+    }
+
     uint64_t total = 0;
     for (int s = 0; s < NM_N_STATES; s++) {
         total += hist[s];
@@ -158,7 +192,74 @@ double NoiseModel::compute_nll_from_histogram(const uint32_t hist[NM_N_STATES]) 
     return nll;
 }
 
+bool NoiseModel::compute_nll_from_histogram_checked(const uint32_t *hist,
+                                                    size_t n_bins,
+                                                    double *out_nll) {
+    if (!hist || !out_nll || n_bins != (size_t)NM_N_STATES) {
+        return false;
+    }
+    double val = compute_nll_from_histogram(hist);
+    if (!std::isfinite(val)) {
+        return false;
+    }
+    *out_nll = val;
+    return true;
+}
+
+bool NoiseModel::validate_empirical_pmf(const double *pmf,
+                                        size_t n_bins,
+                                        double sum_tol) {
+    if (!pmf || n_bins != (size_t)NM_N_STATES || !std::isfinite(sum_tol) || sum_tol < 0.0) {
+        return false;
+    }
+    double sum = 0.0;
+    for (size_t s = 0; s < n_bins; ++s) {
+        if (!std::isfinite(pmf[s]) || pmf[s] < 0.0 || pmf[s] > 1.0) {
+            return false;
+        }
+        sum += pmf[s];
+    }
+    return std::abs(sum - 1.0) <= sum_tol;
+}
+
+bool NoiseModel::compute_nll_from_pmf(const double *pmf,
+                                      size_t n_bins,
+                                      double *out_nll,
+                                      double sum_tol) {
+    if (!out_nll) {
+        return false;
+    }
+    if (!validate_empirical_pmf(pmf, n_bins, sum_tol) ||
+        !validate_parameter_bounds(theta_) ||
+        !has_valid_hyperparameters()) {
+        *out_nll = std::numeric_limits<double>::infinity();
+        return false;
+    }
+    compute_joint_distribution();
+    double nll = 0.0;
+    for (int s = 0; s < NM_N_STATES; ++s) {
+        const double mod_p = std::max(p_joint_(s), 1e-15);
+        nll -= pmf[s] * std::log(mod_p);
+    }
+    if (prior_lambda_ > 0.0) {
+        ParamVec diff = theta_ - prior_theta_;
+        nll += 0.5 * prior_lambda_ * diff.squaredNorm();
+    }
+    if (!std::isfinite(nll)) {
+        *out_nll = std::numeric_limits<double>::infinity();
+        return false;
+    }
+    *out_nll = nll;
+    return true;
+}
+
 double NoiseModel::compute_legacy_marginal_nll_from_histogram(const uint32_t hist[NM_N_STATES]) const {
+    if (!hist) {
+        return std::numeric_limits<double>::infinity();
+    }
+    if (!validate_parameter_bounds(theta_)) {
+        return std::numeric_limits<double>::infinity();
+    }
     uint64_t total = 0;
     uint64_t check_ones[NM_N_CHECK] = {0};
     for (int s = 0; s < NM_N_STATES; s++) {
@@ -170,14 +271,13 @@ double NoiseModel::compute_legacy_marginal_nll_from_histogram(const uint32_t his
     if (total == 0) return 0.0;
     const double inv_total = 1.0 / (double)total;
 
-    /* Compute 4 independent check marginal flip probabilities from theta_ */
     double q_check[NM_N_CHECK] = {0.0};
     for (int c = 0; c < NM_N_CHECK; c++) {
         double prod = 1.0;
         for (int e = 0; e < NM_N_PARAMS; e++) {
             uint8_t g = event_signature(e);
             if ((g >> c) & 1u) {
-                double pe = std::clamp(theta_(e), 1e-6, 0.49);
+                double pe = sanitize_prob(theta_(e), 0.012);
                 prod *= (1.0 - 2.0 * pe);
             }
         }
@@ -201,6 +301,9 @@ double NoiseModel::compute_nll(const ring_buffer_t &rb) {
 void NoiseModel::compute_gradient_from_histogram(const uint32_t hist[NM_N_STATES]) {
     compute_joint_distribution();
     grad_.setZero();
+    if (!hist || !validate_parameter_bounds(theta_) || !has_valid_hyperparameters()) {
+        return;
+    }
 
     uint64_t total = 0;
     for (int s = 0; s < NM_N_STATES; s++) {
@@ -224,7 +327,7 @@ void NoiseModel::compute_gradient_from_histogram(const uint32_t hist[NM_N_STATES
             grad_(e) = 0.0;
             continue;
         }
-        const double pe = std::clamp(theta_(e), 1e-6, 0.49);
+        const double pe = sanitize_prob(theta_(e), 0.012);
         const double denom = 1.0 - 2.0 * pe;
         double ge_acc = 0.0;
         for (int s = 0; s < NM_N_STATES; s++) {
@@ -246,6 +349,9 @@ void NoiseModel::compute_gradient(const ring_buffer_t &rb) {
 }
 
 void NoiseModel::compute_orbit_probabilities(const ParamVec &theta, bool basis_z, double orbit_probs[NM_N_ORBITS]) {
+    if (!orbit_probs) {
+        return;
+    }
     const uint8_t *codes = basis_z ? NM_OBSERVABLE_ORBIT_CODES_Z : NM_OBSERVABLE_ORBIT_CODES_X;
     const uint8_t *sigs  = basis_z ? NM_EVENT_SIGNATURES_Z_BASIS  : NM_EVENT_SIGNATURES;
     for (int k = 0; k < NM_N_ORBITS; k++) {
@@ -253,7 +359,7 @@ void NoiseModel::compute_orbit_probabilities(const ParamVec &theta, bool basis_z
         double prod = 1.0;
         for (int e = 0; e < NM_N_PARAMS; e++) {
             if (sigs[e] == code) {
-                double pe = std::clamp(theta(e), 1e-6, 0.49);
+                double pe = sanitize_prob(theta(e), 0.012);
                 prod *= (1.0 - 2.0 * pe);
             }
         }
@@ -279,10 +385,20 @@ double NoiseModel::compute_param_21_rmse(const ParamVec &true_theta) const {
 }
 
 double NoiseModel::effective_p(int v) const {
+    if (v < 0 || v >= NM_N_QUBIT) {
+        return 0.012;
+    }
+    if (!std::isfinite(theta_(v)) || theta_(v) <= 0.0 || theta_(v) >= 0.5) {
+        return theta_(v);
+    }
     double p_acc = std::clamp(theta_(v), 1e-6, 0.49);
     for (int k = 0; k < NM_N_CROSSTALK; k++) {
         if (NM_CROSSTALK_PAIRS[k].i == v || NM_CROSSTALK_PAIRS[k].j == v) {
-            double pe = std::clamp(theta_(NM_N_QUBIT + k), 1e-6, 0.49);
+            double raw_pe = theta_(NM_N_QUBIT + k);
+            if (!std::isfinite(raw_pe) || raw_pe < 0.0 || raw_pe >= 0.5) {
+                return raw_pe;
+            }
+            double pe = std::clamp(raw_pe, 1e-6, 0.49);
             p_acc = p_acc * (1.0 - pe) + (1.0 - p_acc) * pe;
         }
     }
@@ -290,8 +406,11 @@ double NoiseModel::effective_p(int v) const {
 }
 
 void NoiseModel::to_llr(float llr_x[NM_N_QUBIT], float llr_z[NM_N_QUBIT]) const {
+    if (!llr_x || !llr_z) {
+        return;
+    }
     for (int v = 0; v < NM_N_QUBIT; v++) {
-        double p = effective_p(v);
+        double p = sanitize_prob(effective_p(v), 0.012);
         double llr = std::log((1.0 - p) / p);
         llr = std::clamp(llr, -120.0, 120.0);
         llr_x[v] = (float)llr;
@@ -300,8 +419,11 @@ void NoiseModel::to_llr(float llr_x[NM_N_QUBIT], float llr_z[NM_N_QUBIT]) const 
 }
 
 void NoiseModel::to_q7_8_llr(int16_t llr_q78[NM_N_QUBIT]) const {
+    if (!llr_q78) {
+        return;
+    }
     for (int v = 0; v < NM_N_QUBIT; v++) {
-        double p = effective_p(v);
+        double p = sanitize_prob(effective_p(v), 0.012);
         double llr = std::log((1.0 - p) / p);
         long scaled = std::lround(llr * 256.0);
         if (scaled > 32767) scaled = 32767;
@@ -313,8 +435,11 @@ void NoiseModel::to_q7_8_llr(int16_t llr_q78[NM_N_QUBIT]) const {
 void NoiseModel::to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT],
                                             const double *qubit_gains,
                                             double pair_weight_scale) const {
+    if (!llr_q78) {
+        return;
+    }
     for (int v = 0; v < NM_N_QUBIT; v++) {
-        double p = effective_p(v);
+        double p = sanitize_prob(effective_p(v), 0.012);
         double llr = std::log((1.0 - p) / p);
         if (qubit_gains) {
             llr *= qubit_gains[v];
@@ -327,12 +452,6 @@ void NoiseModel::to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT],
         return;
     }
 
-    /* General 12-Pair Syndrome-Alias MAP Log-Odds Projection:
-     * Iterates over every non-zero syndrome signature g in 1..15 and identifies
-     * all nearest-neighbor pairs k in 0..11 whose syndrome signature g_{u,v} == g
-     * aliases with one or more single-qubit signatures g_w == g.
-     * Zero hardcoded qubit or pair indices; works identically across all 6 horizontal
-     * Z-error pairs and all 6 vertical X-error pairs. */
     for (uint8_t g = 1u; g < NM_N_STATES; g++) {
         int best_pair_k = -1;
         double best_pair_score = -1.0;
@@ -396,7 +515,6 @@ void NoiseModel::to_pair_projected_q7_8_llr(int16_t llr_q78[NM_N_QUBIT],
             gain_boost = std::clamp(single_gain / end_gain_avg, 0.72, 1.42);
         }
 
-        /* Bayesian syndrome-alias dominance condition modulated by pair_weight_scale and qubit_gains */
         double end_support   = (p_pair > 0.012) ? (0.48 * std::max(0.0, p_end_max - p_base_prior)) : 0.0;
         double pair_evidence = pair_weight_scale * gain_boost * (p_pair + end_support);
         if (pair_evidence > p_base_prior + 0.008) {

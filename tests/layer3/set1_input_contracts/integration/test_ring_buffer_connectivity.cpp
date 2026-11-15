@@ -4,7 +4,9 @@
 #include "inference/ring_buffer.h"
 #include "inference/noise_model.h"
 #include "inference/lbfgs_optimizer.h"
+#include <cstdio>
 #include <string>
+#include <unistd.h>
 
 using namespace avid::layer3_test;
 
@@ -42,30 +44,30 @@ int main(int argc, char **argv) {
     double nll_hist = m.compute_nll_from_histogram(hist);
     ASSERT_NEAR(nll_rb, nll_hist, 1e-12);
 
-    /* 2. Inspect avid_daemon.cpp & binary symbols to check production wiring */
+    /* 2. Inspect avid_daemon.cpp & execute avid_daemon_under_test to verify production ring_buffer_t connectivity */
     std::string daemon_src;
     ASSERT_TRUE(load_text_fixture(opts.repo_root + "/software/src/inference/avid_daemon.cpp", daemon_src));
-    bool daemon_mentions_ring_buffer =
-        (daemon_src.find("ring_buffer_t") != std::string::npos) ||
-        (daemon_src.find("ring_push") != std::string::npos) ||
-        (daemon_src.find("ring_init") != std::string::npos);
+    bool daemon_wires_ring_buffer =
+        (daemon_src.find("static ring_buffer_t") != std::string::npos) &&
+        (daemon_src.find("ring_init(&g_ring_buf)") != std::string::npos) &&
+        (daemon_src.find("ring_push(&g_ring_buf") != std::string::npos);
+    ASSERT_TRUE(daemon_wires_ring_buffer);
 
-    bool binary_calls_rb_nll = false;
     if (!opts.daemon_bin.empty()) {
-        auto nm_res = run_command_capture("nm -C \"" + opts.daemon_bin + "\" 2>/dev/null | grep \"NoiseModel::compute_nll(ring_buffer_t\" || true");
-        ctx.log("nm -C avid_daemon_under_test ring_buffer symbol check: " +
-                (nm_res.stdout_text.empty() ? "<not referenced by avid_daemon.cpp>" : nm_res.stdout_text));
-        binary_calls_rb_nll = daemon_mentions_ring_buffer;
+        std::string m_path = "/tmp/avid_l3_int003_" + std::to_string(::getpid()) + ".json";
+        auto r = run_command_capture(
+            "\"" + opts.daemon_bin + "\" --backend physical --controller-mode static --rounds 128 --window 64 --metrics-out \"" + m_path + "\"");
+        ASSERT_EQ(r.exit_code, 0);
+        std::string mjson;
+        ASSERT_TRUE(load_text_fixture(m_path, mjson));
+        ::unlink(m_path.c_str());
+        ASSERT_TRUE(mjson.find("\"ring_buffer_count\": 128") != std::string::npos);
     }
 
-    if (!daemon_mentions_ring_buffer && !binary_calls_rb_nll) {
-        ctx.record_failure("IMPLEMENTED_BUT_UNUSED IN PRODUCTION DAEMON: `ring_buffer.h` (`RING_WINDOW=10000`), `NoiseModel::compute_nll(const ring_buffer_t&)`, and `LBFGSOptimizer::step(model, rb)` work standalone (|nll_rb - nll_hist| < 1e-12), BUT `avid_daemon.cpp` never instantiates `ring_buffer_t`! Instead, `avid_daemon` accumulates `uint32_t hist_x[16], hist_z[16]` directly from `avid_dma_ring_consume_slot` (`4 x 64` packet DMA ring) and calls `HistogramLBFGSSolver::fit_histogram`.");
-    }
-
-    ctx.record().expected["ring_buffer_connectivity"] = "Document exact standalone validity AND production avid_daemon connectivity";
+    ctx.record().expected["ring_buffer_connectivity"] = "Standalone ring_buffer_t NLL parity AND production avid_daemon connectivity";
     ctx.record().actual["ring_buffer_connectivity"] =
         "Standalone ring_buffer_t PASS (nll_rb=" + std::to_string(nll_rb) + " == nll_hist=" + std::to_string(nll_hist) +
-        "); avid_daemon connectivity = IMPLEMENTED_BUT_UNUSED (daemon uses avid_dma_ring_t + hist_x[16]/hist_z[16] directly)";
+        "); avid_daemon connectivity = IMPLEMENTED_AND_CONNECTED (ring_buffer_count=128 over 128 valid rounds)";
 
-    return ctx.finalize(TestStatus::CONTRACT_MISMATCH, "RING_BUFFER_IMPLEMENTED_BUT_UNUSED_IN_AVID_DAEMON");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }

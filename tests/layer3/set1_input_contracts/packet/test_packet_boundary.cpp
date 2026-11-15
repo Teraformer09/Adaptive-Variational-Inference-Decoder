@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     if (!opts.daemon_bin.empty()) {
         std::string metrics_tmp = "/tmp/avid_l3_ip009_metrics.json";
         std::string trunc_bin = ctx.fixture_path("packets/invalid/truncated_3B.bin");
-        std::string cmd = "\"" + opts.daemon_bin + "\" --backend physical --scenario stationary_noise "
+        std::string cmd = "\"" + opts.daemon_bin + "\" --backend physical --controller-mode static --scenario stationary_noise "
                           "--stim-bin \"" + trunc_bin + "\" --rounds 64 --window 64 --metrics-out \"" + metrics_tmp + "\"";
         SubprocessResult dres = run_command_capture(cmd);
         if (dres.exit_code == 0) {

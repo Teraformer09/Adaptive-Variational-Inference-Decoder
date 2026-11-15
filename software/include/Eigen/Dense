@@ -24,6 +24,8 @@ public:
 
     Scalar &operator()(int i) { return data_[i]; }
     const Scalar &operator()(int i) const { return data_[i]; }
+    Scalar *data() { return data_; }
+    const Scalar *data() const { return data_; }
 
     Scalar dot(const Matrix &other) const {
         Scalar acc = Scalar(0);

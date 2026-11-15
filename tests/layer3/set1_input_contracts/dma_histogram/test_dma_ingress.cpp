@@ -62,8 +62,11 @@ int main(int argc, char **argv) {
         burst100[i] = avid_pack_packet_u64(5, 7, static_cast<uint32_t>(i), 1, AVID_PKT_FLAG_VALID);
     }
     bool pushed_oversized = avid_dma_ring_push_burst(&ring, burst100.data(), 100u);
+    ASSERT_FALSE(pushed_oversized);
+    ASSERT_EQ(ring.overflow_drops, 100ULL);
     uint32_t hx2[16] = {0}, hz2[16] = {0}, vcnt2 = 0;
-    avid_dma_ring_consume_slot(&ring, hx2, hz2, &vcnt2);
+    ASSERT_FALSE(avid_dma_ring_consume_slot(&ring, hx2, hz2, &vcnt2));
+    ASSERT_EQ(vcnt2, 0u);
     bool silent_truncation = (pushed_oversized && vcnt2 == 64u && ring.overflow_drops == 0ULL);
 
     ctx.log("4x64 sequential cadence: total_consumed=256, overflow_drops=0 (PASS).");

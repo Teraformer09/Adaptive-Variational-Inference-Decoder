@@ -31,7 +31,7 @@ foreach(spec IN LISTS C_ABI_SPECS)
         COMMAND ${tgt_name}
             --test-id ${abi_id}
             --repo-root ${AVID_REPO_ROOT}
-            --validation-dir ${AVID_REPO_ROOT}/validation/layer3
+            --validation-dir ${AVID_VALIDATION_DIR}
             --c-compiler ${CMAKE_C_COMPILER}
     )
 endforeach()

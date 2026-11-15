@@ -6,6 +6,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     AVID_FSM_NORMAL_ADAPTIVE   = 0,
     AVID_FSM_HOLD_LAST_GOOD    = 1,
@@ -32,3 +36,7 @@ avid_fallback_state_t avid_fallback_step(avid_fallback_fsm_t *fsm,
                                          const int16_t candidate_q78[9],
                                          int16_t out_selected_q78[9],
                                          bool *out_should_commit);
+
+#ifdef __cplusplus
+}
+#endif

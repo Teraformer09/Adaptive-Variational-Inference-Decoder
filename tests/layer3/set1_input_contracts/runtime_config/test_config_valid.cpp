@@ -4,7 +4,9 @@
 #include "driver/weight_reg_driver.h"
 #include "driver/weight_bank_driver.h"
 #include "fixture_loader.h"
+#include <cstdio>
 #include <string>
+#include <unistd.h>
 
 using namespace avid::layer3_test;
 
@@ -81,22 +83,45 @@ int main(int argc, char **argv) {
     ASSERT_TRUE(avid_scheduler_poll_commit_ready(&sched8, 264, out));
     ASSERT_EQ(static_cast<int>(sched8.active_epoch_id), 1);
 
-    /* Inspect avid_daemon.cpp source to verify whether avid_causal_scheduler_t or --commit-delay is wired */
+    /* Inspect avid_daemon.cpp source and execute daemon with --commit-delay 0 vs --commit-delay 8 and invalid -4 */
     std::string daemon_src;
     ASSERT_TRUE(load_text_fixture(opts.repo_root + "/software/src/inference/avid_daemon.cpp", daemon_src));
-    bool daemon_uses_scheduler = (daemon_src.find("avid_scheduler_init") != std::string::npos) ||
-                                 (daemon_src.find("avid_scheduler_schedule_commit") != std::string::npos);
+    bool daemon_uses_scheduler = (daemon_src.find("avid_scheduler_init") != std::string::npos) &&
+                                 (daemon_src.find("avid_scheduler_schedule_commit") != std::string::npos) &&
+                                 (daemon_src.find("avid_scheduler_poll_commit_ready") != std::string::npos);
     bool daemon_has_commit_delay_cli = (daemon_src.find("--commit-delay") != std::string::npos);
+    ASSERT_TRUE(daemon_uses_scheduler);
+    ASSERT_TRUE(daemon_has_commit_delay_cli);
 
-    if (!daemon_uses_scheduler || !daemon_has_commit_delay_cli) {
-        ctx.record_failure("CONTRACT MISMATCH: `avid_causal_scheduler_t` enforces `commit_delay_rounds` standalone, but `avid_daemon.cpp` never instantiates `avid_causal_scheduler_t`, exposes no `--commit-delay` flag, and commits weights synchronously inside the window boundary!");
+    if (!opts.daemon_bin.empty()) {
+        auto r_neg = run_command_capture("\"" + opts.daemon_bin + "\" --controller-mode static --rounds 128 --window 64 --commit-delay -4");
+        ASSERT_EQ(r_neg.exit_code, 2);
+
+        std::string m0 = "/tmp/avid_l3_ip032_d0_" + std::to_string(::getpid()) + ".json";
+        std::string m8 = "/tmp/avid_l3_ip032_d8_" + std::to_string(::getpid()) + ".json";
+        auto r0 = run_command_capture("\"" + opts.daemon_bin + "\" --backend physical --controller-mode static --rounds 128 --window 64 --commit-delay 0 --metrics-out \"" + m0 + "\"");
+        auto r8 = run_command_capture("\"" + opts.daemon_bin + "\" --backend physical --controller-mode static --rounds 128 --window 64 --commit-delay 8 --metrics-out \"" + m8 + "\"");
+        ASSERT_EQ(r0.exit_code, 0);
+        ASSERT_EQ(r8.exit_code, 0);
+
+        std::string j0, j8;
+        ASSERT_TRUE(load_text_fixture(m0, j0));
+        ASSERT_TRUE(load_text_fixture(m8, j8));
+        ::unlink(m0.c_str());
+        ::unlink(m8.c_str());
+
+        /* With commit_delay=0, both window 1 (round 64) and window 2 (round 128) commit within 128 rounds -> 2 adaptive commits.
+         * With commit_delay=8, window 1 commits at round 72, while window 2 is scheduled for round 136 > 128 -> 1 adaptive commit! */
+        ASSERT_TRUE(j0.find("\"scheduler_commit_delay_rounds\": 0") != std::string::npos);
+        ASSERT_TRUE(j0.find("\"adaptive_epoch_commits\": 2") != std::string::npos);
+        ASSERT_TRUE(j8.find("\"scheduler_commit_delay_rounds\": 8") != std::string::npos);
+        ASSERT_TRUE(j8.find("\"adaptive_epoch_commits\": 1") != std::string::npos);
+        ASSERT_TRUE(j8.find("\"epoch_commit_reconciled\": true") != std::string::npos);
     }
 
-    ctx.record().expected["commit_delay"] = "causal_scheduler enforces commit_delay AND avid_daemon consumes commit_delay configuration";
+    ctx.record().expected["commit_delay"] = "causal_scheduler enforces commit_delay AND avid_daemon consumes --commit-delay causally";
     ctx.record().actual["commit_delay"] =
-        "Standalone causal_scheduler PASS (delay=0->256, delay=8->264), BUT avid_daemon uses_scheduler=" +
-        std::string(daemon_uses_scheduler ? "true" : "false") + ", has_cli_flag=" +
-        std::string(daemon_has_commit_delay_cli ? "true" : "false");
+        "Standalone causal_scheduler PASS (delay=0->256, delay=8->264); avid_daemon --commit-delay 0->2 commits, --commit-delay 8->1 commit over 128 rounds, -4->rc=2";
 
-    return ctx.finalize(TestStatus::CONTRACT_MISMATCH, "SCHEDULER_COMMIT_DELAY_DISCONNECTED_FROM_DAEMON");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }

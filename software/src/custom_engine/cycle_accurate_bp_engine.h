@@ -10,6 +10,8 @@
 #define BP_N_VARS    9
 #define BP_N_CHECKS  4
 #define BP_MAX_DEG   4
+#define BP_MIN_ITER  1
+#define BP_MAX_ITER  5
 
 typedef struct {
     uint8_t  syndrome_mask;
@@ -28,6 +30,7 @@ public:
 
     static int cycle_count_fused(int K)  { return 2 + 5 * K; }
     static int cycle_count_legacy(int K) { return 2 + 6 * K; }
+    static bool is_valid_iteration_count(int K) { return (K >= BP_MIN_ITER && K <= BP_MAX_ITER); }
 
     avid_bp_result_t decode(uint8_t syndrome_mask,
                             const int16_t active_weights_q78[BP_N_VARS],

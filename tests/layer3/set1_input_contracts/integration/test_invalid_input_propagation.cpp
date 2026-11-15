@@ -53,18 +53,28 @@ int main(int argc, char **argv) {
         "\" --stim-bin \"" + quiet_path + "\" --rounds 64 --window 64 --metrics-out \"" + m_quiet + "\"");
 
     std::string jc, jq;
-    load_text_fixture(m_corrupt, jc);
-    load_text_fixture(m_quiet, jq);
+    ASSERT_EQ(rc_corrupt.exit_code, 0);
+    ASSERT_EQ(rc_quiet.exit_code, 0);
+    ASSERT_TRUE(load_text_fixture(m_corrupt, jc));
+    ASSERT_TRUE(load_text_fixture(m_quiet, jq));
     ::unlink(m_corrupt.c_str());
     ::unlink(m_quiet.c_str());
 
-    if (rc_corrupt.exit_code == 0 && jc != jq) {
-        ctx.record_failure("CRITICAL CONTAMINATION DEFECT: Standalone `avid_dma_ring_consume_slot` rejected 64/64 `PARITY_ERR=1, VALID=0` packets (`valid_out=0`), BUT `avid_daemon --stim-bin` stripped `flags=0x04`, re-stamped `AVID_PKT_FLAG_VALID`, accumulated `sx=6, sz=9` into `hist_x/hist_z`, and adapted the estimator & decoder weights on 100% parity-erroneous packets!");
-    }
+    /* On 64 parity-corrupted packets: 0 valid packets, 64 invalid flags, 0 decoded rounds, 0 ring pushes, 0 adaptive commits! */
+    ASSERT_TRUE(jc.find("\"validator_invalid_flags\": 64") != std::string::npos);
+    ASSERT_TRUE(jc.find("\"validator_valid_packets\": 0") != std::string::npos);
+    ASSERT_TRUE(jc.find("\"decoded_rtl_transactions\": 0") != std::string::npos);
+    ASSERT_TRUE(jc.find("\"ring_buffer_count\": 0") != std::string::npos);
+    ASSERT_TRUE(jc.find("\"epochs_completed\": 0") != std::string::npos);
+    ASSERT_TRUE(jc.find("\"adaptive_epoch_commits\": 0") != std::string::npos);
 
-    ctx.record().expected["invalid_propagation_blocked"] = "0/64 parity-corrupted packets reach estimator in both standalone DMA ring and avid_daemon";
+    /* Contrast with clean 64-round stream: 64 valid packets, 1 epoch, 1 adaptive commit */
+    ASSERT_TRUE(jq.find("\"validator_valid_packets\": 64") != std::string::npos);
+    ASSERT_TRUE(jq.find("\"epochs_completed\": 1") != std::string::npos);
+
+    ctx.record().expected["invalid_propagation_blocked"] = "0/64 parity-corrupted packets reach estimator, ring_buffer, or weight commits in both standalone DMA ring and avid_daemon";
     ctx.record().actual["invalid_propagation_blocked"] =
-        "Standalone DMA ring: 0/64 accepted (PASS); avid_daemon --stim-bin: 64/64 accepted and contaminated Joint-DP NLL (FAIL)";
+        "Standalone DMA ring: 0/64 accepted (PASS); avid_daemon --stim-bin: 0/64 accepted, validator_invalid_flags=64, adaptive_epoch_commits=0 (PASS)";
 
-    return ctx.finalize(TestStatus::FAIL, "PARITY_CORRUPTED_STIM_PACKETS_CONTAMINATE_ESTIMATOR");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }

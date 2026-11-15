@@ -1,24 +1,20 @@
-# A05 / Q11 / SF1 — Canonical Syndrome Packet & Binary Framing Contract
-schema_version: "1.0.0"
+# A05 / Q11 / SF1 — Canonical Syndrome Packet & Binary Framing Contract (Authoritative A1 Resolution)
+schema_version: "1.1.0"
 contract_id: "syndrome_packet_v1"
 
-stream_header:
-  magic: 0xAAEC0002                     # Version 2 header (fixes independent X/Z & seq_id framing)
-  legacy_magic_supported: 0xAAEC0001    # Backward-compatible reader support
-  version: 1
+# Authoritative Layer 1 -> Layer 3 DMA / stimulus binary stream framing:
+# Contiguous little-endian 8-byte (uint64_t) A05/Q11 packet words (no 16B header prefix).
+stream_framing:
+  packet_size_bytes: 8
   endianness: "little"
-  header_size_bytes: 16
-  fields:
-    - { name: "magic",        offset_bytes: 0,  size_bytes: 4, type: "uint32" }
-    - { name: "n_rounds",     offset_bytes: 4,  size_bytes: 4, type: "uint32" }
-    - { name: "start_seq_id", offset_bytes: 8,  size_bytes: 4, type: "uint32" }
-    - { name: "n_check_x",    offset_bytes: 12, size_bytes: 1, type: "uint8"  }
-    - { name: "n_check_z",    offset_bytes: 13, size_bytes: 1, type: "uint8"  }
-    - { name: "distance",     offset_bytes: 14, size_bytes: 1, type: "uint8"  }
-    - { name: "flags",        offset_bytes: 15, size_bytes: 1, type: "uint8"  }
+  require_non_empty: true
+  byte_length_multiple_of: 8
+  cross_layer_producer: "simulation/stimulus/packet_codec.py"
+  cross_layer_consumer: "software/src/ingress/packet_validator.h"
 
-per_round_packet_d3:
-  packet_size_bytes: 4                  # 32-bit aligned DMA word per syndrome round
+per_round_packet_u64:
+  packet_size_bytes: 8                  # 64-bit little-endian DMA / stimulus word per syndrome round
+  unpacked_c_struct_bytes: 12           # sizeof(avid_syndrome_packet_t) on LP64/ILP32
   endianness: "little"
   bit_layout:
     s_x_bits:                           # Independent X-stabilizer syndrome bits (detect Z data errors)
@@ -31,31 +27,33 @@ per_round_packet_d3:
       msb: 7
       width: 4
       source: "s_Z = H_Z * e_X mod 2"
-    valid_mask:                         # Bit 8: 1 = valid round, 0 = invalid/gap
+    flags:                              # Bits [15:8]: status & integrity flags
       lsb: 8
-      msb: 8
-      width: 1
-    meas_flip_flag:                     # Bit 9: optional indicator if detection event d_t = s_t XOR s_{t-1}
-      lsb: 9
-      msb: 9
-      width: 1
-    reserved:
-      lsb: 10
       msb: 15
-      width: 6
-      must_be_zero: true
-    seq_id_low16:                       # Bits [31:16]: modulo-65536 monotonic round sequence ID
+      width: 8
+      valid_bit: 0                      # 0x01 = AVID_PKT_FLAG_VALID (must be 1)
+      overflow_bit: 1                   # 0x02 = AVID_PKT_FLAG_OVERFLOW
+      parity_err_bit: 2                 # 0x04 = AVID_PKT_FLAG_PARITY_ERR (must be 0)
+      epoch_mark_bit: 3                 # 0x08 = AVID_PKT_FLAG_EPOCH_MARK
+      reserved_mask: 0xF0               # Bits [7:4] of flags ([15:12] of word) MUST be zero
+    epoch_id:                           # Bits [31:16]: monotonic non-decreasing weight-bank epoch ID
       lsb: 16
       msb: 31
       width: 16
+    seq_id:                             # Bits [63:32]: 32-bit monotonic 1 MHz round sequence/timestamp ID
+      lsb: 32
+      msb: 63
+      width: 32
 
 axis_fpga_word_d3:
-  width_bits: 16                        # Lower 16 bits fed to axis_syndrome_rx s_axis_tdata[15:0]
+  width_bits: 16                        # Fast-path RTL slice fed to axis_syndrome_rx s_axis_tdata[15:0]
   s_x_slice: "[3:0]"
   s_z_slice: "[7:4]"
   valid_bit: "[8]"
 
 invariants:
   - "s_X and s_Z MUST be generated and packed independently from H_X and H_Z; never copy one array into both."
-  - "pack_round() and unpack_round() MUST be exact mathematical inverses over all 16-bit/32-bit patterns."
-  - "Any sequence gap (seq_id[t] != (seq_id[t-1] + 1) mod 65536) marks the current estimation window invalid."
+  - "avid_pack_packet_u64_checked() rejects s_x > 15, s_z > 15, or non-zero reserved flag bits (flags & 0xF0)."
+  - "Stream byte length MUST satisfy len > 0 and (len % 8) == 0; truncated or trailing bytes are rejected."
+  - "Rejected packets MUST NOT overwrite caller output structs, advance last_seq_id, or regress last_epoch_id."
+  - "Any sequence gap or duplicate (seq_id[t] != (seq_id[t-1] + 1) mod 2^32) or epoch regression (epoch_id[t] < epoch_id[t-1]) is rejected and counted."

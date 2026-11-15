@@ -15,38 +15,41 @@ static int run_ip_006(TestContext &ctx) {
     ctx.record().independent_oracle = "packet_validator.h struct inspection + backward epoch (5->2) & backward round_idx (20->18) probes";
     ctx.record().fixture = "tests/layer3/fixtures/packets/valid/packet_001.bin";
 
-    /* 1. Check whether epoch regression (epoch 5 -> epoch 2) is detected by avid_validate_packet */
+    /* 1. Verify epoch regression (epoch 5 -> epoch 2) is rejected by avid_validate_packet without mutating state */
     avid_packet_validator_t val;
     avid_validator_init(&val);
-    avid_syndrome_packet_t p1{}, p2{};
+    avid_syndrome_packet_t p1{}, p2{0x77, 0x88, 0x99, 0xAAAA, 0xBBBBBBBBu};
     bool ok1 = avid_validate_packet(&val, avid_pack_packet_u64(1, 1, 0, 5, AVID_PKT_FLAG_VALID), &p1);
     bool ok2_regressed_epoch = avid_validate_packet(&val, avid_pack_packet_u64(1, 1, 1, 2, AVID_PKT_FLAG_VALID), &p2);
+    bool ok3_next_valid = avid_validate_packet(&val, avid_pack_packet_u64(1, 1, 1, 5, AVID_PKT_FLAG_VALID), &p2);
+    ASSERT_TRUE(ok1);
+    ASSERT_FALSE(ok2_regressed_epoch);
+    ASSERT_EQ(val.epoch_regress_count, 1ULL);
+    ASSERT_TRUE(ok3_next_valid);
 
-    /* 2. Check whether avid_fast_detector_step rejects duplicate/backward round_idx */
+    /* 2. Verify avid_fast_detector_step rejects duplicate (20->20) and backward (20->18) round_idx without mutating ring_sum */
     avid_fast_burst_detector_t det;
     avid_fast_detector_init(&det, 0.35, 4);
     for (uint64_t r = 0; r <= 20; ++r) {
         avid_fast_detector_step(&det, r, 0x1, 0x0);
     }
     uint32_t sum_at_20 = det.ring_sum;
-    /* Feed backward round_idx = 18 with zero syndrome: overwrites historical slot 2 without error */
-    avid_fast_detector_step(&det, 18, 0x0, 0x0);
+    ASSERT_FALSE(avid_fast_detector_step(&det, 20, 0x0, 0x0));
+    ASSERT_FALSE(avid_fast_detector_step(&det, 18, 0x0, 0x0));
     uint32_t sum_after_backward = det.ring_sum;
+    ASSERT_EQ(sum_after_backward, sum_at_20);
+    ASSERT_EQ(det.temporal_regress_count, 2ULL);
 
-    ctx.log("avid_syndrome_packet_t fields: {s_x, s_z, flags, epoch_id, seq_id} — NO timestamp field exists.");
-    ctx.log("Backward epoch transition (5 -> 2): ok1=" + std::string(ok1 ? "true" : "false") +
-            ", ok2_regressed_epoch=" + std::string(ok2_regressed_epoch ? "true" : "false"));
-    ctx.log("Backward round_idx (20 -> 18) in avid_fast_detector_step mutated ring_sum from " +
-            std::to_string(sum_at_20) + " to " + std::to_string(sum_after_backward) + " with no error.");
+    ctx.log("Authoritative temporal contract (syndrome_packet_v1.yaml v1.1.0): logical QEC time indexed by monotonic (epoch_id, seq_id) and round_idx.");
+    ctx.log("Backward epoch (5->2) rejected (epoch_regress_count=1); duplicate/backward round_idx (20->20, 20->18) rejected with ring_sum preserved.");
 
     ctx.record().expected["timestamp_contract"] =
-        "Explicit packet timestamp field or monotonic round/epoch enforcement rejecting duplicate/backward time";
-    ctx.record().actual["packet_timestamp_field"] = "ABSENT in avid_syndrome_packet_t and syndrome_packet_v1.yaml";
-    ctx.record().actual["backward_epoch_5_to_2"] = ok2_regressed_epoch ? "ACCEPTED silently" : "REJECTED";
-    ctx.record().actual["backward_round_20_to_18"] = "ACCEPTED silently (mutates ring_nonzero[round & 15])";
+        "Monotonic round/epoch enforcement rejecting duplicate/backward round_idx and regressed epoch_id";
+    ctx.record().actual["backward_epoch_5_to_2"] = "REJECTED (epoch_regress_count=1)";
+    ctx.record().actual["backward_round_20_to_18"] = "REJECTED (ring_sum preserved, temporal_regress_count=2)";
+    ctx.record().evidence.push_back("validation/layer3/reports/packet_contract_decision.md");
 
-    return ctx.finalize(TestStatus::NOT_IMPLEMENTED,
-                        "packet_timestamp_field_absent_and_round_epoch_monotonicity_unenforced");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }
 
 static int run_ip_030(TestContext &ctx) {

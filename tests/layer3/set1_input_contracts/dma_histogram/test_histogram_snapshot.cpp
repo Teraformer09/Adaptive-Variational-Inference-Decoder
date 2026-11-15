@@ -74,6 +74,16 @@ int main(int argc, char **argv) {
     ASSERT_FALSE(torn_under_mutex);
     ASSERT_EQ(sum_histogram_u64(hx), static_cast<uint64_t>(target_bursts * 64));
 
+    /* Verify thread-safe avid_dma_ring_snapshot_and_reset API conserves all 3200 packets and zeroes internal accumulators */
+    uint32_t snap_x[16] = {0}, snap_z[16] = {0};
+    ASSERT_TRUE(avid_dma_ring_snapshot_and_reset(&ring, snap_x, snap_z));
+    ASSERT_ARRAY_EQ(snap_x, hx, 16);
+    ASSERT_ARRAY_EQ(snap_z, hz, 16);
+    uint32_t post_reset_x[16] = {0}, post_reset_z[16] = {0};
+    ASSERT_TRUE(avid_dma_ring_snapshot_and_reset(&ring, post_reset_x, post_reset_z));
+    ASSERT_EQ(sum_histogram_u64(post_reset_x), 0ULL);
+    ASSERT_EQ(sum_histogram_u64(post_reset_z), 0ULL);
+
     /* 2. Inspect production dma_ingress_tap.h / dma_ingress_tap.cpp for native synchronization */
     std::string tap_h, tap_cpp;
     ASSERT_TRUE(load_text_fixture(ctx.env().repo_root + "/software/src/ingress/dma_ingress_tap.h", tap_h));

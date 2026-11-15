@@ -39,14 +39,17 @@ int main(int argc, char **argv) {
     C_ABI_CHECK_EQ_ZU(&ctx, (size_t)rb.count, 1, "ring_buffer_t count == 1 in C11");
     C_ABI_CHECK_EQ_ZU(&ctx, (size_t)got->x[0], 1, "ring_buffer_t x[0] == 1 in C11");
 
-    /* Check unmangled C linkage of dma_ingress_tap.h functions!
-     * dma_ingress_tap.h declares C-style prototypes WITHOUT extern "C", while dma_ingress_tap.cpp is compiled as C++! */
+    /* Direct C11 extern "C" call into dma_ingress_tap.cpp + dynamic symbol verification */
+    static avid_dma_ring_t dma_ring;
+    avid_dma_ring_init(&dma_ring);
+    C_ABI_CHECK_EQ_ZU(&ctx, (size_t)dma_ring.write_slot_idx, 0, "avid_dma_ring_init C11 call sets write_slot_idx == 0");
+
     void *c_sym_dma_init   = dlsym(NULL, "avid_dma_ring_init");
     void *cxx_sym_dma_init = dlsym(NULL, "_Z18avid_dma_ring_initP15avid_dma_ring_t");
 
     c_abi_note(&ctx, c_sym_dma_init
-        ? "dlsym(\"avid_dma_ring_init\") resolved"
-        : "ABI DEFECT: dma_ingress_tap.h lacks extern \"C\"; dlsym(\"avid_dma_ring_init\") == NULL while C++-mangled _Z18avid_dma_ring_initP15avid_dma_ring_t is present!");
+        ? "dlsym(\"avid_dma_ring_init\") resolved and direct C11 call succeeded"
+        : "ABI DEFECT: dma_ingress_tap.h lacks extern \"C\"; dlsym(\"avid_dma_ring_init\") == NULL!");
 
     C_ABI_CHECK_TRUE(&ctx, c_sym_dma_init != NULL,
                      "dma_ingress_tap.h must export unmangled C symbol avid_dma_ring_init for C11 callers");
@@ -54,7 +57,7 @@ int main(int argc, char **argv) {
     snprintf(ctx.expected_summary, sizeof(ctx.expected_summary),
              "C11/C++17 struct layout parity AND unmangled extern \"C\" symbol linkage for dma_ingress_tap.h");
     snprintf(ctx.actual_summary, sizeof(ctx.actual_summary),
-             "Layouts match (avid_dma_ring_t=%zu B, ring_buffer_t=%zu B), but dlsym(\"avid_dma_ring_init\")=%s, mangled=%s",
+             "Layouts match (avid_dma_ring_t=%zu B, ring_buffer_t=%zu B); dlsym(\"avid_dma_ring_init\")=%s, mangled=%s",
              sizeof(avid_dma_ring_t), sizeof(ring_buffer_t),
              c_sym_dma_init ? "FOUND" : "NULL (missing extern \"C\")",
              cxx_sym_dma_init ? "FOUND" : "NULL");

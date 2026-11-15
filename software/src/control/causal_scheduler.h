@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     uint64_t current_round;
     uint64_t fast_window_rounds;
@@ -14,6 +18,10 @@ typedef struct {
     bool     has_pending_commit;
     int16_t  pending_weights_q78[9];
     uint16_t active_epoch_id;
+    /* Causal stale-window monotonicity tracking (appended for C11/C++17 layout parity) */
+    uint64_t last_scheduled_window_end;
+    bool     has_scheduled_window;
+    uint64_t stale_schedule_drops;
 } avid_causal_scheduler_t;
 
 void avid_scheduler_init(avid_causal_scheduler_t *sched,
@@ -32,7 +40,7 @@ bool avid_scheduler_poll_commit_ready(avid_causal_scheduler_t *sched,
 /* ===========================================================================
  * Fast 16-Round Sliding-Subwindow Burst Detector (system_timing.yaml Contract)
  * - 16-round sliding subwindow
- * - Syndrome-density threshold = 0.35
+ * - Syndrome-density threshold in (0.0, 1.0] (default 0.35)
  * - 4-round debounce
  * - Worst-case trigger latency = 20 rounds (20 us @ 1 MHz)
  * =========================================================================*/
@@ -47,13 +55,26 @@ typedef struct {
     uint32_t trigger_count;
     double   peak_density;
     bool     burst_active;
+    /* Monotonic round & bounds validation tracking (appended for C11/C++17 layout parity) */
+    uint64_t last_round_idx;
+    bool     has_seen_round;
+    bool     config_valid;
+    uint64_t temporal_regress_count;
 } avid_fast_burst_detector_t;
 
 void avid_fast_detector_init(avid_fast_burst_detector_t *det,
                              double density_threshold,
                              uint32_t debounce_rounds);
 
+bool avid_fast_detector_init_checked(avid_fast_burst_detector_t *det,
+                                     double density_threshold,
+                                     uint32_t debounce_rounds);
+
 bool avid_fast_detector_step(avid_fast_burst_detector_t *det,
                              uint64_t round_idx,
                              uint8_t sx,
                              uint8_t sz);
+
+#ifdef __cplusplus
+}
+#endif

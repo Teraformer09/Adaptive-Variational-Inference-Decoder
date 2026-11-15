@@ -206,6 +206,7 @@ int avid_hal_open(avid_hal_t *hal,
     hal->sock_fd = -1;
     hal->next_tx_id = 1000;
     hal->timeout_ms = 2000;
+    hal->active_k_iter = 3u;
 
     if (backend == AVID_HAL_BACKEND_PHYSICAL) {
         return avid_hal_open_physical(hal, phys_base_addr);
@@ -326,8 +327,12 @@ int avid_hal_send_syndrome(avid_hal_t *hal,
             wx[i] = wrd_read_active_weight(&hal->phys_wrd, i);
             wz[i] = wx[i];
         }
-        CycleAccurateBPEngine bp(3, 250.0);
-        avid_bp_result_t r = bp.decode((uint8_t)(sx & 0xFu), wz, 3);
+        int k_use = (hal->active_k_iter >= AVID_HAL_MIN_BP_ITER &&
+                     hal->active_k_iter <= AVID_HAL_MAX_BP_ITER)
+                        ? (int)hal->active_k_iter
+                        : 3;
+        CycleAccurateBPEngine bp(k_use, 250.0);
+        avid_bp_result_t r = bp.decode((uint8_t)(sx & 0xFu), wz, k_use);
         if (corr_x) *corr_x = 0;
         if (corr_z) *corr_z = r.correction_mask;
         if (bp_core_cycles) *bp_core_cycles = (uint32_t)r.cycles_fused;
@@ -383,11 +388,23 @@ int avid_hal_reset_rtl(avid_hal_t *hal,
 int avid_hal_set_bp_iterations(avid_hal_t *hal,
                                uint32_t k_iter,
                                uint64_t *accepted_cycle) {
-    return avid_hal_mmio_write(hal, 0x054u, k_iter, 0x1, accepted_cycle);
+    if (!hal || k_iter < AVID_HAL_MIN_BP_ITER || k_iter > AVID_HAL_MAX_BP_ITER) {
+        if (hal) hal->stats.rejected_transactions++;
+        return -1;
+    }
+    int rc = avid_hal_mmio_write(hal, 0x054u, k_iter, 0x1, accepted_cycle);
+    if (rc == 0) {
+        hal->active_k_iter = k_iter;
+    }
+    return rc;
 }
 
 int avid_hal_set_osd_mode(avid_hal_t *hal,
                           uint32_t osd_mode,
                           uint64_t *accepted_cycle) {
+    if (!hal || osd_mode > 1u) {
+        if (hal) hal->stats.rejected_transactions++;
+        return -1;
+    }
     return avid_hal_mmio_write(hal, 0x058u, osd_mode, 0x1, accepted_cycle);
 }

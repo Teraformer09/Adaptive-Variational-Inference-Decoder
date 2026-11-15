@@ -2,7 +2,8 @@
 set -euo pipefail
 
 REPO_ROOT="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
-mkdir -p "${REPO_ROOT}/validation/layer3/manifests"
+VAL_DIR="${2:-${REPO_ROOT}/validation/layer3}"
+mkdir -p "${VAL_DIR}/manifests"
 
 CC_VER="$(cc --version | head -n 1)"
 CXX_VER="$(c++ --version | head -n 1)"
@@ -12,7 +13,7 @@ PY_VER="$(python3 --version)"
 UNAME_STR="$(uname -srmo)"
 
 python3 - <<PYEOF
-import json, datetime
+import json, datetime, os
 
 env_doc = {
     "schema_version": "1.0.0",
@@ -26,7 +27,7 @@ env_doc = {
     "c_standard": "C11 (-std=c11, extensions OFF)",
     "cxx_standard": "C++17 (-std=c++17, extensions OFF)",
 }
-with open("${REPO_ROOT}/validation/layer3/manifests/environment_manifest.json", "w", encoding="utf-8") as f:
+with open(os.path.join("${VAL_DIR}", "manifests/environment_manifest.json"), "w", encoding="utf-8") as f:
     json.dump(env_doc, f, indent=2)
     f.write("\n")
 PYEOF

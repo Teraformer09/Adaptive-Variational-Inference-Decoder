@@ -6,28 +6,35 @@ HistogramPair compute_reference_histogram_from_u64_stream(const std::vector<uint
     HistogramPair out;
     bool seen_first = false;
     uint32_t last_seq = 0;
+    uint16_t last_epoch = 0;
     for (uint64_t w : words) {
         uint8_t sx = static_cast<uint8_t>(w & 0x0Fu);
         uint8_t sz = static_cast<uint8_t>((w >> 4) & 0x0Fu);
         uint8_t flags = static_cast<uint8_t>((w >> 8) & 0xFFu);
+        uint16_t epoch_id = static_cast<uint16_t>((w >> 16) & 0xFFFFu);
         uint32_t seq = static_cast<uint32_t>((w >> 32) & 0xFFFFFFFFu);
 
         bool valid_flag = (flags & 0x01u) != 0u;
         bool parity_err = (flags & 0x04u) != 0u;
-        if (!valid_flag || parity_err) {
+        bool reserved_err = (flags & 0xF0u) != 0u;
+        if (!valid_flag || parity_err || reserved_err) {
             out.rejected_packets++;
             continue;
         }
         if (seen_first) {
+            if (epoch_id < last_epoch) {
+                out.rejected_packets++;
+                continue;
+            }
             uint32_t expected = last_seq + 1u;
             if (seq != expected) {
-                last_seq = seq;
                 out.rejected_packets++;
                 continue;
             }
         }
         seen_first = true;
         last_seq = seq;
+        last_epoch = epoch_id;
         out.hist_x[sx]++;
         out.hist_z[sz]++;
         out.accepted_packets++;

@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     const char *stage_name;
     double      deadline_us;
@@ -18,3 +22,7 @@ typedef struct {
 void avid_profiler_init(avid_stage_profiler_t *p, const char *name, double deadline_us);
 void avid_profiler_begin(avid_stage_profiler_t *p);
 bool avid_profiler_end(avid_stage_profiler_t *p);
+
+#ifdef __cplusplus
+}
+#endif

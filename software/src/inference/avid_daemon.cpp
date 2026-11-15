@@ -16,7 +16,12 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
+#include <cctype>
 #include <algorithm>
+#include <fstream>
+#include <set>
+#include <string>
+#include <vector>
 #include <unistd.h>
 #include <signal.h>
 
@@ -37,6 +42,9 @@
 static NoiseModel                 g_model_z; /* Fits hist_x (X-checks) -> Z-error weights active_z */
 static NoiseModel                 g_model_x; /* Fits hist_z (Z-checks) -> X-error weights active_x */
 static HistogramLBFGSSolver       g_solver;
+static ring_buffer_t              g_ring_buf;
+static avid_causal_scheduler_t    g_scheduler;
+static int16_t                    g_pending_q78_x[9] = {0};
 static avid_fast_burst_detector_t g_fast_detector;
 static AvidR2D2LSTMController     g_r2d2;
 static avid_hal_t                 g_hal;
@@ -216,55 +224,469 @@ static void populate_ground_truth_theta(
     if (p_meas_flip_out) *p_meas_flip_out = p_meas_flip;
 }
 
+static std::string trim_ws(const std::string &s) {
+    size_t b = 0;
+    while (b < s.size() && std::isspace(static_cast<unsigned char>(s[b]))) b++;
+    size_t e = s.size();
+    while (e > b && std::isspace(static_cast<unsigned char>(s[e - 1]))) e--;
+    return s.substr(b, e - b);
+}
+
+static bool parse_strict_i64(const char *s, long long *out) {
+    if (!s || s[0] == '\0' || !out) return false;
+    char *end = nullptr;
+    long long v = std::strtoll(s, &end, 10);
+    if (!end || *end != '\0') return false;
+    *out = v;
+    return true;
+}
+
+static bool parse_strict_u64(const char *s, uint64_t *out) {
+    if (!s || s[0] == '\0' || s[0] == '-' || !out) return false;
+    char *end = nullptr;
+    unsigned long long v = std::strtoull(s, &end, 10);
+    if (!end || *end != '\0') return false;
+    *out = static_cast<uint64_t>(v);
+    return true;
+}
+
+static bool is_valid_controller_mode(const char *mode) {
+    if (!mode) return false;
+    return std::strcmp(mode, "avid_r2d2") == 0 ||
+           std::strcmp(mode, "static") == 0 ||
+           std::strcmp(mode, "tuned_static") == 0 ||
+           std::strcmp(mode, "marginal_lbfgs") == 0 ||
+           std::strcmp(mode, "joint_dp_proj") == 0 ||
+           std::strcmp(mode, "heuristic") == 0 ||
+           std::strcmp(mode, "b2_pid") == 0 ||
+           std::strcmp(mode, "b3_covariance") == 0 ||
+           std::strcmp(mode, "b4_oracle") == 0;
+}
+
+static bool is_allowed_yaml_scenario(const std::string &sc) {
+    static const std::set<std::string> kAllowed = {
+        "stationary_noise",
+        "slowly_drifting_noise",
+        "correlated_noise",
+        "correlated_pauli_events",
+        "burst_disturbance",
+        "delayed_weight_commit",
+        "reset_recovery",
+        "reset_during_operation",
+        "busy_decoder",
+        "variable_k_adaptation",
+        "fallback_safety_trigger",
+        "short_burst_60us_vs_10ms",
+        "invalid_configuration"
+    };
+    return kAllowed.count(sc) > 0;
+}
+
+struct YamlExperimentConfig {
+    uint64_t    seed            = 42ULL;
+    bool        has_seed        = false;
+    int         rounds          = 1024;
+    bool        has_rounds      = false;
+    int         window_rounds   = 256;
+    bool        has_window      = false;
+    std::string backend_str;
+    std::string controller_mode;
+    uint32_t    osd_mode        = 1u;
+    bool        has_osd_mode    = false;
+    std::string stim_bin;
+    std::string first_scenario;
+    uint32_t    bp_iterations   = 3u;
+    bool        has_bp_iters    = false;
+};
+
+/* Strict schema validator enforcing configs/schema.yaml */
+static bool load_and_validate_yaml_config(const char *yaml_path, YamlExperimentConfig *cfg_out) {
+    if (!yaml_path || yaml_path[0] == '\0' || !cfg_out) return false;
+    std::ifstream in(yaml_path);
+    if (!in.is_open()) {
+        std::fprintf(stderr, "[avid_daemon] Failed to open --config YAML file: %s\n", yaml_path);
+        return false;
+    }
+
+    static const std::set<std::string> kTopSections = {
+        "experiment", "software", "rtl", "bridge", "scenarios", "validation", "artifacts"
+    };
+    auto allowed_keys_for = [](const std::string &sec) -> std::pair<std::set<std::string>, std::set<std::string>> {
+        if (sec == "experiment") {
+            return {{"name", "seed", "timeout_seconds"},
+                    {"description", "rounds_per_scenario", "window_rounds"}};
+        }
+        if (sec == "software") {
+            return {{"emulator", "architecture", "boot_mode", "daemon"},
+                    {"hal_backend", "controller_mode", "osd_mode", "stim_bin"}};
+        }
+        if (sec == "rtl") {
+            return {{"simulator", "top_module", "clock_period_ns", "reset_cycles", "bp_iterations", "waveform"},
+                    {"require_native_verilator"}};
+        }
+        if (sec == "bridge") {
+            return {{"transport", "protocol_version", "clock_mode", "transaction_timeout_ms"}, {}};
+        }
+        if (sec == "validation") {
+            return {{"assertions", "fail_on_rtl_error", "fail_on_timeout"},
+                    {"require_native_verilator"}};
+        }
+        if (sec == "artifacts") {
+            return {{"output_dir", "save_logs", "save_waveforms", "save_transactions", "save_metrics"}, {}};
+        }
+        return {{}, {}};
+    };
+
+    std::set<std::string> seen_sections;
+    std::set<std::string> seen_keys_in_sec[7];
+    auto sec_index = [](const std::string &sec) -> int {
+        if (sec == "experiment") return 0;
+        if (sec == "software")   return 1;
+        if (sec == "rtl")        return 2;
+        if (sec == "bridge")     return 3;
+        if (sec == "scenarios")  return 4;
+        if (sec == "validation") return 5;
+        if (sec == "artifacts")  return 6;
+        return -1;
+    };
+
+    std::string current_sec;
+    std::vector<std::string> scenario_list;
+    std::string raw_line;
+    int line_no = 0;
+
+    while (std::getline(in, raw_line)) {
+        line_no++;
+        size_t hash_pos = raw_line.find('#');
+        std::string clean = (hash_pos == std::string::npos) ? raw_line : raw_line.substr(0, hash_pos);
+        std::string trimmed = trim_ws(clean);
+        if (trimmed.empty()) continue;
+
+        size_t indent = 0;
+        while (indent < clean.size() && clean[indent] == ' ') indent++;
+
+        if (indent == 0) {
+            if (trimmed.back() != ':') {
+                std::fprintf(stderr, "[avid_daemon] YAML syntax error at line %d: '%s'\n", line_no, trimmed.c_str());
+                return false;
+            }
+            std::string sec_name = trim_ws(trimmed.substr(0, trimmed.size() - 1));
+            if (kTopSections.count(sec_name) == 0) {
+                std::fprintf(stderr, "[avid_daemon] Unknown top-level YAML section '%s' at line %d\n",
+                             sec_name.c_str(), line_no);
+                return false;
+            }
+            current_sec = sec_name;
+            seen_sections.insert(sec_name);
+            continue;
+        }
+
+        if (current_sec.empty()) {
+            std::fprintf(stderr, "[avid_daemon] Indented YAML entry outside section at line %d\n", line_no);
+            return false;
+        }
+
+        if (current_sec == "scenarios") {
+            if (trimmed.rfind("-", 0) != 0) {
+                std::fprintf(stderr, "[avid_daemon] Expected scenario list item at line %d\n", line_no);
+                return false;
+            }
+            std::string sc = trim_ws(trimmed.substr(1));
+            if (!is_allowed_yaml_scenario(sc)) {
+                std::fprintf(stderr, "[avid_daemon] Disallowed scenario '%s' in YAML at line %d\n",
+                             sc.c_str(), line_no);
+                return false;
+            }
+            scenario_list.push_back(sc);
+            continue;
+        }
+
+        size_t colon = trimmed.find(':');
+        if (colon == std::string::npos) {
+            std::fprintf(stderr, "[avid_daemon] Expected key: value in section '%s' at line %d\n",
+                         current_sec.c_str(), line_no);
+            return false;
+        }
+        std::string key = trim_ws(trimmed.substr(0, colon));
+        std::string val = trim_ws(trimmed.substr(colon + 1));
+        if (val.size() >= 2 && ((val.front() == '"' && val.back() == '"') ||
+                                (val.front() == '\'' && val.back() == '\''))) {
+            val = val.substr(1, val.size() - 2);
+        }
+
+        auto [req_keys, opt_keys] = allowed_keys_for(current_sec);
+        if (req_keys.count(key) == 0 && opt_keys.count(key) == 0) {
+            std::fprintf(stderr, "[avid_daemon] Unknown YAML key '%s.%s' at line %d\n",
+                         current_sec.c_str(), key.c_str(), line_no);
+            return false;
+        }
+        int sidx = sec_index(current_sec);
+        if (sidx >= 0) {
+            seen_keys_in_sec[sidx].insert(key);
+        }
+
+        if (current_sec == "experiment") {
+            if (key == "seed") {
+                if (!parse_strict_u64(val.c_str(), &cfg_out->seed)) return false;
+                cfg_out->has_seed = true;
+            } else if (key == "rounds_per_scenario") {
+                long long r = 0;
+                if (!parse_strict_i64(val.c_str(), &r) || r <= 0) return false;
+                cfg_out->rounds = static_cast<int>(r);
+                cfg_out->has_rounds = true;
+            } else if (key == "window_rounds") {
+                long long w = 0;
+                if (!parse_strict_i64(val.c_str(), &w) || w <= 0) return false;
+                cfg_out->window_rounds = static_cast<int>(w);
+                cfg_out->has_window = true;
+            }
+        } else if (current_sec == "software") {
+            if (key == "hal_backend") {
+                cfg_out->backend_str = val;
+            } else if (key == "controller_mode") {
+                cfg_out->controller_mode = val;
+            } else if (key == "osd_mode") {
+                uint64_t om = 0;
+                if (!parse_strict_u64(val.c_str(), &om) || om > 1u) return false;
+                cfg_out->osd_mode = static_cast<uint32_t>(om);
+                cfg_out->has_osd_mode = true;
+            } else if (key == "stim_bin") {
+                cfg_out->stim_bin = val;
+            }
+        } else if (current_sec == "rtl") {
+            if (key == "bp_iterations") {
+                uint64_t bk = 0;
+                if (!parse_strict_u64(val.c_str(), &bk) || bk < AVID_HAL_MIN_BP_ITER || bk > AVID_HAL_MAX_BP_ITER) {
+                    return false;
+                }
+                cfg_out->bp_iterations = static_cast<uint32_t>(bk);
+                cfg_out->has_bp_iters = true;
+            }
+        } else if (current_sec == "bridge") {
+            if (key == "protocol_version") {
+                uint64_t pv = 0;
+                if (!parse_strict_u64(val.c_str(), &pv) || pv != 1u) return false;
+            }
+        }
+    }
+
+    for (const std::string &sec : kTopSections) {
+        if (seen_sections.count(sec) == 0) {
+            std::fprintf(stderr, "[avid_daemon] Missing required YAML section '%s'\n", sec.c_str());
+            return false;
+        }
+        if (sec == "scenarios") {
+            if (scenario_list.empty()) {
+                std::fprintf(stderr, "[avid_daemon] YAML 'scenarios' list cannot be empty\n");
+                return false;
+            }
+            cfg_out->first_scenario = scenario_list.front();
+            continue;
+        }
+        auto [req_keys, _] = allowed_keys_for(sec);
+        int sidx = sec_index(sec);
+        for (const std::string &rk : req_keys) {
+            if (seen_keys_in_sec[sidx].count(rk) == 0) {
+                std::fprintf(stderr, "[avid_daemon] Missing required YAML key '%s.%s'\n",
+                             sec.c_str(), rk.c_str());
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 int main(int argc, char *argv[]) {
     bool single_shot_test = false;
     avid_hal_backend_type_t backend = AVID_HAL_BACKEND_PHYSICAL;
-    const char *socket_path     = "";
-    const char *scenario        = "stationary_noise";
-    const char *metrics_out     = "";
-    const char *stim_bin_path   = "";
-    const char *checkpoint_path = "";
-    const char *controller_mode = "avid_r2d2";
-    uint32_t    osd_mode        = 1u;
-    uint64_t    seed            = 42ULL;
-    int         total_rounds    = 1024;
-    int         window_rounds   = 256;
+    std::string socket_path_str;
+    std::string scenario_str        = "stationary_noise";
+    std::string metrics_out_str;
+    std::string stim_bin_str;
+    std::string checkpoint_str;
+    std::string controller_mode_str = "avid_r2d2";
+    std::string config_yaml_str;
+    uint32_t    osd_mode            = 1u;
+    uint64_t    seed                = 42ULL;
+    int         total_rounds        = 1024;
+    int         window_rounds       = 256;
+    int         commit_delay_rounds = 0;
+    uint32_t    initial_k_iters     = 3u;
+
+    bool cli_has_backend   = false;
+    bool cli_has_scenario  = false;
+    bool cli_has_seed      = false;
+    bool cli_has_rounds    = false;
+    bool cli_has_window    = false;
+    bool cli_has_stim      = false;
+    bool cli_has_ctrl      = false;
+    bool cli_has_osd       = false;
 
     for (int i = 1; i < argc; i++) {
         if (std::strcmp(argv[i], "--self-test") == 0) {
             single_shot_test = true;
-        } else if (std::strcmp(argv[i], "--backend") == 0 && i + 1 < argc) {
-            i++;
-            if (std::strcmp(argv[i], "sim") == 0 || std::strcmp(argv[i], "simulation") == 0)
+        } else if (std::strcmp(argv[i], "--backend") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --backend\n");
+                return 2;
+            }
+            const char *bval = argv[++i];
+            if (std::strcmp(bval, "sim") == 0 || std::strcmp(bval, "simulation") == 0) {
                 backend = AVID_HAL_BACKEND_SIMULATION;
-            else
+            } else if (std::strcmp(bval, "physical") == 0 || std::strcmp(bval, "phys") == 0) {
                 backend = AVID_HAL_BACKEND_PHYSICAL;
-        } else if (std::strcmp(argv[i], "--socket") == 0 && i + 1 < argc) {
-            socket_path = argv[++i];
-        } else if (std::strcmp(argv[i], "--scenario") == 0 && i + 1 < argc) {
-            scenario = argv[++i];
-        } else if (std::strcmp(argv[i], "--seed") == 0 && i + 1 < argc) {
-            seed = (uint64_t)std::strtoull(argv[++i], nullptr, 10);
-        } else if (std::strcmp(argv[i], "--rounds") == 0 && i + 1 < argc) {
-            total_rounds = std::atoi(argv[++i]);
-        } else if (std::strcmp(argv[i], "--window") == 0 && i + 1 < argc) {
-            window_rounds = std::atoi(argv[++i]);
-        } else if (std::strcmp(argv[i], "--metrics-out") == 0 && i + 1 < argc) {
-            metrics_out = argv[++i];
-        } else if (std::strcmp(argv[i], "--stim-bin") == 0 && i + 1 < argc) {
-            stim_bin_path = argv[++i];
-        } else if (std::strcmp(argv[i], "--checkpoint") == 0 && i + 1 < argc) {
-            checkpoint_path = argv[++i];
-        } else if (std::strcmp(argv[i], "--controller-mode") == 0 && i + 1 < argc) {
-            controller_mode = argv[++i];
-        } else if (std::strcmp(argv[i], "--osd-mode") == 0 && i + 1 < argc) {
-            osd_mode = (uint32_t)std::strtoul(argv[++i], nullptr, 10);
+            } else {
+                std::fprintf(stderr, "[avid_daemon] Invalid --backend value: %s\n", bval);
+                return 2;
+            }
+            cli_has_backend = true;
+        } else if (std::strcmp(argv[i], "--socket") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --socket\n");
+                return 2;
+            }
+            socket_path_str = argv[++i];
+        } else if (std::strcmp(argv[i], "--scenario") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --scenario\n");
+                return 2;
+            }
+            scenario_str = argv[++i];
+            cli_has_scenario = true;
+        } else if (std::strcmp(argv[i], "--seed") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --seed\n");
+                return 2;
+            }
+            if (!parse_strict_u64(argv[++i], &seed)) {
+                std::fprintf(stderr, "[avid_daemon] Invalid --seed value\n");
+                return 2;
+            }
+            cli_has_seed = true;
+        } else if (std::strcmp(argv[i], "--rounds") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --rounds\n");
+                return 2;
+            }
+            long long v = 0;
+            if (!parse_strict_i64(argv[++i], &v)) {
+                std::fprintf(stderr, "[avid_daemon] Invalid --rounds value\n");
+                return 2;
+            }
+            total_rounds = static_cast<int>(v);
+            cli_has_rounds = true;
+        } else if (std::strcmp(argv[i], "--window") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --window\n");
+                return 2;
+            }
+            long long v = 0;
+            if (!parse_strict_i64(argv[++i], &v)) {
+                std::fprintf(stderr, "[avid_daemon] Invalid --window value\n");
+                return 2;
+            }
+            window_rounds = static_cast<int>(v);
+            cli_has_window = true;
+        } else if (std::strcmp(argv[i], "--commit-delay") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --commit-delay\n");
+                return 2;
+            }
+            long long v = 0;
+            if (!parse_strict_i64(argv[++i], &v) || v < 0) {
+                std::fprintf(stderr, "[avid_daemon] Invalid --commit-delay value (must be >= 0)\n");
+                return 2;
+            }
+            commit_delay_rounds = static_cast<int>(v);
+        } else if (std::strcmp(argv[i], "--metrics-out") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --metrics-out\n");
+                return 2;
+            }
+            metrics_out_str = argv[++i];
+        } else if (std::strcmp(argv[i], "--stim-bin") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --stim-bin\n");
+                return 2;
+            }
+            stim_bin_str = argv[++i];
+            cli_has_stim = true;
+        } else if (std::strcmp(argv[i], "--checkpoint") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --checkpoint\n");
+                return 2;
+            }
+            checkpoint_str = argv[++i];
+        } else if (std::strcmp(argv[i], "--controller-mode") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --controller-mode\n");
+                return 2;
+            }
+            controller_mode_str = argv[++i];
+            cli_has_ctrl = true;
+        } else if (std::strcmp(argv[i], "--osd-mode") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --osd-mode\n");
+                return 2;
+            }
+            uint64_t v = 0;
+            if (!parse_strict_u64(argv[++i], &v)) {
+                std::fprintf(stderr, "[avid_daemon] Invalid --osd-mode value\n");
+                return 2;
+            }
+            osd_mode = static_cast<uint32_t>(v);
+            cli_has_osd = true;
+        } else if (std::strcmp(argv[i], "--config") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --config\n");
+                return 2;
+            }
+            config_yaml_str = argv[++i];
+        } else {
+            std::fprintf(stderr, "[avid_daemon] Unknown CLI argument: %s\n", argv[i]);
+            return 2;
         }
     }
 
+    if (!config_yaml_str.empty()) {
+        YamlExperimentConfig ycfg;
+        if (!load_and_validate_yaml_config(config_yaml_str.c_str(), &ycfg)) {
+            return 2;
+        }
+        if (!cli_has_seed && ycfg.has_seed) seed = ycfg.seed;
+        if (!cli_has_rounds && ycfg.has_rounds) total_rounds = ycfg.rounds;
+        if (!cli_has_window && ycfg.has_window) window_rounds = ycfg.window_rounds;
+        if (!cli_has_osd && ycfg.has_osd_mode) osd_mode = ycfg.osd_mode;
+        if (!cli_has_stim && !ycfg.stim_bin.empty()) stim_bin_str = ycfg.stim_bin;
+        if (!cli_has_ctrl && !ycfg.controller_mode.empty()) controller_mode_str = ycfg.controller_mode;
+        if (!cli_has_scenario && !ycfg.first_scenario.empty()) scenario_str = ycfg.first_scenario;
+        if (!cli_has_backend && !ycfg.backend_str.empty()) {
+            if (ycfg.backend_str == "sim" || ycfg.backend_str == "simulation") {
+                backend = AVID_HAL_BACKEND_SIMULATION;
+            } else if (ycfg.backend_str == "physical" || ycfg.backend_str == "phys") {
+                backend = AVID_HAL_BACKEND_PHYSICAL;
+            } else {
+                std::fprintf(stderr, "[avid_daemon] Invalid software.hal_backend in YAML: %s\n",
+                             ycfg.backend_str.c_str());
+                return 2;
+            }
+        }
+        if (ycfg.has_bp_iters) {
+            initial_k_iters = ycfg.bp_iterations;
+        }
+    }
+
+    const char *socket_path     = socket_path_str.c_str();
+    const char *scenario        = scenario_str.c_str();
+    const char *metrics_out     = metrics_out_str.c_str();
+    const char *stim_bin_path   = stim_bin_str.c_str();
+    const char *checkpoint_path = checkpoint_str.c_str();
+    const char *controller_mode = controller_mode_str.c_str();
+
     if (std::strcmp(scenario, "invalid_configuration") == 0 ||
-        total_rounds <= 0 || window_rounds <= 0 || osd_mode > 2u) {
-        fprintf(stderr, "[avid_daemon] Invalid scenario/configuration rejected safely.\n");
+        total_rounds <= 0 || window_rounds <= 0 || commit_delay_rounds < 0 ||
+        osd_mode > 1u || !is_valid_controller_mode(controller_mode)) {
+        std::fprintf(stderr, "[avid_daemon] Invalid scenario/configuration rejected safely.\n");
         return 2;
     }
 
@@ -279,32 +701,54 @@ int main(int argc, char *argv[]) {
     if (checkpoint_path && checkpoint_path[0] != '\0') {
         std::string err_msg;
         if (!g_r2d2.load_checkpoint(checkpoint_path, &err_msg)) {
-            fprintf(stderr, "[avid_daemon] FATAL: Failed to load R2D2 checkpoint '%s': %s\n",
-                    checkpoint_path, err_msg.c_str());
+            std::fprintf(stderr, "[avid_daemon] FATAL: Failed to load R2D2 checkpoint '%s': %s\n",
+                         checkpoint_path, err_msg.c_str());
             return 2;
         }
-    } else if (std::strcmp(controller_mode, "avid_r2d2") == 0 && !g_r2d2.is_checkpoint_loaded()) {
-        fprintf(stderr, "[avid_daemon] FATAL: controller_mode=avid_r2d2 requires a valid R2D2 checkpoint.\n");
+    } else if (std::strcmp(controller_mode, "avid_r2d2") == 0 && !single_shot_test) {
+        std::fprintf(stderr, "[avid_daemon] FATAL: controller_mode=avid_r2d2 requires a valid R2D2 checkpoint.\n");
         return 2;
     }
 
     if (avid_hal_open(&g_hal, backend, socket_path, WRD_BASE_ADDR) < 0) {
-        fprintf(stderr, "[avid_daemon] Failed to open HAL backend (mode=%d socket=%s)\n",
-                (int)backend, socket_path);
+        std::fprintf(stderr, "[avid_daemon] Failed to open HAL backend (mode=%d socket=%s)\n",
+                     (int)backend, socket_path);
         return 1;
     }
 
     FILE *stim_fp = nullptr;
+    uint64_t stim_pkts_in_file = 0ULL;
+    uint64_t stim_wrap_idx     = 0ULL;
     if (stim_bin_path && stim_bin_path[0] != '\0') {
         stim_fp = std::fopen(stim_bin_path, "rb");
         if (!stim_fp) {
-            fprintf(stderr, "[avid_daemon] Failed to open --stim-bin file: %s\n", stim_bin_path);
+            std::fprintf(stderr, "[avid_daemon] Failed to open --stim-bin file: %s\n", stim_bin_path);
             avid_hal_close(&g_hal);
             return 2;
         }
+        if (std::fseek(stim_fp, 0, SEEK_END) != 0) {
+            std::fclose(stim_fp);
+            avid_hal_close(&g_hal);
+            return 2;
+        }
+        long stim_bytes = std::ftell(stim_fp);
+        std::fseek(stim_fp, 0, SEEK_SET);
+        uint8_t probe_hdr[8] = {0};
+        if (stim_bytes <= 0 || !avid_validate_stream_framing(probe_hdr, static_cast<size_t>(stim_bytes))) {
+            std::fprintf(stderr,
+                         "[avid_daemon] Invalid --stim-bin framing size (%ld bytes; must be non-empty multiple of 8 bytes).\n",
+                         stim_bytes);
+            std::fclose(stim_fp);
+            avid_hal_close(&g_hal);
+            return 2;
+        }
+        stim_pkts_in_file = static_cast<uint64_t>(stim_bytes) / 8ULL;
     }
 
     avid_dma_ring_init(&g_dma_ring);
+    ring_init(&g_ring_buf);
+    avid_scheduler_init(&g_scheduler, 16u, static_cast<uint64_t>(window_rounds),
+                        static_cast<uint64_t>(commit_delay_rounds));
     avid_profiler_init(&g_prof_est, "joint_dp_lbfgs_r2d2_step", 10000.0); /* 10 ms slow-loop deadline */
     avid_fallback_init(&g_fallback, AVID_Q78_DEFAULT);
 
@@ -320,10 +764,11 @@ int main(int argc, char *argv[]) {
     uint32_t initial_boot_commits = 1u;
     uint32_t adaptive_epoch_commits = 0u;
     uint32_t reset_cleared_commits = 0u;
-    uint32_t active_k_iters = 3u;
+    uint32_t active_k_iters = initial_k_iters;
+    avid_hal_set_bp_iterations(&g_hal, active_k_iters, &last_cycle);
 
     if (avid_hal_write_weights_and_commit(&g_hal, init_q78_x, init_q78_z, &hw_epoch, &last_cycle) != 0) {
-        fprintf(stderr, "[avid_daemon] Initial weight bank commit failed\n");
+        std::fprintf(stderr, "[avid_daemon] Initial weight bank commit failed\n");
         if (stim_fp) std::fclose(stim_fp);
         avid_hal_close(&g_hal);
         return 1;
@@ -333,6 +778,7 @@ int main(int argc, char *argv[]) {
     uint32_t hist_z[16] = {0};
     uint32_t acc_rounds = 0;
     uint32_t seq_gen    = 0;
+    uint32_t rounds_attempted = 0;
     int      epochs     = 0;
     int      fallback_events    = 0;
     int      logical_z_failures = 0;
@@ -363,6 +809,9 @@ int main(int argc, char *argv[]) {
     true_theta_x.setZero();
     avid_fast_detector_init(&g_fast_detector, 0.35, 4u);
 
+    avid_packet_validator_t fastpath_validator;
+    avid_validator_init(&fastpath_validator);
+
     uint64_t rng_state = (seed == 0) ? 0xCAFEBABE12345678ULL : (seed ^ 0x9E3779B97F4A7C15ULL);
     bool pending_fast_burst_trigger = false;
     bool in_high_regime = false;
@@ -374,14 +823,18 @@ int main(int argc, char *argv[]) {
 
     while (g_running) {
         uint64_t burst[AVID_DMA_SLOT_PACKETS];
+        uint32_t burst_count = 0;
         for (int i = 0; i < AVID_DMA_SLOT_PACKETS; i++) {
+            if (!single_shot_test && static_cast<int>(rounds_attempted) >= total_rounds) {
+                break;
+            }
             bool   in_burst_window = false;
             double p_streak3       = 0.0;
             double p_meas_flip     = 0.0;
 
             populate_ground_truth_theta(
                 scenario,
-                seq_gen,
+                rounds_attempted,
                 total_rounds,
                 window_rounds,
                 true_theta_z,
@@ -394,26 +847,38 @@ int main(int argc, char *argv[]) {
             uint16_t err_x = 0;
             uint8_t  sx    = 0;
             uint8_t  sz    = 0;
+            bool     pkt_valid_for_decode = true;
 
             if (stim_fp) {
                 uint64_t raw_pkt = 0;
                 if (std::fread(&raw_pkt, sizeof(uint64_t), 1, stim_fp) != 1) {
                     std::fseek(stim_fp, 0, SEEK_SET);
-                    size_t _r = std::fread(&raw_pkt, sizeof(uint64_t), 1, stim_fp);
-                    (void)_r;
+                    stim_wrap_idx++;
+                    if (std::fread(&raw_pkt, sizeof(uint64_t), 1, stim_fp) != 1) {
+                        std::fprintf(stderr, "[avid_daemon] Unexpected --stim-bin read failure.\n");
+                        std::fclose(stim_fp);
+                        avid_hal_close(&g_hal);
+                        return 2;
+                    }
+                    /* On multi-pass EOF wrap of a short valid fixture (e.g., 1-packet min_fields.bin),
+                     * advance only the 32-bit sequence counter while preserving raw flags/epoch/syndrome bits */
+                    uint32_t base_seq = static_cast<uint32_t>((raw_pkt >> 32) & 0xFFFFFFFFULL);
+                    uint32_t wrapped_seq = base_seq + static_cast<uint32_t>(stim_wrap_idx * stim_pkts_in_file);
+                    raw_pkt = (raw_pkt & 0x00000000FFFFFFFFULL) | (static_cast<uint64_t>(wrapped_seq) << 32);
                 }
-                avid_syndrome_packet_t pkt;
-                avid_unpack_packet_u64(raw_pkt, &pkt);
-                sx = pkt.s_x & 0xFu;
-                sz = pkt.s_z & 0xFu;
-                /* Unpack ground-truth errors from upper bits if encoded in Stim binary (Fixes Minor 10) */
-                uint16_t packed_err_z = (uint16_t)((raw_pkt >> 32) & 0x1FFu);
-                uint16_t packed_err_x = (uint16_t)((raw_pkt >> 41) & 0x1FFu);
-                if (packed_err_z != 0 || packed_err_x != 0 || (sx == 0 && sz == 0)) {
-                    err_z = packed_err_z;
-                    err_x = packed_err_x;
-                } else {
+
+                burst[burst_count++] = raw_pkt;
+                rounds_attempted++;
+
+                avid_syndrome_packet_t vpkt{};
+                if (avid_validate_packet(&fastpath_validator, raw_pkt, &vpkt)) {
+                    sx = vpkt.s_x & 0xFu;
+                    sz = vpkt.s_z & 0xFu;
                     err_z = decode_static_b0_z_d3(sx);
+                    err_x = 0;
+                    pkt_valid_for_decode = true;
+                } else {
+                    pkt_valid_for_decode = false;
                 }
             } else {
                 /* Sample single-qubit Z and X errors directly from true_theta_z / true_theta_x (Fixes M8) */
@@ -446,52 +911,74 @@ int main(int argc, char *argv[]) {
                         if (rand_uniform01(&rng_state) < p_meas_flip) sz ^= (uint8_t)(1u << b);
                     }
                 }
+
+                burst[burst_count++] = avid_pack_packet_u64(sx, sz, seq_gen++, (uint16_t)hw_epoch, AVID_PKT_FLAG_VALID);
+                rounds_attempted++;
+                pkt_valid_for_decode = true;
             }
 
-            /* Evaluate Static B0 on identical stream */
-            uint16_t c_static_z = decode_static_b0_z_d3(sx);
-            bool static_fail = is_logical_z_error_d3(err_z, c_static_z);
-            if (static_fail) static_b0_failures++;
-            if (in_burst_window) {
-                burst_rounds++;
-                if (static_fail) burst_static_failures++;
-            }
-
-            /* Step 16-round sliding-subwindow fast burst detector (<= 20-round trigger bound) */
-            if (avid_fast_detector_step(&g_fast_detector, (uint64_t)seq_gen, sx, sz)) {
-                pending_fast_burst_trigger = true;
-            }
-
-            if (backend == AVID_HAL_BACKEND_SIMULATION) {
-                uint16_t cx = 0, cz = 0;
-                uint32_t bp_cyc = 0;
-                bool tlast = ((seq_gen + 1) % 64 == 0);
-                if (avid_hal_send_syndrome(&g_hal, sx, sz, tlast, &cx, &cz, &bp_cyc, &last_cycle) == 0) {
-                    decoded_rounds++;
-                    sum_bp_cycles   += bp_cyc;
-                    sum_axis_cycles += g_hal.stats.last_axis_total_cycles;
-                    if (bp_cyc < min_bp_cycles) min_bp_cycles = bp_cyc;
-                    if (bp_cyc > max_bp_cycles) max_bp_cycles = bp_cyc;
-                    bool z_fail = is_logical_z_error_d3(err_z, cz);
-                    bool x_fail = is_logical_x_error_d3(err_x, cx);
-                    if (z_fail) logical_z_failures++;
-                    if (x_fail) logical_x_failures++;
-                    if (in_burst_window && z_fail) burst_avid_failures++;
+            if (pkt_valid_for_decode) {
+                /* Push validated syndrome round into 10,000-round sliding ring buffer */
+                syndrome_round_t sr{};
+                for (int c = 0; c < 4; ++c) {
+                    sr.x[c] = (sx >> c) & 1u;
+                    sr.z[c] = (sz >> c) & 1u;
                 }
-            } else {
-                decoded_rounds++;
-                const uint32_t phys_core_cyc = 2u + 5u * active_k_iters;
-                const uint32_t phys_axis_cyc = phys_core_cyc + 5u;
-                sum_bp_cycles   += phys_core_cyc;
-                sum_axis_cycles += phys_axis_cyc;
-                if (phys_core_cyc < min_bp_cycles) min_bp_cycles = phys_core_cyc;
-                if (phys_core_cyc > max_bp_cycles) max_bp_cycles = phys_core_cyc;
+                ring_push(&g_ring_buf, &sr);
+
+                /* Evaluate Static B0 on identical validated stream */
+                uint16_t c_static_z = decode_static_b0_z_d3(sx);
+                bool static_fail = is_logical_z_error_d3(err_z, c_static_z);
+                if (static_fail) static_b0_failures++;
+                if (in_burst_window) {
+                    burst_rounds++;
+                    if (static_fail) burst_static_failures++;
+                }
+
+                /* Step 16-round sliding-subwindow fast burst detector (<= 20-round trigger bound) */
+                if (avid_fast_detector_step(&g_fast_detector, static_cast<uint64_t>(decoded_rounds), sx, sz)) {
+                    pending_fast_burst_trigger = true;
+                }
+
+                if (backend == AVID_HAL_BACKEND_SIMULATION) {
+                    uint16_t cx = 0, cz = 0;
+                    uint32_t bp_cyc = 0;
+                    bool tlast = ((decoded_rounds + 1) % 64 == 0);
+                    if (avid_hal_send_syndrome(&g_hal, sx, sz, tlast, &cx, &cz, &bp_cyc, &last_cycle) == 0) {
+                        decoded_rounds++;
+                        sum_bp_cycles   += bp_cyc;
+                        sum_axis_cycles += g_hal.stats.last_axis_total_cycles;
+                        if (bp_cyc < min_bp_cycles) min_bp_cycles = bp_cyc;
+                        if (bp_cyc > max_bp_cycles) max_bp_cycles = bp_cyc;
+                        bool z_fail = is_logical_z_error_d3(err_z, cz);
+                        bool x_fail = is_logical_x_error_d3(err_x, cx);
+                        if (z_fail) logical_z_failures++;
+                        if (x_fail) logical_x_failures++;
+                        if (in_burst_window && z_fail) burst_avid_failures++;
+                    }
+                } else {
+                    decoded_rounds++;
+                    const uint32_t phys_core_cyc = 2u + 5u * active_k_iters;
+                    const uint32_t phys_axis_cyc = phys_core_cyc + 5u;
+                    sum_bp_cycles   += phys_core_cyc;
+                    sum_axis_cycles += phys_axis_cyc;
+                    if (phys_core_cyc < min_bp_cycles) min_bp_cycles = phys_core_cyc;
+                    if (phys_core_cyc > max_bp_cycles) max_bp_cycles = phys_core_cyc;
+                }
             }
 
-            burst[i] = avid_pack_packet_u64(sx, sz, seq_gen++, (uint16_t)hw_epoch, AVID_PKT_FLAG_VALID);
+            /* Poll causal scheduler for delayed weight bank commits due at current round */
+            int16_t ready_q78_z[9] = {0};
+            if (avid_scheduler_poll_commit_ready(&g_scheduler, static_cast<uint64_t>(rounds_attempted), ready_q78_z)) {
+                if (avid_hal_write_weights_and_commit(&g_hal, g_pending_q78_x, ready_q78_z, &hw_epoch, &last_cycle) == 0) {
+                    adaptive_epoch_commits++;
+                }
+            }
         }
 
-        avid_dma_ring_push_burst(&g_dma_ring, burst, AVID_DMA_SLOT_PACKETS);
+        if (burst_count > 0u) {
+            avid_dma_ring_push_burst(&g_dma_ring, burst, burst_count);
+        }
 
         uint32_t valid_in_slot = 0;
         uint32_t slot_hist_x[16] = {0};
@@ -502,13 +989,17 @@ int main(int argc, char *argv[]) {
                 hist_z[s] += slot_hist_z[s];
             }
             acc_rounds += valid_in_slot;
+            if (!stim_fp) {
+                avid_dma_ring_set_active_epoch(&g_dma_ring, static_cast<uint16_t>(hw_epoch));
+            }
         }
 
         const double slot_non_triv = 1.0 - ((double)slot_hist_x[0] / (double)std::max(1u, valid_in_slot));
 
         int target_win = single_shot_test ? 512 : window_rounds;
-        bool is_window_boundary = ((int)acc_rounds >= target_win) ||
-                                  (seq_gen > 0u && (seq_gen % (uint32_t)target_win) == 0u);
+        bool is_window_boundary = (acc_rounds > 0u) &&
+                                  (((int)acc_rounds >= target_win) ||
+                                   (rounds_attempted > 0u && (rounds_attempted % (uint32_t)target_win) == 0u));
         double sub_non_triv = 1.0 - ((double)hist_x[0] / (double)std::max(1u, acc_rounds));
         bool causal_burst_onset    = (pending_fast_burst_trigger && !in_high_regime &&
                                       slot_non_triv >= 0.24 && (sub_non_triv - prev_non_triv) >= 0.065);
@@ -614,7 +1105,7 @@ int main(int argc, char *argv[]) {
                     hist_x,
                     hist_z,
                     acc_rounds,
-                    g_model_z.theta_.data_,
+                    g_model_z.theta_.data(),
                     last_nll,
                     r2d2_gains,
                     &rec_k,
@@ -659,22 +1150,24 @@ int main(int argc, char *argv[]) {
             } else if (std::strcmp(controller_mode, "marginal_lbfgs") == 0) {
                 pair_weight_scale = 0.95;
                 rec_k = 3u;
-            } else if (std::strcmp(controller_mode, "joint_dp_proj") == 0) {
+            } else if (std::strcmp(controller_mode, "joint_dp_proj") == 0 ||
+                       std::strcmp(controller_mode, "heuristic") == 0) {
                 pair_weight_scale = 1.0;
                 rec_k = 4u;
             } else if (std::strcmp(controller_mode, "b2_pid") == 0) {
                 /* B2 Classical PID controller on syndrome excitation rate */
                 const double non_triv = 1.0 - ((double)hist_x[0] / (double)std::max(1u, acc_rounds));
                 pair_weight_scale = std::clamp(2.5 * (non_triv - 0.08), 0.0, 1.15);
-                rec_k = (non_triv > 0.22) ? 6u : 4u;
+                rec_k = (non_triv > 0.22) ? 5u : 4u;
             } else if (std::strcmp(controller_mode, "b3_covariance") == 0) {
                 /* B3 Empirical syndrome covariance tracker */
                 pair_weight_scale = 0.90;
                 rec_k = 5u;
             } else if (std::strcmp(controller_mode, "b4_oracle") == 0) {
                 pair_weight_scale = 1.25;
-                rec_k = 7u;
+                rec_k = 5u;
             }
+            rec_k = std::clamp(rec_k, AVID_HAL_MIN_BP_ITER, AVID_HAL_MAX_BP_ITER);
 
             bool deadline_ok = avid_profiler_end(&g_prof_est);
             sum_est_us += g_prof_est.last_elapsed_us;
@@ -737,6 +1230,8 @@ int main(int argc, char *argv[]) {
                                 std::strcmp(scenario, "reset_during_operation") == 0)) {
                 reset_cleared_commits = hw_epoch;
                 avid_hal_reset_rtl(&g_hal, 10, &last_cycle);
+                avid_validator_init(&g_dma_ring.validator);
+                g_dma_ring.has_active_epoch = false;
                 g_r2d2.reset_hidden();
             }
 
@@ -744,23 +1239,27 @@ int main(int argc, char *argv[]) {
             if (std::strcmp(scenario, "variable_k_adaptation") == 0) {
                 uint32_t k_step = (uint32_t)((epochs % 5) + 1);
                 active_k_iters = k_step;
-                if (backend == AVID_HAL_BACKEND_SIMULATION) {
-                    avid_hal_set_bp_iterations(&g_hal, k_step, &last_cycle);
-                }
+                avid_hal_set_bp_iterations(&g_hal, k_step, &last_cycle);
             } else if (std::strcmp(controller_mode, "avid_r2d2") == 0 ||
                        std::strcmp(controller_mode, "b2_pid") == 0 ||
                        std::strcmp(controller_mode, "b3_covariance") == 0 ||
                        std::strcmp(controller_mode, "b4_oracle") == 0) {
                 active_k_iters = rec_k;
-                if (backend == AVID_HAL_BACKEND_SIMULATION) {
-                    avid_hal_set_bp_iterations(&g_hal, rec_k, &last_cycle);
-                }
+                avid_hal_set_bp_iterations(&g_hal, rec_k, &last_cycle);
             }
 
-            /* Always commit either adaptive weights or safe fallback static weights */
+            /* Schedule causal weight commit via avid_causal_scheduler_t (immediate when commit_delay_rounds == 0) */
             if (should_commit || g_fallback.state == AVID_FSM_SAFE_STATIC_PRIOR) {
-                if (avid_hal_write_weights_and_commit(&g_hal, sel_q78_x, sel_q78_z, &hw_epoch, &last_cycle) == 0) {
-                    adaptive_epoch_commits++;
+                std::memcpy(g_pending_q78_x, sel_q78_x, sizeof(g_pending_q78_x));
+                avid_scheduler_schedule_commit(&g_scheduler, static_cast<uint64_t>(rounds_attempted), sel_q78_z);
+                int16_t ready_now_z[9] = {0};
+                if (avid_scheduler_poll_commit_ready(&g_scheduler, static_cast<uint64_t>(rounds_attempted), ready_now_z)) {
+                    if (avid_hal_write_weights_and_commit(&g_hal, g_pending_q78_x, ready_now_z, &hw_epoch, &last_cycle) == 0) {
+                        adaptive_epoch_commits++;
+                        if (!stim_fp) {
+                            avid_dma_ring_set_active_epoch(&g_dma_ring, static_cast<uint16_t>(hw_epoch));
+                        }
+                    }
                 }
             }
 
@@ -776,9 +1275,10 @@ int main(int argc, char *argv[]) {
                        epochs, (unsigned)hw_epoch, last_nll, g_prof_est.last_elapsed_us);
                 break;
             }
-            if (!single_shot_test && (int)seq_gen >= total_rounds) {
-                break;
-            }
+        }
+
+        if (!single_shot_test && static_cast<int>(rounds_attempted) >= total_rounds) {
+            break;
         }
     }
 
@@ -827,6 +1327,11 @@ int main(int argc, char *argv[]) {
                 "  \"seed\": %llu,\n"
                 "  \"total_rounds\": %u,\n"
                 "  \"window_rounds\": %d,\n"
+                "  \"scheduler_commit_delay_rounds\": %d,\n"
+                "  \"ring_buffer_count\": %d,\n"
+                "  \"validator_valid_packets\": %llu,\n"
+                "  \"validator_invalid_flags\": %llu,\n"
+                "  \"validator_seq_gaps\": %llu,\n"
                 "  \"decoded_rtl_transactions\": %d,\n"
                 "  \"epochs_completed\": %d,\n"
                 "  \"initial_boot_commits\": %u,\n"
@@ -905,8 +1410,13 @@ int main(int argc, char *argv[]) {
                 g_r2d2.action_histogram[4],
                 g_r2d2.action_histogram[5],
                 (unsigned long long)seed,
-                (unsigned)seq_gen,
+                (unsigned)rounds_attempted,
                 window_rounds,
+                commit_delay_rounds,
+                g_ring_buf.count,
+                (unsigned long long)g_dma_ring.validator.valid_count,
+                (unsigned long long)g_dma_ring.validator.invalid_flag_count,
+                (unsigned long long)g_dma_ring.validator.seq_gap_count,
                 decoded_rounds,
                 epochs,
                 initial_boot_commits,

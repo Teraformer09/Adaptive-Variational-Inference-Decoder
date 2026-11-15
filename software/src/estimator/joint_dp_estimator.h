@@ -7,7 +7,7 @@
 class JointDPEstimator {
 public:
     JointDPEstimator();
-    void reset(double p_single = 0.012, double p_pair = 0.004);
+    void reset(double p_single = 0.012, double p_pair = 0.008);
     double evaluate_nll_and_grad(const uint32_t hist_x[NM_N_STATES],
                                  NoiseModel::GradVec &out_grad);
     NoiseModel &model() { return model_; }

@@ -6,6 +6,9 @@
 #include <algorithm>
 
 int16_t avid_prob_to_q78_llr(double p) {
+    if (!std::isfinite(p)) {
+        return AVID_Q78_DEFAULT;
+    }
     double pc = std::clamp(p, 1e-5, 0.49);
     double llr = std::log((1.0 - pc) / pc);
     long raw = std::lround(llr * 256.0);
@@ -16,6 +19,9 @@ int16_t avid_prob_to_q78_llr(double p) {
 
 bool avid_quantize_and_validate_bank(const double p_eff[9],
                                      int16_t out_q78[9]) {
+    if (!p_eff || !out_q78) {
+        return false;
+    }
     bool all_safe = true;
     for (int i = 0; i < 9; i++) {
         if (!std::isfinite(p_eff[i]) || p_eff[i] <= 0.0 || p_eff[i] >= 0.5) {

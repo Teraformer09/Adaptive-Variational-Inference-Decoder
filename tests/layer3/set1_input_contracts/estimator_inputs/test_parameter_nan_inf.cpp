@@ -28,34 +28,34 @@ int main(int argc, char **argv) {
 
         HistogramLBFGSSolver solver;
 
-        /* Case A: Negative and >0.5 initial guess */
+        /* Case A: Negative and >0.5 initial guess -> rejected cleanly (+Inf, converged=false, 0 iters) */
         NoiseModel m_oob;
         m_oob.init(0.012, 0.004);
         m_oob.theta_(0) = -0.10;
         m_oob.theta_(1) = 0.85;
         LBFGSFitDiagnostics diag_oob{};
         double nll_oob = solver.fit_histogram(m_oob, hist.data(), 12, &diag_oob);
-        ctx.log("Out-of-bounds initial guess (-0.10, 0.85) accepted silently without error; clamp_params silently projected to [1e-5, 0.45], nll=" +
-                std::to_string(nll_oob));
+        ASSERT_TRUE(std::isinf(nll_oob));
+        ASSERT_FALSE(std::isnan(nll_oob));
+        ASSERT_FALSE(diag_oob.converged);
+        ASSERT_EQ(diag_oob.iterations_executed, 0);
 
-        /* Case B: NaN in initial guess */
+        /* Case B: NaN in initial guess -> rejected cleanly (+Inf, converged=false, 0 iters, zero NaN propagation) */
         NoiseModel m_nan;
         m_nan.init(0.012, 0.004);
         m_nan.theta_(0) = std::numeric_limits<double>::quiet_NaN();
         LBFGSFitDiagnostics diag_nan{};
         double nll_nan = solver.fit_histogram(m_nan, hist.data(), 12, &diag_nan);
-        bool nan_corrupted = std::isnan(nll_nan) || std::isnan(m_nan.theta_(0));
-        if (nan_corrupted) {
-            ctx.record_failure("DEFECT: HistogramLBFGSSolver::fit_histogram does NOT call validate_parameter_bounds; std::clamp(NaN, 1e-5, 0.45) returns NaN, corrupting final NLL and theta_ with NaN!");
-        }
+        ASSERT_TRUE(std::isinf(nll_nan));
+        ASSERT_FALSE(std::isnan(nll_nan));
+        ASSERT_FALSE(diag_nan.converged);
+        ASSERT_EQ(diag_nan.iterations_executed, 0);
 
-        ctx.record().expected["nan_initial_guess"] = "Explicit rejection or safe NaN-free sanitization";
+        ctx.record().expected["nan_initial_guess"] = "Explicit rejection (+Inf, converged=false, 0 iters) without NaN propagation";
         ctx.record().actual["nan_initial_guess"] =
-            std::string("Silent acceptance of -0.10/0.85; NaN initial guess produced nll=") +
-            (std::isnan(nll_nan) ? "NaN" : std::to_string(nll_nan)) +
-            ", converged=" + (diag_nan.converged ? "true" : "false");
+            "Both OOB (-0.10, 0.85) and NaN initial guesses rejected cleanly (+Inf, converged=false, iterations_executed=0)";
 
-        return ctx.finalize(TestStatus::FAIL, "MISSING_INITIAL_GUESS_VALIDATION_NAN_PROPAGATION");
+        return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
     }
 
     TestContext ctx(opts, "L3-IP-024", "invalid_parameter_values_nan_inf_oob",
@@ -87,20 +87,19 @@ int main(int argc, char **argv) {
     m_eval.theta_(0) = std::numeric_limits<double>::quiet_NaN();
     double nll_after_nan = m_eval.compute_nll_from_histogram(hist.data());
     bool joint_has_nan = std::isnan(m_eval.joint_probs()(0)) || std::isnan(nll_after_nan);
-
-    if (joint_has_nan) {
-        ctx.record_failure("DEFECT: NoiseModel::compute_joint_distribution uses std::clamp(theta_(e), 1e-6, 0.49) without std::isfinite/validate_parameter_bounds; NaN in theta_(0) propagates NaN into all 16 p_joint_ bins and NLL!");
-    }
+    ASSERT_FALSE(joint_has_nan);
+    ASSERT_TRUE(std::isinf(nll_after_nan));
 
     NoiseModel m_neg;
     m_neg.init(0.012, 0.004);
     m_neg.theta_(0) = -1e-6;
     double nll_neg = m_neg.compute_nll_from_histogram(hist.data());
-    ctx.log("Negative theta_(0)=-1e-6 silently clamped inside compute_joint_distribution to 1e-6 without error; nll=" + std::to_string(nll_neg));
+    ASSERT_TRUE(std::isinf(nll_neg));
+    ASSERT_FALSE(std::isnan(nll_neg));
 
-    ctx.record().expected["invalid_param_handling"] = "Rejected cleanly across both validate_parameter_bounds and compute_nll_from_histogram without NaN propagation";
+    ctx.record().expected["invalid_param_handling"] = "Rejected cleanly across both validate_parameter_bounds and compute_nll_from_histogram (+Inf, zero NaN propagation)";
     ctx.record().actual["invalid_param_handling"] =
-        "validate_parameter_bounds rejects all 6 bad inputs, BUT compute_nll_from_histogram does not call it: NaN propagates to p_joint_[0..15] and NLL=NaN";
+        "validate_parameter_bounds rejects all 6 bad inputs; compute_nll_from_histogram returns +Inf on NaN and -1e-6 without NaN propagation";
 
-    return ctx.finalize(TestStatus::FAIL, "NAN_PROPAGATION_IN_NOISE_MODEL_EVALUATION");
+    return ctx.finalize(ctx.has_assertion_failures() ? TestStatus::FAIL : TestStatus::PASS);
 }
