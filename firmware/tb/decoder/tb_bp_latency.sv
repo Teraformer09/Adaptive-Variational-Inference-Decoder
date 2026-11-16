@@ -16,18 +16,23 @@ module tb_bp_latency;
     logic signed [15:0] channel_llr [9];
     logic [8:0]        correction;
     logic              correction_valid;
+    logic              correction_last_out;
 
     bp_engine #(
         .N_DATA(9), .N_CHECK(4), .MAX_DEG(4), .MAX_ITER(3), .DATA_WIDTH(16), .BASIS_Z(1'b0)
     ) dut (
-        .clk             (clk),
-        .rst_n           (rst_n),
-        .syndrome        (syndrome),
-        .syndrome_valid  (syndrome_valid),
-        .bp_ready        (bp_ready),
-        .channel_llr     (channel_llr),
-        .correction      (correction),
-        .correction_valid(correction_valid)
+        .clk                (clk),
+        .rst_n              (rst_n),
+        .syndrome           (syndrome),
+        .syndrome_valid     (syndrome_valid),
+        .syndrome_last_in   (1'b1),
+        .bp_ready           (bp_ready),
+        .channel_llr        (channel_llr),
+        .cfg_max_iter       (4'd3),
+        .cfg_osd_mode       (2'd1),
+        .correction         (correction),
+        .correction_valid   (correction_valid),
+        .correction_last_out(correction_last_out)
     );
 
     int cycle_counter;

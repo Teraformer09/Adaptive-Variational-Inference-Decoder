@@ -1,5 +1,5 @@
 // =============================================================================
-// Testbench : tb_avid_top
+// Testbench : tb_aa_qec_top
 // Project   : AVID (Adaptive Variational Inference Decoder)
 //
 // Verifies:
@@ -10,7 +10,7 @@
 // =============================================================================
 `timescale 1ns / 1ps
 
-module tb_avid_top;
+module tb_aa_qec_top;
 
     localparam int N_DATA   = 9;
     localparam int N_CHECK  = 4;
@@ -45,7 +45,10 @@ module tb_avid_top;
     logic        epoch_irq;
 
     // DUT
-    avid_top #(
+    logic bp_start_unused, bp_done_unused, bp_busy_unused, dma_tvalid_unused;
+    logic [AXIS_SW-1:0] dma_tdata_unused;
+    logic [31:0] dma_drop_unused, rx_ep_unused;
+    aa_qec_top #(
         .N_DATA(N_DATA), .N_CHECK(N_CHECK), .MAX_ITER(MAX_ITER),
         .DATA_WIDTH(DW), .AXIS_S_WIDTH(AXIS_SW), .AXIS_M_WIDTH(AXIS_MW)
     ) dut (
@@ -60,7 +63,15 @@ module tb_avid_top;
         .s_axil_bready(bready), .s_axil_araddr(araddr), .s_axil_arvalid(arvalid),
         .s_axil_arready(arready), .s_axil_rdata(rdata), .s_axil_rresp(rresp),
         .s_axil_rvalid(rvalid), .s_axil_rready(rready),
-        .epoch_irq(epoch_irq)
+        .epoch_irq(epoch_irq),
+        .bp_core_start_mon(bp_start_unused),
+        .bp_core_done_mon(bp_done_unused),
+        .bp_core_busy_mon(bp_busy_unused),
+        .dma_tap_stall_in(1'b0),
+        .dma_tap_tdata_mon(dma_tdata_unused),
+        .dma_tap_tvalid_mon(dma_tvalid_unused),
+        .dma_tap_drop_count_mon(dma_drop_unused),
+        .rx_epoch_count_mon(rx_ep_unused)
     );
 
     // =========================================================================
@@ -153,7 +164,7 @@ module tb_avid_top;
     end
 
     // VCD dump
-    initial begin $dumpfile("avid.vcd"); $dumpvars(0, tb_avid_top); end
+    initial begin $dumpfile("aa_qec_top.vcd"); $dumpvars(0, tb_aa_qec_top); end
     // Watchdog
     initial begin #1000000; $display("[TIMEOUT]"); $finish; end
 

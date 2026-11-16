@@ -1,0 +1,83 @@
+# Layer 5 — 250 MHz SystemVerilog FPGA RTL Decoder (aa_qec_top)
+# Canonical Invariants, Gate Definitions (G1..G8), and Hardware STA Fidelity Boundaries
+
+layer: 5
+branch: layer5-fpga-rtl-decoder
+frozen_baseline_commit: 54da68d92778e4e1ffde9514aaaae585638761ff
+total_canonical_test_ids: 200
+
+clock_domain:
+  rtl_frequency_mhz: 250.0
+  rtl_period_ns: 4.0
+  fast_loop_budget_ns: 300.0
+  mmio_axil_latency_cycles: 2
+  syndrome_ingress_cycles: 2
+  syndrome_egress_cycles: 3
+  bp_core_cycles_mode_0_1_formula: "2 + 5 * K"
+  bp_core_cycles_mode_2_formula: "4 + 5 * K"
+  axis_total_cycles_mode_0_1_formula: "7 + 5 * K"
+  axis_total_cycles_mode_2_formula: "9 + 5 * K"
+
+register_map:
+  base_address: 0x43C01000
+  shadow_x_range: [0x000, 0x020]
+  shadow_z_range: [0x024, 0x044]
+  commit_offset: 0x048
+  status_offset: 0x04C
+  epoch_count_offset: 0x050
+  cfg_max_iter_offset: 0x054
+  cfg_osd_mode_offset: 0x058
+  unmapped_gap_range: [0x05C, 0x0FC]
+  active_x_range: [0x100, 0x120]
+  active_z_range: [0x124, 0x144]
+  first_upper_unmapped: 0x148
+  reset_llr_q78: 0x0232
+  cfg_max_iter_valid_range: [1, 5]
+  cfg_osd_mode_valid_range: [0, 2]
+
+gates:
+  G1:
+    name: "AXI4-Lite & AXI4-Stream protocol compliance"
+    description: "All mapped/unmapped AXI4-Lite registers (0x000..0x144), split AW/W, WSTRB, BREADY/RREADY stalls, SLVERR, aresetn *ready gating, and AXI4-Stream syndrome ingress bit-packing behave per spec."
+    requires_native_verilator: true
+  G2:
+    name: "Deterministic cycle law & fast-loop budget"
+    description: "Exact L_core(K) = 2+5K (4+5K in Mode 2) and L_axis(K) = 7+5K (9+5K in Mode 2), <= 300 ns fast-loop compliance across K=1..5 and OSD_MODE=0..2, (corr_x, corr_z) packing, and 1-cycle epoch_irq."
+    requires_native_verilator: true
+  G3:
+    name: "Non-blocking ingress tap & pipeline isolation"
+    description: "End-to-end axis_ingress_tap -> axis_syndrome_rx -> bp_engine -> axis_correction_tx flow; dma_tap_stall_in=1 increments dma_tap_drop_count_mon and sticky overflow_warn with zero fast-path stall."
+    requires_native_verilator: true
+  G4:
+    name: "Atomic triple-buffered weight-bank & epoch safety"
+    description: "Shadow-to-snapshot-to-active isolation, bp_ready_in-gated 1-cycle swap, mid-decode COMMIT deferral (STATUS=0x3), busy-lock SLVERR against torn shadow writes, and monotonic epoch_count."
+    requires_native_verilator: true
+  G5:
+    name: "Elastic FIFO backpressure, reset recovery & stress"
+    description: "Power-on reset defaults, synchronous mid-decode aresetn recovery across all BP states, m_axis_correction_tready=0 stability, 16-entry RX FIFO full/drain lossless semantics, and 10,000-syndrome stress."
+    requires_native_verilator: true
+  G6:
+    name: "Q7.8 Min-Sum, OSD-0 & GF(2) mathematical equivalence"
+    description: "Zero mismatches across exhaustive 3,840-state (K=1..5 x Mode=0..2 x 256 syndromes) Vaa_qec_top vs golden Q7.8 sweeps, inhomogeneous wx != wz degenerate tie-breaking, and H_X/H_Z GF(2) parity satisfaction."
+    requires_native_verilator: true
+  G7:
+    name: "Formal SVA verification & hardware synthesis constraints"
+    description: "Live Verilator --assert satisfaction of bound sva_weight_commit_assertions.sv + embedded SVAs, negative fault-injection SVA firing proof, active 4.000 ns aa_qec.xdc clock, and zero-DSP resource/YAML parity."
+    requires_native_verilator: true
+  G8:
+    name: "Deterministic replay, clean provenance & STA disclosure"
+    description: "Bit-for-bit deterministic replay across resets/seeds, VCD/CSV/SHA-256 RTL provenance persistence, 200/200 canonical ID execution, code_git_dirty == false, and explicit Vivado STA boundary disclosure."
+    requires_native_verilator: true
+
+fidelity_disclaimers:
+  rtl_simulation_scope: >-
+    Native Verilator 5.048 (--assert --trace) compiles the actual synthesizable SystemVerilog hierarchy
+    (aa_qec_top, axis_ingress_tap, axis_syndrome_rx, weight_map_reg, bp_engine, check_node_minsum,
+    axis_correction_tx, plus bound sva_weight_commit_assertions) into cycle-accurate 2-state C++ logic,
+    proving exact synchronous FSM cycle laws, AMBA AXI4-Lite/AXI4-Stream handshakes, Q7.8 arithmetic,
+    and formal SVA invariants at a nominal 4.000 ns (250.0 MHz) simulation clock.
+  vivado_sta_scope: >-
+    Cycle-accurate Verilator RTL simulation does NOT perform gate-level netlist synthesis, FPGA placement
+    and routing, wire-delay back-annotation, or post-route Static Timing Analysis (WNS/TNS). Physical
+    250.0 MHz timing closure on Xilinx Zynq-7020 (xc7z020clg484-1) or UltraScale+ ZCU104/K26 requires
+    Vivado synthesis and post-route STA against firmware/constraints/aa_qec.xdc.

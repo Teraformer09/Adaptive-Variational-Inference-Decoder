@@ -20,6 +20,8 @@ module tb_weight_commit;
     logic signed [15:0] active_z [9];
     logic        bp_ready_in = 0;
     logic [31:0] epoch_count;
+    logic [3:0]  cfg_max_iter_unused;
+    logic [1:0]  cfg_osd_mode_unused;
 
     weight_map_reg #(.N_DATA(9), .DATA_WIDTH(16)) dut (
         .aclk           (aclk),
@@ -44,7 +46,9 @@ module tb_weight_commit;
         .active_x       (active_x),
         .active_z       (active_z),
         .bp_ready_in    (bp_ready_in),
-        .epoch_count    (epoch_count)
+        .epoch_count    (epoch_count),
+        .cfg_max_iter   (cfg_max_iter_unused),
+        .cfg_osd_mode   (cfg_osd_mode_unused)
     );
 
     task automatic axil_write(input [31:0] addr, input [31:0] data);

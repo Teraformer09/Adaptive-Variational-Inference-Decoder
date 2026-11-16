@@ -8,8 +8,8 @@ fast_path:
   bp_iterations_supported: [1, 2, 3, 4, 5]
   core_cycles_formula_mode_0_1: "2 + 5 * K"
   core_cycles_formula_mode_2: "4 + 5 * K"
-  axi_ingress_cycles: 3
-  axi_egress_cycles: 2
+  axi_ingress_cycles: 2
+  axi_egress_cycles: 3
   axis_total_cycles_formula_mode_0_1: "7 + 5 * K"
   axis_total_cycles_formula_mode_2: "9 + 5 * K"
   k3_core_cycles_mode_0_1: 17

@@ -9,7 +9,7 @@ platforms:
     ps_cpu_core: "Dual-core ARM Cortex-A9 @ 667 MHz (NEON + VFPv3)"
     cross_compiler: "arm-linux-gnueabihf-g++ -mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard"
     cpu_emulator: "qemu-arm -cpu cortex-a9"
-    rtl_simulator: "Verilator 5.020 (verilator_c++_rtl)"
+    rtl_simulator: "Verilator 5.048 (verilator_c++_rtl --assert)"
     pl_clock_mhz: 250.0
     pl_clock_period_ns: 4.0
     ocm_sram_kb: 256

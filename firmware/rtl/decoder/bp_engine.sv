@@ -272,7 +272,7 @@ module bp_engine #(
     logic [3:0] active_max_iter;
     logic [3:0] lat_max_iter;
     logic [1:0] lat_osd_mode;
-    assign active_max_iter = (cfg_max_iter >= 4'd1 && cfg_max_iter <= 4'd7) ? cfg_max_iter : 4'(MAX_ITER);
+    assign active_max_iter = (cfg_max_iter >= 4'd1 && cfg_max_iter <= 4'd5) ? cfg_max_iter : 4'(MAX_ITER);
 
     assign bp_ready = (state == ST_IDLE);
 

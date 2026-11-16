@@ -130,6 +130,8 @@ int main(int argc, char **argv) {
     /* 8. Measure actual RTL cycle counts across K = 1, 2, 3, 4, 5 */
     uint32_t measured_core_cycles[6] = {0};
     uint32_t measured_axis_cycles[6] = {0};
+    uint32_t measured_ing_cycles[6]  = {0};
+    uint32_t measured_egr_cycles[6]  = {0};
 
     FILE *csv_fp = (csv_out[0] != '\0') ? std::fopen(csv_out, "w") : nullptr;
     if (csv_fp) {
@@ -148,6 +150,8 @@ int main(int argc, char **argv) {
         RtlDecodeTrace tr = rtl.decode_syndrome(SINGLE_Z_SYND[4], 0x0u, true);
         measured_core_cycles[k] = tr.bp_core_cycles;
         measured_axis_cycles[k] = tr.total_axis_cycles;
+        measured_ing_cycles[k]  = tr.axi_ingress_cycles;
+        measured_egr_cycles[k]  = tr.axi_egress_cycles;
 
         uint32_t expected_core = 2u + 5u * k;
         uint32_t expected_axis = 7u + 5u * k;
@@ -264,9 +268,13 @@ int main(int argc, char **argv) {
             std::fprintf(jfp,
                 "  \"k3_bp_core_cycles\": %u,\n"
                 "  \"k3_bp_core_latency_ns\": %.1f,\n"
-                "  \"k3_axi_ingress_cycles\": 3,\n"
-                "  \"k3_axi_egress_cycles\": 2,\n"
-                "  \"k3_axis_total_cycles\": %u,\n"
+                "  \"k3_axi_ingress_cycles\": %u,\n"
+                "  \"k3_axi_egress_cycles\": %u,\n"
+                "  \"k3_axis_total_cycles\": %u,\n",
+                measured_core_cycles[3], measured_core_cycles[3] * 4.0,
+                measured_ing_cycles[3], measured_egr_cycles[3],
+                measured_axis_cycles[3]);
+            std::fprintf(jfp,
                 "  \"k3_axis_total_latency_ns\": %.1f,\n"
                 "  \"cycle_matrix_K1_to_K5\": [\n"
                 "    {\"K\": 1, \"bp_core_cycles\": %u, \"bp_core_latency_ns\": %.1f, \"axis_total_cycles\": %u, \"axis_total_latency_ns\": %.1f},\n"
@@ -277,8 +285,7 @@ int main(int argc, char **argv) {
                 "  ],\n"
                 "  \"total_sim_cycles\": %llu\n"
                 "}\n",
-                measured_core_cycles[3], measured_core_cycles[3] * 4.0,
-                measured_axis_cycles[3], measured_axis_cycles[3] * 4.0,
+                measured_axis_cycles[3] * 4.0,
                 measured_core_cycles[1], measured_core_cycles[1] * 4.0, measured_axis_cycles[1], measured_axis_cycles[1] * 4.0,
                 measured_core_cycles[2], measured_core_cycles[2] * 4.0, measured_axis_cycles[2], measured_axis_cycles[2] * 4.0,
                 measured_core_cycles[3], measured_core_cycles[3] * 4.0, measured_axis_cycles[3], measured_axis_cycles[3] * 4.0,

@@ -2,11 +2,13 @@
 .env
 .venv/
 __pycache__/
+.pytest_cache/
 *.py[cod]
 
 # Build outputs
 build/
 build_*/
+firmware/build_layer5/
 software/build*/
 emulator/bridge/build*/
 emulator/qemu/images/
