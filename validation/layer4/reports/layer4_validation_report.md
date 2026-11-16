@@ -1,7 +1,7 @@
 # Layer 4 — Hardware-in-the-Loop Co-Simulation Bridge & Emulators Validation Report
 
 - **Run ID:** `remediated_full_layer4_v1`
-- **Branch / Commit:** `layer4-cosim-bridge-emu` @ `a53d13fa5583195d8b8fabbd0764e7ed5a6b5d9d` (`code_git_dirty = False`)
+- **Branch / Commit:** `layer4-cosim-bridge-emu` @ `a9ec44c21521223b13c2a2406729180b4da3058c` (`code_git_dirty = False`)
 - **Frozen Reference Baseline:** `AVID_EPJ_Patches` @ `54da68d92778e4e1ffde9514aaaae585638761ff` (unmodified)
 - **Overall Acceptance Disposition:** **PASS** (`223 / 223` canonical IDs `PASS`, Gates `G1`–`G8` `8/8 PASS`)
 - **RTL Simulator Mode:** `verilator_c++_rtl` (`Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429`)
@@ -28,11 +28,11 @@
 
 | Set | Total Cases | PASS | Non-PASS | Host Wall Time (ms) | Total Simulated RTL Cycles |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| `Set1` | 47 | 47 | 0 | 1151.77 | 75563 |
-| `Set2` | 28 | 28 | 0 | 225.83 | 13342 |
-| `Set3` | 39 | 39 | 0 | 5721.75 | 61386 |
-| `Set4` | 56 | 56 | 0 | 44553.01 | 1262512 |
-| `Set5` | 53 | 53 | 0 | 1120.64 | 143890 |
+| `Set1` | 47 | 47 | 0 | 1260.98 | 75563 |
+| `Set2` | 28 | 28 | 0 | 229.15 | 13342 |
+| `Set3` | 39 | 39 | 0 | 8153.81 | 61386 |
+| `Set4` | 56 | 56 | 0 | 56177.13 | 1262512 |
+| `Set5` | 53 | 53 | 0 | 1483.57 | 143890 |
 
 ## 3. Layer 4 Acceptance Gate Evaluation (`G1`–`G8`)
 

@@ -1,7 +1,7 @@
 {
   "layer": 4,
   "run_id": "remediated_full_layer4_v1",
-  "git_commit": "a53d13fa5583195d8b8fabbd0764e7ed5a6b5d9d",
+  "git_commit": "a9ec44c21521223b13c2a2406729180b4da3058c",
   "code_git_dirty": false,
   "overall_status": "PASS",
   "canonical_id_count": 223,
@@ -17,7 +17,7 @@
       "counts": {
         "PASS": 47
       },
-      "wall_time_ms_total": 1151.771,
+      "wall_time_ms_total": 1260.981,
       "rtl_cycles_total": 75563,
       "all_pass": true
     },
@@ -27,7 +27,7 @@
       "counts": {
         "PASS": 28
       },
-      "wall_time_ms_total": 225.831,
+      "wall_time_ms_total": 229.146,
       "rtl_cycles_total": 13342,
       "all_pass": true
     },
@@ -37,7 +37,7 @@
       "counts": {
         "PASS": 39
       },
-      "wall_time_ms_total": 5721.75,
+      "wall_time_ms_total": 8153.815,
       "rtl_cycles_total": 61386,
       "all_pass": true
     },
@@ -47,7 +47,7 @@
       "counts": {
         "PASS": 56
       },
-      "wall_time_ms_total": 44553.014,
+      "wall_time_ms_total": 56177.128,
       "rtl_cycles_total": 1262512,
       "all_pass": true
     },
@@ -57,7 +57,7 @@
       "counts": {
         "PASS": 53
       },
-      "wall_time_ms_total": 1120.645,
+      "wall_time_ms_total": 1483.567,
       "rtl_cycles_total": 143890,
       "all_pass": true
     }

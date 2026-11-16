@@ -5,7 +5,7 @@
     "counts": {
       "PASS": 28
     },
-    "wall_time_ms_total": 225.831,
+    "wall_time_ms_total": 229.146,
     "rtl_cycles_total": 13342,
     "all_pass": true
   },
@@ -17,7 +17,7 @@
       "gates": "G2",
       "title": "MMIO_WRITE and MMIO_READ responses include accepted_cycle, completed_cycle, rdata",
       "status": "PASS",
-      "wall_time_ms": 2.7953,
+      "wall_time_ms": 2.4614,
       "rtl_cycles": 24,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "wr=[20,22] rd=[22,24]"
@@ -29,7 +29,7 @@
       "gates": "G2",
       "title": "SYNDROME_TRANSFER response reports distinct accepted_cycle vs completed_cycle, corr_x/z, bp_cycles, axis_total_cycles, epoch_irq",
       "status": "PASS",
-      "wall_time_ms": 1.1389,
+      "wall_time_ms": 1.3262,
       "rtl_cycles": 46,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "acc=24 comp=46 bp=17 axis=22"
@@ -41,7 +41,7 @@
       "gates": "G2",
       "title": "SYNDROME_START acknowledges pin acceptance (inflight=1) 19 cycles before SYNDROME_WAIT completion",
       "status": "PASS",
-      "wall_time_ms": 1.7244,
+      "wall_time_ms": 1.7793,
       "rtl_cycles": 68,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "start_comp=49 wait_comp=68 inflight=1"
@@ -53,7 +53,7 @@
       "gates": "G2",
       "title": "Protocol-rejected requests return exact ERR_* status with zero RTL cycle advance",
       "status": "PASS",
-      "wall_time_ms": 0.8069,
+      "wall_time_ms": 0.8216,
       "rtl_cycles": 68,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "status=ERR_INVALID_SYNDROME delta=0"
@@ -65,7 +65,7 @@
       "gates": "G2",
       "title": "RTL SLVERR read/write returns ERR_INVALID_REGISTER, rdata=0xdeadbeef, and +2 bus handshake cycles",
       "status": "PASS",
-      "wall_time_ms": 0.8254,
+      "wall_time_ms": 0.7848,
       "rtl_cycles": 70,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rdata=0xDEADBEEF delta=2"
@@ -77,7 +77,7 @@
       "gates": "G2",
       "title": "avid_hal_t stats capture last_accepted_cycle, last_completed_cycle, last_axis_total_cycles, irq_events",
       "status": "PASS",
-      "wall_time_ms": 1.2887,
+      "wall_time_ms": 1.2791,
       "rtl_cycles": 92,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "acc=70 comp=92 irq_events=1"
@@ -89,7 +89,7 @@
       "gates": "G2",
       "title": "ERR_OVERSIZED returns valid JSON ack with transaction_id=0 and +0 cycle delta",
       "status": "PASS",
-      "wall_time_ms": 9.4038,
+      "wall_time_ms": 8.9344,
       "rtl_cycles": 92,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "tid=0 status=ERR_OVERSIZED"
@@ -101,7 +101,7 @@
       "gates": "G3",
       "title": "MMIO_WRITE latency is exactly 2 RTL clock cycles (8.0 ns @ 250 MHz)",
       "status": "PASS",
-      "wall_time_ms": 1.7845,
+      "wall_time_ms": 2.1546,
       "rtl_cycles": 22,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "C_accepted=20 C_completed=22"
@@ -113,7 +113,7 @@
       "gates": "G3",
       "title": "MMIO_READ latency is exactly 2 RTL clock cycles (8.0 ns @ 250 MHz)",
       "status": "PASS",
-      "wall_time_ms": 1.0114,
+      "wall_time_ms": 0.7368,
       "rtl_cycles": 24,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "C_accepted=22 C_completed=24"
@@ -125,7 +125,7 @@
       "gates": "G3",
       "title": "OSD Mode 0 (Pure BP) matches 2+5K core and 7+5K AXI cycles for K=1..5",
       "status": "PASS",
-      "wall_time_ms": 10.5152,
+      "wall_time_ms": 10.7064,
       "rtl_cycles": 146,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "K=1..5 Mode 0 core={7,12,17,22,27} axis={12,17,22,27,32}"
@@ -137,7 +137,7 @@
       "gates": "G3",
       "title": "OSD Mode 1 (Inline OSD-0) matches 2+5K core and 7+5K AXI cycles for K=1..5",
       "status": "PASS",
-      "wall_time_ms": 11.8678,
+      "wall_time_ms": 11.4505,
       "rtl_cycles": 268,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "K=1..5 Mode 1 core={7,12,17,22,27} axis={12,17,22,27,32}"
@@ -149,7 +149,7 @@
       "gates": "G3",
       "title": "OSD Mode 2 (Post-BP OSD-0) matches 4+5K core and 9+5K AXI cycles for K=1..5",
       "status": "PASS",
-      "wall_time_ms": 16.4632,
+      "wall_time_ms": 13.7623,
       "rtl_cycles": 402,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "K=1..5 Mode 2 core={9,14,19,24,29} axis={14,19,24,29,34}"
@@ -161,7 +161,7 @@
       "gates": "G3",
       "title": "Direct Vaa_qec_top sub-stage decomposition equals 2 ingress + (2+5K) core + 3 egress",
       "status": "PASS",
-      "wall_time_ms": 0.8236,
+      "wall_time_ms": 0.9398,
       "rtl_cycles": 32,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "ingress=2 core=17 egress=3 total=22"
@@ -173,7 +173,7 @@
       "gates": "G3",
       "title": "epoch_irq asserts for exactly 1 clock cycle immediately after m_axis_correction handshake",
       "status": "PASS",
-      "wall_time_ms": 0.1942,
+      "wall_time_ms": 0.1115,
       "rtl_cycles": 41,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "corr_valid_c=21 irq_pulse_c=21 width=1"
@@ -185,7 +185,7 @@
       "gates": "G3",
       "title": "RESET(N) advances simulated clock by exact N cycles across Bridge and standalone RTL",
       "status": "PASS",
-      "wall_time_ms": 3.8658,
+      "wall_time_ms": 2.9492,
       "rtl_cycles": 493,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "verified exact delta N for N in {4, 10, 25, 50}"
@@ -197,7 +197,7 @@
       "gates": "G3",
       "title": "50 ms host socket idle sleep + rejected JSON advance 0 simulated RTL cycles",
       "status": "PASS",
-      "wall_time_ms": 52.9405,
+      "wall_time_ms": 52.2451,
       "rtl_cycles": 497,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "comp1=495 acc2_after_50ms=495"
@@ -209,7 +209,7 @@
       "gates": "G3",
       "title": "Mid-decode COMMIT holds swap_pending until exact bp_ready_in==1 edge",
       "status": "PASS",
-      "wall_time_ms": 0.1937,
+      "wall_time_ms": 0.1983,
       "rtl_cycles": 39,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "held swap_pending for 7 busy core cycles"
@@ -221,7 +221,7 @@
       "gates": "G2,G4",
       "title": "Bridge MMIO commit & active-bank readback match standalone Vaa_qec_top bit-for-bit",
       "status": "PASS",
-      "wall_time_ms": 32.8336,
+      "wall_time_ms": 35.3689,
       "rtl_cycles": 96,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "18/18 active weights + epoch_count=1 identical between Bridge and standalone Vaa_qec_top"
@@ -233,7 +233,7 @@
       "gates": "G2,G4",
       "title": "32 dual-basis decodes match corr_x, corr_z, bp_cycles, epoch_irq, and sim_cycle",
       "status": "PASS",
-      "wall_time_ms": 43.975,
+      "wall_time_ms": 47.0517,
       "rtl_cycles": 800,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "32/32 decodes matched corr_x/z, bp_cycles, epoch_irq, and exact clock cycles"
@@ -245,7 +245,7 @@
       "gates": "G2,G4",
       "title": "Packed AXI-Stream m_axis_correction_tdata[8:0]=corr_x and [17:9]=corr_z match JSON ack",
       "status": "PASS",
-      "wall_time_ms": 28.8427,
+      "wall_time_ms": 30.9417,
       "rtl_cycles": 32,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "raw_tdata=8208 px=16 pz=16"
@@ -257,7 +257,7 @@
       "gates": "G2,G4",
       "title": "Invalid register read produces identical SLVERR + 0xDEADBEEF on Vaa_qec_top and Bridge",
       "status": "PASS",
-      "wall_time_ms": 0.9408,
+      "wall_time_ms": 1.1262,
       "rtl_cycles": 802,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "pin_ok=0 r_pin=0xdeadbeef r_bridge=0xdeadbeef"
@@ -269,7 +269,7 @@
       "gates": "G2,G4",
       "title": "m3_transactions.jsonl records rdata, corr_x, corr_z, bp_cycles, epoch_irq, completed_cycle matching HAL",
       "status": "PASS",
-      "wall_time_ms": 1.4953,
+      "wall_time_ms": 1.9126,
       "rtl_cycles": 824,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "tx_id=6000 JSONL fields matched HAL 100%"
@@ -281,7 +281,7 @@
       "gates": "G2,G8",
       "title": "5 independent Verilator bridge runs produce identical corr_x and corr_z sequences",
       "status": "PASS",
-      "wall_time_ms": 0.0087,
+      "wall_time_ms": 0.0086,
       "rtl_cycles": 1394,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "48x5 corrections bit-exact across all 5 runs"
@@ -293,7 +293,7 @@
       "gates": "G2,G8",
       "title": "5 independent runs produce identical accepted_cycle & completed_cycle timelines",
       "status": "PASS",
-      "wall_time_ms": 0.0172,
+      "wall_time_ms": 0.0217,
       "rtl_cycles": 1394,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "final_cycle=1394 identical across 5 runs"
@@ -305,7 +305,7 @@
       "gates": "G2,G8",
       "title": "5 independent runs converge to identical post-reset epoch_count and active register bank",
       "status": "PASS",
-      "wall_time_ms": 0.0035,
+      "wall_time_ms": 0.0053,
       "rtl_cycles": 1394,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "final_epoch=2 active_checksum=3059738684"
@@ -317,7 +317,7 @@
       "gates": "G2,G8",
       "title": "m3_transactions.jsonl files are byte-for-byte identical across all 5 runs",
       "status": "PASS",
-      "wall_time_ms": 0.0577,
+      "wall_time_ms": 0.0503,
       "rtl_cycles": 1394,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "JSONL bytes=48261 byte-identical across 5 runs"
@@ -329,7 +329,7 @@
       "gates": "G2,G8",
       "title": "Bridge --metrics-out JSON files are byte-for-byte identical across all 5 runs",
       "status": "PASS",
-      "wall_time_ms": 0.0021,
+      "wall_time_ms": 0.0029,
       "rtl_cycles": 1394,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "metrics JSON bytes=435 byte-identical"
@@ -341,7 +341,7 @@
       "gates": "G2,G8",
       "title": "Verify zero wall-clock jitter leakage into simulated RTL time (sim_time_ns == 4 * sim_cycle)",
       "status": "PASS",
-      "wall_time_ms": 0.0109,
+      "wall_time_ms": 0.0147,
       "rtl_cycles": 1394,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "final_sim_cycle=1394 final_sim_time_ns=5576"

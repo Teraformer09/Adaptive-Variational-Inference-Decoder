@@ -5,7 +5,7 @@
   "host_cxx_version": "g++ (Debian 15.3.0-1) 15.3.0",
   "verilator_flags": "--cc --exe --build --trace --assert -Wno-fatal --top-module aa_qec_top",
   "cflags": "-O2 -std=c++17 -DUSE_VERILATOR=1",
-  "git_commit": "a53d13fa5583195d8b8fabbd0764e7ed5a6b5d9d",
+  "git_commit": "0e562942cf052e37cc00c01494c7ea590f3ca49e",
   "rtl_source_sha256": {
     "firmware/rtl/decoder/check_node_minsum.sv": "7c2f901bd706dbe874cb6600cf59c9866ebfed70f4dd59aad96240afa88798b3",
     "firmware/rtl/ingress/axis_ingress_tap.sv": "8077a9d47fedf5e40881033f6335d0f219ea5d08e79474167454214cb58320d1",

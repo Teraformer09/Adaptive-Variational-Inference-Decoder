@@ -5,7 +5,7 @@
     "counts": {
       "PASS": 47
     },
-    "wall_time_ms_total": 1151.771,
+    "wall_time_ms_total": 1260.981,
     "rtl_cycles_total": 75563,
     "all_pass": true
   },
@@ -17,7 +17,7 @@
       "gates": "G1",
       "title": "Valid MMIO_WRITE reaches RTL shadow register",
       "status": "PASS",
-      "wall_time_ms": 2.1993,
+      "wall_time_ms": 3.456,
       "rtl_cycles": 22,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "shadow_x[0]=320"
@@ -29,7 +29,7 @@
       "gates": "G1",
       "title": "Valid MMIO_READ across shadow, status, epoch, config, active",
       "status": "PASS",
-      "wall_time_ms": 5.1088,
+      "wall_time_ms": 4.4995,
       "rtl_cycles": 36,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "6 register classes matched reset/configured values"
@@ -41,7 +41,7 @@
       "gates": "G1",
       "title": "Valid SYNDROME_TRANSFER dual-basis sx=0x6 sz=0x9",
       "status": "PASS",
-      "wall_time_ms": 1.0593,
+      "wall_time_ms": 1.0564,
       "rtl_cycles": 58,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "corr_x=16 corr_z=16 bp=17"
@@ -53,7 +53,7 @@
       "gates": "G1",
       "title": "Valid RESET restores RTL registers and advances exact reset cycles",
       "status": "PASS",
-      "wall_time_ms": 3.7017,
+      "wall_time_ms": 3.4768,
       "rtl_cycles": 78,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "delta_cyc=16 epoch=0"
@@ -65,7 +65,7 @@
       "gates": "G1",
       "title": "Unknown RPC operation rejected with ERR_UNKNOWN_OP and +0 cycles",
       "status": "PASS",
-      "wall_time_ms": 1.2694,
+      "wall_time_ms": 1.7315,
       "rtl_cycles": 84,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "status=ERR_UNKNOWN_OP"
@@ -77,7 +77,7 @@
       "gates": "G1",
       "title": "Missing protocol_version, transaction_id, operation, or address/data rejected",
       "status": "PASS",
-      "wall_time_ms": 3.2411,
+      "wall_time_ms": 3.5096,
       "rtl_cycles": 84,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "ERR_MISSING_VERSION,ERR_MISSING_TX_ID,ERR_MISSING_OPERATION,ERR_MISSING_FIELD,ERR_MISSING_FIELD"
@@ -89,7 +89,7 @@
       "gates": "G1",
       "title": "Invalid JSON field types rejected with ERR_INVALID_TYPE while boolean tlast works",
       "status": "PASS",
-      "wall_time_ms": 3.3093,
+      "wall_time_ms": 3.2362,
       "rtl_cycles": 106,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "ERR_INVALID_TYPE/ERR_INVALID_TYPE/ERR_INVALID_TYPE bool_tlast_irq=1"
@@ -101,7 +101,7 @@
       "gates": "G1",
       "title": "Truncated, trailing-comma, and unquoted-key JSON rejected without RTL mutation",
       "status": "PASS",
-      "wall_time_ms": 4.0836,
+      "wall_time_ms": 4.0249,
       "rtl_cycles": 108,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "all 4 malformed variants -> ERR_MALFORMED_JSON, +0 cycles"
@@ -113,7 +113,7 @@
       "gates": "G1",
       "title": "Empty newline and immediate-EOF socket handled cleanly without hang",
       "status": "PASS",
-      "wall_time_ms": 1.4247,
+      "wall_time_ms": 1.6404,
       "rtl_cycles": 112,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bare '\\n' + immediate-EOF client handled cleanly"
@@ -125,7 +125,7 @@
       "gates": "G1",
       "title": "Oversized 3200-byte line drained safely and rejected with ERR_OVERSIZED",
       "status": "PASS",
-      "wall_time_ms": 10.5219,
+      "wall_time_ms": 13.2159,
       "rtl_cycles": 114,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "oversized=ERR_OVERSIZED follow_up=OK"
@@ -137,7 +137,7 @@
       "gates": "G1",
       "title": "50 pipelined and chunked RPCs on one connection preserve 1-to-1 tx_id association",
       "status": "PASS",
-      "wall_time_ms": 23.1405,
+      "wall_time_ms": 22.9382,
       "rtl_cycles": 214,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "50/50 pipelined 17B-chunked responses matched exact tx_id"
@@ -149,7 +149,7 @@
       "gates": "G1",
       "title": "Sequence of 4 distinct error classes followed immediately by valid decode",
       "status": "PASS",
-      "wall_time_ms": 5.0709,
+      "wall_time_ms": 4.9399,
       "rtl_cycles": 238,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "recovered cleanly after 4 errors; corr_z=16"
@@ -161,7 +161,7 @@
       "gates": "G1",
       "title": "All 41 valid mapped register offsets return OK over HAL/Bridge",
       "status": "PASS",
-      "wall_time_ms": 33.1938,
+      "wall_time_ms": 38.8564,
       "rtl_cycles": 102,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "verified 41/41 mapped offsets"
@@ -173,7 +173,7 @@
       "gates": "G1",
       "title": "Unmapped gap 0x05C..0x0FC and >= 0x148 rejected with SLVERR (ERR_INVALID_REGISTER)",
       "status": "PASS",
-      "wall_time_ms": 11.46,
+      "wall_time_ms": 12.1518,
       "rtl_cycles": 126,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "all 6 unmapped read/write pairs rejected with SLVERR"
@@ -185,7 +185,7 @@
       "gates": "G1",
       "title": "Unaligned offsets (+1, +2, +3) rejected with SLVERR without mutating shadow[0]",
       "status": "PASS",
-      "wall_time_ms": 11.5574,
+      "wall_time_ms": 8.6029,
       "rtl_cycles": 148,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "shadow_x[0] intact at 0x0232 after 5 unaligned attempts"
@@ -197,7 +197,7 @@
       "gates": "G1",
       "title": "Writes to STATUS (0x04C), EPOCH (0x050), and ACTIVE banks (0x100..0x144) rejected",
       "status": "PASS",
-      "wall_time_ms": 5.4668,
+      "wall_time_ms": 4.9787,
       "rtl_cycles": 160,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "RO registers rejected writes; epoch=0 active_x[0]=0x0232"
@@ -209,7 +209,7 @@
       "gates": "G1",
       "title": "COMMIT (0x048) reads {31'b0, swap_pending} and write 0 is safe no-op",
       "status": "PASS",
-      "wall_time_ms": 2.7072,
+      "wall_time_ms": 2.8537,
       "rtl_cycles": 166,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "COMMIT readback=0 when idle; write 0 leaves epoch=0"
@@ -221,7 +221,7 @@
       "gates": "G1",
       "title": "0x054 enforces K in 1..5 (rejecting 0, 6, 7, 0x13) and 0x058 enforces 0..2",
       "status": "PASS",
-      "wall_time_ms": 16.1819,
+      "wall_time_ms": 15.6676,
       "rtl_cycles": 206,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rejected {0,6,7,15,0x13,0x103} on 0x054 and {3,4,0x11} on 0x058; K=1..5 OK"
@@ -233,7 +233,7 @@
       "gates": "G1",
       "title": "Byte-enable wstrb=0x1, 0x2, 0x0 masks shadow writes and rejects wstrb=0 on 0x054",
       "status": "PASS",
-      "wall_time_ms": 7.4998,
+      "wall_time_ms": 6.3063,
       "rtl_cycles": 222,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "verified wstrb=0x3->0x1234, 0x1->0x12AA, 0x2->0x56AA, 0x0->unchanged"
@@ -245,7 +245,7 @@
       "gates": "G1",
       "title": "RESET restores all 36 shadow/active weights to 0x0232, epoch=0, K=3, osd_mode=1",
       "status": "PASS",
-      "wall_time_ms": 38.3578,
+      "wall_time_ms": 36.1742,
       "rtl_cycles": 312,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "all 36 weights=0x0232, status=0, epoch=0, K=3, osd=1"
@@ -257,7 +257,7 @@
       "gates": "G1",
       "title": "Distinct 18 shadow registers (wx != wz) + K + osd_mode read back before & after COMMIT",
       "status": "PASS",
-      "wall_time_ms": 46.4892,
+      "wall_time_ms": 48.3317,
       "rtl_cycles": 422,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "18/18 inhomogeneous X/Z weights isolated before commit and exact after commit"
@@ -269,7 +269,7 @@
       "gates": "G1",
       "title": "Interleaved MMIO_WRITE and MMIO_READ across shadow_x, shadow_z, active, STATUS",
       "status": "PASS",
-      "wall_time_ms": 35.7519,
+      "wall_time_ms": 42.2913,
       "rtl_cycles": 512,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "45 interleaved R/W ops returned exact values with zero cross-bank bleed"
@@ -281,7 +281,7 @@
       "gates": "G1",
       "title": "100 consecutive MMIO ops advance deterministically by exactly +2 RTL cycles/op",
       "status": "PASS",
-      "wall_time_ms": 86.9081,
+      "wall_time_ms": 102.5222,
       "rtl_cycles": 712,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "100/100 MMIO ops had exact C_accepted=prev_C_completed and C_latency=2"
@@ -293,7 +293,7 @@
       "gates": "G1,G6",
       "title": "Mid-decode COMMIT queues swap_pending=1 (STATUS=0x3) and locks shadow bank (SLVERR) over socket",
       "status": "PASS",
-      "wall_time_ms": 7.2962,
+      "wall_time_ms": 7.9692,
       "rtl_cycles": 748,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "mid_decode STATUS=3 torn_write=ERR_INVALID_REGISTER post_decode active_z[4]=320"
@@ -305,7 +305,7 @@
       "gates": "G1",
       "title": "AXI-Lite awready/wready/arready held 0 while aresetn==0 on Vaa_qec_top",
       "status": "PASS",
-      "wall_time_ms": 0.5715,
+      "wall_time_ms": 0.5997,
       "rtl_cycles": 17,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "awready=wready=arready=0 while aresetn=0; post-reset rdata=0x0232"
@@ -317,7 +317,7 @@
       "gates": "G1",
       "title": "Syndrome payload width enforces 8-bit packed (sx,sz) <= 0xFF",
       "status": "PASS",
-      "wall_time_ms": 2.8493,
+      "wall_time_ms": 2.5728,
       "rtl_cycles": 42,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "0xFF->OK, 0x100->ERR_INVALID_SYNDROME, 0xFFFF->ERR_INVALID_SYNDROME"
@@ -329,7 +329,7 @@
       "gates": "G1,G4",
       "title": "Single-bit X and Z stabilizer triggers match exact check-node bit ordering",
       "status": "PASS",
-      "wall_time_ms": 8.8678,
+      "wall_time_ms": 8.8803,
       "rtl_cycles": 218,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bits 0..3 of sx and sz satisfy H_X*corr_z == sx and H_Z*corr_x == sz"
@@ -341,7 +341,7 @@
       "gates": "G1,G4",
       "title": "Exhaustive 256 (sx, sz) packed beats satisfy CSS syndromes",
       "status": "PASS",
-      "wall_time_ms": 361.2196,
+      "wall_time_ms": 426.3589,
       "rtl_cycles": 5850,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "satisfied 256/256 packed (sx,sz) combinations"
@@ -353,7 +353,7 @@
       "gates": "G1,G4",
       "title": "Varying sz never alters corr_z and varying sx never alters corr_x",
       "status": "PASS",
-      "wall_time_ms": 51.605,
+      "wall_time_ms": 67.6677,
       "rtl_cycles": 6598,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "zero cross-talk across 16 opponent-basis sweeps"
@@ -365,7 +365,7 @@
       "gates": "G1",
       "title": "Each SYNDROME_TRANSFER issues exactly 1 AXI-Stream beat (22 RTL cycles at K=3)",
       "status": "PASS",
-      "wall_time_ms": 1.4979,
+      "wall_time_ms": 2.0647,
       "rtl_cycles": 6620,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "latency=22 cycles (bp=17)"
@@ -377,7 +377,7 @@
       "gates": "G1",
       "title": "Verify fixed 16-bit atomic beat contract (no partial-byte TKEEP port in aa_qec_top)",
       "status": "PASS",
-      "wall_time_ms": 0.8796,
+      "wall_time_ms": 23.3172,
       "rtl_cycles": 32,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "atomic 16b beat verified (TKEEP intentionally absent per fixed-beat RTL spec)"
@@ -389,7 +389,7 @@
       "gates": "G1",
       "title": "tlast=false yields epoch_irq=0 and tlast=true yields epoch_irq=1",
       "status": "PASS",
-      "wall_time_ms": 2.3499,
+      "wall_time_ms": 4.7435,
       "rtl_cycles": 6664,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "tlast=0 -> irq=0; tlast=1 -> irq=1 propagated to HAL stats"
@@ -401,7 +401,7 @@
       "gates": "G1",
       "title": "Stalling m_axis_correction_tready=0 fills RX+BP+TX pipeline until s_axis_tready deasserts",
       "status": "PASS",
-      "wall_time_ms": 0.6305,
+      "wall_time_ms": 0.8061,
       "rtl_cycles": 336,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "accepted=17 before s_axis_tready=0, drained=17"
@@ -413,7 +413,7 @@
       "gates": "G1",
       "title": "Byte-by-byte partial socket write of SYNDROME_TRANSFER reassembles cleanly",
       "status": "PASS",
-      "wall_time_ms": 3.4848,
+      "wall_time_ms": 1.9258,
       "rtl_cycles": 6686,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "1-byte chunked SYNDROME_TRANSFER -> status=OK"
@@ -425,7 +425,7 @@
       "gates": "G1,G4",
       "title": "Zero syndrome (0x00) produces corr_x=0, corr_z=0 in exact 17/22 cycles",
       "status": "PASS",
-      "wall_time_ms": 1.1118,
+      "wall_time_ms": 1.5858,
       "rtl_cycles": 6708,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "corr_x=0 corr_z=0 bp=17"
@@ -437,7 +437,7 @@
       "gates": "G1,G4",
       "title": "Maximum weight-4 syndrome (sx=0xF, sz=0xF) satisfies both parity matrices",
       "status": "PASS",
-      "wall_time_ms": 0.9938,
+      "wall_time_ms": 1.5912,
       "rtl_cycles": 6730,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "sx(cz)=15 sz(cx)=15"
@@ -449,7 +449,7 @@
       "gates": "G1,G4",
       "title": "32 repeated SYNDROME_TRANSFER beats return identical corrections and +22 cycle deltas",
       "status": "PASS",
-      "wall_time_ms": 37.9024,
+      "wall_time_ms": 67.6353,
       "rtl_cycles": 7434,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "32/32 beats bit-exact with exact +22 cycle progression"
@@ -461,7 +461,7 @@
       "gates": "G1",
       "title": "Second SYNDROME_START while inflight rejected cleanly with ERR_BUSY",
       "status": "PASS",
-      "wall_time_ms": 2.4037,
+      "wall_time_ms": 5.5092,
       "rtl_cycles": 7456,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "second SYNDROME_START -> ERR_BUSY"
@@ -473,7 +473,7 @@
       "gates": "G1,G4",
       "title": "Immediate SYNDROME_TRANSFER after RESET decodes cleanly with default weights",
       "status": "PASS",
-      "wall_time_ms": 1.6878,
+      "wall_time_ms": 3.735,
       "rtl_cycles": 7490,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "post-reset decode satisfied X/Z syndromes in 17 core cycles"
@@ -485,7 +485,7 @@
       "gates": "G1,G2",
       "title": "MMIO config (K=5, inhomogeneous weights) before syndrome takes effect immediately",
       "status": "PASS",
-      "wall_time_ms": 19.077,
+      "wall_time_ms": 19.8446,
       "rtl_cycles": 94,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "K=5 -> bp_cycles=27 corr_z=16"
@@ -497,7 +497,7 @@
       "gates": "G1,G2",
       "title": "Syndrome before config uses reset defaults (K=3 -> 17 cyc, weights=0x0232)",
       "status": "PASS",
-      "wall_time_ms": 1.8939,
+      "wall_time_ms": 2.0274,
       "rtl_cycles": 126,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "pre-config bp_cycles=17"
@@ -509,7 +509,7 @@
       "gates": "G1,G7",
       "title": "Mid-decode RESET aborts inflight decode cleanly and recovers on next syndrome",
       "status": "PASS",
-      "wall_time_ms": 3.0296,
+      "wall_time_ms": 3.2535,
       "rtl_cycles": 164,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "mid-decode RESET -> post-reset SYNDROME_TRANSFER OK (bp=17)"
@@ -521,7 +521,7 @@
       "gates": "G1,G2",
       "title": "Both adjacent and non-adjacent duplicate transaction_ids rejected with ERR_DUPLICATE_TX_ID",
       "status": "PASS",
-      "wall_time_ms": 2.8305,
+      "wall_time_ms": 3.13,
       "rtl_cycles": 168,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "adj=ERR_DUPLICATE_TX_ID non_adj=ERR_DUPLICATE_TX_ID"
@@ -533,7 +533,7 @@
       "gates": "G1,G2",
       "title": "Decreasing unseen transaction_id rejected with ERR_OUT_OF_ORDER_TX_ID",
       "status": "PASS",
-      "wall_time_ms": 1.4421,
+      "wall_time_ms": 1.6056,
       "rtl_cycles": 170,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "tx 85010 -> 85005 => ERR_OUT_OF_ORDER_TX_ID"
@@ -545,7 +545,7 @@
       "gates": "G1,G2",
       "title": "HAL client detects missing ack (EOF) and mismatched response transaction_id",
       "status": "PASS",
-      "wall_time_ms": 2.7118,
+      "wall_time_ms": 3.6623,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rc1=-1 id_mismatch=1 rc2=-1 rejected=2"
@@ -557,7 +557,7 @@
       "gates": "G1,G7",
       "title": "Burst of 8 queued SYNDROME_TRANSFER requests sent in single write() execute in strict FIFO order",
       "status": "PASS",
-      "wall_time_ms": 7.7908,
+      "wall_time_ms": 5.6214,
       "rtl_cycles": 346,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "8/8 queued decodes executed in FIFO order with 22-cycle contiguous timeline"
@@ -569,7 +569,7 @@
       "gates": "G1,G7",
       "title": "10 sequential socket disconnects & avid_hal_reconnects preserve RTL state & epoch_count",
       "status": "PASS",
-      "wall_time_ms": 267.9397,
+      "wall_time_ms": 208.4113,
       "rtl_cycles": 524,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "reconnect_events=10 final_epoch=10 K=4 osd=2 intact"

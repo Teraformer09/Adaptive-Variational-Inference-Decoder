@@ -5,7 +5,7 @@
     "counts": {
       "PASS": 39
     },
-    "wall_time_ms_total": 5721.75,
+    "wall_time_ms_total": 8153.815,
     "rtl_cycles_total": 61386,
     "all_pass": true
   },
@@ -17,7 +17,7 @@
       "gates": "G2,G4",
       "title": "Inhomogeneous wx!=wz + K=4 configuration steers subsequent decode",
       "status": "PASS",
-      "wall_time_ms": 40.9171,
+      "wall_time_ms": 46.0142,
       "rtl_cycles": 87,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "K=4 bp=22 cx=0x100 cz=0x20"
@@ -29,7 +29,7 @@
       "gates": "G2,G4",
       "title": "All 9 single-qubit X/Z error syndromes produce valid parity-satisfying corrections",
       "status": "PASS",
-      "wall_time_ms": 57.8046,
+      "wall_time_ms": 86.5679,
       "rtl_cycles": 333,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "9/9 single-qubit X & Z syndromes satisfied"
@@ -41,7 +41,7 @@
       "gates": "G2",
       "title": "16 sequential syndrome transfers maintain contiguous +22 cycle timeline",
       "status": "PASS",
-      "wall_time_ms": 39.0387,
+      "wall_time_ms": 72.089,
       "rtl_cycles": 685,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "16 sequential syndromes had contiguous +22 cycle timeline"
@@ -53,7 +53,7 @@
       "gates": "G4",
       "title": "All 15 non-zero X-only syndromes satisfy H_X*corr_z==sx with corr_x==0",
       "status": "PASS",
-      "wall_time_ms": 35.2076,
+      "wall_time_ms": 71.6456,
       "rtl_cycles": 1015,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "15/15 X-only syndromes satisfied with corr_x==0"
@@ -65,7 +65,7 @@
       "gates": "G4",
       "title": "All 15 non-zero Z-only syndromes satisfy H_Z*corr_x==sz with corr_z==0",
       "status": "PASS",
-      "wall_time_ms": 40.686,
+      "wall_time_ms": 43.586,
       "rtl_cycles": 1345,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "15/15 Z-only syndromes satisfied with corr_z==0"
@@ -77,7 +77,7 @@
       "gates": "G4",
       "title": "Simultaneous X+Z decoding matches isolated single-channel results identically",
       "status": "PASS",
-      "wall_time_ms": 129.629,
+      "wall_time_ms": 133.8487,
       "rtl_cycles": 2401,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "16 simultaneous X+Z pairs identical to isolated channel runs"
@@ -89,7 +89,7 @@
       "gates": "G6",
       "title": "Shadow writes do not affect decoder output until 0x048=1 commits atomically",
       "status": "PASS",
-      "wall_time_ms": 23.6928,
+      "wall_time_ms": 29.3042,
       "rtl_cycles": 2497,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "pre=0x0004 uncom=0x0004 post=0x0020"
@@ -101,7 +101,7 @@
       "gates": "G6",
       "title": "Delayed weight commit holds active weights steady for 4 rounds until commit",
       "status": "PASS",
-      "wall_time_ms": 30.799,
+      "wall_time_ms": 30.1241,
       "rtl_cycles": 2627,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "4 delayed rounds held q5, post-commit switched to q2"
@@ -113,7 +113,7 @@
       "gates": "G6",
       "title": "epoch_irq fires strictly on tlast=True/1 and stays 0 on tlast=False/0",
       "status": "PASS",
-      "wall_time_ms": 13.1862,
+      "wall_time_ms": 13.4945,
       "rtl_cycles": 2737,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "irqs=[0, 0, 1, 1, 0]"
@@ -125,7 +125,7 @@
       "gates": "G6,G7",
       "title": "Mid-session RESET clears epoch=0, restores 0x0232, and resumes decoding",
       "status": "PASS",
-      "wall_time_ms": 7.3682,
+      "wall_time_ms": 7.8753,
       "rtl_cycles": 2775,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "post-reset epoch=0x00000000 active=0x00000232"
@@ -137,7 +137,7 @@
       "gates": "G1,G6",
       "title": "Busy decoder sets STATUS=0x3, rejects torn shadow writes, and commits cleanly after finish",
       "status": "PASS",
-      "wall_time_ms": 11.8936,
+      "wall_time_ms": 13.4957,
       "rtl_cycles": 2801,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "STATUS=0x00000003 torn=ERR_INVALID_REGISTER act=0x00000155"
@@ -149,7 +149,7 @@
       "gates": "G2,G7",
       "title": "1,000 mixed syndrome/MMIO/commit operations complete with zero state drift",
       "status": "PASS",
-      "wall_time_ms": 3116.8559,
+      "wall_time_ms": 5082.1744,
       "rtl_cycles": 24853,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "1000 syndromes + 10 commits -> epoch=10"
@@ -161,7 +161,7 @@
       "gates": "G5",
       "title": "Verify compiled guest ELFs have genuine EM_ARM(40) 32b and EM_AARCH64(183) 64b headers",
       "status": "PASS",
-      "wall_time_ms": 2.7861,
+      "wall_time_ms": 25.2594,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "ELF headers: a9=(1,40) aarch64=(2,183) x86=(2,62)"
@@ -173,7 +173,7 @@
       "gates": "G5",
       "title": "Live QEMU ARM Cortex-A9 (32-bit) <-> Bridge <-> Verilator Vaa_qec_top 64-round lockstep",
       "status": "PASS",
-      "wall_time_ms": 0.1591,
+      "wall_time_ms": 0.0235,
       "rtl_cycles": 1604,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "isa=arm_cortex_a9(32b) sat=64/64 cyc=1604"
@@ -185,7 +185,7 @@
       "gates": "G5",
       "title": "Live QEMU ARM64 Cortex-A53 (64-bit) <-> Bridge <-> Verilator Vaa_qec_top 64-round lockstep",
       "status": "PASS",
-      "wall_time_ms": 0.0159,
+      "wall_time_ms": 0.0143,
       "rtl_cycles": 1604,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "isa=aarch64(64b) sat=64/64 cyc=1604"
@@ -197,7 +197,7 @@
       "gates": "G5",
       "title": "Bit-exact RPC & RTL trace equivalence across QEMU ARM32, QEMU ARM64, and x86_64 twin",
       "status": "PASS",
-      "wall_time_ms": 2.6145,
+      "wall_time_ms": 3.8734,
       "rtl_cycles": 1604,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "153 bridge JSONL records bit-identical across ARM32, ARM64, and x86_64"
@@ -209,7 +209,7 @@
       "gates": "G2,G5",
       "title": "Guest JSONL trace reconciles 1-to-1 with Bridge m3_transactions.jsonl",
       "status": "PASS",
-      "wall_time_ms": 0.3809,
+      "wall_time_ms": 0.5315,
       "rtl_cycles": 1604,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "64/64 syndrome events + 78 MMIO writes reconciled 1-to-1"
@@ -221,7 +221,7 @@
       "gates": "G3,G5",
       "title": "QEMU ARM32 & ARM64 lockstep under K=4 and OSD Mode 2 (24 core / 29 AXI cycles)",
       "status": "PASS",
-      "wall_time_ms": 685.146,
+      "wall_time_ms": 786.2757,
       "rtl_cycles": 1036,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "K=4 Mode=2 -> bp=24, axis=29 across ARM32 & ARM64 (cyc=1036)"
@@ -233,7 +233,7 @@
       "gates": "G5,G7",
       "title": "QEMU ARM Cortex-A9 mid-run RESET + re-commit reconciles cleanly with Verilator",
       "status": "PASS",
-      "wall_time_ms": 407.1877,
+      "wall_time_ms": 573.8581,
       "rtl_cycles": 868,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "reset_ops=2 post_reset_epoch=1"
@@ -245,7 +245,7 @@
       "gates": "G5,G8",
       "title": "emulator/qemu/run.sh refuses silent fallback to x86_64 when requested guest ISA is unavailable",
       "status": "PASS",
-      "wall_time_ms": 35.8186,
+      "wall_time_ms": 31.9946,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bogus_arch rejected with rc=2 (no silent x86_64 fallback)"
@@ -257,7 +257,7 @@
       "gates": "G5,G7",
       "title": "Sequential QEMU ARM32 -> QEMU ARM64 client handoff on shared Verilator bridge session",
       "status": "PASS",
-      "wall_time_ms": 583.9389,
+      "wall_time_ms": 589.1627,
       "rtl_cycles": 822,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "served ARM32 + ARM64 sequentially on 1 bridge (syndrome_transfers=32)"
@@ -269,7 +269,7 @@
       "gates": "G6",
       "title": "Uncommitted shadow writes leave RTL epoch_count=0 and active_x=0x0232",
       "status": "PASS",
-      "wall_time_ms": 21.5524,
+      "wall_time_ms": 17.7776,
       "rtl_cycles": 42,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "uncommitted: epoch=0x00000000 active_x[0]=0x00000232"
@@ -281,7 +281,7 @@
       "gates": "G6",
       "title": "COMMIT=1 atomically advances epoch_count=1 and updates active bank",
       "status": "PASS",
-      "wall_time_ms": 8.6026,
+      "wall_time_ms": 5.7316,
       "rtl_cycles": 48,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "committed: epoch=0x00000001 active_x[0]=0x00000133"
@@ -293,7 +293,7 @@
       "gates": "G6",
       "title": "No-op COMMIT=0 leaves epoch_count=1 and active_x[0]=0x0133 unchanged",
       "status": "PASS",
-      "wall_time_ms": 8.8144,
+      "wall_time_ms": 6.994,
       "rtl_cycles": 56,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "after COMMIT=0: epoch=0x00000001 active_x[0]=0x00000133"
@@ -305,7 +305,7 @@
       "gates": "G6",
       "title": "Mid-decode COMMIT defers epoch increment until decode completes and rejects duplicate COMMIT",
       "status": "PASS",
-      "wall_time_ms": 14.24,
+      "wall_time_ms": 14.0353,
       "rtl_cycles": 82,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "ep_mid=0x00000001 dup=ERR_INVALID_REGISTER ep_post=0x00000002"
@@ -317,7 +317,7 @@
       "gates": "G6",
       "title": "12 consecutive slow-loop windows maintain exact software==RTL epoch & active bank agreement",
       "status": "PASS",
-      "wall_time_ms": 383.6072,
+      "wall_time_ms": 434.9861,
       "rtl_cycles": 2290,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "12 windows reconciled with zero off-by-one drift (epoch=14)"
@@ -329,7 +329,7 @@
       "gates": "G6",
       "title": "Syndrome TLAST/epoch_irq pulses do not spuriously increment weight epoch_count (0x050)",
       "status": "PASS",
-      "wall_time_ms": 10.7524,
+      "wall_time_ms": 16.3986,
       "rtl_cycles": 2358,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "3 TLAST pulses left weight epoch_count=14 untouched"
@@ -341,7 +341,7 @@
       "gates": "G6,G7",
       "title": "RESET clears epoch_count=0 and subsequent commit cleanly starts new epoch 1",
       "status": "PASS",
-      "wall_time_ms": 8.7712,
+      "wall_time_ms": 13.4428,
       "rtl_cycles": 2376,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "post-reset ep0=0x00000000 -> ep1=0x00000001"
@@ -353,7 +353,7 @@
       "gates": "G2,G8",
       "title": "Every line of m3_transactions.jsonl parses as valid JSON with all 17 required fields",
       "status": "PASS",
-      "wall_time_ms": 0.1171,
+      "wall_time_ms": 3.0205,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "lines=12 all have 17/17 keys"
@@ -365,7 +365,7 @@
       "gates": "G2,G8",
       "title": "Bridge total_transactions equals exact m3_transactions.jsonl line count (including ERR_OVERSIZED & SHUTDOWN)",
       "status": "PASS",
-      "wall_time_ms": 0.0064,
+      "wall_time_ms": 0.0089,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "metrics.total=12 jsonl_lines=12"
@@ -377,7 +377,7 @@
       "gates": "G2",
       "title": "Accepted OK records have unique strictly increasing transaction_ids",
       "status": "PASS",
-      "wall_time_ms": 0.0324,
+      "wall_time_ms": 0.0408,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "accepted tx_ids=[10, 11, 12, 13, 14, 15, 16, 18, 99999999]"
@@ -389,7 +389,7 @@
       "gates": "G2",
       "title": "1-to-1 pairing between client RPC responses and m3_transactions.jsonl records",
       "status": "PASS",
-      "wall_time_ms": 0.0181,
+      "wall_time_ms": 0.0213,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "paired 11 client responses + 1 SHUTDOWN"
@@ -401,7 +401,7 @@
       "gates": "G2,G3",
       "title": "Every record satisfies start_cycle == accepted_cycle <= completed_cycle and monotonic progression",
       "status": "PASS",
-      "wall_time_ms": 0.0213,
+      "wall_time_ms": 0.0244,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "monotonic non-overlapping cycle intervals verified"
@@ -413,7 +413,7 @@
       "gates": "G3,G8",
       "title": "Every record satisfies sim_time_ns == 4 * completed_cycle",
       "status": "PASS",
-      "wall_time_ms": 0.0114,
+      "wall_time_ms": 0.0146,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "sim_time_ns == 4 * completed_cycle across all records"
@@ -425,7 +425,7 @@
       "gates": "G2",
       "title": "MMIO_READ records log exact hex rdata matching client response",
       "status": "PASS",
-      "wall_time_ms": 0.0151,
+      "wall_time_ms": 0.0201,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "tx 14 rdata=0x0177, tx 15 rdata=0x1 verified in JSONL"
@@ -437,7 +437,7 @@
       "gates": "G2",
       "title": "SYNDROME_TRANSFER records log corr_x, corr_z, bp_cycles, axis_total_cycles, and epoch_irq",
       "status": "PASS",
-      "wall_time_ms": 0.0102,
+      "wall_time_ms": 0.0136,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "tx 16 syndrome response fields verified in JSONL"
@@ -449,7 +449,7 @@
       "gates": "G2,G7",
       "title": "Rejected SLVERR, ERR_DUPLICATE_TX_ID, and ERR_OVERSIZED transactions are explicitly logged",
       "status": "PASS",
-      "wall_time_ms": 0.0105,
+      "wall_time_ms": 0.0131,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "all 3 injected error classes present in m3_transactions.jsonl"
@@ -461,7 +461,7 @@
       "gates": "G2,G8",
       "title": "SHUTDOWN record is explicitly flushed to m3_transactions.jsonl before bridge exit",
       "status": "PASS",
-      "wall_time_ms": 0.0037,
+      "wall_time_ms": 0.005,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "last record op=SHUTDOWN"
@@ -473,7 +473,7 @@
       "gates": "G2,G8",
       "title": "Deterministic state-machine replay from m3_transactions.jsonl matches RTL readbacks & final metrics",
       "status": "PASS",
-      "wall_time_ms": 0.037,
+      "wall_time_ms": 0.0538,
       "rtl_cycles": 76,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "reconstructed epoch=1 active_x[0]=0x0177"

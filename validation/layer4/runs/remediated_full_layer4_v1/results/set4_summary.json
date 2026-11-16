@@ -5,7 +5,7 @@
     "counts": {
       "PASS": 56
     },
-    "wall_time_ms_total": 44553.014,
+    "wall_time_ms_total": 56177.128,
     "rtl_cycles_total": 1262512,
     "all_pass": true
   },
@@ -17,7 +17,7 @@
       "gates": "G7,G8",
       "title": "Native Verilated avid_cosim_bridge binary exists and is executable",
       "status": "PASS",
-      "wall_time_ms": 0.5376,
+      "wall_time_ms": 1.4468,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "/home/tirtha/avid-validation/layer4/emulator/verilator/models/avid_cosim_bridge"
@@ -29,7 +29,7 @@
       "gates": "G7,G8",
       "title": "standalone_rtl_tb --require-native-rtl executes and exits 0",
       "status": "PASS",
-      "wall_time_ms": 13.7,
+      "wall_time_ms": 20.0701,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "standalone_rtl_tb exit_code=0"
@@ -41,7 +41,7 @@
       "gates": "G7,G8",
       "title": "avid_cosim_bridge starts cleanly under --require-native-rtl",
       "status": "PASS",
-      "wall_time_ms": 28.3448,
+      "wall_time_ms": 29.4821,
       "rtl_cycles": 20,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "started and shut down cleanly with --require-native-rtl"
@@ -53,7 +53,7 @@
       "gates": "G5,G7,G8",
       "title": "Both QEMU ARM Cortex-A9 and ARM64 Cortex-A53 guest ELFs pass --self-test",
       "status": "PASS",
-      "wall_time_ms": 391.2348,
+      "wall_time_ms": 439.768,
       "rtl_cycles": 68,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "cortex-a9_rc=0 aarch64_rc=0"
@@ -65,7 +65,7 @@
       "gates": "G7",
       "title": "Bridge creates AF_UNIX socket on startup and unlinks it on graceful SHUTDOWN",
       "status": "PASS",
-      "wall_time_ms": 28.4205,
+      "wall_time_ms": 31.6965,
       "rtl_cycles": 20,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "existed=1 unlinked_on_shutdown=1"
@@ -77,7 +77,7 @@
       "gates": "G7",
       "title": "Bridge unlinks pre-existing stale file at --socket path and binds cleanly",
       "status": "PASS",
-      "wall_time_ms": 18.0847,
+      "wall_time_ms": 19.558,
       "rtl_cycles": 20,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rebound over stale file & served SHUTDOWN"
@@ -89,7 +89,7 @@
       "gates": "G7",
       "title": "Fresh bridge startup initializes RTL registers without explicit client RESET",
       "status": "PASS",
-      "wall_time_ms": 32.7842,
+      "wall_time_ms": 31.8345,
       "rtl_cycles": 20,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "sx0=0x0232 ax0=0x0232 ep=0 K=3 osd=1"
@@ -101,7 +101,7 @@
       "gates": "G3,G8",
       "title": "Fresh bridge startup begins serving first transaction at exact RTL cycle 10",
       "status": "PASS",
-      "wall_time_ms": 541.3709,
+      "wall_time_ms": 542.3868,
       "rtl_cycles": 12,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "first accepted_cycle=10"
@@ -113,7 +113,7 @@
       "gates": "G7",
       "title": "Bridge exits cleanly with rc=1 when --socket parent directory does not exist",
       "status": "PASS",
-      "wall_time_ms": 16.9302,
+      "wall_time_ms": 10.6612,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bad socket path exit_code=1"
@@ -125,7 +125,7 @@
       "gates": "G7",
       "title": "Bridge with --max-clients 2 exits cleanly with rc=0 after 2nd client disconnects",
       "status": "PASS",
-      "wall_time_ms": 31.0642,
+      "wall_time_ms": 28.0977,
       "rtl_cycles": 12,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "auto-exited rc=0 after 2 clients: 1"
@@ -137,7 +137,7 @@
       "gates": "G7",
       "title": "After SIGKILL leaves stale socket node, new bridge instance rebinds same path and serves HAL",
       "status": "PASS",
-      "wall_time_ms": 37.5931,
+      "wall_time_ms": 38.5819,
       "rtl_cycles": 12,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rebound same socket after SIGKILL; read K=3 OK"
@@ -149,7 +149,7 @@
       "gates": "G7",
       "title": "Single baseline MMIO_READ transaction latency & cycle check",
       "status": "PASS",
-      "wall_time_ms": 1.66,
+      "wall_time_ms": 1.8604,
       "rtl_cycles": 22,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rdata=3 rtl_delta=2"
@@ -161,10 +161,10 @@
       "gates": "G7",
       "title": "3,000 back-to-back MMIO R/W ops complete with exact +6,000 RTL cycles",
       "status": "PASS",
-      "wall_time_ms": 4966.0809,
+      "wall_time_ms": 6583.1811,
       "rtl_cycles": 6024,
       "simulator_mode": "verilator_c++_rtl",
-      "evidence": "rtl_delta=6000 host_rate=604 rpc/s"
+      "evidence": "rtl_delta=6000 host_rate=455 rpc/s"
     },
     {
       "test_id": "L4-R03",
@@ -173,10 +173,10 @@
       "gates": "G7",
       "title": "3,000 continuous SYNDROME_TRANSFER ops advance exact 66,000 RTL cycles",
       "status": "PASS",
-      "wall_time_ms": 7958.583,
+      "wall_time_ms": 10212.7918,
       "rtl_cycles": 72026,
       "simulator_mode": "verilator_c++_rtl",
-      "evidence": "rtl_delta=66000 host_rate=377 decodes/s"
+      "evidence": "rtl_delta=66000 host_rate=293 decodes/s"
     },
     {
       "test_id": "L4-R04",
@@ -185,10 +185,10 @@
       "gates": "G7",
       "title": "5,000 pipelined socket RPCs achieve high throughput with zero dropped frames",
       "status": "PASS",
-      "wall_time_ms": 2361.65,
+      "wall_time_ms": 2238.022,
       "rtl_cycles": 82026,
       "simulator_mode": "verilator_c++_rtl",
-      "evidence": "5,000 pipelined RPCs @ 2117 rpc/s"
+      "evidence": "5,000 pipelined RPCs @ 2234 rpc/s"
     },
     {
       "test_id": "L4-R05",
@@ -197,7 +197,7 @@
       "gates": "G6,G7",
       "title": "32-epoch sustained adaptive session (1,024 syndromes + 32 commits) reconciles cleanly",
       "status": "PASS",
-      "wall_time_ms": 4257.2752,
+      "wall_time_ms": 4628.7806,
       "rtl_cycles": 105844,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "final_epoch=32 after 1,024 syndromes"
@@ -209,7 +209,7 @@
       "gates": "G7",
       "title": "200 consecutive RESET(8) cycles execute without leak or state corruption",
       "status": "PASS",
-      "wall_time_ms": 206.3284,
+      "wall_time_ms": 383.1419,
       "rtl_cycles": 107446,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "200 resets -> rtl_delta=1600"
@@ -221,7 +221,7 @@
       "gates": "G7",
       "title": "500 mixed write/read/syndrome triplets maintain register integrity",
       "status": "PASS",
-      "wall_time_ms": 3444.5714,
+      "wall_time_ms": 4056.4169,
       "rtl_cycles": 120446,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "1,500 interleaved ops verified"
@@ -233,7 +233,7 @@
       "gates": "G6,G7",
       "title": "50 async SYNDROME_START + mid-decode COMMIT + SYNDROME_WAIT cycles succeed cleanly",
       "status": "PASS",
-      "wall_time_ms": 323.1209,
+      "wall_time_ms": 470.9122,
       "rtl_cycles": 121652,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "50 busy commits -> epoch=50"
@@ -245,7 +245,7 @@
       "gates": "G7",
       "title": "6 concurrent waiting client sockets in listen() backlog are served sequentially without ECONNREFUSED",
       "status": "PASS",
-      "wall_time_ms": 35.3595,
+      "wall_time_ms": 35.7662,
       "rtl_cycles": 22,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "6/6 queued client sockets served cleanly"
@@ -257,7 +257,7 @@
       "gates": "G7,G8",
       "title": "Large m3_transactions.jsonl (>13,000 lines) contains zero truncated or malformed lines",
       "status": "PASS",
-      "wall_time_ms": 6.2762,
+      "wall_time_ms": 9.977,
       "rtl_cycles": 120446,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "verified 14572 flushed JSONL records"
@@ -269,7 +269,7 @@
       "gates": "G3,G7",
       "title": "4 background CPU spin threads cause 0 variation in simulated RTL cycle counts",
       "status": "PASS",
-      "wall_time_ms": 87.0777,
+      "wall_time_ms": 81.9566,
       "rtl_cycles": 123064,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "64 syndromes under 4x CPU contention -> exact 1408 RTL cycles (64*22=1408)"
@@ -281,7 +281,7 @@
       "gates": "G7",
       "title": "Bridge and HAL VmRSS remain bounded (< 8 MB growth) across 5,000 transactions",
       "status": "PASS",
-      "wall_time_ms": 5482.5934,
+      "wall_time_ms": 10856.9859,
       "rtl_cycles": 133064,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bridge_rss_delta=156KB client_rss_delta=0KB"
@@ -293,7 +293,7 @@
       "gates": "G7",
       "title": "100 rapid AF_UNIX connect/RPC/disconnect cycles complete with zero FD leaks",
       "status": "PASS",
-      "wall_time_ms": 94.337,
+      "wall_time_ms": 152.4368,
       "rtl_cycles": 133264,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "100/100 connect+RPC+close cycles succeeded"
@@ -305,7 +305,7 @@
       "gates": "G7",
       "title": "SHUTDOWN with trailing pipelined bytes exits cleanly with rc=0 without crash",
       "status": "PASS",
-      "wall_time_ms": 15.4305,
+      "wall_time_ms": 16.141,
       "rtl_cycles": 133264,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "SHUTDOWN ack=OK clean_exit=1"
@@ -317,7 +317,7 @@
       "gates": "G7",
       "title": "Client disconnecting mid-JSON frame without newline does not hang or corrupt bridge",
       "status": "PASS",
-      "wall_time_ms": 1.247,
+      "wall_time_ms": 1.1973,
       "rtl_cycles": 12,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "next client status=OK"
@@ -329,7 +329,7 @@
       "gates": "G7",
       "title": "10 immediate zero-byte client disconnects do not wedge bridge accept loop",
       "status": "PASS",
-      "wall_time_ms": 1.399,
+      "wall_time_ms": 1.3243,
       "rtl_cycles": 14,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "survived 10 zero-byte disconnects"
@@ -341,7 +341,7 @@
       "gates": "G7",
       "title": "25 consecutive malformed JSON frames rejected with +0 RTL cycle advance",
       "status": "PASS",
-      "wall_time_ms": 20.6372,
+      "wall_time_ms": 14.4409,
       "rtl_cycles": 18,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "25 malformed frames advanced 0 cycles (c0=16, acc_end=16)"
@@ -353,7 +353,7 @@
       "gates": "G7",
       "title": "HAL enforces SO_RCVTIMEO (120 ms) against stalled server, increments timeout_transactions, and does NOT blind-retry",
       "status": "PASS",
-      "wall_time_ms": 123.4257,
+      "wall_time_ms": 125.1496,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rc=-1 timeout_tx=1 server_reqs_seen=1"
@@ -365,7 +365,7 @@
       "gates": "G6,G7",
       "title": "COMMIT timeout sends exactly 1 COMMIT frame (never double-incrementing epoch via blind retry)",
       "status": "PASS",
-      "wall_time_ms": 110.4051,
+      "wall_time_ms": 104.462,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rc=-1 commits_seen=1"
@@ -377,7 +377,7 @@
       "gates": "G1,G7",
       "title": "Replaying an old transaction_id from a new client socket is rejected with ERR_DUPLICATE_TX_ID",
       "status": "PASS",
-      "wall_time_ms": 1.8294,
+      "wall_time_ms": 4.424,
       "rtl_cycles": 20,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "cross-session dup tx_id=500 -> ERR_DUPLICATE_TX_ID"
@@ -389,7 +389,7 @@
       "gates": "G1,G7",
       "title": "Decreasing unseen tx_id across reconnect rejected with ERR_OUT_OF_ORDER_TX_ID",
       "status": "PASS",
-      "wall_time_ms": 1.6039,
+      "wall_time_ms": 4.2027,
       "rtl_cycles": 22,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "tx 600 -> 550 => ERR_OUT_OF_ORDER_TX_ID"
@@ -401,7 +401,7 @@
       "gates": "G1,G7",
       "title": "10 consecutive 4KB oversized payloads drained cleanly without buffer overflow",
       "status": "PASS",
-      "wall_time_ms": 137.0572,
+      "wall_time_ms": 190.4227,
       "rtl_cycles": 24,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "10x 4KB drained + valid follow-up OK"
@@ -413,7 +413,7 @@
       "gates": "G1,G7",
       "title": "Orphan SYNDROME_WAIT with no inflight syndrome returns ERR_NOT_INFLIGHT",
       "status": "PASS",
-      "wall_time_ms": 0.7178,
+      "wall_time_ms": 1.732,
       "rtl_cycles": 24,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "orphan SYNDROME_WAIT -> ERR_NOT_INFLIGHT"
@@ -425,7 +425,7 @@
       "gates": "G1,G7",
       "title": "SYNDROME_TRANSFER while SYNDROME_START is inflight returns ERR_BUSY without corrupting inflight decode",
       "status": "PASS",
-      "wall_time_ms": 3.5355,
+      "wall_time_ms": 5.6876,
       "rtl_cycles": 46,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "concurrent SYNDROME_TRANSFER -> ERR_BUSY, inflight WAIT -> OK"
@@ -437,7 +437,7 @@
       "gates": "G1,G7",
       "title": "STEP_CYCLES with data=0 or data=999999 rejected with ERR_INVALID_REGISTER (+0 cycles)",
       "status": "PASS",
-      "wall_time_ms": 2.0664,
+      "wall_time_ms": 2.8245,
       "rtl_cycles": 46,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "0->ERR_INVALID_REGISTER 999999->ERR_INVALID_REGISTER"
@@ -449,7 +449,7 @@
       "gates": "G7",
       "title": "SLVERR via HAL increments rejected_transactions while keeping HAL connection healthy",
       "status": "PASS",
-      "wall_time_ms": 2.2797,
+      "wall_time_ms": 2.1982,
       "rtl_cycles": 50,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rc_bad=-1 rejected=1 rc_ok=0"
@@ -461,7 +461,7 @@
       "gates": "G7",
       "title": "Direct Vaa_qec_top verify_reset_during_active_decode() recovers cleanly",
       "status": "PASS",
-      "wall_time_ms": 0.935,
+      "wall_time_ms": 1.49,
       "rtl_cycles": 44,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "mid-decode reset + clean 17-cycle recovery verified"
@@ -473,7 +473,7 @@
       "gates": "G7",
       "title": "HAL functions reject nullptr handles, nullptr outputs, and invalid K/osd_mode safely",
       "status": "PASS",
-      "wall_time_ms": 0.3743,
+      "wall_time_ms": 0.9597,
       "rtl_cycles": 14,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "all 6 defensive parameter guards returned negative error without crash"
@@ -485,7 +485,7 @@
       "gates": "G7",
       "title": "HAL client detects bridge restart and recovers via avid_hal_reconnect()",
       "status": "PASS",
-      "wall_time_ms": 82.192,
+      "wall_time_ms": 42.5421,
       "rtl_cycles": 12,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rc_down=-1 rc_rec=0 rc_ok=0"
@@ -497,7 +497,7 @@
       "gates": "G6,G7",
       "title": "After abrupt bridge SIGKILL & restart, HAL re-syncs fresh RTL epoch=0 cleanly",
       "status": "PASS",
-      "wall_time_ms": 53.7394,
+      "wall_time_ms": 63.2842,
       "rtl_cycles": 12,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "ep_before=1 ep_after_restart=0"
@@ -509,7 +509,7 @@
       "gates": "G7",
       "title": "avid_hal_open on non-existent socket fails cleanly with rc=-1 and sock_fd=-1",
       "status": "PASS",
-      "wall_time_ms": 1021.9887,
+      "wall_time_ms": 1021.9077,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rc=-1 sock_fd=-1"
@@ -521,7 +521,7 @@
       "gates": "G5,G7",
       "title": "QEMU ARM Cortex-A9 guest exits cleanly with rc=1 when bridge socket is absent",
       "status": "PASS",
-      "wall_time_ms": 1252.1278,
+      "wall_time_ms": 1268.0245,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "cortex-a9 missing-socket exit_code=1"
@@ -533,7 +533,7 @@
       "gates": "G5,G7",
       "title": "QEMU ARM64 Cortex-A53 guest exits cleanly with rc=1 when bridge socket is absent",
       "status": "PASS",
-      "wall_time_ms": 1279.4171,
+      "wall_time_ms": 1395.0619,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "aarch64 missing-socket exit_code=1"
@@ -545,7 +545,7 @@
       "gates": "G5,G7",
       "title": "QEMU ARM guest rejects out-of-range --k-iters 99 and --osd-mode 9 with rc=2",
       "status": "PASS",
-      "wall_time_ms": 392.2418,
+      "wall_time_ms": 353.7575,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bad_k_rc=2 bad_osd_rc=2"
@@ -557,7 +557,7 @@
       "gates": "G5,G7",
       "title": "Killing QEMU guest mid-session leaves Verilator bridge healthy for next QEMU guest",
       "status": "PASS",
-      "wall_time_ms": 332.6475,
+      "wall_time_ms": 333.369,
       "rtl_cycles": 416,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "follow-up aarch64 guest rc=0 cyc=416"
@@ -569,7 +569,7 @@
       "gates": "G7",
       "title": "3 consecutive Bridge start -> QEMU guest run -> Bridge SHUTDOWN lifecycles succeed identically",
       "status": "PASS",
-      "wall_time_ms": 1290.9391,
+      "wall_time_ms": 1114.3005,
       "rtl_cycles": 416,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "3/3 full lifecycles finished at exact cycle 416"
@@ -581,7 +581,7 @@
       "gates": "G8",
       "title": "m3_transactions.jsonl per-line fflush survives abrupt SIGKILL with 0 lost/corrupt lines",
       "status": "PASS",
-      "wall_time_ms": 57.9012,
+      "wall_time_ms": 57.9157,
       "rtl_cycles": 450,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "20/20 JSONL lines survived SIGKILL intact"
@@ -593,7 +593,7 @@
       "gates": "G8",
       "title": "Bridge --metrics-out JSON persists complete 16-field telemetry & simulator provenance",
       "status": "PASS",
-      "wall_time_ms": 25.8228,
+      "wall_time_ms": 26.8806,
       "rtl_cycles": 42,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "16/16 metrics keys present (simulator=verilator_c++_rtl)"
@@ -605,7 +605,7 @@
       "gates": "G8",
       "title": "rtl_build_provenance.json SHA-256 digests match all 7 live SystemVerilog files",
       "status": "PASS",
-      "wall_time_ms": 10.0689,
+      "wall_time_ms": 9.409,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "7/7 RTL .sv SHA-256 hashes match rtl_build_provenance.json"
@@ -617,7 +617,7 @@
       "gates": "G3,G8",
       "title": "standalone_rtl_tb persists valid Verilator VCD waveform, CSV cycle matrix, and JSON summary",
       "status": "PASS",
-      "wall_time_ms": 25.8893,
+      "wall_time_ms": 28.6828,
       "rtl_cycles": 1576,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "vcd_bytes=1566062 total_sim_cycles=1576"
@@ -629,7 +629,7 @@
       "gates": "G3,G8",
       "title": "Persisted CSV cycle matrix verifies K=1..5 (2 ingress + 2+5K core + 3 egress)",
       "status": "PASS",
-      "wall_time_ms": 0.5835,
+      "wall_time_ms": 0.8282,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "csv_rows=5 K=3 row='3,4,2,17,68.0,3,22,88.0,17,22,true'"
@@ -641,7 +641,7 @@
       "gates": "G8",
       "title": "All 7 Verilator and QEMU emulator binaries & manifests are retained for standalone re-runs",
       "status": "PASS",
-      "wall_time_ms": 0.8441,
+      "wall_time_ms": 0.8005,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "7/7 Verilator & QEMU emulator artifacts retained on disk"
@@ -653,7 +653,7 @@
       "gates": "G5,G8",
       "title": "QEMU ARM guest persists valid per-transaction JSONL trace & JSON summary",
       "status": "PASS",
-      "wall_time_ms": 295.1043,
+      "wall_time_ms": 343.9531,
       "rtl_cycles": 460,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "guest trace lines=20"
@@ -665,7 +665,7 @@
       "gates": "G8",
       "title": "Standalone pytest tests/test_layer4_ip_op.py passes without deleting models/",
       "status": "PASS",
-      "wall_time_ms": 7618.0357,
+      "wall_time_ms": 8635.8958,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "pytest rc=0"
@@ -677,7 +677,7 @@
       "gates": "G8",
       "title": "Branch isolation verified (layer4-cosim-bridge-emu contains strictly Layer 4 scope)",
       "status": "PASS",
-      "wall_time_ms": 25.548,
+      "wall_time_ms": 98.0455,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "branch=layer4-cosim-bridge-emu pure_layer4_scope=True"

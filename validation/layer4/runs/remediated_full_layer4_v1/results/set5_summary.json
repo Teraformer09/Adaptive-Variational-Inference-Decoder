@@ -5,7 +5,7 @@
     "counts": {
       "PASS": 53
     },
-    "wall_time_ms_total": 1120.645,
+    "wall_time_ms_total": 1483.567,
     "rtl_cycles_total": 143890,
     "all_pass": true
   },
@@ -17,7 +17,7 @@
       "gates": "G1,G3",
       "title": "Simultaneous AW+W handshake completes in 2 cycles with BRESP=OKAY(00)",
       "status": "PASS",
-      "wall_time_ms": 0.4954,
+      "wall_time_ms": 1.2786,
       "rtl_cycles": 14,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bvalid pulsed 1 cycle, bresp=0, rdata=0x0155"
@@ -29,7 +29,7 @@
       "gates": "G1,G3",
       "title": "Split AW-before-W latches aw_addr_lat across 5 idle cycles before W arrives",
       "status": "PASS",
-      "wall_time_ms": 0.0707,
+      "wall_time_ms": 0.0979,
       "rtl_cycles": 20,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "5-cycle AW->W split write read back 0x01AA"
@@ -41,7 +41,7 @@
       "gates": "G1,G3",
       "title": "Split W-before-AW latches w_data_lat/w_strb_lat across 5 cycles before AW arrives",
       "status": "PASS",
-      "wall_time_ms": 0.0564,
+      "wall_time_ms": 0.0722,
       "rtl_cycles": 20,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "5-cycle W->AW split write read back 0x01BB"
@@ -53,7 +53,7 @@
       "gates": "G1,G3",
       "title": "Holding s_axil_bready=0 stalls s_axil_bvalid=1, holds bresp stable, and blocks new AW/W",
       "status": "PASS",
-      "wall_time_ms": 0.0767,
+      "wall_time_ms": 0.0656,
       "rtl_cycles": 18,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bvalid=1 & awready=0 held stable across 6 stalled cycles"
@@ -65,7 +65,7 @@
       "gates": "G1,G3",
       "title": "Holding s_axil_rready=0 stalls s_axil_rvalid=1, holds rdata/rresp stable, and blocks ARREADY",
       "status": "PASS",
-      "wall_time_ms": 0.0746,
+      "wall_time_ms": 0.0827,
       "rtl_cycles": 20,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rvalid=1, rdata=0x01DD & arready=0 held stable across 6 stalled cycles"
@@ -77,7 +77,7 @@
       "gates": "G1,G3",
       "title": "18 back-to-back AXI-Lite shadow writes complete without dropped beats",
       "status": "PASS",
-      "wall_time_ms": 0.1728,
+      "wall_time_ms": 0.154,
       "rtl_cycles": 82,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "18/18 back-to-back writes verified"
@@ -89,7 +89,7 @@
       "gates": "G1,G3",
       "title": "36 back-to-back AXI-Lite reads return exact values in 72 cycles",
       "status": "PASS",
-      "wall_time_ms": 0.1563,
+      "wall_time_ms": 0.166,
       "rtl_cycles": 82,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "36 reads completed in 72 cycles"
@@ -101,7 +101,7 @@
       "gates": "G1,G3",
       "title": "Simultaneous AW+W write to 0x000 and AR read from 0x024 succeed on identical clock edge",
       "status": "PASS",
-      "wall_time_ms": 0.0703,
+      "wall_time_ms": 0.0514,
       "rtl_cycles": 16,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "simultaneous bvalid=1 & rvalid=1 (rdata=0x0277), post-read 0x000=0x0188"
@@ -113,7 +113,7 @@
       "gates": "G1",
       "title": "SLVERR drives exact 2'b10 on s_axil_bresp and s_axil_rresp across invalid accesses",
       "status": "PASS",
-      "wall_time_ms": 0.0975,
+      "wall_time_ms": 0.0492,
       "rtl_cycles": 14,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "bresp=2 rresp=2"
@@ -125,7 +125,7 @@
       "gates": "G1",
       "title": "s_axil_wstrb=4'b1100 ignores upper 16 bits while 4'b0001/4'b0010 mask exact bytes",
       "status": "PASS",
-      "wall_time_ms": 0.0492,
+      "wall_time_ms": 0.0487,
       "rtl_cycles": 16,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "after wstrb=0xC rdata=0x4660"
@@ -137,7 +137,7 @@
       "gates": "G1,G3",
       "title": "Asserting aresetn=0 after split AW beat clears latched AW, drives *ready=0, and recovers cleanly",
       "status": "PASS",
-      "wall_time_ms": 0.0563,
+      "wall_time_ms": 0.0554,
       "rtl_cycles": 22,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "aresetn=0 drove aw/w/arready=0 and cleared latched split AW"
@@ -149,7 +149,7 @@
       "gates": "G1,G3",
       "title": "Changing s_axis_tdata with s_axis_tvalid=0 never triggers decode or alters state",
       "status": "PASS",
-      "wall_time_ms": 0.5519,
+      "wall_time_ms": 0.6311,
       "rtl_cycles": 33,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "25 cycles with tvalid=0 produced 0 busy/valid pulses"
@@ -161,7 +161,7 @@
       "gates": "G1,G3",
       "title": "When m_axis_correction_tready=0, m_axis_tvalid, tdata, and tlast remain rock-stable",
       "status": "PASS",
-      "wall_time_ms": 0.2308,
+      "wall_time_ms": 0.1074,
       "rtl_cycles": 43,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "held tvalid/tdata/tlast stable 12 cycles; single-cycle epoch_irq fired only on tready=1"
@@ -173,7 +173,7 @@
       "gates": "G1,G3",
       "title": "Filling elastic pipeline with m_axis_tready=0 deasserts s_axis_tready=0 with zero lost beats",
       "status": "PASS",
-      "wall_time_ms": 0.6455,
+      "wall_time_ms": 0.8617,
       "rtl_cycles": 334,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "queued=17 drained=17 in exact order"
@@ -185,7 +185,7 @@
       "gates": "G1,G3",
       "title": "8-beat burst with TLAST on beats #3 and #7 pulses m_axis_tlast and epoch_irq exactly twice",
       "status": "PASS",
-      "wall_time_ms": 0.4331,
+      "wall_time_ms": 0.7619,
       "rtl_cycles": 256,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "beats=8 tlasts=2 irqs=2 rx_epochs=2"
@@ -197,7 +197,7 @@
       "gates": "G1,G3",
       "title": "Irregular 1..11 cycle TVALID=0 bubbles between beats preserve exact results",
       "status": "PASS",
-      "wall_time_ms": 0.3102,
+      "wall_time_ms": 0.2964,
       "rtl_cycles": 176,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "6 beats separated by odd idle bubbles decoded in exact 22 cycles each"
@@ -209,7 +209,7 @@
       "gates": "G1,G3",
       "title": "Stalling slow-path DMA tap (dma_tap_stall_in=1) NEVER stalls fast path and sets overflow bit[9]",
       "status": "PASS",
-      "wall_time_ms": 0.2536,
+      "wall_time_ms": 0.1516,
       "rtl_cycles": 81,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "fast_path_cycles=22 dma_drops=1 sticky_ovf=1"
@@ -221,7 +221,7 @@
       "gates": "G1,G3",
       "title": "verify_axis_backpressure_and_consecutive() passes 8-of-8 burst under stall",
       "status": "PASS",
-      "wall_time_ms": 0.3926,
+      "wall_time_ms": 0.4112,
       "rtl_cycles": 193,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "8-of-8 backpressured burst drained with 1 tlast & 1 epoch_irq"
@@ -233,7 +233,7 @@
       "gates": "G1,G3",
       "title": "During aresetn=0, s_axis_syndrome_tready and m_axis_correction_tvalid are strictly 0",
       "status": "PASS",
-      "wall_time_ms": 0.0543,
+      "wall_time_ms": 0.063,
       "rtl_cycles": 12,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "aresetn=0 -> tready=0, tvalid=0; aresetn=1 -> tready=1"
@@ -245,7 +245,7 @@
       "gates": "G1,G3,G7",
       "title": "Asserting reset with 6 queued FIFO beats flushes pipeline cleanly with zero stale corrections",
       "status": "PASS",
-      "wall_time_ms": 0.1435,
+      "wall_time_ms": 0.1366,
       "rtl_cycles": 72,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "6 queued beats flushed by reset; 0 stale beats; clean post-reset decode"
@@ -257,7 +257,7 @@
       "gates": "G3",
       "title": "step_clock(N) emits exact N rising edges separated by 4000 ps (250 MHz) in VCD trace",
       "status": "PASS",
-      "wall_time_ms": 4.1613,
+      "wall_time_ms": 5.6145,
       "rtl_cycles": 25,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "sim_cycle=25 vcd_bytes=76804"
@@ -269,7 +269,7 @@
       "gates": "G3",
       "title": "reset_model(N) advances exact N cycles for N in {2, 6, 10, 20}",
       "status": "PASS",
-      "wall_time_ms": 0.1751,
+      "wall_time_ms": 0.1488,
       "rtl_cycles": 38,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "cumulative cycles=38 (2+6+10+20=38)"
@@ -281,7 +281,7 @@
       "gates": "G3",
       "title": "Combinational setup on aclk=0 is sampled cleanly on first posedge without race",
       "status": "PASS",
-      "wall_time_ms": 0.0432,
+      "wall_time_ms": 0.0578,
       "rtl_cycles": 8,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "AR sampled on 1st posedge, R cleared on 2nd posedge (delta=2)"
@@ -293,7 +293,7 @@
       "gates": "G3",
       "title": "Simulated time strictly satisfies sim_time_ns == 4 * sim_cycle across 500 cycles",
       "status": "PASS",
-      "wall_time_ms": 0.5896,
+      "wall_time_ms": 0.7786,
       "rtl_cycles": 340,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "sim_cycle=340 sim_time_ns=1360"
@@ -305,7 +305,7 @@
       "gates": "G3",
       "title": "Bridge startup initializes Vaa_qec_top to exact deterministic cycle 10",
       "status": "PASS",
-      "wall_time_ms": 30.7659,
+      "wall_time_ms": 30.0886,
       "rtl_cycles": 12,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "first_op accepted_cycle=10 completed_cycle=12"
@@ -317,7 +317,7 @@
       "gates": "G3",
       "title": "STEP_CYCLES(N) RPC advances Vaa_qec_top by exact N clock cycles",
       "status": "PASS",
-      "wall_time_ms": 29.1665,
+      "wall_time_ms": 30.0898,
       "rtl_cycles": 60,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "step1=[10,47] step2=[47,60]"
@@ -329,7 +329,7 @@
       "gates": "G3,G4",
       "title": "Native Verilator Vaa_qec_top and C++ fallback report identical cycle counts across RESET/MMIO/Decode",
       "status": "PASS",
-      "wall_time_ms": 63.2123,
+      "wall_time_ms": 65.7632,
       "rtl_cycles": 53,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "4/4 RPC JSON responses byte-for-byte identical between Verilator & C++ fallback"
@@ -341,7 +341,7 @@
       "gates": "G3",
       "title": "Verilator --assert SVA checks pass 50 mixed commit/busy/decode cycles with zero violations",
       "status": "PASS",
-      "wall_time_ms": 2.2418,
+      "wall_time_ms": 2.7574,
       "rtl_cycles": 1285,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "25 busy-swap + 25 decode cycles passed all SVA invariants without abort"
@@ -353,7 +353,7 @@
       "gates": "G4",
       "title": "256 (sx, sz) default-weight decodes match 100% across Vaa_qec_top, Bridge, Reference, and PHYSICAL HAL",
       "status": "PASS",
-      "wall_time_ms": 324.1649,
+      "wall_time_ms": 408.4122,
       "rtl_cycles": 5652,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "mismatches=0/256 across 4 implementations"
@@ -365,7 +365,7 @@
       "gates": "G4",
       "title": "Inhomogeneous asymmetric wx != wz across 256 (sx, sz) matches 4-way bit-for-bit",
       "status": "PASS",
-      "wall_time_ms": 343.8485,
+      "wall_time_ms": 522.5662,
       "rtl_cycles": 11324,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "mismatches=0/256 under inhomogeneous wx != wz"
@@ -377,7 +377,7 @@
       "gates": "G4",
       "title": "Exhaustive 3,840-point sweep (K=1..5 x mode=0..2 x 256 syndromes) on Vaa_qec_top vs Reference",
       "status": "PASS",
-      "wall_time_ms": 156.1648,
+      "wall_time_ms": 181.1587,
       "rtl_cycles": 87124,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "verified 3840 states with 0 mismatches"
@@ -389,7 +389,7 @@
       "gates": "G4",
       "title": "Lowering q1+q2 vs q4 LLR deterministically steers degenerate syndrome sx=0x2 on both RTL and Bridge",
       "status": "PASS",
-      "wall_time_ms": 39.0631,
+      "wall_time_ms": 44.5059,
       "rtl_cycles": 11448,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "favor_q2->corr_z=4 (1<<2=4), favor_q5->corr_z=32 (1<<5=32)"
@@ -401,7 +401,7 @@
       "gates": "G4",
       "title": "Bridge-mediated OSD Modes 0, 1, 2 match standalone Vaa_qec_top across all 16 syndromes",
       "status": "PASS",
-      "wall_time_ms": 64.1855,
+      "wall_time_ms": 76.7512,
       "rtl_cycles": 12552,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "48/48 Mode 0..2 decodes matched corr_x, corr_z, and bp_cycles (17, 17, 19)"
@@ -413,7 +413,7 @@
       "gates": "G4",
       "title": "Extreme Q7.8 weight magnitudes decode without overflow divergence between RTL and Reference",
       "status": "PASS",
-      "wall_time_ms": 0.7782,
+      "wall_time_ms": 0.781,
       "rtl_cycles": 400,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "16/16 high-dynamic-range Q7.8 decodes matched bit-for-bit"
@@ -425,7 +425,7 @@
       "gates": "G4",
       "title": "Verify remediated PHYSICAL HAL uses exact RTL dual-basis reference rather than legacy single-basis engine",
       "status": "PASS",
-      "wall_time_ms": 0.2722,
+      "wall_time_ms": 0.1815,
       "rtl_cycles": 11334,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "PHYSICAL HAL sz=0x9 -> corr_x=16 corr_z=0"
@@ -437,7 +437,7 @@
       "gates": "G6",
       "title": "Reset initializes all 18 shadow and 18 active registers to 0x0232 and epoch_count=0",
       "status": "PASS",
-      "wall_time_ms": 0.5885,
+      "wall_time_ms": 0.7386,
       "rtl_cycles": 84,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "36 weights=0x0232, epoch_count=0"
@@ -449,7 +449,7 @@
       "gates": "G6",
       "title": "Writing all 18 shadow registers leaves active_x/z and decoder behavior untouched prior to COMMIT",
       "status": "PASS",
-      "wall_time_ms": 0.2259,
+      "wall_time_ms": 0.2921,
       "rtl_cycles": 92,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "pre_corr_z=4 uncommitted_corr_z=4 ep=0"
@@ -461,7 +461,7 @@
       "gates": "G6",
       "title": "Updating only shadow_x[3] and committing updates active_x[3] while active_x[i!=3] stay 0x0232",
       "status": "PASS",
-      "wall_time_ms": 0.0792,
+      "wall_time_ms": 0.1135,
       "rtl_cycles": 32,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "active_x[3]=0x0177, all other 8 qubits=0x0232"
@@ -473,7 +473,7 @@
       "gates": "G6",
       "title": "Writing 1 to COMMIT (0x048) when idle atomically updates all 18 active weights and epoch_count=1",
       "status": "PASS",
-      "wall_time_ms": 0.1649,
+      "wall_time_ms": 0.2326,
       "rtl_cycles": 88,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "epoch=1 status=0"
@@ -485,7 +485,7 @@
       "gates": "G6",
       "title": "Writing 0 to 0x048 returns OKAY without swapping shadow->active or incrementing epoch_count",
       "status": "PASS",
-      "wall_time_ms": 0.0534,
+      "wall_time_ms": 0.0766,
       "rtl_cycles": 18,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "active_x[0]=0x0232, epoch=0 after COMMIT=0"
@@ -497,7 +497,7 @@
       "gates": "G6",
       "title": "Mid-decode COMMIT sets STATUS=0x3 and keeps active bank stable throughout inflight decode",
       "status": "PASS",
-      "wall_time_ms": 0.0688,
+      "wall_time_ms": 0.0962,
       "rtl_cycles": 23,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "mid STATUS=3 active_z[4]=562 ep_mid=0"
@@ -509,7 +509,7 @@
       "gates": "G6",
       "title": "Shadow writes and duplicate COMMIT while swap_pending && bp_busy return SLVERR",
       "status": "PASS",
-      "wall_time_ms": 0.1078,
+      "wall_time_ms": 0.1555,
       "rtl_cycles": 50,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "rej_x=1 rej_z=1 rej_c=1 ax0=324"
@@ -521,7 +521,7 @@
       "gates": "G6",
       "title": "Deferred mid-decode swap completes automatically on decode finish and increments epoch_count",
       "status": "PASS",
-      "wall_time_ms": 0.0943,
+      "wall_time_ms": 0.1343,
       "rtl_cycles": 39,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "auto-completed after 7 busy cycles"
@@ -533,7 +533,7 @@
       "gates": "G6,G7",
       "title": "RESET while swap_pending==1 clears swap_pending=0, epoch_count=0, and active=0x0232",
       "status": "PASS",
-      "wall_time_ms": 0.0741,
+      "wall_time_ms": 0.1041,
       "rtl_cycles": 29,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "post-reset status=0 epoch=0 ax0=562"
@@ -545,7 +545,7 @@
       "gates": "G6",
       "title": "16 sequential shadow+commit cycles increment epoch_count monotonically 1..16",
       "status": "PASS",
-      "wall_time_ms": 0.2875,
+      "wall_time_ms": 0.3062,
       "rtl_cycles": 106,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "epoch_count advanced monotonically 1..16"
@@ -557,7 +557,7 @@
       "gates": "G6",
       "title": "Mutating shadow_x[0..8] + commit never alters active_z[0..8] and vice versa",
       "status": "PASS",
-      "wall_time_ms": 0.1937,
+      "wall_time_ms": 0.2618,
       "rtl_cycles": 104,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "active_x=0x0123, active_z=0x0245 strictly independent"
@@ -569,7 +569,7 @@
       "gates": "G1,G6",
       "title": "Direct AXI-Lite writes to active_x[0..8] and active_z[0..8] all return SLVERR",
       "status": "PASS",
-      "wall_time_ms": 0.0937,
+      "wall_time_ms": 0.1318,
       "rtl_cycles": 46,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "18/18 active-bank direct writes rejected with SLVERR"
@@ -581,7 +581,7 @@
       "gates": "G6",
       "title": "wrd_handle_t C driver writes, commits, and reads back active weights & epoch accurately",
       "status": "PASS",
-      "wall_time_ms": 0.2403,
+      "wall_time_ms": 0.6121,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "wrd_read_epoch=1, active_x[4]=0x0150, active_z[8]=0x0190"
@@ -593,7 +593,7 @@
       "gates": "G1,G6",
       "title": "rtl_software_interface.yaml and weight_commit_protocol.yaml match weight_map_reg.sv offsets & bits",
       "status": "PASS",
-      "wall_time_ms": 17.039,
+      "wall_time_ms": 44.2937,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "YAML contract offsets and status bits verified against RTL"
@@ -605,7 +605,7 @@
       "gates": "G8",
       "title": "rtl_build_provenance.json records native_verilator_compiled=true and all 7 RTL SHA-256 hashes",
       "status": "PASS",
-      "wall_time_ms": 2.0016,
+      "wall_time_ms": 1.0625,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "native_verilator_compiled=true with 7 RTL SHA-256 hashes & Vaa_qec_top.h hash"
@@ -617,7 +617,7 @@
       "gates": "G8",
       "title": "C++ fallback binary exits code 2 when --require-native-rtl is requested",
       "status": "PASS",
-      "wall_time_ms": 9.1623,
+      "wall_time_ms": 9.3054,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "fallback --require-native-rtl exit_code=2"
@@ -629,7 +629,7 @@
       "gates": "G5,G8",
       "title": "QEMU harness enforces real ARMv7/ARM64 ELFs (no silent x86_64 fallback) & documents user-mode syscall boundary",
       "status": "PASS",
-      "wall_time_ms": 26.4302,
+      "wall_time_ms": 49.3073,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "unsupported_isa exit_code=2 (user-mode AF_UNIX vs full-system GIC/MMIO boundary enforced)"
@@ -641,7 +641,7 @@
       "gates": "G8",
       "title": "system_timing.yaml & bridge metrics separate 250 MHz cycle model from physical silicon STA/analog effects",
       "status": "PASS",
-      "wall_time_ms": 0.5151,
+      "wall_time_ms": 1.1449,
       "rtl_cycles": 0,
       "simulator_mode": "verilator_c++_rtl",
       "evidence": "250 MHz cycle-level contract verified; physical STA/routing/cryo analog excluded from RTL sim claims"
