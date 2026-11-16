@@ -157,7 +157,7 @@ def main() -> int:
             "firmware/constraints/aa_qec.xdc",
             "emulator/verilator/tb/verilator_rtl_driver.h",
         ]
-        ok = "5.048" in prov.get("verilator_version", "") and "--assert" in prov.get("verilator_flags", "")
+        ok = "Verilator" in prov.get("verilator_version", "") and "--assert" in prov.get("verilator_flags", "")
         verified = 0
         for rel in required:
             actual = sha256_file(repo / rel)

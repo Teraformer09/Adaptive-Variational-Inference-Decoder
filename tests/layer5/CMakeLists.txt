@@ -33,10 +33,9 @@ endif()
 
 find_package(Threads REQUIRED)
 
+file(GLOB VLT_RUNTIME_OBJS "${VLT_OBJ_DIR}/verilated*.o")
 set(VLT_LINK_OBJECTS
-    "${VLT_OBJ_DIR}/verilated.o"
-    "${VLT_OBJ_DIR}/verilated_vcd_c.o"
-    "${VLT_OBJ_DIR}/verilated_threads.o"
+    ${VLT_RUNTIME_OBJS}
     "${VLT_OBJ_DIR}/Vaa_qec_top__ALL.a"
 )
 

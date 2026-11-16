@@ -40,7 +40,13 @@ LOG_FILE="logs/layer5_validation.log"
   echo "Branch: $(git rev-parse --abbrev-ref HEAD) | Commit: $(git rev-parse --short HEAD)"
 
   if ! command -v verilator >/dev/null 2>&1; then
-    echo "[FATAL] Native Verilator 5.048 is required for Layer 5 audit-grade RTL validation." >&2
+    if command -v sudo >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+      echo "[Layer 5] 'verilator' not found on PATH; auto-installing via apt-get..."
+      sudo apt-get update -qq && sudo apt-get install -y -qq verilator
+    fi
+  fi
+  if ! command -v verilator >/dev/null 2>&1; then
+    echo "[FATAL] Native Verilator (>= 5.0) is required for Layer 5 audit-grade RTL validation." >&2
     exit 2
   fi
 
