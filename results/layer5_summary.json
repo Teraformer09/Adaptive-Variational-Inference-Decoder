@@ -1,16 +1,125 @@
 {
   "layer": 5,
   "branch": "layer5-fpga-rtl-decoder",
+  "git_commit": "8830647d32ad72e3cbab56a990507ba3a9b354bb",
+  "code_git_dirty": false,
+  "run_id": "remediated_full_layer5_v1",
   "simulator": "verilator_c++_rtl",
+  "verilator_version": "Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429",
   "native_verilator_compiled": true,
+  "clock_frequency_mhz": 250.0,
   "clock_period_ns": 4,
+  "fast_loop_budget_ns": 300.0,
   "k3_bp_core_cycles": 17,
   "k3_bp_core_latency_ns": 68.0,
   "k3_axis_total_cycles": 22,
   "k3_axis_total_latency_ns": 88.0,
+  "osd_modes_core_cycles_k3": {
+    "mode0_pure_9marginal_bp": 17,
+    "mode1_inline_osd0": 17,
+    "mode2_post_bp_osd0_outside_17cyc": 19
+  },
   "reference_equivalence_mismatches": 0,
-  "hardware_checks_passed": 11,
-  "hardware_checks_total": 11,
+  "canonical_tests_total": 200,
+  "canonical_tests_passed": 200,
+  "canonical_tests_failed": 0,
+  "gates_total": 8,
+  "gates_passed": 8,
+  "sets": {
+    "Set1": {
+      "total": 44,
+      "passed": 44,
+      "failed": 0,
+      "rtl_cycles": 2868,
+      "wall_time_ms": 30.34,
+      "status": "PASS"
+    },
+    "Set2": {
+      "total": 38,
+      "passed": 38,
+      "failed": 0,
+      "rtl_cycles": 35989,
+      "wall_time_ms": 94.44,
+      "status": "PASS"
+    },
+    "Set3": {
+      "total": 36,
+      "passed": 36,
+      "failed": 0,
+      "rtl_cycles": 17000,
+      "wall_time_ms": 51.41,
+      "status": "PASS"
+    },
+    "Set4": {
+      "total": 40,
+      "passed": 40,
+      "failed": 0,
+      "rtl_cycles": 384457,
+      "wall_time_ms": 9671.56,
+      "status": "PASS"
+    },
+    "Set5": {
+      "total": 42,
+      "passed": 42,
+      "failed": 0,
+      "rtl_cycles": 175631,
+      "wall_time_ms": 1685.07,
+      "status": "PASS"
+    }
+  },
+  "gates": {
+    "G1": {
+      "name": "AXI4-Lite & AXI4-Stream protocol compliance",
+      "passed_cases": 57,
+      "total_cases": 57,
+      "status": "PASS"
+    },
+    "G2": {
+      "name": "Deterministic cycle law & fast-loop budget",
+      "passed_cases": 57,
+      "total_cases": 57,
+      "status": "PASS"
+    },
+    "G3": {
+      "name": "Non-blocking ingress tap & pipeline isolation",
+      "passed_cases": 22,
+      "total_cases": 22,
+      "status": "PASS"
+    },
+    "G4": {
+      "name": "Atomic triple-buffered weight-bank & epoch safety",
+      "passed_cases": 30,
+      "total_cases": 30,
+      "status": "PASS"
+    },
+    "G5": {
+      "name": "Elastic FIFO backpressure, reset recovery & stress",
+      "passed_cases": 45,
+      "total_cases": 45,
+      "status": "PASS"
+    },
+    "G6": {
+      "name": "Q7.8 Min-Sum, OSD-0 & GF(2) mathematical equivalence",
+      "passed_cases": 44,
+      "total_cases": 44,
+      "status": "PASS"
+    },
+    "G7": {
+      "name": "Formal SVA verification & hardware synthesis constraints",
+      "passed_cases": 21,
+      "total_cases": 21,
+      "status": "PASS"
+    },
+    "G8": {
+      "name": "Deterministic replay, clean provenance & STA disclosure",
+      "passed_cases": 18,
+      "total_cases": 18,
+      "status": "PASS"
+    }
+  },
+  "standalone_tb_rtl_cycles": 1576,
+  "five_set_rtl_cycles": 615945,
+  "total_verilator_rtl_cycles": 617521,
   "pytest_passed": 1,
   "overall_status": "PASS"
 }

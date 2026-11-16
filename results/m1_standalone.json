@@ -25,8 +25,8 @@
   },
   "k3_bp_core_cycles": 17,
   "k3_bp_core_latency_ns": 68.0,
-  "k3_axi_ingress_cycles": 3,
-  "k3_axi_egress_cycles": 2,
+  "k3_axi_ingress_cycles": 2,
+  "k3_axi_egress_cycles": 3,
   "k3_axis_total_cycles": 22,
   "k3_axis_total_latency_ns": 88.0,
   "cycle_matrix_K1_to_K5": [
@@ -36,5 +36,5 @@
     {"K": 4, "bp_core_cycles": 22, "bp_core_latency_ns": 88.0, "axis_total_cycles": 27, "axis_total_latency_ns": 108.0},
     {"K": 5, "bp_core_cycles": 27, "bp_core_latency_ns": 108.0, "axis_total_cycles": 32, "axis_total_latency_ns": 128.0}
   ],
-  "total_sim_cycles": 1582
+  "total_sim_cycles": 1576
 }
