@@ -44,11 +44,12 @@ add_layer3_set1_exe(set1_test_config_bounds         runtime_config/test_config_b
 add_layer3_set1_exe(set1_test_config_unknown_fields runtime_config/test_config_unknown_fields.cpp)
 add_layer3_set1_exe(set1_test_config_consumption    runtime_config/test_config_consumption.cpp)
 
-# 5. Production integration executables (4 files)
-add_layer3_set1_exe(set1_test_production_ingress_path    integration/test_production_ingress_path.cpp)
-add_layer3_set1_exe(set1_test_daemon_histogram_path      integration/test_daemon_histogram_path.cpp)
-add_layer3_set1_exe(set1_test_ring_buffer_connectivity   integration/test_ring_buffer_connectivity.cpp)
-add_layer3_set1_exe(set1_test_invalid_input_propagation  integration/test_invalid_input_propagation.cpp)
+# 5. Production integration executables (5 files)
+add_layer3_set1_exe(set1_test_production_ingress_path        integration/test_production_ingress_path.cpp)
+add_layer3_set1_exe(set1_test_daemon_histogram_path          integration/test_daemon_histogram_path.cpp)
+add_layer3_set1_exe(set1_test_ring_buffer_connectivity       integration/test_ring_buffer_connectivity.cpp)
+add_layer3_set1_exe(set1_test_invalid_input_propagation      integration/test_invalid_input_propagation.cpp)
+add_layer3_set1_exe(set1_test_stage6_producer_compatibility  integration/test_stage6_producer_compatibility.cpp)
 
 # Register all 40 canonical Set 1 test IDs (L3-IP-001 .. L3-IP-040)
 set(SET1_CANONICAL_TESTS
@@ -116,6 +117,7 @@ set(SET1_SUPPLEMENTARY_TESTS
     "L3-INT-002|set1_test_daemon_histogram_path"
     "L3-INT-003|set1_test_ring_buffer_connectivity"
     "L3-INT-004|set1_test_invalid_input_propagation"
+    "L3-INT-005|set1_test_stage6_producer_compatibility"
 )
 
 foreach(pair IN LISTS SET1_SUPPLEMENTARY_TESTS)

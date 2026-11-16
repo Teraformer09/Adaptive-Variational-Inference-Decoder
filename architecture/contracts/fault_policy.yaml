@@ -17,7 +17,7 @@ triggers:
   - trigger_id: "F02_SEQUENCE_GAP_DUPLICATE_OR_EPOCH_REGRESS"
     condition: "seq_id[t] != (seq_id[t-1] + 1) mod 2^32 or epoch_id[t] < epoch_id[t-1]"
     transition: "NOMINAL_ADAPTIVE -> HOLD_LAST_GOOD_EPOCH"
-    action: "Increment seq_gap_count / seq_dup_count / epoch_regress_count without advancing last_seq_id; require W_min >= 16 valid samples before estimator fit."
+    action: "Increment seq_gap_count / seq_dup_count / epoch_regress_count without advancing last_seq_id; require W_min >= 64 valid samples before estimator fit."
 
   - trigger_id: "F03_RING_BUFFER_OVERWRITE_STALE_WINDOW"
     condition: "DMA ingress slot full or oversized burst (> 64 packets)"
@@ -25,7 +25,7 @@ triggers:
     action: "Reject burst and record exact dropped packet count in overflow_drops."
 
   - trigger_id: "F04_ESTIMATOR_NON_CONVERGENCE_OR_NAN"
-    condition: "Total samples < 16, non-finite/out-of-bounds theta or prior, or L-BFGS non-convergence"
+    condition: "Total samples < 64, non-finite/out-of-bounds theta or prior, or L-BFGS non-convergence"
     transition: "NOMINAL_ADAPTIVE -> HOLD_LAST_GOOD_EPOCH"
     action: "Abort solver fit with converged=false, preserve model parameters, do NOT write shadow bank or assert COMMIT."
 

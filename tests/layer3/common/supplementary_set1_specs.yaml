@@ -1,13 +1,13 @@
 schema_version: "1.0.0"
 description: >
-  Explicit specification and provenance registry for the 13 non-243 Set 1 harness targets
-  (7 C11 ABI checks, 4 production daemon integration checks, and 2 diagnostic companions).
+  Explicit specification and provenance registry for the 14 non-243 Set 1 harness targets
+  (7 C11 ABI checks, 5 production daemon integration checks, and 2 diagnostic companions).
   These IDs DO NOT alter or renumber the 243 canonical Layer 3 traceability IDs in test_ids.yaml.
 gate_g1_arithmetic:
   canonical_set1_ids_in_g1: 40    # L3-IP-001 .. L3-IP-040
   c_abi_ids_in_g1: 7              # L3-ABI-001 .. L3-ABI-007
-  integration_ids_in_g1: 4        # L3-INT-001 .. L3-INT-004
-  total_gated_items_in_g1: 51     # 40 + 7 + 4 = 51
+  integration_ids_in_g1: 5        # L3-INT-001 .. L3-INT-005
+  total_gated_items_in_g1: 52     # 40 + 7 + 5 = 52 (was 51 in remediated_set1_v1 prior to adding L3-INT-005)
   diagnostic_companions_excluded_from_g1_count: 2  # L3-DMA-INVALID-PKT, L3-CFG-MISSING (avoid double-counting L3-IP-008/010 and L3-IP-031/036)
 
 supplementary_tests:
@@ -107,6 +107,14 @@ supplementary_tests:
     target_headers: ["software/src/ingress/dma_ingress_tap.cpp", "software/src/inference/avid_daemon.cpp"]
     related_canonical_ids: ["L3-IP-004", "L3-IP-008"]
     specification: "Compare standalone DMA ring (0/64 accepted) vs avid_daemon --stim-bin (64/64 repacked as VALID) on PARITY_ERR=1 packet stream."
+
+  - test_id: L3-INT-005
+    category: daemon_integration
+    counted_in_g1: true
+    source_file: tests/layer3/set1_input_contracts/integration/test_stage6_producer_compatibility.cpp
+    target_headers: ["software/src/ingress/packet_validator.h", "software/src/inference/avid_daemon.cpp"]
+    related_canonical_ids: ["L3-IP-001", "L3-IP-002", "L3-IP-007", "L3-IP-011"]
+    specification: "End-to-end Stage-6 stratified sampler -> AvidInputAdapter -> stim_to_bin (16B 0xAAEC0001 header + detector-dropout flags=0x00) -> avid_daemon --stim-bin producer-consumer compatibility check."
 
   - test_id: L3-DMA-INVALID-PKT
     category: diagnostic_companion

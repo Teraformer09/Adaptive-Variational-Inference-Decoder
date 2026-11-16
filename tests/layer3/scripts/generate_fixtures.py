@@ -59,10 +59,13 @@ def write_text(records: list, repo_root: str, rel_path: str, text: str, purpose:
 
 
 def main():
+    default_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
     ap = argparse.ArgumentParser()
-    ap.add_argument("--repo-root", default="/tmp/avid_layer3_work")
+    ap.add_argument("--repo-root", default=default_root)
+    ap.add_argument("--validation-dir", default="")
     args = ap.parse_args()
     r = args.repo_root
+    val_dir = os.path.abspath(args.validation_dir) if args.validation_dir else os.path.join(r, "validation/layer3")
     records = []
 
     # 1. Packet fixtures: valid, invalid, boundary, expected
@@ -86,6 +89,36 @@ def main():
     write_bytes(records, r, "tests/layer3/fixtures/packets/valid/yaml_v1_stream_2rounds.bin",
                 yaml_frame,
                 "syndrome_packet_v1.yaml 16B header + two 4B per-round words (24 bytes total)")
+
+    # Canonical Stage-6 / stim_to_bin 0xAAEC0001 headered 256-round stream with detector dropouts
+    stage6_dropout_rounds = {0, 17, 18, 63, 112, 195, 240}
+    stage6_hdr = struct.pack("<IIIBBBB", 0xAAEC0001, 256, 1, 4, 4, 3, 0)
+    stage6_pkts = []
+    stage6_exp_hx = [0] * 16
+    stage6_exp_hz = [0] * 16
+    for rnd in range(256):
+        sx = ((rnd * 7 + 3) ^ (rnd >> 3)) & 0xF if (rnd % 5 != 0) else 0
+        sz = ((rnd * 11 + 5) ^ (rnd >> 2)) & 0xF if (rnd % 4 != 0) else 0
+        if rnd in stage6_dropout_rounds:
+            # Corrupt syndrome bits on dropout rounds to verify they NEVER leak into histograms
+            stage6_pkts.append(pack_u64(0xE, 0xD, 0x00, 0, rnd))
+        else:
+            stage6_pkts.append(pack_u64(sx, sz, 0x01, 0, rnd))
+            stage6_exp_hx[sx] += 1
+            stage6_exp_hz[sz] += 1
+    write_bytes(records, r, "tests/layer3/fixtures/packets/valid/stage6_stratified_dropout_256.bin",
+                stage6_hdr + b"".join(stage6_pkts),
+                "L3-INT-005 Stage-6 0xAAEC0001 headered 256-round u64 stream with 7 readout-dropout rounds")
+    write_text(records, r, "tests/layer3/fixtures/packets/expected/stage6_stratified_dropout_256_expected.json",
+               json.dumps({
+                   "magic_hex": "0xAAEC0001",
+                   "n_rounds": 256,
+                   "dropout_rounds": len(stage6_dropout_rounds),
+                   "valid_rounds": 256 - len(stage6_dropout_rounds),
+                   "expected_hist_x": stage6_exp_hx,
+                   "expected_hist_z": stage6_exp_hz,
+               }, indent=2) + "\n",
+               "Expected valid counts and 16-state histograms for stage6_stratified_dropout_256.bin")
 
     # Invalid packets
     write_bytes(records, r, "tests/layer3/fixtures/packets/invalid/empty_0B.bin", b"",
@@ -223,8 +256,10 @@ software:
                boundary_cfg, "Boundary configuration (window_rounds=64, bp_iterations=5)")
 
     hashes_map = {rec["path"]: rec["sha256"] for rec in records}
-    out_hashes = os.path.join(r, "validation/layer3/fixtures_used/fixture_hashes.json")
-    out_manifest = os.path.join(r, "validation/layer3/fixtures_used/generated_fixture_manifest.json")
+    fix_used_dir = os.path.join(val_dir, "fixtures_used")
+    os.makedirs(fix_used_dir, exist_ok=True)
+    out_hashes = os.path.join(fix_used_dir, "fixture_hashes.json")
+    out_manifest = os.path.join(fix_used_dir, "generated_fixture_manifest.json")
     with open(out_hashes, "w", encoding="utf-8") as wf:
         json.dump(hashes_map, wf, indent=2, sort_keys=True)
         wf.write("\n")

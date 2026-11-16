@@ -26,8 +26,9 @@ def sha256_file(path: str) -> str:
 
 
 def main():
+    default_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
     ap = argparse.ArgumentParser()
-    ap.add_argument("--repo-root", default="/tmp/avid_layer3_work")
+    ap.add_argument("--repo-root", default=default_root)
     ap.add_argument("--validation-dir", default="")
     ap.add_argument("--sanitizer-ctest-rc", type=int, default=0)
     ap.add_argument("--run-id", default="remediated_set1_v1")
@@ -48,6 +49,7 @@ def main():
         "L3-INT-002",
         "L3-INT-003",
         "L3-INT-004",
+        "L3-INT-005",
     ]
 
     def load_group(id_list):
@@ -159,8 +161,8 @@ def main():
                 shutil.copy2(src_mf, os.path.join(val_dir, mf))
 
     print(
-        f"[collect_test_results] Aggregated 40 L3-IP ({status_counts}) + "
-        f"7 C_ABI ({c_abi_counts}) + 6 Integration/Supp ({supp_counts}) -> {out_set1}"
+        f"[collect_test_results] Aggregated {len(canonical_recs)} L3-IP ({status_counts}) + "
+        f"{len(c_abi_recs)} C_ABI ({c_abi_counts}) + {len(supp_recs)} Integration/Supp ({supp_counts}) -> {out_set1}"
     )
 
 

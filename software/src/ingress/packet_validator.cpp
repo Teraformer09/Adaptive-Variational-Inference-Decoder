@@ -83,6 +83,15 @@ bool avid_validate_packet(avid_packet_validator_t *v, uint64_t raw_word,
     if ((tmp.flags & AVID_PKT_FLAG_VALID) == 0u ||
         (tmp.flags & AVID_PKT_FLAG_PARITY_ERR) != 0u ||
         (tmp.flags & AVID_PKT_FLAG_RESERVED_MASK) != 0u) {
+        if ((tmp.flags & AVID_PKT_FLAG_VALID) == 0u &&
+            (tmp.flags & (AVID_PKT_FLAG_PARITY_ERR | AVID_PKT_FLAG_RESERVED_MASK)) == 0u &&
+            v->has_seen_first &&
+            tmp.epoch_id >= v->last_epoch_id &&
+            tmp.seq_id == (uint32_t)(v->last_seq_id + 1u + (uint32_t)v->pending_dropout_span)) {
+            if (v->pending_dropout_span < 0xFFFFu) {
+                v->pending_dropout_span++;
+            }
+        }
         v->invalid_flag_count++;
         return false;
     }
@@ -92,8 +101,11 @@ bool avid_validate_packet(avid_packet_validator_t *v, uint64_t raw_word,
             v->epoch_regress_count++;
             return false;
         }
-        uint32_t expected = v->last_seq_id + 1u;
-        if (tmp.seq_id != expected) {
+        uint32_t expected_next = v->last_seq_id + 1u;
+        uint32_t expected_after_dropout = v->last_seq_id + 1u + (uint32_t)v->pending_dropout_span;
+        bool seq_ok = (tmp.seq_id == expected_next) ||
+                      (v->pending_dropout_span > 0u && tmp.seq_id == expected_after_dropout);
+        if (!seq_ok) {
             v->seq_gap_count++;
             if (tmp.seq_id == v->last_seq_id) {
                 v->seq_dup_count++;
@@ -106,9 +118,10 @@ bool avid_validate_packet(avid_packet_validator_t *v, uint64_t raw_word,
         v->overflow_warn_count++;
     }
 
-    v->has_seen_first = true;
-    v->last_seq_id    = tmp.seq_id;
-    v->last_epoch_id  = tmp.epoch_id;
+    v->has_seen_first       = true;
+    v->last_seq_id          = tmp.seq_id;
+    v->last_epoch_id        = tmp.epoch_id;
+    v->pending_dropout_span = 0u;
     v->valid_count++;
     *out = tmp;
     return true;
@@ -131,5 +144,53 @@ bool avid_validate_stream_framing(const uint8_t *buf, size_t len) {
     if (!buf || len == 0u || (len % AVID_PKT_WIRE_BYTES) != 0u) {
         return false;
     }
+    return true;
+}
+
+static uint32_t avid_decode_le32(const uint8_t *p) {
+    return ((uint32_t)p[0]) |
+           (((uint32_t)p[1]) << 8) |
+           (((uint32_t)p[2]) << 16) |
+           (((uint32_t)p[3]) << 24);
+}
+
+bool avid_inspect_stream_container(const uint8_t *probe_bytes, size_t probe_len,
+                                   size_t total_stream_bytes,
+                                   bool *out_has_header,
+                                   size_t *out_payload_offset,
+                                   uint64_t *out_n_packets) {
+    if (!probe_bytes || total_stream_bytes == 0u) {
+        return false;
+    }
+
+    if (probe_len >= 4u && avid_decode_le32(probe_bytes) == AVID_STREAM_HEADER_MAGIC) {
+        if (probe_len < AVID_STREAM_HEADER_BYTES || total_stream_bytes <= AVID_STREAM_HEADER_BYTES) {
+            return false;
+        }
+        uint32_t n_rounds = avid_decode_le32(probe_bytes + 4u);
+        uint32_t is_u64   = avid_decode_le32(probe_bytes + 8u);
+        uint8_t  n_cx     = probe_bytes[12];
+        uint8_t  n_cz     = probe_bytes[13];
+        uint8_t  dist     = probe_bytes[14];
+        if (n_rounds == 0u || is_u64 != 1u || n_cx != 4u || n_cz != 4u || dist != 3u) {
+            return false;
+        }
+        size_t expected_total = (size_t)AVID_STREAM_HEADER_BYTES +
+                                ((size_t)n_rounds * (size_t)AVID_PKT_WIRE_BYTES);
+        if (total_stream_bytes != expected_total) {
+            return false;
+        }
+        if (out_has_header)     *out_has_header     = true;
+        if (out_payload_offset) *out_payload_offset = (size_t)AVID_STREAM_HEADER_BYTES;
+        if (out_n_packets)      *out_n_packets      = (uint64_t)n_rounds;
+        return true;
+    }
+
+    if (!avid_validate_stream_framing(probe_bytes, total_stream_bytes)) {
+        return false;
+    }
+    if (out_has_header)     *out_has_header     = false;
+    if (out_payload_offset) *out_payload_offset = 0u;
+    if (out_n_packets)      *out_n_packets      = (uint64_t)(total_stream_bytes / AVID_PKT_WIRE_BYTES);
     return true;
 }

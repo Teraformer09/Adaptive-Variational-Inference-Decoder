@@ -23,8 +23,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ "${RUN_ID}" == "88df97e_set1_baseline" ]]; then
-    echo "ERROR: Refusing to overwrite preserved baseline run '88df97e_set1_baseline'!" >&2
+if [[ "${RUN_ID}" == "88df97e_set1_baseline" || "${RUN_ID}" == "remediated_set1_v1" ]]; then
+    echo "ERROR: Refusing to overwrite preserved audit run '${RUN_ID}'!" >&2
     exit 1
 fi
 
@@ -40,7 +40,7 @@ echo "========================================================================"
 bash "${SCRIPT_DIR}/scripts/verify_branch.sh" "${REPO_ROOT}" "${VAL_DIR}" "${RUN_MODE}"
 bash "${SCRIPT_DIR}/scripts/verify_environment.sh" "${REPO_ROOT}" "${VAL_DIR}"
 python3 "${SCRIPT_DIR}/scripts/generate_traceability_report.py" --repo-root "${REPO_ROOT}"
-python3 "${SCRIPT_DIR}/scripts/generate_fixtures.py" --repo-root "${REPO_ROOT}"
+python3 "${SCRIPT_DIR}/scripts/generate_fixtures.py" --repo-root "${REPO_ROOT}" --validation-dir "${VAL_DIR}"
 bash "${SCRIPT_DIR}/scripts/build_layer3_tests.sh" "${REPO_ROOT}" "${VAL_DIR}"
 
 echo "[run_layer3_set1] Running ASan+UBSan CTest verification pass..."

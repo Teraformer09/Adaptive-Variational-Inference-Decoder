@@ -7,6 +7,7 @@ HistogramPair compute_reference_histogram_from_u64_stream(const std::vector<uint
     bool seen_first = false;
     uint32_t last_seq = 0;
     uint16_t last_epoch = 0;
+    uint16_t pending_dropout_span = 0;
     for (uint64_t w : words) {
         uint8_t sx = static_cast<uint8_t>(w & 0x0Fu);
         uint8_t sz = static_cast<uint8_t>((w >> 4) & 0x0Fu);
@@ -18,6 +19,13 @@ HistogramPair compute_reference_histogram_from_u64_stream(const std::vector<uint
         bool parity_err = (flags & 0x04u) != 0u;
         bool reserved_err = (flags & 0xF0u) != 0u;
         if (!valid_flag || parity_err || reserved_err) {
+            if (!valid_flag && !parity_err && !reserved_err && seen_first &&
+                epoch_id >= last_epoch &&
+                seq == static_cast<uint32_t>(last_seq + 1u + pending_dropout_span)) {
+                if (pending_dropout_span < 0xFFFFu) {
+                    pending_dropout_span++;
+                }
+            }
             out.rejected_packets++;
             continue;
         }
@@ -26,8 +34,9 @@ HistogramPair compute_reference_histogram_from_u64_stream(const std::vector<uint
                 out.rejected_packets++;
                 continue;
             }
-            uint32_t expected = last_seq + 1u;
-            if (seq != expected) {
+            uint32_t expected_next = last_seq + 1u;
+            uint32_t expected_dropout = last_seq + 1u + pending_dropout_span;
+            if (seq != expected_next && !(pending_dropout_span > 0u && seq == expected_dropout)) {
                 out.rejected_packets++;
                 continue;
             }
@@ -35,6 +44,7 @@ HistogramPair compute_reference_histogram_from_u64_stream(const std::vector<uint
         seen_first = true;
         last_seq = seq;
         last_epoch = epoch_id;
+        pending_dropout_span = 0;
         out.hist_x[sx]++;
         out.hist_z[sz]++;
         out.accepted_packets++;

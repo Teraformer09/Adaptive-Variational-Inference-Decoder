@@ -717,8 +717,10 @@ int main(int argc, char *argv[]) {
     }
 
     FILE *stim_fp = nullptr;
-    uint64_t stim_pkts_in_file = 0ULL;
-    uint64_t stim_wrap_idx     = 0ULL;
+    uint64_t stim_pkts_in_file  = 0ULL;
+    uint64_t stim_wrap_idx      = 0ULL;
+    long     stim_payload_offset = 0L;
+    bool     stim_has_header    = false;
     if (stim_bin_path && stim_bin_path[0] != '\0') {
         stim_fp = std::fopen(stim_bin_path, "rb");
         if (!stim_fp) {
@@ -733,16 +735,27 @@ int main(int argc, char *argv[]) {
         }
         long stim_bytes = std::ftell(stim_fp);
         std::fseek(stim_fp, 0, SEEK_SET);
-        uint8_t probe_hdr[8] = {0};
-        if (stim_bytes <= 0 || !avid_validate_stream_framing(probe_hdr, static_cast<size_t>(stim_bytes))) {
+        uint8_t probe_hdr[AVID_STREAM_HEADER_BYTES] = {0};
+        size_t n_probe = (stim_bytes > 0)
+                             ? std::fread(probe_hdr, 1, sizeof(probe_hdr), stim_fp)
+                             : 0u;
+        size_t payload_off_zu = 0u;
+        if (stim_bytes <= 0 ||
+            !avid_inspect_stream_container(probe_hdr,
+                                           n_probe,
+                                           static_cast<size_t>(stim_bytes),
+                                           &stim_has_header,
+                                           &payload_off_zu,
+                                           &stim_pkts_in_file)) {
             std::fprintf(stderr,
-                         "[avid_daemon] Invalid --stim-bin framing size (%ld bytes; must be non-empty multiple of 8 bytes).\n",
+                         "[avid_daemon] Invalid --stim-bin stream container (%ld bytes; must be valid 0xAAEC0001 Stage-6 stream or non-empty multiple of 8 bytes).\n",
                          stim_bytes);
             std::fclose(stim_fp);
             avid_hal_close(&g_hal);
             return 2;
         }
-        stim_pkts_in_file = static_cast<uint64_t>(stim_bytes) / 8ULL;
+        stim_payload_offset = static_cast<long>(payload_off_zu);
+        std::fseek(stim_fp, stim_payload_offset, SEEK_SET);
     }
 
     avid_dma_ring_init(&g_dma_ring);
@@ -776,6 +789,8 @@ int main(int argc, char *argv[]) {
 
     uint32_t hist_x[16] = {0};
     uint32_t hist_z[16] = {0};
+    uint64_t total_hist_x[16] = {0};
+    uint64_t total_hist_z[16] = {0};
     uint32_t acc_rounds = 0;
     uint32_t seq_gen    = 0;
     uint32_t rounds_attempted = 0;
@@ -852,7 +867,7 @@ int main(int argc, char *argv[]) {
             if (stim_fp) {
                 uint64_t raw_pkt = 0;
                 if (std::fread(&raw_pkt, sizeof(uint64_t), 1, stim_fp) != 1) {
-                    std::fseek(stim_fp, 0, SEEK_SET);
+                    std::fseek(stim_fp, stim_payload_offset, SEEK_SET);
                     stim_wrap_idx++;
                     if (std::fread(&raw_pkt, sizeof(uint64_t), 1, stim_fp) != 1) {
                         std::fprintf(stderr, "[avid_daemon] Unexpected --stim-bin read failure.\n");
@@ -860,6 +875,8 @@ int main(int argc, char *argv[]) {
                         avid_hal_close(&g_hal);
                         return 2;
                     }
+                }
+                if (stim_wrap_idx > 0ULL) {
                     /* On multi-pass EOF wrap of a short valid fixture (e.g., 1-packet min_fields.bin),
                      * advance only the 32-bit sequence counter while preserving raw flags/epoch/syndrome bits */
                     uint32_t base_seq = static_cast<uint32_t>((raw_pkt >> 32) & 0xFFFFFFFFULL);
@@ -987,6 +1004,8 @@ int main(int argc, char *argv[]) {
             for (int s = 0; s < 16; ++s) {
                 hist_x[s] += slot_hist_x[s];
                 hist_z[s] += slot_hist_z[s];
+                total_hist_x[s] += slot_hist_x[s];
+                total_hist_z[s] += slot_hist_z[s];
             }
             acc_rounds += valid_in_slot;
             if (!stim_fp) {
@@ -1311,6 +1330,16 @@ int main(int argc, char *argv[]) {
             AvidR2D2MemoryAudit mem = AvidR2D2LSTMController::get_memory_audit();
             double cpu_util_10ms_pct = (avg_est_us / 10000.0) * 100.0;
 
+            char hist_x_buf[320] = {0};
+            char hist_z_buf[320] = {0};
+            int hx_pos = 0, hz_pos = 0;
+            for (int s = 0; s < 16; ++s) {
+                hx_pos += std::snprintf(hist_x_buf + hx_pos, sizeof(hist_x_buf) - (size_t)hx_pos,
+                                        "%s%llu", (s > 0 ? ", " : ""), (unsigned long long)total_hist_x[s]);
+                hz_pos += std::snprintf(hist_z_buf + hz_pos, sizeof(hist_z_buf) - (size_t)hz_pos,
+                                        "%s%llu", (s > 0 ? ", " : ""), (unsigned long long)total_hist_z[s]);
+            }
+
             std::fprintf(fp,
                 "{\n"
                 "  \"scenario\": \"%s\",\n"
@@ -1318,6 +1347,9 @@ int main(int argc, char *argv[]) {
                 "  \"osd_mode\": %u,\n"
                 "  \"backend\": \"%s\",\n"
                 "  \"syndrome_source\": \"%s\",\n"
+                "  \"stim_stream_header_detected\": %s,\n"
+                "  \"total_hist_x\": [%s],\n"
+                "  \"total_hist_z\": [%s],\n"
                 "  \"dual_xz_histograms_used\": true,\n"
                 "  \"r2d2_checkpoint_loaded\": %s,\n"
                 "  \"r2d2_checkpoint_path\": \"%s\",\n"
@@ -1399,6 +1431,9 @@ int main(int argc, char *argv[]) {
                 osd_mode,
                 (backend == AVID_HAL_BACKEND_SIMULATION) ? "simulation_backend" : "physical_backend",
                 (stim_bin_path && stim_bin_path[0] != '\0') ? "stim_binary_stream" : "deterministic_simulation_generator",
+                stim_has_header ? "true" : "false",
+                hist_x_buf,
+                hist_z_buf,
                 g_r2d2.is_checkpoint_loaded() ? "true" : "false",
                 g_r2d2.checkpoint_path().c_str(),
                 g_r2d2.last_action_id,

@@ -26,8 +26,9 @@ ALLOWED_STATUSES = {
 
 
 def main():
+    default_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
     ap = argparse.ArgumentParser()
-    ap.add_argument("--repo-root", default="/tmp/avid_layer3_work")
+    ap.add_argument("--repo-root", default=default_root)
     ap.add_argument("--validation-dir", default="")
     args = ap.parse_args()
 
@@ -57,7 +58,13 @@ def main():
     g1_pass = 0
     g1_non_pass = 0
 
-    for tid in expected_ip_ids + [f"L3-ABI-{i:03d}" for i in range(1, 8)] + [f"L3-INT-{i:03d}" for i in range(1, 5)]:
+    int_ids = [f"L3-INT-{i:03d}" for i in range(1, 5)]
+    if "L3-INT-005" in by_id or set1.get("run_id", "") not in ("88df97e_set1_baseline", "remediated_set1_v1"):
+        int_ids.append("L3-INT-005")
+    gated_ids = expected_ip_ids + [f"L3-ABI-{i:03d}" for i in range(1, 8)] + int_ids
+    total_gated = len(gated_ids)
+
+    for tid in gated_ids:
         rec = by_id.get(tid)
         if not rec:
             g1_non_pass += 1
@@ -157,9 +164,9 @@ def main():
             "sanitizer_ctest_exit_code": san_rc,
             "blocking_ids": g1_blocking + diag_non_pass,
             "rationale": (
-                f"Evaluated 40 canonical L3-IP tests + 7 C11 ABI tests + 4 daemon integration tests "
+                f"Evaluated 40 canonical L3-IP tests + 7 C11 ABI tests + {len(int_ids)} daemon integration tests "
                 f"(+ 2 diagnostic companions; ASan+UBSan rc={san_rc}) in mode='{run_mode}': "
-                f"{g1_pass}/51 gated PASS, {g1_non_pass} non-PASS; companion non-PASS={diag_non_pass}. "
+                f"{g1_pass}/{total_gated} gated PASS, {g1_non_pass} non-PASS; companion non-PASS={diag_non_pass}. "
                 + (f"Missing reports: {missing_reports}." if missing_reports else "All required technical & decision reports verified.")
             ),
         }
@@ -256,7 +263,7 @@ def main():
         f"- **Run ID**: `{set1.get('run_id', 'set1')}` (`mode={run_mode}`)",
         f"- **Source Commit**: `{source_commit}` (remediated from baseline `88df97e86b579b6e2865cc70dc4d0b08225d677b`; original failing run preserved at `validation/layer3/runs/88df97e_set1_baseline/`)",
         f"- **Evaluated At (UTC)**: `{now_utc}`",
-        f"- **Gate `G1` (Input Integrity & Contract Conformance)**: **`{g1_status}`** (`{g1_pass}/51` gated PASS + `{2 - len(diag_non_pass)}/2` diagnostic companions PASS; ASan+UBSan exit code `{san_rc}`)",
+        f"- **Gate `G1` (Input Integrity & Contract Conformance)**: **`{g1_status}`** (`{g1_pass}/{total_gated}` gated PASS + `{2 - len(diag_non_pass)}/2` diagnostic companions PASS; ASan+UBSan exit code `{san_rc}`)",
         f"- **Gate `G10` (Reproducibility, Traceability, & Branch Isolation)**: **`{'PASS' if g10_ok else 'FAIL'}`**",
         f"- **Gates `G2`–`G9`**: **`NOT_EVALUATED_YET`** (halted at mandatory Set 1 review gate)",
         f"- **Stage 1 Gate Decision**: **`{stage1_decision}`** (Overall Layer 3: **`{eval_doc['overall_layer3_decision']}`**)",
@@ -284,7 +291,7 @@ def main():
     else:
         md_lines.append("## `G1` Resolution Status")
         md_lines.append("")
-        md_lines.append("Zero unresolved `G1` items (`51/51` gated items `PASS` + `2/2` diagnostic companions `PASS` + ASan/UBSan clean).")
+        md_lines.append(f"Zero unresolved `G1` items (`{total_gated}/{total_gated}` gated items `PASS` + `2/2` diagnostic companions `PASS` + ASan/UBSan clean).")
     md_lines.append("")
 
     with open(os.path.join(acc_dir, "final_acceptance_summary.md"), "w", encoding="utf-8") as wf:

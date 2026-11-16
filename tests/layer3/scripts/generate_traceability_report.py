@@ -201,8 +201,9 @@ def parse_traceability_markdown(md_path: str):
 
 
 def main():
+    default_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
     ap = argparse.ArgumentParser()
-    ap.add_argument("--repo-root", default="/tmp/avid_layer3_work")
+    ap.add_argument("--repo-root", default=default_root)
     ap.add_argument("--results-json", default="")
     args = ap.parse_args()
 

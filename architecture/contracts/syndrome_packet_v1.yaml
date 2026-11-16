@@ -9,7 +9,12 @@ stream_framing:
   endianness: "little"
   require_non_empty: true
   byte_length_multiple_of: 8
-  cross_layer_producer: "simulation/stimulus/packet_codec.py"
+  optional_stage6_container_header:
+    magic: 0xAAEC0001
+    header_size_bytes: 16
+    layout_struct: "<IIIBBBB (magic, n_rounds, is_u64=1, n_check_x=4, n_check_z=4, distance=3, reserved=0)"
+    payload_offset_bytes: 16
+  cross_layer_producer: "simulation/stimulus/stim_to_bin.py & simulation/stimulus/packet_codec.py"
   cross_layer_consumer: "software/src/ingress/packet_validator.h"
 
 per_round_packet_u64:

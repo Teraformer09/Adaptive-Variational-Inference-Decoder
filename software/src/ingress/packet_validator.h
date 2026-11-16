@@ -13,6 +13,8 @@ extern "C" {
 
 #define AVID_PKT_WIRE_BYTES        8u
 #define AVID_PKT_MAX_SYNDROME      15u
+#define AVID_STREAM_HEADER_MAGIC   0xAAEC0001u
+#define AVID_STREAM_HEADER_BYTES   16u
 
 #define AVID_PKT_FLAG_VALID        (1u << 0)
 #define AVID_PKT_FLAG_OVERFLOW     (1u << 1)
@@ -37,9 +39,20 @@ typedef struct {
     uint64_t invalid_flag_count;
     uint64_t overflow_warn_count;
     uint16_t last_epoch_id;
+    uint16_t pending_dropout_span;
     uint64_t seq_dup_count;
     uint64_t epoch_regress_count;
 } avid_packet_validator_t;
+
+typedef struct {
+    uint32_t magic;
+    uint32_t n_rounds;
+    uint32_t is_u64;
+    uint8_t  n_check_x;
+    uint8_t  n_check_z;
+    uint8_t  distance;
+    uint8_t  reserved;
+} avid_stream_header_t;
 
 void avid_validator_init(avid_packet_validator_t *v);
 
@@ -67,6 +80,14 @@ bool avid_validate_packet_bytes(avid_packet_validator_t *v,
 
 /* Validates binary stream framing (non-empty, exact multiple of 8 bytes) */
 bool avid_validate_stream_framing(const uint8_t *buf, size_t len);
+
+/* Inspects stream container header (supports both 16-byte 0xAAEC0001 Stage 6 streams
+ * and headless raw 8-byte A05/Q11 DMA packet streams) */
+bool avid_inspect_stream_container(const uint8_t *probe_bytes, size_t probe_len,
+                                   size_t total_stream_bytes,
+                                   bool *out_has_header,
+                                   size_t *out_payload_offset,
+                                   uint64_t *out_n_packets);
 
 #ifdef __cplusplus
 }

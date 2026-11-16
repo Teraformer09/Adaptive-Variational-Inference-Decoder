@@ -55,7 +55,7 @@ double HistogramLBFGSSolver::fit_histogram(NoiseModel &model,
 
     const double init_nll = model.compute_nll_from_histogram(hist);
 
-    /* Enforce minimum sample guard W_min = 16 and non-positive iteration cap */
+    /* Enforce minimum sample guard W_min = 64 and non-positive iteration cap */
     if (total < AVID_SOLVER_MIN_WINDOW_SAMPLES || max_iters <= 0) {
         if (diag_out) {
             diag_out->initial_nll = init_nll;
