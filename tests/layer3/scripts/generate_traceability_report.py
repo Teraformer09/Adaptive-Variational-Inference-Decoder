@@ -174,7 +174,8 @@ def parse_traceability_markdown(md_path: str):
             impl_stage = "implemented_set1"
         else:
             prim_dir, test_file = planned_file_for_future_id(test_id)
-            impl_stage = "planned_future_set"
+            cand_path = os.path.join(os.path.dirname(md_path), "tests/layer3", prim_dir, test_file)
+            impl_stage = "implemented_full_layer3" if os.path.exists(cand_path) else "planned_future_set"
 
         family = test_id.rsplit("-", 1)[0]
         set_map = {

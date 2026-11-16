@@ -52,16 +52,30 @@ changed_vs_baseline = subprocess.check_output(
 ).splitlines()
 changed_vs_baseline = sorted({p.strip() for p in changed_vs_baseline if p.strip()})
 
+val_rel = os.path.relpath("${VAL_DIR}", repo_root)
+porcelain = subprocess.check_output(
+    ["git", "-C", repo_root, "status", "--porcelain"],
+    text=True,
+).splitlines()
+dirty_entries = [
+    ln for ln in porcelain
+    if ln.strip()
+    and val_rel not in ln
+    and "logs/layer3_validation.log" not in ln
+    and "software/build_layer3" not in ln
+]
+
 prod_unmodified = (len(changed_vs_baseline) == 0)
 
 manifest = {
-    "schema_version": "1.1.0",
+    "schema_version": "1.2.0",
     "verified_at_utc": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "branch": "${CURRENT_BRANCH}",
     "run_mode": run_mode,
     "baseline_commit": baseline,
     "initial_validation_commit": "${INITIAL_VAL_COMMIT}",
     "head_commit_at_run": "${HEAD_COMMIT}",
+    "dirty_working_tree": (len(dirty_entries) > 0),
     "production_tree_unmodified": prod_unmodified,
     "authorized_remediation_run": (run_mode == "remediated"),
     "remediated_production_files_vs_88df97e": changed_vs_baseline,

@@ -1,10 +1,92 @@
 #pragma once
 #include <cstdint>
 #include <map>
+#include <sstream>
 #include <string>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace avid::layer3_test {
+
+struct RecordString : public std::string {
+    RecordString() = default;
+    RecordString(const RecordString &) = default;
+    RecordString(RecordString &&) noexcept = default;
+    RecordString &operator=(const RecordString &) = default;
+    RecordString &operator=(RecordString &&) noexcept = default;
+
+    RecordString(const std::string &s) : std::string(s) {}
+    RecordString(std::string &&s) noexcept : std::string(std::move(s)) {}
+    RecordString(bool b) : std::string(b ? "true" : "false") {}
+    RecordString(char c) : std::string(1, c) {}
+
+    template <typename T,
+              typename std::enable_if_t<std::is_same_v<std::decay_t<T>, const char *> ||
+                                            std::is_same_v<std::decay_t<T>, char *>,
+                                        int> = 0>
+    RecordString(T s) : std::string(s ? s : "") {}
+
+    template <typename T,
+              typename std::enable_if_t<std::is_integral_v<std::decay_t<T>> &&
+                                            !std::is_same_v<std::decay_t<T>, bool> &&
+                                            !std::is_same_v<std::decay_t<T>, char>,
+                                        int> = 0>
+    RecordString(T v) : std::string(std::to_string(v)) {}
+
+    template <typename T,
+              typename std::enable_if_t<std::is_floating_point_v<std::decay_t<T>>, int> = 0>
+    RecordString(T v) {
+        std::ostringstream oss;
+        oss << v;
+        assign(oss.str());
+    }
+
+    RecordString &operator=(const std::string &s) {
+        assign(s);
+        return *this;
+    }
+    RecordString &operator=(std::string &&s) noexcept {
+        assign(std::move(s));
+        return *this;
+    }
+    RecordString &operator=(bool b) {
+        assign(b ? "true" : "false");
+        return *this;
+    }
+    RecordString &operator=(char c) {
+        assign(1, c);
+        return *this;
+    }
+
+    template <typename T,
+              typename std::enable_if_t<std::is_same_v<std::decay_t<T>, const char *> ||
+                                            std::is_same_v<std::decay_t<T>, char *>,
+                                        int> = 0>
+    RecordString &operator=(T s) {
+        assign(s ? s : "");
+        return *this;
+    }
+
+    template <typename T,
+              typename std::enable_if_t<std::is_integral_v<std::decay_t<T>> &&
+                                            !std::is_same_v<std::decay_t<T>, bool> &&
+                                            !std::is_same_v<std::decay_t<T>, char>,
+                                        int> = 0>
+    RecordString &operator=(T v) {
+        assign(std::to_string(v));
+        return *this;
+    }
+
+    template <typename T,
+              typename std::enable_if_t<std::is_floating_point_v<std::decay_t<T>>, int> = 0>
+    RecordString &operator=(T v) {
+        std::ostringstream oss;
+        oss << v;
+        assign(oss.str());
+        return *this;
+    }
+};
 
 enum class TestStatus {
     PASS,
@@ -31,8 +113,8 @@ struct TestResultRecord {
     std::string independent_oracle;
     std::string execution_command;
     std::string fixture;
-    std::map<std::string, std::string> expected;
-    std::map<std::string, std::string> actual;
+    std::map<std::string, RecordString> expected;
+    std::map<std::string, RecordString> actual;
     std::vector<std::string> assertion_notes;
     std::vector<std::string> evidence;
     std::string failure_classification;

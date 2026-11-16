@@ -19,7 +19,7 @@ cmake --build "${STD_BUILD}" -j4 > "${LOG_DIR}/cmake_build_standard.log" 2>&1
 
 echo "[build_layer3_tests] 2/2 Building ASan+UBSan C11/C++17 suite -> ${SAN_BUILD}"
 cmake -S "${REPO_ROOT}/tests/layer3" -B "${SAN_BUILD}" \
-    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DAVID_VALIDATION_DIR="${VAL_DIR}" \
     -DAVID_ENABLE_ASAN=ON \

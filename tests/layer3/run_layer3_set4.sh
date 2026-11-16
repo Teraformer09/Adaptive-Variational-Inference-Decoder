@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "[STAGE GATE] Layer 3 Test Set 4 (L3-EXEC-001..045) is planned in tests/layer3/set4_execution_recovery/README.md." >&2
-echo "[STAGE GATE] Execution is intentionally halted until Test Set 1 findings and Gate G1 discrepancies are reviewed." >&2
-exit 3
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+VAL_DIR="${1:-${REPO_ROOT}/validation/layer3/runs/set4_adhoc}"
+mkdir -p "${VAL_DIR}/logs/set4" "${VAL_DIR}/raw_results/set4"
+python3 "${SCRIPT_DIR}/scripts/generate_fixtures.py" --repo-root "${REPO_ROOT}" --validation-dir "${VAL_DIR}"
+cmake -S "${SCRIPT_DIR}" -B "${REPO_ROOT}/build/layer3_set4" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DAVID_VALIDATION_DIR="${VAL_DIR}"
+cmake --build "${REPO_ROOT}/build/layer3_set4" -j4
+ctest --test-dir "${REPO_ROOT}/build/layer3_set4" -R "^L3-EXEC-" --output-on-failure -j4
+rm -rf "${REPO_ROOT}/build/layer3_set4"

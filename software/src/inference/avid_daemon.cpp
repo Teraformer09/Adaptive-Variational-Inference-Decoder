@@ -13,6 +13,7 @@
  *      estimator fault injection (M15), and Stim ground-truth unpacking (Minor 10).
  * =========================================================================*/
 #include <cstdio>
+#include <cstddef>
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
@@ -54,6 +55,100 @@ static avid_fallback_fsm_t        g_fallback;
 
 static volatile int g_running = 1;
 static void sigint_handler(int) { g_running = 0; }
+
+struct AvidPersistedStateV1 {
+    uint32_t magic;
+    uint32_t version;
+    double   theta_z[21];
+    double   theta_x[21];
+    int16_t  last_good_q78_z[9];
+    int16_t  last_good_q78_x[9];
+    uint32_t fsm_state;
+    uint32_t consecutive_holds;
+    uint32_t fallback_triggers;
+    uint64_t total_hist_x[16];
+    uint64_t total_hist_z[16];
+    uint32_t epochs_completed;
+    uint32_t hw_epoch;
+    uint32_t crc32;
+};
+
+static constexpr uint32_t AVID_STATE_MAGIC_V1 = 0x41565331u; /* "AVS1" */
+
+static uint32_t compute_crc32_bytes(const void *data, size_t len) {
+    const uint8_t *p = static_cast<const uint8_t *>(data);
+    uint32_t crc = 0xFFFFFFFFu;
+    for (size_t i = 0; i < len; ++i) {
+        crc ^= p[i];
+        for (int b = 0; b < 8; ++b) {
+            crc = (crc >> 1) ^ (0xEDB88320u & (0u - (crc & 1u)));
+        }
+    }
+    return ~crc;
+}
+
+static bool load_persisted_state(const char *path, AvidPersistedStateV1 *out) {
+    if (!path || !path[0] || !out) return false;
+    FILE *fp = std::fopen(path, "rb");
+    if (!fp) return false;
+    if (std::fseek(fp, 0, SEEK_END) != 0) {
+        std::fclose(fp);
+        return false;
+    }
+    long fsz = std::ftell(fp);
+    std::fseek(fp, 0, SEEK_SET);
+    if (fsz != static_cast<long>(sizeof(AvidPersistedStateV1))) {
+        std::fclose(fp);
+        return false;
+    }
+    AvidPersistedStateV1 st{};
+    size_t n = std::fread(&st, 1, sizeof(st), fp);
+    std::fclose(fp);
+    if (n != sizeof(st)) return false;
+    if (st.magic != AVID_STATE_MAGIC_V1 || st.version != 1u) return false;
+    uint32_t expected_crc = compute_crc32_bytes(&st, offsetof(AvidPersistedStateV1, crc32));
+    if (st.crc32 != expected_crc) return false;
+    if (st.fsm_state > static_cast<uint32_t>(AVID_FSM_DEGRADED_BYPASS)) return false;
+    NoiseModel::ParamVec tz, tx;
+    for (int i = 0; i < 21; ++i) {
+        tz(i) = st.theta_z[i];
+        tx(i) = st.theta_x[i];
+    }
+    if (!NoiseModel::validate_parameter_bounds(tz) || !NoiseModel::validate_parameter_bounds(tx)) {
+        return false;
+    }
+    for (int q = 0; q < 9; ++q) {
+        if (st.last_good_q78_z[q] < AVID_Q78_MIN_SAFE || st.last_good_q78_z[q] > AVID_Q78_MAX_SAFE ||
+            st.last_good_q78_x[q] < AVID_Q78_MIN_SAFE || st.last_good_q78_x[q] > AVID_Q78_MAX_SAFE) {
+            return false;
+        }
+    }
+    *out = st;
+    return true;
+}
+
+static bool save_persisted_state_atomic(const char *path, const AvidPersistedStateV1 &in_state) {
+    if (!path || !path[0]) return false;
+    AvidPersistedStateV1 st = in_state;
+    st.magic   = AVID_STATE_MAGIC_V1;
+    st.version = 1u;
+    st.crc32   = compute_crc32_bytes(&st, offsetof(AvidPersistedStateV1, crc32));
+    std::string tmp_path = std::string(path) + ".tmp." + std::to_string(::getpid());
+    FILE *fp = std::fopen(tmp_path.c_str(), "wb");
+    if (!fp) return false;
+    size_t nw = std::fwrite(&st, 1, sizeof(st), fp);
+    int fl_rc = std::fflush(fp);
+    int cl_rc = std::fclose(fp);
+    if (nw != sizeof(st) || fl_rc != 0 || cl_rc != 0) {
+        ::unlink(tmp_path.c_str());
+        return false;
+    }
+    if (std::rename(tmp_path.c_str(), path) != 0) {
+        ::unlink(tmp_path.c_str());
+        return false;
+    }
+    return true;
+}
 
 /* Deterministic xorshift64* PRNG for reproducible scenario streams */
 static uint64_t xorshift64s(uint64_t *state) {
@@ -247,6 +342,15 @@ static bool parse_strict_u64(const char *s, uint64_t *out) {
     unsigned long long v = std::strtoull(s, &end, 10);
     if (!end || *end != '\0') return false;
     *out = static_cast<uint64_t>(v);
+    return true;
+}
+
+static bool parse_strict_f64(const char *s, double *out) {
+    if (!s || s[0] == '\0' || !out) return false;
+    char *end = nullptr;
+    double v = std::strtod(s, &end);
+    if (!end || *end != '\0' || !std::isfinite(v)) return false;
+    *out = v;
     return true;
 }
 
@@ -506,12 +610,17 @@ int main(int argc, char *argv[]) {
     std::string checkpoint_str;
     std::string controller_mode_str = "avid_r2d2";
     std::string config_yaml_str;
+    std::string state_in_str;
+    std::string state_out_str;
     uint32_t    osd_mode            = 1u;
     uint64_t    seed                = 42ULL;
     int         total_rounds        = 1024;
     int         window_rounds       = 256;
     int         commit_delay_rounds = 0;
     uint32_t    initial_k_iters     = 3u;
+    int         lbfgs_max_iters     = 20;
+    double      slow_deadline_us    = 10000.0;
+    uint32_t    hal_timeout_ms      = 0u;
 
     bool cli_has_backend   = false;
     bool cli_has_scenario  = false;
@@ -642,6 +751,51 @@ int main(int argc, char *argv[]) {
                 return 2;
             }
             config_yaml_str = argv[++i];
+        } else if (std::strcmp(argv[i], "--state-in") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --state-in\n");
+                return 2;
+            }
+            state_in_str = argv[++i];
+        } else if (std::strcmp(argv[i], "--state-out") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --state-out\n");
+                return 2;
+            }
+            state_out_str = argv[++i];
+        } else if (std::strcmp(argv[i], "--lbfgs-max-iters") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --lbfgs-max-iters\n");
+                return 2;
+            }
+            long long v = 0;
+            if (!parse_strict_i64(argv[++i], &v) || v < 0 || v > 500) {
+                std::fprintf(stderr, "[avid_daemon] Invalid --lbfgs-max-iters value\n");
+                return 2;
+            }
+            lbfgs_max_iters = static_cast<int>(v);
+        } else if (std::strcmp(argv[i], "--slow-deadline-us") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --slow-deadline-us\n");
+                return 2;
+            }
+            double v = 0.0;
+            if (!parse_strict_f64(argv[++i], &v) || v <= 0.0) {
+                std::fprintf(stderr, "[avid_daemon] Invalid --slow-deadline-us value\n");
+                return 2;
+            }
+            slow_deadline_us = v;
+        } else if (std::strcmp(argv[i], "--hal-timeout-ms") == 0) {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "[avid_daemon] Missing value for --hal-timeout-ms\n");
+                return 2;
+            }
+            uint64_t v = 0;
+            if (!parse_strict_u64(argv[++i], &v) || v == 0 || v > 60000) {
+                std::fprintf(stderr, "[avid_daemon] Invalid --hal-timeout-ms value\n");
+                return 2;
+            }
+            hal_timeout_ms = static_cast<uint32_t>(v);
         } else {
             std::fprintf(stderr, "[avid_daemon] Unknown CLI argument: %s\n", argv[i]);
             return 2;
@@ -715,6 +869,9 @@ int main(int argc, char *argv[]) {
                      (int)backend, socket_path);
         return 1;
     }
+    if (hal_timeout_ms > 0u) {
+        avid_hal_set_timeout_ms(&g_hal, hal_timeout_ms);
+    }
 
     FILE *stim_fp = nullptr;
     uint64_t stim_pkts_in_file  = 0ULL;
@@ -762,7 +919,7 @@ int main(int argc, char *argv[]) {
     ring_init(&g_ring_buf);
     avid_scheduler_init(&g_scheduler, 16u, static_cast<uint64_t>(window_rounds),
                         static_cast<uint64_t>(commit_delay_rounds));
-    avid_profiler_init(&g_prof_est, "joint_dp_lbfgs_r2d2_step", 10000.0); /* 10 ms slow-loop deadline */
+    avid_profiler_init(&g_prof_est, "joint_dp_lbfgs_r2d2_step", slow_deadline_us);
     avid_fallback_init(&g_fallback, AVID_Q78_DEFAULT);
 
     uint64_t last_cycle = 0;
@@ -773,6 +930,35 @@ int main(int argc, char *argv[]) {
     int16_t init_q78_x[9], init_q78_z[9];
     g_model_x.to_q7_8_llr(init_q78_x);
     g_model_z.to_q7_8_llr(init_q78_z);
+    bool state_in_loaded   = false;
+    bool state_in_rejected = false;
+    if (!state_in_str.empty()) {
+        AvidPersistedStateV1 loaded_st{};
+        if (load_persisted_state(state_in_str.c_str(), &loaded_st)) {
+            for (int i = 0; i < 21; ++i) {
+                g_model_z.theta_(i) = loaded_st.theta_z[i];
+                g_model_x.theta_(i) = loaded_st.theta_x[i];
+            }
+            for (int q = 0; q < 9; ++q) {
+                init_q78_z[q] = loaded_st.last_good_q78_z[q];
+                init_q78_x[q] = loaded_st.last_good_q78_x[q];
+                g_fallback.last_good_q78[q] = loaded_st.last_good_q78_z[q];
+            }
+            g_fallback.state             = static_cast<avid_fallback_state_t>(loaded_st.fsm_state);
+            g_fallback.consecutive_holds = loaded_st.consecutive_holds;
+            g_fallback.fallback_triggers = loaded_st.fallback_triggers;
+            state_in_loaded = true;
+        } else {
+            std::fprintf(stderr, "[avid_daemon] WARNING: Rejected invalid/corrupt --state-in '%s'; falling back to clean cold start.\n",
+                         state_in_str.c_str());
+            state_in_rejected = true;
+        }
+    }
+    int16_t last_committed_q78_x[9];
+    int16_t last_committed_q78_z[9];
+    std::memcpy(last_committed_q78_x, init_q78_x, sizeof(last_committed_q78_x));
+    std::memcpy(last_committed_q78_z, init_q78_z, sizeof(last_committed_q78_z));
+    uint64_t prev_hal_rejected = g_hal.stats.rejected_transactions;
     uint32_t hw_epoch = 0;
     uint32_t initial_boot_commits = 1u;
     uint32_t adaptive_epoch_commits = 0u;
@@ -957,7 +1143,7 @@ int main(int argc, char *argv[]) {
                     pending_fast_burst_trigger = true;
                 }
 
-                if (backend == AVID_HAL_BACKEND_SIMULATION) {
+                if (backend == AVID_HAL_BACKEND_SIMULATION || !stim_fp) {
                     uint16_t cx = 0, cz = 0;
                     uint32_t bp_cyc = 0;
                     bool tlast = ((decoded_rounds + 1) % 64 == 0);
@@ -989,6 +1175,8 @@ int main(int argc, char *argv[]) {
             if (avid_scheduler_poll_commit_ready(&g_scheduler, static_cast<uint64_t>(rounds_attempted), ready_q78_z)) {
                 if (avid_hal_write_weights_and_commit(&g_hal, g_pending_q78_x, ready_q78_z, &hw_epoch, &last_cycle) == 0) {
                     adaptive_epoch_commits++;
+                    std::memcpy(last_committed_q78_x, g_pending_q78_x, sizeof(last_committed_q78_x));
+                    std::memcpy(last_committed_q78_z, ready_q78_z, sizeof(last_committed_q78_z));
                 }
             }
         }
@@ -1091,8 +1279,8 @@ int main(int argc, char *argv[]) {
                 last_marginal_nll = g_model_z.compute_legacy_marginal_nll_from_histogram(hist_x);
             } else {
                 /* Dual-basis Exact 16-State Joint-DP L-BFGS on BOTH hist_x and hist_z */
-                last_nll = g_solver.fit_histogram(g_model_z, hist_x, 20, &diag_z);
-                g_solver.fit_histogram(g_model_x, hist_z, 12, &diag_x);
+                last_nll = g_solver.fit_histogram(g_model_z, hist_x, lbfgs_max_iters, &diag_z);
+                g_solver.fit_histogram(g_model_x, hist_z, std::min(12, lbfgs_max_iters), &diag_x);
                 last_marginal_nll = diag_z.legacy_marginal_nll;
                 last_grad_inf     = diag_z.final_grad_inf_norm;
                 last_lbfgs_iters  = diag_z.iterations_executed;
@@ -1159,8 +1347,8 @@ int main(int argc, char *argv[]) {
                             eval_hx[s] = (uint32_t)std::max(0L, std::lround(smooth_hist_x_f[s]));
                             eval_hz[s] = (uint32_t)std::max(0L, std::lround(smooth_hist_z_f[s]));
                         }
-                        last_nll = g_solver.fit_histogram(g_model_z, eval_hx, 22, &diag_z);
-                        g_solver.fit_histogram(g_model_x, eval_hz, 12, &diag_x);
+                        last_nll = g_solver.fit_histogram(g_model_z, eval_hx, std::min(22, lbfgs_max_iters), &diag_z);
+                        g_solver.fit_histogram(g_model_x, eval_hz, std::min(12, lbfgs_max_iters), &diag_x);
                         last_marginal_nll = diag_z.legacy_marginal_nll;
                         last_grad_inf     = diag_z.final_grad_inf_norm;
                         last_lbfgs_iters  = diag_z.iterations_executed;
@@ -1227,11 +1415,20 @@ int main(int argc, char *argv[]) {
 
             int16_t sel_q78_z[9], sel_q78_x[9];
             bool should_commit = false;
+            const bool is_lbfgs_mode = (std::strcmp(controller_mode, "static") != 0 &&
+                                        std::strcmp(controller_mode, "tuned_static") != 0 &&
+                                        std::strcmp(controller_mode, "marginal_lbfgs") != 0 &&
+                                        std::strcmp(controller_mode, "b4_oracle") != 0);
+            const bool est_ok = (last_nll > 0.0 && std::isfinite(last_nll)) &&
+                                (!is_lbfgs_mode || is_corrupted_epoch || diag_z.converged);
+            const bool hal_bus_ok = (g_hal.stats.rejected_transactions == prev_hal_rejected);
+            prev_hal_rejected = g_hal.stats.rejected_transactions;
+
             avid_fallback_step(&g_fallback,
-                               /*estimator_ok=*/(last_nll > 0.0 && std::isfinite(last_nll)),
+                               est_ok,
                                deadline_ok,
                                bounds_ok,
-                               /*bus_ok=*/true,
+                               hal_bus_ok,
                                cand_q78_z,
                                sel_q78_z,
                                &should_commit);
@@ -1242,6 +1439,12 @@ int main(int argc, char *argv[]) {
 
             if (g_fallback.state != AVID_FSM_NORMAL_ADAPTIVE) {
                 fallback_events++;
+                if (!bounds_ok || !NoiseModel::validate_parameter_bounds(g_model_z.theta_) ||
+                    !NoiseModel::validate_parameter_bounds(g_model_x.theta_)) {
+                    g_model_z.init(0.012, 0.004);
+                    g_model_x.init(0.005, 0.002);
+                    has_smooth_hist = false;
+                }
             }
 
             /* Scenario-specific hardware reset tests */
@@ -1275,6 +1478,8 @@ int main(int argc, char *argv[]) {
                 if (avid_scheduler_poll_commit_ready(&g_scheduler, static_cast<uint64_t>(rounds_attempted), ready_now_z)) {
                     if (avid_hal_write_weights_and_commit(&g_hal, g_pending_q78_x, ready_now_z, &hw_epoch, &last_cycle) == 0) {
                         adaptive_epoch_commits++;
+                        std::memcpy(last_committed_q78_x, g_pending_q78_x, sizeof(last_committed_q78_x));
+                        std::memcpy(last_committed_q78_z, ready_now_z, sizeof(last_committed_q78_z));
                         if (!stim_fp) {
                             avid_dma_ring_set_active_epoch(&g_dma_ring, static_cast<uint16_t>(hw_epoch));
                         }
@@ -1303,8 +1508,28 @@ int main(int argc, char *argv[]) {
 
     if (stim_fp) std::fclose(stim_fp);
 
+    bool state_out_written = false;
+    if (!state_out_str.empty()) {
+        AvidPersistedStateV1 out_st{};
+        for (int i = 0; i < 21; ++i) {
+            out_st.theta_z[i] = g_model_z.theta_(i);
+            out_st.theta_x[i] = g_model_x.theta_(i);
+        }
+        std::memcpy(out_st.last_good_q78_z, last_committed_q78_z, sizeof(out_st.last_good_q78_z));
+        std::memcpy(out_st.last_good_q78_x, last_committed_q78_x, sizeof(out_st.last_good_q78_x));
+        out_st.fsm_state         = static_cast<uint32_t>(g_fallback.state);
+        out_st.consecutive_holds = g_fallback.consecutive_holds;
+        out_st.fallback_triggers = g_fallback.fallback_triggers;
+        std::memcpy(out_st.total_hist_x, total_hist_x, sizeof(out_st.total_hist_x));
+        std::memcpy(out_st.total_hist_z, total_hist_z, sizeof(out_st.total_hist_z));
+        out_st.epochs_completed  = static_cast<uint32_t>(std::max(0, epochs));
+        out_st.hw_epoch          = hw_epoch;
+        state_out_written = save_persisted_state_atomic(state_out_str.c_str(), out_st);
+    }
+
     if (metrics_out && metrics_out[0] != '\0') {
-        FILE *fp = std::fopen(metrics_out, "w");
+        std::string metrics_tmp = std::string(metrics_out) + ".tmp." + std::to_string(::getpid());
+        FILE *fp = std::fopen(metrics_tmp.c_str(), "w");
         if (fp) {
             double avg_bp_cyc   = (decoded_rounds > 0) ? ((double)sum_bp_cycles / (double)decoded_rounds) : 17.0;
             double avg_axis_cyc = (decoded_rounds > 0) ? ((double)sum_axis_cycles / (double)decoded_rounds) : 22.0;
@@ -1340,6 +1565,18 @@ int main(int argc, char *argv[]) {
                                         "%s%llu", (s > 0 ? ", " : ""), (unsigned long long)total_hist_z[s]);
             }
 
+            char theta_z_buf[512] = {0};
+            char q78_z_buf[192] = {0};
+            int tz_pos = 0, qz_pos = 0;
+            for (int i = 0; i < 21; ++i) {
+                tz_pos += std::snprintf(theta_z_buf + tz_pos, sizeof(theta_z_buf) - (size_t)tz_pos,
+                                        "%s%.6f", (i > 0 ? ", " : ""), g_model_z.theta_(i));
+            }
+            for (int q = 0; q < 9; ++q) {
+                qz_pos += std::snprintf(q78_z_buf + qz_pos, sizeof(q78_z_buf) - (size_t)qz_pos,
+                                        "%s%d", (q > 0 ? ", " : ""), (int)last_committed_q78_z[q]);
+            }
+
             std::fprintf(fp,
                 "{\n"
                 "  \"scenario\": \"%s\",\n"
@@ -1348,6 +1585,12 @@ int main(int argc, char *argv[]) {
                 "  \"backend\": \"%s\",\n"
                 "  \"syndrome_source\": \"%s\",\n"
                 "  \"stim_stream_header_detected\": %s,\n"
+                "  \"state_in_loaded\": %s,\n"
+                "  \"state_in_rejected\": %s,\n"
+                "  \"state_out_written\": %s,\n"
+                "  \"final_fsm_state\": %u,\n"
+                "  \"final_theta_z\": [%s],\n"
+                "  \"final_q78_z\": [%s],\n"
                 "  \"total_hist_x\": [%s],\n"
                 "  \"total_hist_z\": [%s],\n"
                 "  \"dual_xz_histograms_used\": true,\n"
@@ -1432,6 +1675,12 @@ int main(int argc, char *argv[]) {
                 (backend == AVID_HAL_BACKEND_SIMULATION) ? "simulation_backend" : "physical_backend",
                 (stim_bin_path && stim_bin_path[0] != '\0') ? "stim_binary_stream" : "deterministic_simulation_generator",
                 stim_has_header ? "true" : "false",
+                state_in_loaded ? "true" : "false",
+                state_in_rejected ? "true" : "false",
+                state_out_written ? "true" : "false",
+                (unsigned)g_fallback.state,
+                theta_z_buf,
+                q78_z_buf,
                 hist_x_buf,
                 hist_z_buf,
                 g_r2d2.is_checkpoint_loaded() ? "true" : "false",
@@ -1508,7 +1757,9 @@ int main(int argc, char *argv[]) {
                 (unsigned long long)g_hal.stats.syndrome_packets,
                 (unsigned long long)g_hal.stats.rejected_transactions,
                 (unsigned long long)g_hal.stats.last_accepted_cycle);
+            std::fflush(fp);
             std::fclose(fp);
+            std::rename(metrics_tmp.c_str(), metrics_out);
         }
     }
 

@@ -2,11 +2,12 @@
 """
 evaluate_acceptance.py — Honest Evidence-Driven Gate Evaluator for AVID Layer 3.
 
-Evaluates Gate G1 (Input Integrity & Contract Conformance) and Gate G10
-(Reproducibility, Traceability, & Branch Isolation Integrity) directly from
-the active validation directory's `results/set1_input_contracts.json` and required
-manifests/reports, while marking G2..G9 as `NOT_EVALUATED_YET` per the mandatory
-Set 1 stage gate.
+Supports both:
+  1. Set-1-only stage directories (`results/set1_input_contracts.json` only): evaluates G1 & G10,
+     leaving G2..G9 as `NOT_EVALUATED_YET` for backward compatibility with preserved Set 1 runs.
+  2. Full Layer 3 validation directories (`results/layer3_full_results.json` present): evaluates
+     all 10 architecture acceptance gates `G1`–`G10` across all 243 canonical IDs + 7 C11 ABI +
+     5 daemon integration + 2 diagnostic companions + ASan/UBSan suite (`257` records).
 """
 
 import argparse
@@ -25,6 +26,20 @@ ALLOWED_STATUSES = {
 }
 
 
+def eval_id_group(by_id, id_list):
+    pass_cnt = 0
+    non_pass_cnt = 0
+    blocking = []
+    for tid in id_list:
+        rec = by_id.get(tid)
+        if not rec or rec.get("status") != "PASS":
+            non_pass_cnt += 1
+            blocking.append(tid)
+        else:
+            pass_cnt += 1
+    return pass_cnt, non_pass_cnt, blocking
+
+
 def main():
     default_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
     ap = argparse.ArgumentParser()
@@ -34,54 +49,39 @@ def main():
 
     r = os.path.abspath(args.repo_root)
     val_dir = os.path.abspath(args.validation_dir) if args.validation_dir else os.path.join(r, "validation/layer3")
-    res_path = os.path.join(val_dir, "results/set1_input_contracts.json")
-    if not os.path.exists(res_path):
-        print(f"ERROR: missing {res_path}", file=sys.stderr)
+    set1_path = os.path.join(val_dir, "results/set1_input_contracts.json")
+    full_path = os.path.join(val_dir, "results/layer3_full_results.json")
+
+    if not os.path.exists(set1_path):
+        print(f"ERROR: missing {set1_path}", file=sys.stderr)
         sys.exit(1)
 
-    with open(res_path, "r", encoding="utf-8") as f:
+    with open(set1_path, "r", encoding="utf-8") as f:
         set1 = json.load(f)
 
-    canonical = set1.get("canonical_results", [])
-    c_abi = set1.get("c_abi_results", [])
-    supplementary = set1.get("supplementary_results", [])
+    is_full = os.path.exists(full_path)
+    active_doc = json.load(open(full_path, "r", encoding="utf-8")) if is_full else set1
 
-    expected_ip_ids = [f"L3-IP-{i:03d}" for i in range(1, 41)]
+    canonical = active_doc.get("canonical_results", [])
+    c_abi = active_doc.get("c_abi_results", [])
+    supplementary = active_doc.get("supplementary_results", [])
     by_id = {rec["test_id"]: rec for rec in (canonical + c_abi + supplementary)}
 
+    expected_ip_ids = [f"L3-IP-{i:03d}" for i in range(1, 41)]
     missing_ip = [tid for tid in expected_ip_ids if tid not in by_id]
     invalid_status = [
         rec["test_id"] for rec in by_id.values() if rec.get("status") not in ALLOWED_STATUSES
     ]
 
-    g1_blocking = []
-    g1_pass = 0
-    g1_non_pass = 0
-
     int_ids = [f"L3-INT-{i:03d}" for i in range(1, 5)]
-    if "L3-INT-005" in by_id or set1.get("run_id", "") not in ("88df97e_set1_baseline", "remediated_set1_v1"):
+    if "L3-INT-005" in by_id or active_doc.get("run_id", "") not in ("88df97e_set1_baseline", "remediated_set1_v1"):
         int_ids.append("L3-INT-005")
-    gated_ids = expected_ip_ids + [f"L3-ABI-{i:03d}" for i in range(1, 8)] + int_ids
-    total_gated = len(gated_ids)
+    g1_gated_ids = expected_ip_ids + [f"L3-ABI-{i:03d}" for i in range(1, 8)] + int_ids
+    g1_pass, g1_non_pass, g1_blocking = eval_id_group(by_id, g1_gated_ids)
 
-    for tid in gated_ids:
-        rec = by_id.get(tid)
-        if not rec:
-            g1_non_pass += 1
-            g1_blocking.append(tid)
-        elif rec.get("status") == "PASS":
-            g1_pass += 1
-        else:
-            g1_non_pass += 1
-            g1_blocking.append(tid)
-
-    # Also verify supplementary diagnostic checks and sanitizer status for complete G1 auditability
     diag_ids = ["L3-DMA-INVALID-PKT", "L3-CFG-MISSING"]
-    diag_non_pass = [
-        tid for tid in diag_ids
-        if by_id.get(tid, {}).get("status") != "PASS"
-    ]
-    san_rc = set1.get("sanitizer_ctest_exit_code", -1)
+    diag_non_pass = [tid for tid in diag_ids if by_id.get(tid, {}).get("status") != "PASS"]
+    san_rc = active_doc.get("sanitizer_ctest_exit_code", -1)
 
     required_reports = [
         "validation/layer3/reports/layer3_input_architecture_map.md",
@@ -132,7 +132,7 @@ def main():
     src_manifest_path = os.path.join(val_dir, "manifests/source_manifest.json")
     prod_clean_or_remediated = False
     frozen_clean = False
-    source_commit = set1.get("source_commit", "unknown")
+    source_commit = active_doc.get("source_commit", "unknown")
     run_mode = "baseline"
     if os.path.exists(src_manifest_path):
         with open(src_manifest_path, "r", encoding="utf-8") as sf:
@@ -143,14 +143,6 @@ def main():
             )
             frozen_clean = bool(sm.get("frozen_baseline_untouched", False))
             source_commit = sm.get("head_commit_at_run", source_commit)
-
-    g10_ok = (
-        len(missing_g10) == 0
-        and prod_clean_or_remediated
-        and frozen_clean
-        and len(missing_ip) == 0
-        and len(invalid_status) == 0
-    )
 
     gates_out = [
         {
@@ -164,63 +156,150 @@ def main():
             "sanitizer_ctest_exit_code": san_rc,
             "blocking_ids": g1_blocking + diag_non_pass,
             "rationale": (
-                f"Evaluated 40 canonical L3-IP tests + 7 C11 ABI tests + {len(int_ids)} daemon integration tests "
+                f"Evaluated 40 canonical L3-IP + 7 C11 ABI + {len(int_ids)} daemon integration "
                 f"(+ 2 diagnostic companions; ASan+UBSan rc={san_rc}) in mode='{run_mode}': "
-                f"{g1_pass}/{total_gated} gated PASS, {g1_non_pass} non-PASS; companion non-PASS={diag_non_pass}. "
-                + (f"Missing reports: {missing_reports}." if missing_reports else "All required technical & decision reports verified.")
+                f"{g1_pass}/{len(g1_gated_ids)} gated PASS, {g1_non_pass} non-PASS."
             ),
         }
     ]
 
-    deferred_defs = [
-        ("G2", "Likelihood Exactness & Analytical Gradient Fidelity", "Deferred to Set 5 (L3-MATH-001..014)"),
-        ("G3", "L-BFGS Optimization & Quotient-Orbit Parameter Recovery", "Deferred to Sets 2 & 5 (L3-OP, L3-STAT, L3-MATH)"),
-        ("G4", "Signed Q7.8 LLR Quantization & Bank Bounds Integrity", "Deferred to Sets 2 & 5 (L3-OP-011..020, L3-MATH-033..042)"),
-        ("G5", "Causal Scheduling & Sub-Epoch Burst Detection", "Deferred to Sets 2, 3, & 5"),
-        ("G6", "Four-State Safety Fallback FSM & Hardware Protection", "Deferred to Sets 2, 3, & 5"),
-        ("G7", "End-to-End Slow-Loop Pipeline Flow & HAL Commit Atomicity", "Deferred to Set 3 (L3-FLOW-001..045)"),
-        ("G8", "Runtime Execution, Memory Zero-Allocation, & Fault Recovery", "Deferred to Set 4 (L3-EXEC-001..045)"),
-        ("G9", "Adaptive Control Efficacy & Non-Regression Over Static Baselines", "Deferred to Sets 2 & 3"),
-    ]
-    for gid, gname, grat in deferred_defs:
-        gates_out.append({
-            "gate_id": gid,
-            "gate_name": gname,
-            "evaluated_in_stage": False,
-            "status": "NOT_EVALUATED_YET",
-            "pass_count": 0,
-            "non_pass_count": 0,
-            "blocking_ids": [],
-            "rationale": grat + " — stopped after Set 1 per mandatory stage gate.",
-        })
+    all_blocking = list(g1_blocking + diag_non_pass)
+
+    if not is_full:
+        deferred_defs = [
+            ("G2", "Output Contracts & 32-Seed Statistical Recovery", "Deferred to Set 2"),
+            ("G3", "Complete Ingress-to-Commit Pipeline Dataflow", "Deferred to Set 3"),
+            ("G4", "Causal Timing, 20 us Fast Detector vs 10 ms Slow Loop", "Deferred to Set 3C"),
+            ("G5", "Clean Build, Daemon Lifecycle, Persistence, Faults & Concurrency", "Deferred to Set 4"),
+            ("G6", "Independent Joint-DP & L-BFGS Mathematical Oracles", "Deferred to Set 5A-5B"),
+            ("G7", "Parameter Identifiability, Jacobian Rank & Fisher Information", "Deferred to Set 5C"),
+            ("G8", "Q7.8 LLR Reference & Causal Scheduler Mathematics", "Deferred to Set 5D-5E"),
+            ("G9", "Four-State Safety FSM Exhaustive Verification", "Deferred to Set 5F"),
+        ]
+        for gid, gname, grat in deferred_defs:
+            gates_out.append({
+                "gate_id": gid,
+                "gate_name": gname,
+                "evaluated_in_stage": False,
+                "status": "NOT_EVALUATED_YET",
+                "pass_count": 0,
+                "non_pass_count": 0,
+                "blocking_ids": [],
+                "rationale": grat + " — stopped after Set 1 per mandatory stage gate.",
+            })
+        expected_all_canonical = expected_ip_ids
+    else:
+        full_gate_specs = [
+            (
+                "G2",
+                "Output Contracts & 32-Seed Statistical Recovery",
+                [f"L3-OP-{i:03d}" for i in range(1, 37)] + [f"L3-STAT-{i:03d}" for i in range(1, 16)],
+                "Set 2 (36 L3-OP + 15 L3-STAT)",
+            ),
+            (
+                "G3",
+                "Complete Ingress-to-Commit Pipeline Dataflow",
+                [f"L3-FLOW-{i:03d}" for i in range(1, 26)] + [f"L3-FLOW-{i:03d}" for i in range(36, 46)],
+                "Set 3A/3B/3D (35 L3-FLOW)",
+            ),
+            (
+                "G4",
+                "Causal Timing, 20 us Fast Detector vs 10 ms Slow Loop",
+                [f"L3-FLOW-{i:03d}" for i in range(26, 36)],
+                "Set 3C (10 L3-FLOW)",
+            ),
+            (
+                "G5",
+                "Clean Build, Daemon Lifecycle, Persistence, Faults & Concurrency",
+                [f"L3-EXEC-{i:03d}" for i in range(1, 46)],
+                "Set 4 (45 L3-EXEC)",
+            ),
+            (
+                "G6",
+                "Independent Joint-DP & L-BFGS Mathematical Oracles",
+                [f"L3-MATH-{i:03d}" for i in range(1, 25)],
+                "Set 5A/5B (24 L3-MATH)",
+            ),
+            (
+                "G7",
+                "Parameter Identifiability, Jacobian Rank & Fisher Information",
+                [f"L3-MATH-{i:03d}" for i in range(25, 33)],
+                "Set 5C (8 L3-MATH)",
+            ),
+            (
+                "G8",
+                "Q7.8 LLR Reference & Causal Scheduler Mathematics",
+                [f"L3-MATH-{i:03d}" for i in range(33, 53)],
+                "Set 5D/5E (20 L3-MATH)",
+            ),
+            (
+                "G9",
+                "Four-State Safety FSM Exhaustive Verification",
+                [f"L3-MATH-{i:03d}" for i in range(53, 63)],
+                "Set 5F (10 L3-MATH)",
+            ),
+        ]
+        expected_all_canonical = list(expected_ip_ids)
+        for gid, gname, gids, scope_desc in full_gate_specs:
+            expected_all_canonical.extend(gids)
+            gp, gnp, gblk = eval_id_group(by_id, gids)
+            all_blocking.extend(gblk)
+            gst = "PASS" if (gnp == 0 and san_rc == 0) else "FAIL"
+            gates_out.append({
+                "gate_id": gid,
+                "gate_name": gname,
+                "evaluated_in_stage": True,
+                "status": gst,
+                "pass_count": gp,
+                "non_pass_count": gnp,
+                "blocking_ids": gblk,
+                "rationale": f"Evaluated {scope_desc}: {gp}/{len(gids)} PASS, {gnp} non-PASS (ASan+UBSan rc={san_rc}).",
+            })
+
+    missing_canonical = [tid for tid in expected_all_canonical if tid not in by_id]
+    g10_ok = (
+        len(missing_g10) == 0
+        and prod_clean_or_remediated
+        and frozen_clean
+        and len(missing_canonical) == 0
+        and len(invalid_status) == 0
+        and san_rc == 0
+    )
+    g10_pass_cnt = len(expected_all_canonical) if g10_ok else 0
 
     gates_out.append({
         "gate_id": "G10",
         "gate_name": "Reproducibility, Traceability, & Branch Isolation Integrity",
         "evaluated_in_stage": True,
         "status": "PASS" if g10_ok else "FAIL",
-        "pass_count": 1 if g10_ok else 0,
+        "pass_count": g10_pass_cnt if is_full else (1 if g10_ok else 0),
         "non_pass_count": 0 if g10_ok else 1,
-        "blocking_ids": missing_g10,
+        "blocking_ids": missing_g10 + missing_canonical,
         "rationale": (
-            f"243/243 canonical IDs preserved; 40/40 Set 1 IDs executed; "
+            f"{len(expected_all_canonical)}/243 canonical IDs executed; "
             f"run_mode={run_mode}; baseline_be50761_evidence_preserved=True; "
-            f"frozen_baseline_untouched={frozen_clean}; missing_artifacts={len(missing_g10)}."
+            f"frozen_baseline_untouched={frozen_clean}; asan_ubsan_rc={san_rc}; missing_artifacts={len(missing_g10)}."
         ),
     })
 
     now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    # Overall Layer 3 acceptance remains STAGE_1_PASSED_PENDING_SETS_2_TO_5 until G2..G9 are evaluated!
     stage1_decision = "STAGE1_ACCEPTED_G1_G10_PASS" if (g1_status == "PASS" and g10_ok) else "NOT_ACCEPTED"
+    if is_full:
+        all_10_pass = all(g["status"] == "PASS" for g in gates_out)
+        overall_decision = "ACCEPTED_ALL_GATES_G1_TO_G10_PASS" if all_10_pass else "NOT_ACCEPTED"
+        active_stage = "full_layer3_sets1_to_5"
+    else:
+        overall_decision = "PENDING_SETS_2_TO_5" if stage1_decision == "STAGE1_ACCEPTED_G1_G10_PASS" else "NOT_ACCEPTED"
+        active_stage = "set1_input_contracts"
 
     eval_doc = {
-        "schema_version": "1.1.0",
-        "run_id": set1.get("run_id", ""),
+        "schema_version": "2.0.0" if is_full else "1.1.0",
+        "run_id": active_doc.get("run_id", ""),
         "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
         "source_commit": source_commit,
         "evaluated_at_utc": now_utc,
-        "active_stage": "set1_input_contracts",
-        "overall_layer3_decision": "PENDING_SETS_2_TO_5" if stage1_decision == "STAGE1_ACCEPTED_G1_G10_PASS" else "NOT_ACCEPTED",
+        "active_stage": active_stage,
+        "overall_layer3_decision": overall_decision,
         "stage1_gate_decision": stage1_decision,
         "g1_decision": g1_status,
         "g10_decision": "PASS" if g10_ok else "FAIL",
@@ -228,7 +307,7 @@ def main():
     }
 
     unresolved = []
-    for tid in g1_blocking + diag_non_pass:
+    for tid in all_blocking:
         rec = by_id.get(tid, {})
         unresolved.append({
             "test_id": tid,
@@ -248,8 +327,8 @@ def main():
 
     with open(os.path.join(acc_dir, "unresolved_requirements.json"), "w", encoding="utf-8") as wf:
         json.dump({
-            "schema_version": "1.1.0",
-            "run_id": set1.get("run_id", ""),
+            "schema_version": "2.0.0" if is_full else "1.1.0",
+            "run_id": active_doc.get("run_id", ""),
             "source_commit": source_commit,
             "evaluated_at_utc": now_utc,
             "unresolved_count": len(unresolved),
@@ -258,48 +337,42 @@ def main():
         wf.write("\n")
 
     md_lines = [
-        f"# Layer 3 Acceptance Evaluation Summary ({set1.get('run_id', 'Set 1 Stage Gate')})",
+        f"# Layer 3 Acceptance Evaluation Summary ({active_doc.get('run_id', active_stage)})",
         "",
-        f"- **Run ID**: `{set1.get('run_id', 'set1')}` (`mode={run_mode}`)",
+        f"- **Run ID**: `{active_doc.get('run_id', active_stage)}` (`mode={run_mode}`)",
         f"- **Source Commit**: `{source_commit}` (remediated from baseline `88df97e86b579b6e2865cc70dc4d0b08225d677b`; original failing run preserved at `validation/layer3/runs/88df97e_set1_baseline/`)",
         f"- **Evaluated At (UTC)**: `{now_utc}`",
-        f"- **Gate `G1` (Input Integrity & Contract Conformance)**: **`{g1_status}`** (`{g1_pass}/{total_gated}` gated PASS + `{2 - len(diag_non_pass)}/2` diagnostic companions PASS; ASan+UBSan exit code `{san_rc}`)",
-        f"- **Gate `G10` (Reproducibility, Traceability, & Branch Isolation)**: **`{'PASS' if g10_ok else 'FAIL'}`**",
-        f"- **Gates `G2`–`G9`**: **`NOT_EVALUATED_YET`** (halted at mandatory Set 1 review gate)",
-        f"- **Stage 1 Gate Decision**: **`{stage1_decision}`** (Overall Layer 3: **`{eval_doc['overall_layer3_decision']}`**)",
+        f"- **Overall Layer 3 Decision**: **`{overall_decision}`**",
+        f"- **Sanitizer Suite (`ASan+UBSan`)**: exit code `{san_rc}`",
         "",
-        "## Gate Table",
+        "## Gate Table (`G1`–`G10`)",
         "",
         "| Gate | Name | Stage | Status | PASS | Non-PASS |",
         "| :--- | :--- | :--- | :--- | ---: | ---: |",
     ]
     for g in gates_out:
+        st_label = "Sets 1–5" if (is_full and g["evaluated_in_stage"]) else ("Set 1" if g["evaluated_in_stage"] else "Future Sets 2–5")
         md_lines.append(
-            f"| `{g['gate_id']}` | {g['gate_name']} | {'Set 1' if g['evaluated_in_stage'] else 'Future Sets 2–5'} "
-            f"| **`{g['status']}`** | {g['pass_count']} | {g['non_pass_count']} |"
+            f"| `{g['gate_id']}` | {g['gate_name']} | {st_label} | **`{g['status']}`** | {g['pass_count']} | {g['non_pass_count']} |"
         )
     md_lines.append("")
     if unresolved:
-        md_lines.append("## Blocking `G1` Items")
+        md_lines.append("## Unresolved Items")
         md_lines.append("")
-        md_lines.append("| Test ID | Status | Target File | Classification |")
-        md_lines.append("| :--- | :--- | :--- | :--- |")
         for u in unresolved:
-            md_lines.append(
-                f"| `{u['test_id']}` | `{u['status']}` | `{u['implementation_file']}` | `{u['failure_classification']}` |"
-            )
+            md_lines.append(f"- `{u['test_id']}`: `{u['status']}` ({u['implementation_file']})")
     else:
-        md_lines.append("## `G1` Resolution Status")
+        md_lines.append("## Resolution Status")
         md_lines.append("")
-        md_lines.append(f"Zero unresolved `G1` items (`{total_gated}/{total_gated}` gated items `PASS` + `2/2` diagnostic companions `PASS` + ASan/UBSan clean).")
+        md_lines.append("Zero unresolved items across all evaluated gates and ASan+UBSan suites.")
     md_lines.append("")
 
     with open(os.path.join(acc_dir, "final_acceptance_summary.md"), "w", encoding="utf-8") as wf:
         wf.write("\n".join(md_lines))
 
     print(
-        f"[evaluate_acceptance] G1={g1_status}, G10={'PASS' if g10_ok else 'FAIL'}, "
-        f"stage1={stage1_decision} ({len(unresolved)} unresolved G1 items)"
+        f"[evaluate_acceptance] stage={active_stage}, G1={g1_status}, G10={'PASS' if g10_ok else 'FAIL'}, "
+        f"overall={overall_decision}"
     )
 
 

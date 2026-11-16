@@ -476,7 +476,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Estimate dimensions
   expected_behavior: Run `HistogramLBFGSSolver::fit_histogram` on valid 16-bin histogram -> check output vector length ==
     `21` (`[0..8]` qubit, `[9..20]` pair)
@@ -487,7 +487,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Estimate finiteness
   expected_behavior: Assert all 21 `theta_(i)` and 21 `grad_(i)` are `std::isfinite` across 20 diverse histograms (sparse,
     uniform, extreme hotspot)
@@ -498,7 +498,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Parameter bounds
   expected_behavior: Assert every fitted `theta_(i)` satisfies exact solver box `[1e-5, 0.45]` (and `< 0.5`)
   traceability_gate: G2
@@ -508,7 +508,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Objective output
   expected_behavior: Verify returned NLL `>= 0.0`, finite, and equals `model.compute_nll_from_histogram(hist)` at final `theta_`
   traceability_gate: G2
@@ -518,7 +518,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Gradient output
   expected_behavior: Inspect `model.grad()` after `fit_histogram` -> dimension `21`, finite, projected gradient norm matches
     `diag.final_grad_inf_norm`
@@ -529,7 +529,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Optimizer status
   expected_behavior: Verify `LBFGSFitDiagnostics.converged` matches exact condition (`isfinite && nll > 0 && g_inf < 0.25`)
     vs forced `max_iters=0` failure & `hist=0`
@@ -540,7 +540,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Iteration count
   expected_behavior: Run with `max_iters=1, 6, 20` -> check `0 <= iterations_executed <= max_iters` matches actual backtracking
     passes (`it1 + it2`)
@@ -551,7 +551,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Initial/final objective
   expected_behavior: Assert `diag.initial_nll >= diag.final_joint_dp_nll` after monotonic Armijo descent (except where Pass
     2 warm-start jump occurs — verify exact Pass 1/Pass 2 accounting!)
@@ -562,7 +562,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Prior contribution
   expected_behavior: Evaluate NLL with `prior_lambda_=0` vs `prior_lambda_=0.04` at same final `theta_` -> confirm difference
     equals exact `0.5 * 0.04 *
@@ -573,7 +573,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/estimator_output
   test_file: test_parameter_output_shape.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Insufficient evidence
   expected_behavior: Feed `total=0` empty histogram & `total=5` sparse rounds -> `total=0` sets `converged=false, nll=0.0`;
     `total=5` yields prior-dominated result (`sigma` wide)
@@ -584,7 +584,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: LLR dimension
   expected_behavior: Both `avid_quantize_and_validate_bank` & `NoiseModel::to_q7_8_llr` produce exact `int16_t[9]` outputs
     (`NM_N_QUBIT==9`)
@@ -595,7 +595,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Q7.8 encoding
   expected_behavior: Test golden reference probabilities `{0.001, 0.01, 0.03, 0.05, 0.10, 0.20, 0.30}` against `llr_numeric_contract.yaml`
     & `round(log((1-p)/p)*256)` (`<= 1` LSB)
@@ -606,7 +606,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Quantization rounding
   expected_behavior: Check half-way and dense grid `llr * 256.0` under `std::lround` (`llr_quantizer.cpp`) vs truncating `wrd_float_to_q78`
     (`DEF-L3-06`)
@@ -617,7 +617,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Saturation
   expected_behavior: Feed `p=1e-7` (`llr ~ 16.1 -> 4126 < 0x3000`, note to trigger `> 0x3000` need `llr > 48` impossible at
     `p>=1e-5`, so test `p=1e-5` -> `0x0B83`, `p=0.45` -> `0x0033 < 0x0040` triggers `AVID_Q78_MIN_SAFE` clamp + `all_safe=false`!)
@@ -628,7 +628,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Zero-probability handling
   expected_behavior: Pass `p=0.0` into `avid_prob_to_q78_llr` & `avid_quantize_and_validate_bank` -> no `Inf`/`NaN`; bank
     returns `false` & safe `AVID_Q78_DEFAULT`
@@ -639,7 +639,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Unit-probability handling
   expected_behavior: Pass `p=1.0` & `p=0.5` -> `avid_prob_to_q78_llr` clamps `0.49` (`>0`); `avid_quantize_and_validate_bank`
     rejects `>= 0.5` returning `false` & `AVID_Q78_DEFAULT`
@@ -650,7 +650,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Sign convention
   expected_behavior: Verify monotonically decreasing `q78(p)` on `(0, 0.5)` and `p < 0.5 <=> q78 > 0` matching `llr_numeric_contract.yaml`
     ("bit 0 preferred for `LLR > 0`")
@@ -661,7 +661,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: 'Round-trip conversion — Preconditions: Compute `p -> LLR -> q78 -> q78 / 256.0 -> 1/(1+exp(LLR_q))` over `p
     in [1e-4, 0.45]` -> check `; Procedure: LLR_q - LLR'
   expected_behavior: <= 1/512 + eps` where unsaturated
@@ -672,7 +672,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Parameter mapping
   expected_behavior: Set single qubit `q=4` hot (`theta[4]=0.12`), others baseline -> verify ONLY `q=4` (plus any coupled
     pairs on `4`) drops LLR relative to non-adjacent qubits
@@ -683,7 +683,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/llr_quantization
   test_file: test_q78_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Invalid estimate propagation
   expected_behavior: Inject `NaN`, `-0.1`, `0.6` into `p_eff` -> assert `avid_quantize_and_validate_bank` returns `false`,
     `bounds_ok=false` blocks adaptive commit in FSM
@@ -694,7 +694,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/scheduler_output
   test_file: test_scheduler_decision.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Burst indication
   expected_behavior: Drive `avid_fast_burst_detector_t` with calm `sx=0` then dense `sx=0x2` -> verify `burst_active` and
     return value boolean state
@@ -705,7 +705,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/scheduler_output
   test_file: test_scheduler_decision.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Trigger timestamp
   expected_behavior: Burst starts at `round=100` (`density >= 0.35`, `debounce=4`) -> check exact `round_idx` when `step()`
     returns `true` (`100 <= r_trig <= 119`)
@@ -716,7 +716,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/scheduler_output
   test_file: test_scheduler_decision.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Trigger latency
   expected_behavior: Measure `r_trig - burst_start + 1` across `density in {0.4, 0.5, 1.0}` bursts -> stays in `[debounce,
     20]` (never `<= 0` / retrospective!)
@@ -727,7 +727,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/scheduler_output
   test_file: test_scheduler_decision.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Commit scheduling
   expected_behavior: '`avid_scheduler_schedule_commit(window_end=256, w)` with `commit_delay=32` -> `poll_commit_ready(287)==false`,
     `poll_commit_ready(288)==true`'
@@ -738,7 +738,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/scheduler_output
   test_file: test_scheduler_decision.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Epoch assignment
   expected_behavior: Poll `0, 1, 2` commits -> `active_epoch_id` increments strictly `0 -> 1 -> 2` matching committed weights
   traceability_gate: G2
@@ -748,7 +748,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/scheduler_output
   test_file: test_scheduler_decision.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Delayed evidence
   expected_behavior: Schedule commit for `t_target=500`, test re-scheduling with older `window_end` or late HAL response ->
     guard ensures older timestamp cannot overwrite newer pending commit
@@ -759,7 +759,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/scheduler_output
   test_file: test_scheduler_decision.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Duplicate trigger
   expected_behavior: Feed sustained burst for `50` consecutive rounds -> assert `debounce_counter == debounce_rounds` triggers
     once per burst window (`trigger_count==1`), NOT 40 duplicate commits
@@ -770,7 +770,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/scheduler_output
   test_file: test_scheduler_decision.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: No-evidence condition
   expected_behavior: Feed `10,000` stationary low-rate rounds (`p=0.012`, subwindow density well below `0.35` almost always;
     inject constant `p < 0.01` & sub-threshold `5/16=0.3125 < 0.35`) -> exact `0` triggers below threshold
@@ -781,7 +781,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/fsm_output
   test_file: test_fsm_action_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: FSM state output
   expected_behavior: Check `fsm.state in {0, 1, 2, 3}` (`NORMAL_ADAPTIVE, HOLD_LAST_GOOD, SAFE_STATIC_PRIOR, DEGRADED_BYPASS`)
     after every step
@@ -792,7 +792,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/fsm_output
   test_file: test_fsm_action_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Safety transition
   expected_behavior: Drive exact state sequence (`NORMAL -> HOLD -> HOLD -> SAFE_STATIC -> NORMAL -> DEGRADED -> NORMAL`)
     verifying exact transition table
@@ -803,7 +803,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/fsm_output
   test_file: test_fsm_action_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Fallback activation
   expected_behavior: Independently violate `estimator_ok=false`, `deadline_ok=false`, `bounds_ok=false`, `bus_ok=false` ->
     verify fallback triggers (`fallback_triggers++`) and exact state
@@ -814,7 +814,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/fsm_output
   test_file: test_fsm_action_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Recovery eligibility
   expected_behavior: 'From `HOLD_LAST_GOOD` & `SAFE_STATIC_PRIOR`: assert faulty steps keep non-`NORMAL` state; healthy step
     (`all 4 true`) restores `NORMAL_ADAPTIVE` (and document `1`-step vs `yaml`''s `3`-step `DEF-L3-07`)'
@@ -825,7 +825,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/fsm_output
   test_file: test_fsm_action_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Daemon health
   expected_behavior: Run `avid_daemon --self-test` & scenario runs -> `rc==0` when HAL has `0` rejected tx, non-zero exit
     when HAL errors or bad args
@@ -836,7 +836,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/fsm_output
   test_file: test_fsm_action_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Error reporting
   expected_behavior: Corrupt packet (`PARITY_ERR`), malformed bridge msg, bad scenario (`--scenario invalid_configuration`)
     -> counters increment (`invalid_flag_count`, `rejected_transactions`) & stderr reports explicitly
@@ -847,7 +847,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/fsm_output
   test_file: test_fsm_action_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Commit result
   expected_behavior: Inject HAL busy (`bp_ready=0`) vs normal commit -> verify `status_reg`, `hw_epoch`, and `epoch_commit_reconciled`
     match actual hardware/sim state
@@ -858,7 +858,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/fsm_output
   test_file: test_fsm_action_output.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Runtime counters
   expected_behavior: Compare `validator.valid_count`, `hal_total_transactions`, `hal_syndrome_packets`, `epochs_completed`,
     `action_histogram` sum against exact ground-truth loop iteration counts
@@ -869,7 +869,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_stationary_recovery.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Single-parameter recovery
   expected_behavior: Vary `theta[4]` (clean singleton orbit `0x6`) across `{0.015, 0.04, 0.08}` with `N=2000`, `30` seeds
   traceability_gate: G2
@@ -879,7 +879,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_stationary_recovery.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Multi-parameter recovery — Vary `theta[1], theta[4], theta[7]` jointly across `30` seeds
   expected_behavior: Track parameter vector RMSE, 9-class `compute_orbit_rmse`, and KL/TV predictive syndrome error
   traceability_gate: G2
@@ -889,7 +889,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_stationary_recovery.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Independent-noise recovery — Pure independent `theta[0..8] ~ U[0.008, 0.03]` (`theta[9..20]=0`) over `30` seeds
   expected_behavior: Compare orbit RMSE + non-aliased single-qubit recovery (`q1, q4, q7`) vs aliased pairs
   traceability_gate: G2
@@ -899,7 +899,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_correlated_noise.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Correlated-noise recovery — Turn on pairs `(1,2)`, `(4,5)`, `(6,7)` at `{0.03, 0.08}` (`30` seeds)
   expected_behavior: Measure both `theta[9+k]` error and endpoint-disambiguated pair error + orbit RMSE separately from singles!
   traceability_gate: G2
@@ -909,7 +909,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_model_mismatch.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Measurement-noise recovery — Generate synthetic syndromes with phenomenological readout bit-flip `p_meas =
     0.012` (`30` seeds)
   expected_behavior: Measure parameter bias under readout misspecification vs readout-free case (`M9`)
@@ -920,7 +920,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_sample_size_sensitivity.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Sample-size sensitivity — Sweep window `W in {256, 1000, 5000, 20000}` (`30` seeds each) on `Z_4`
   expected_behavior: Empirical estimator variance & orbit RMSE strictly decrease monotonically with `W`
   traceability_gate: G2
@@ -930,7 +930,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_seed_variance.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Seed variation — `30` independent seeds across baseline & burst profiles
   expected_behavior: Report mean, std, IQR, 5th/95th percentiles for NLL, orbit RMSE, 21-param RMSE
   traceability_gate: G2
@@ -940,7 +940,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_prior_sensitivity.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Prior sensitivity — Sweep `prior_lambda in {0.0, 0.04, 0.5, 5.0}` (`W=500`, `30` seeds)
   expected_behavior: Quantify shrinkage bias toward `prior_theta` vs variance reduction curve
   traceability_gate: G2
@@ -950,7 +950,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_initialization_sensitivity.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Initial-point sensitivity — Initialize `theta` at `p0 in {0.002, 0.012, 0.05, 0.15}` before `fit_histogram`
     on identical histograms (`30` cases)
   expected_behavior: Measure spread across identifiable 9-class orbits vs unidentifiable null/aliased coordinates
@@ -961,7 +961,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_model_mismatch.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Model mismatch
   expected_behavior: Inject out-of-model 3-qubit streak (`{3,4,5}`) & asymmetric bias burst (`30` seeds)
   traceability_gate: G2
@@ -971,7 +971,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_identifiable_parameter_recovery.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Parameter identifiability — Jointly perturb aliased pairs `(Z_0, ZZ_1_2)` keeping XOR-orbit constant (`P(0x1)`
     fixed) + null edges `ZZ_3_6, ZZ_2_5`
   expected_behavior: Prove individual coordinates shift along null-space/prior while orbit probability recovers tightly (`DEF-L3-03`)
@@ -982,7 +982,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_drift_recovery.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Drift tracking — Slowly ramp `theta[4]` & `theta[9+3]` across `20` sequential windows (`30` seeds)
   expected_behavior: Measure tracking lag (windows behind true ramp) and dynamic tracking RMSE
   traceability_gate: G2
@@ -992,7 +992,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_burst_contamination.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Burst contamination — Inject `60`-round burst inside `10,000`-round stationary window (`30` seeds)
   expected_behavior: Measure tiny dilution effect (`0.6%` of window) on slow MAP vs immediate `20 us` fast detector trigger
   traceability_gate: G2
@@ -1002,7 +1002,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_false_trigger_rate.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Stationary false alarms — Run `50,000` stationary rounds (`p=0.012`, `30` seeds) through `avid_fast_burst_detector_t`
   expected_behavior: Record empirical false-alarm trigger rate vs `density >= 0.35` binomial tail probability
   traceability_gate: G2
@@ -1012,7 +1012,7 @@ tests:
   test_set: set2_output_statistics
   primary_directory: set2_output_statistics/statistical
   test_file: test_confidence_calibration.py
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Statistical calibration
   expected_behavior: Compute inverse observed Fisher std errors on identifiable singleton `Z_1, Z_4, Z_7` across `30` Monte
     Carlo trials
@@ -1023,7 +1023,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/ingress_to_histogram
   test_file: test_packet_to_histogram.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Packet ingress -> histogram
   expected_behavior: Pack a known 64-bit sequence (`s_x in {0, 6}`, `s_z in {0, 9}`), push into `avid_dma_ring_t`, consume
     slot -> verify exact bin delta `hist_x[6], hist_z[9]` matches unpacked packet count
@@ -1034,7 +1034,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/histogram_to_estimator
   test_file: test_histogram_snapshot_delivery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Histogram -> observation window
   expected_behavior: Accumulate `256` rounds across 4 DMA slots (`4 x 64`) in daemon loop (plus `ring_push` rollover) -> verify
     window `hist_x` sum equals `256` before epoch fit & resets cleanly to `0` after epoch (`subepoch_fast_adapt=false`)
@@ -1045,7 +1045,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/histogram_to_estimator
   test_file: test_histogram_snapshot_delivery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Observation window -> estimator
   expected_behavior: Capture exact `hist_x` snapshot immediately prior to `fit_histogram` AND verify `compute_nll_from_histogram`
     reads that exact snapshot (perturb 1 count in `hist_x[6]` -> NLL/grad changes proportionally)
@@ -1056,7 +1056,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/optimizer_execution
   test_file: test_solver_call_path.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Estimator -> optimizer
   expected_behavior: 'Verify `fit_histogram` passes `hist`, basis flag (`basis_z=false` X-checks vs `true` Z-checks), priors
     `(p0, p_pair0)`, bounds `[1e-5, 0.45]`, and Pass-2 coupled prior into `run_projected_lbfgs_pass` *(note `DEF-L3-05`: tests
@@ -1068,7 +1068,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/optimizer_execution
   test_file: test_solver_call_path.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Optimizer -> noise estimate
   expected_behavior: Compare `g_model_z.theta_` after `fit_histogram` against inputs fed into `p_eff` and `AvidR2D2LSTMController::step_causal`
     — exact bit match
@@ -1079,7 +1079,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/estimator_to_llr
   test_file: test_parameter_to_llr.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Noise estimate -> LLR converter
   expected_behavior: Pass live `theta_` through `effective_p(0..8)` and `avid_quantize_and_validate_bank` / `to_pair_projected_q7_8_llr`
     -> verify Q7.8 candidate outputs match independent `round(log((1-p_eff)/p_eff)*256)` on unprojected bank
@@ -1090,7 +1090,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_commit_scheduling.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: LLR converter -> scheduler
   expected_behavior: Pipe candidate `int16_t cand_q78[9]` from quantizer directly into `avid_scheduler_schedule_commit` (`sched.pending_weights_q78`)
     -> compare exact 9 words at scheduler ingress & poll egress
@@ -1101,7 +1101,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_commit_scheduling.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Burst detector -> scheduler
   expected_behavior: Drive `avid_fast_detector_step` over `60`-round burst -> capture trigger round & `trigger_count` -> verify
     sub-epoch trigger & `burst_score` feeding `step_causal` in `avid_daemon`
@@ -1112,7 +1112,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/fsm_to_hal
   test_file: test_fsm_to_hal_action.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Scheduler -> safety FSM
   expected_behavior: Pass `(est_ok, ddl_ok, bounds_ok, bus_ok, cand_q78)` into `avid_fallback_step` -> verify output `sel_q78`
     & `should_commit` match FSM state decision
@@ -1123,7 +1123,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/fsm_to_hal
   test_file: test_fsm_to_hal_action.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Safety FSM -> shadow bank
   expected_behavior: 'Fault `bounds_ok=false` vs `all_ok=true`: verify `NORMAL_ADAPTIVE` writes `cand_q78` to shadow reg `WRD_OFF_SHADOW(0..8)`,
     while `HOLD_LAST_GOOD` blocks commit (`should_commit==false`) leaving active shadow unchanged!'
@@ -1134,7 +1134,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/fsm_to_hal
   test_file: test_fsm_to_hal_action.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Shadow bank -> commit interface
   expected_behavior: Write `sel_q78` -> `avid_hal_write_weights_and_commit` (`0x048=1`) -> read `0x050` (`hw_epoch`) & active
     reg `0x024..0x044` -> verify atomic swap & epoch bump
@@ -1145,7 +1145,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/fsm_to_hal
   test_file: test_fsm_to_hal_action.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Commit response -> daemon
   expected_behavior: Inspect HAL `commit_operations`, `rejected_transactions`, `hw_epoch`, and `--metrics-out` JSON `epoch_commit_reconciled`,
     checking fault response updates daemon stats & exit code
@@ -1156,7 +1156,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Nominal stationary operation — `avid_daemon --scenario stationary_noise --rounds 1536 --window 256`
   expected_behavior: Finite NLL, `fallback_events==0`, `epoch_commit_reconciled==true`, low variance estimates
   traceability_gate: G3
@@ -1166,7 +1166,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Slowly drifting noise — `--scenario slowly_drifting_noise --rounds 2048 --window 256`
   expected_behavior: Estimated `theta[4], theta[12]` and active Q7.8 LLR track upward drift across epochs
   traceability_gate: G3
@@ -1176,7 +1176,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Correlated-noise transition — Compare `stationary_noise` vs `correlated_noise` vs `heldout_multi_pair_12_67`
   expected_behavior: Hotspot pair LLRs adapt downward & outperform `static` B0 LER (`ler < static_b0_logical_error_rate` when
     `backend=sim`)
@@ -1187,7 +1187,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Burst disturbance — `--scenario burst_disturbance --rounds 2048 --window 256`
   expected_behavior: '`decoded_rtl_transactions == 2048` (0 halted rounds); fast detector triggers cleanly while slow loop
     adapts across windows'
@@ -1198,7 +1198,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Delayed weight commit — Mock Unix bridge HAL holding `bp_ready=0` / delayed commit ack vs `--scenario delayed_weight_commit`
   expected_behavior: Pending commit deferred until ready (`wrd_commit_and_wait`), epoch counter stays exact (`reconciled==true`)
   traceability_gate: G3
@@ -1208,7 +1208,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Reset recovery — `--scenario reset_recovery --rounds 1024 --window 256`
   expected_behavior: '`avid_hal_reset_rtl` resets controller hidden state (`reset_hidden`) & active bank; post-reset commits
     resume & `epoch_commit_reconciled==true`'
@@ -1219,7 +1219,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Busy decoder — Drive `status_reg` with `bp_ready=0, commit_pending=1` in emulated register file / mock bridge
     (`--scenario busy_decoder`)
   expected_behavior: '`wrd_commit_and_wait` times out safely (`-1`) instead of corrupting active weights midway'
@@ -1230,7 +1230,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Variable iteration control — `--scenario variable_k_adaptation` (`K=1..5`) + live R2D2 `bp_iterations` MMIO
     `0x054` writes
   expected_behavior: Hardware reg `0x054` receives exact `K in {1..5}`; `bp_core_cycles` reflects `2 + 5*K`
@@ -1241,7 +1241,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Fallback activation — `--scenario fallback_safety_trigger` (corrupt `hist_x=0, theta=0.65`) + injected `!deadline_ok`,
     `!bus_ok`
   expected_behavior: '`fallback_events >= 1`; `SAFE_STATIC_PRIOR` / `HOLD` / `DEGRADED_BYPASS` activate accurately (`DEF-L3-07`)'
@@ -1252,7 +1252,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Recovery after fallback — Epoch 1 corrupted (`fallback_safety_trigger`) -> Epochs 2..4 healthy contiguous packets
   expected_behavior: Daemon returns to `AVID_FSM_NORMAL_ADAPTIVE`, resumes adaptive commits without permanent lock
   traceability_gate: G3
@@ -1262,7 +1262,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Multiple update cycles — Run 12 consecutive epochs (`rounds=3072, window=256`)
   expected_behavior: Monotonic epochs `1..13`, zero skipped/reordered weight banks
   traceability_gate: G3
@@ -1272,7 +1272,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Concurrent ingress and optimization — Multi-thread harness running continuous `avid_dma_ring_push_burst` at
     high cadence while background thread fits histograms under mutex
   expected_behavior: Zero dropped/corrupted snapshots under valid buffer slack; explicit count accounting
@@ -1283,7 +1283,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Concurrent ingress and commit — Inject syndrome decode stream (`avid_hal_send_syndrome`) concurrently while
     shadow bank write + `0x048` commit executes on HAL/driver
   expected_behavior: Every syndrome decode completes atomically with either old valid epoch or new valid epoch (never mixed
@@ -1295,7 +1295,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Observation-window timing
   expected_behavior: Configure `window_rounds in {256, 1000, 10000}` -> assert `acc_rounds == target_win` at every slow MAP
     execution boundary (when no subepoch fast trigger fired)
@@ -1306,7 +1306,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Evidence availability
   expected_behavior: Inject burst starting at `round=1000`; freeze stream at `round=999` -> verify slow MAP at `round=256,
     512, 768` & fast detector `< 1000` show zero advance knowledge of future burst
@@ -1317,7 +1317,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Commit delay
   expected_behavior: Set `commit_delay=100` in `avid_causal_scheduler_t` after `window_end=256` -> prove `poll_commit_ready`
     stays `false` for rounds `256..355` and fires strictly at `round >= 356` (`t_c >= t_e + d_c`)
@@ -1328,7 +1328,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Burst onset
   expected_behavior: Start burst at `round=100` on `avid_fast_burst_detector_t` -> record exact `first_burst_evidence_round=100`
     and trigger round `r_trig >= 103` (`16`-subwindow density >= `0.35`, debounce `4`)
@@ -1339,7 +1339,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Burst end
   expected_behavior: End 60-round burst at `round=160` (`return to sx=0`) -> record `burst_end=160` vs subsequent detector
     recovery (`burst_active=false`) after window drains (`<= 16` rounds later)
@@ -1350,7 +1350,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Slow-loop latency
   expected_behavior: Measure real wall/CPU microseconds of `fit_histogram` + R2D2 + Q7.8 (`avid_stage_profiler_t` over 100
     runs) -> report `p50, p95, p99, max` us vs `10,000 us` budget
@@ -1361,7 +1361,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Fast-loop isolation
   expected_behavior: 'Decoupled timing harness: run slow `HistogramLBFGSSolver::fit_histogram` on Thread A while Thread B
     executes `CycleAccurateBPEngine::decode` -> verify zero shared blocking lock / fast-path decode cycle latency remains
@@ -1373,7 +1373,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Stale estimate protection
   expected_behavior: Attempt to schedule/commit an estimate tagged `epoch_src < active_epoch_id` (or earlier `window_end`)
     after newer epoch committed -> guard rejects stale overwrite
@@ -1384,7 +1384,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Delayed detection reporting
   expected_behavior: Feed `short_burst_60us_vs_10ms` (`window=10000`, `60`-round burst at `r=9940..9999`) -> verify `avid_fast_burst_detector_t`
     detects within `<= 20` rounds (`20 us`) ONLY via the 16-round fast path, whereas slow `10,000`-round MAP (`0.6%` dilution)
@@ -1396,7 +1396,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/scheduler_integration
   test_file: test_fast_slow_loop_separation.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Timescale claim validation
   expected_behavior: 'Cross-check reported metrics against measured execution: fast detector trigger rate (`<= 20 rounds`),
     V1 sim epoch (`256 us`), V2 prod cadence (`10 ms`, `10,000` rounds), and BP cycle latency (`17` cycles)'
@@ -1407,7 +1407,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Probability propagation — Change generator `p_4` from `0.012` -> `0.090` keeping RNG stream identical -> check
     fitted `theta[4]`
   expected_behavior: Strictly increases `theta[4]` (`> 2x`)
@@ -1418,7 +1418,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Histogram propagation — Add `+200` counts directly to `hist[6]` (`Z_4` signature) keeping other bins identical
   expected_behavior: '`evaluate_nll_and_grad` & fitted `theta[4]` increase monotonically'
   traceability_gate: G3
@@ -1428,7 +1428,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Prior propagation — Change `prior_theta_(4)` from `0.01` -> `0.15` (`prior_lambda_=2.0`) on small sample `N=50`
   expected_behavior: Objective value & fitted `theta[4]` shift upward toward `0.15`
   traceability_gate: G3
@@ -1438,7 +1438,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Window propagation — Run daemon with `--window 128` vs `--window 512` at `--rounds 1024`
   expected_behavior: '`epochs_completed` changes strictly (`8` vs `2`) & variance shrinks'
   traceability_gate: G3
@@ -1448,7 +1448,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Threshold propagation — Init `avid_fast_detector_init` with `threshold=0.20` vs `0.80` on fixed `50%`-density
     stream
   expected_behavior: '`0.20` triggers (`trigger_count >= 1`); `0.80` triggers `0` times'
@@ -1459,7 +1459,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: LLR propagation — Raise fitted `theta[4]` -> run quantizer -> inspect `q78[4]`
   expected_behavior: '`q78[4]` decreases strictly (smaller LLR = higher error probability)'
   traceability_gate: G3
@@ -1469,7 +1469,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Commit propagation — Write two distinct candidate banks `bankA != bankB` through `wrd_write_all_weights` ->
     commit -> `wrd_read_active_weight`
   expected_behavior: Active register bank equals exact `bankB` bitwise
@@ -1480,7 +1480,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Static-output detection — Run two distinct seeds/scenarios (`stationary_noise` vs `correlated_noise`) to fresh
     `--metrics-out` files (after wiping prior artifacts)
   expected_behavior: Final NLL, action histograms, & `orbit_9class_rmse` differ cleanly (`no canned fixture output`)
@@ -1491,7 +1491,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Component invocation trace — Instrument test driver counters / HAL stats across `avid_dma_ring`, `HistogramLBFGSSolver`,
     `AvidR2D2LSTMController`, `avid_quantize`, `avid_fallback_step`, `avid_hal`
   expected_behavior: Every stage invocation count `> 0` (`hal_mmio_writes, hal_mmio_reads, commits, lbfgs_iters, action_histogram`
@@ -1503,7 +1503,7 @@ tests:
   test_set: set3_pipeline_flow
   primary_directory: set3_pipeline_flow/end_to_end
   test_file: test_stationary_flow.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Consumer-use trace — Corrupt candidate `q78[0]` right before `avid_fallback_step` / tamper shadow weight before
     `wrd_commit`
   expected_behavior: Downstream `CycleAccurateBPEngine::decode` decision & `wrd_read_active_weight` visibly react, proving
@@ -1515,7 +1515,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Clean C++ build — Remove build dir (`tmp_path`), run `cmake -S software -B <build> -DCMAKE_BUILD_TYPE=Release
     && cmake --build <build> -j2`
   expected_behavior: Exits `0` with zero missing dependencies, emits `avid_daemon` and `test_baseline_suite`
@@ -1526,7 +1526,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Daemon initialization — Launch `./avid_daemon --self-test --metrics-out out.json` checking startup banner,
     R2D2 checkpoint load, HAL open, initial boot commit
   expected_behavior: Exits `0`, `r2d2_checkpoint_loaded == true`, `initial_boot_commits == 1`
@@ -1537,7 +1537,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Self-test — Run `./avid_daemon --self-test` & `./test_baseline_suite`
   expected_behavior: Both complete genuine math/DMA/FSM/BP/R2D2 checks (`[ALL C++ BASELINE TESTS PASSED]`)
   traceability_gate: G5
@@ -1547,7 +1547,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Runtime configuration
   expected_behavior: Execute `avid_daemon` across distinct `--rounds`, `--window`, `--seed`, `--controller-mode static
   traceability_gate: G5
@@ -1557,7 +1557,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Invalid configuration — Launch `./avid_daemon --scenario invalid_configuration`, `--window 0`, `--rounds -5`,
     `--osd-mode 9`
   expected_behavior: Rejects cleanly with exit code `2` & explicit diagnostic message on stderr
@@ -1568,7 +1568,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Missing input — Launch `./avid_daemon --checkpoint /no/such.bin` & `--stim-bin /no/such.bin` & `--backend sim
     --socket /no/such.sock`
   expected_behavior: Safe startup failure (non-zero exit `1`/`2`, zero segfault)
@@ -1579,7 +1579,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Repeated start/stop — Spawn `avid_daemon` cleanly 10 times sequentially in `tmp_path`
   expected_behavior: Every run produces deterministic identical seed output (`zero cross-run state leakage`)
   traceability_gate: G5
@@ -1589,7 +1589,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Long-running daemon — Run `avid_daemon --rounds 50000 --window 256` (~200 epochs) sampling RSS & runtime
   expected_behavior: Finishes cleanly (`rc=0`), flat RSS growth (`no unbounded memory leaks`), zero OOM
   traceability_gate: G5
@@ -1599,7 +1599,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/startup_shutdown
   test_file: test_daemon_startup.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Multiple runtime cycles — Run 20 slow adaptation epochs checking continuous `hw_epoch`, `adaptive_epoch_commits`,
     finite `param_21_rmse`
   expected_behavior: Continuous monotonic epoch state (`hw_epoch == 1 + adaptive_epoch_commits`)
@@ -1610,7 +1610,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/runtime_stress
   test_file: test_long_running_daemon.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Shutdown — Send `SIGTERM` / `SIGINT` mid-run to `avid_daemon` (`--rounds 5000000`)
   expected_behavior: Signal handler breaks `while (g_running)` loop cleanly, flushes `--metrics-out` JSON & closes HAL (`rc
     == 0`)!
@@ -1621,7 +1621,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/runtime_stress
   test_file: test_long_running_daemon.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Histogram persistence
   expected_behavior: Check JSON telemetry (`decoded_rtl_transactions`, `r2d2_action_histogram`, window rounds) AND verify
     whether raw 16-bin histogram snapshots persist to disk (`INCONCLUSIVE` / gap documented for `--metrics-out` summary-only
@@ -1633,7 +1633,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/runtime_stress
   test_file: test_long_running_daemon.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Estimate persistence
   expected_behavior: Verify `orbit_9class_rmse`, `param_21_rmse`, `final_nll` persist in `--metrics-out` + document absence
     of raw `theta_[0..20]` dump in daemon JSON (`DEF-L3-09`) unless diagnostic dump enabled
@@ -1644,7 +1644,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/runtime_stress
   test_file: test_long_running_daemon.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Optimizer diagnostics
   expected_behavior: Assert `--metrics-out` saves `final_nll`, `legacy_marginal_nll`, `lbfgs_iterations`, `lbfgs_grad_inf_norm`
     matching live `LBFGSFitDiagnostics`
@@ -1655,7 +1655,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/runtime_stress
   test_file: test_long_running_daemon.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Weight persistence
   expected_behavior: Probe committed active weights via HAL MMIO read `0x100..0x148` & verify shadow/active equivalence after
     swap
@@ -1666,7 +1666,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/runtime_stress
   test_file: test_long_running_daemon.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Epoch persistence
   expected_behavior: Assert `initial_boot_commits`, `adaptive_epoch_commits`, `reset_cleared_commits`, `weight_bank_commits`,
     `epoch_commit_reconciled` match cycle-by-cycle ledger
@@ -1677,7 +1677,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/runtime_stress
   test_file: test_long_running_daemon.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Safety-state persistence
   expected_behavior: Assert `fallback_events` count matches `fallback_safety_trigger` activations & report explicit gap (`NOT_IMPLEMENTED`
     / `INCONCLUSIVE`) where per-transition cause log file isn't persisted by daemon *(DEF-L3-09)*
@@ -1688,7 +1688,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/persistence
   test_file: test_warm_resume.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Runtime provenance
   expected_behavior: Validate telemetry retains `r2d2_checkpoint_path`, `seed`, `scenario`, `backend`, `controller_mode` +
     compute SHA-256 of `avid_daemon` binary & checkpoint in Python harness
@@ -1699,7 +1699,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/persistence
   test_file: test_warm_resume.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Restart state
   expected_behavior: Restart `avid_daemon` cleanly -> verify documented fresh deterministic initialization from checkpoint
     (`r2d2_v1_trained.bin`) & explicit note that warm disk-checkpoint restoration is not implemented (`INCONCLUSIVE` for warm
@@ -1711,7 +1711,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/persistence
   test_file: test_warm_resume.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Log integrity
   expected_behavior: Validate valid JSON parsing, non-negative counters, `sum(r2d2_action_histogram) == epochs_completed`
     (in `avid_r2d2` mode), `initial + adaptive - reset == hw_epoch`
@@ -1722,7 +1722,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/persistence
   test_file: test_warm_resume.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Artifact reconstruction
   expected_behavior: Replay identical CLI flags + seed via reference script reading saved metrics JSON provenance and verify
     exact bit-for-bit reproducible metric reconstruction!
@@ -1733,7 +1733,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/persistence
   test_file: test_warm_resume.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Malformed packet — Inject packet with `flags=0` and packet with `PARITY_ERR` inside a valid DMA slot
   expected_behavior: Valid packets accumulate normally; corrupted packets rejected (`hist` unpolluted, `invalid_flag_count`
     increments)
@@ -1744,7 +1744,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/persistence
   test_file: test_warm_resume.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Packet loss — Drop `seq=5` cleanly (`4 -> 6`) in ingress stream
   expected_behavior: '`seq_gap_count` increments by `1`; loss explicitly counted'
   traceability_gate: G5
@@ -1754,7 +1754,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Packet duplication — Repeat `seq=7` back-to-back (`6, 7, 7, 8`)
   expected_behavior: Duplicate `7` fails sequence continuity check (`false`) avoiding double-count
   traceability_gate: G5
@@ -1764,7 +1764,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Empty observation window — Force `hist = {0}*16` in solver & `fallback_safety_trigger` epoch `1` in daemon
   expected_behavior: '`fit_histogram` returns `0.0, converged=false`; `last_nll == 0.0 -> estimator_ok=false` triggers `HOLD_LAST_GOOD`'
   traceability_gate: G5
@@ -1774,7 +1774,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Optimizer non-convergence — Set `max_iters=0` or inject bad start checking `diag.converged == false`
   expected_behavior: Guarded pipeline checks `diag.converged` *(or rejects unphysical params)* preventing blind commit (`DEF-L3-05`)
   traceability_gate: G5
@@ -1784,7 +1784,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Optimizer NaN — Inject `NaN` probability into `NoiseModel::theta_` / solver input & `p_eff` into `avid_quantize_and_validate_bank`
   expected_behavior: Quantizer returns `false` (`bounds_ok=false`) -> `SAFE_STATIC_PRIOR`; guarded NLL rejects `NaN` cleanly
     *(DEF-L3-10)*
@@ -1795,7 +1795,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Out-of-bounds estimate — Set `theta[0..8] = 0.65` (`fallback_safety_trigger`) -> `p_eff = 0.65 >= 0.5`
   expected_behavior: '`avid_quantize_and_validate_bank` returns `false`, replaces candidates with `0x0468`, triggers `SAFE_STATIC_PRIOR`'
   traceability_gate: G5
@@ -1805,7 +1805,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Quantization overflow — Force extreme `p=1e-12` (`llr*256 ~ 7073`) & `p=0.489` (`q78 ~ 11 < 0x0040`)
   expected_behavior: Saturates deterministically to `0x3000`/`0x0040` and flags `all_safe=false` on out-of-safe-range inputs
   traceability_gate: G5
@@ -1815,7 +1815,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Commit timeout — Connect `simulation_backend` to Python Unix-socket mock server that stalls `SYNDROME_TRANSFER`/`COMMIT`
     past `timeout_ms` (`SO_RCVTIMEO`)
   expected_behavior: '`send_bridge_request` returns `-1`, `timeout_transactions++`, `rejected_transactions++` (never reports
@@ -1827,7 +1827,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Epoch mismatch — Mock bridge responds with wrong `transaction_id` (`tx_id + 99`) or unexpected `protocol_version`
   expected_behavior: '`send_bridge_request` rejects (`id_mismatch_errors++`) leaving active state untouched'
   traceability_gate: G5
@@ -1837,7 +1837,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Decoder busy — Lock emulated `status_reg` bit 0 (`commit_pending=1`) in `wrd_handle_t`
   expected_behavior: '`wrd_commit_and_wait(..., 100)` returns `-1` cleanly'
   traceability_gate: G5
@@ -1847,7 +1847,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/persistence
   test_file: test_warm_resume.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Daemon restart — Terminate (`SIGKILL` / `SIGTERM`) mid-run -> relaunch clean `avid_daemon` on clean socket/files
   expected_behavior: Relaunch succeeds cleanly with zero stale socket locks or corrupted binary load
   traceability_gate: G5
@@ -1857,7 +1857,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Memory pressure — Run `avid_daemon` under `resource.setrlimit(RLIMIT_AS, ...)` / tight heap cap
   expected_behavior: Succeeds cleanly within low static footprint (~few MB) or exits gracefully without silent heap corruption
   traceability_gate: G5
@@ -1867,7 +1867,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Repeated safety trigger — Trigger `avid_fallback_step` with failures for `100` consecutive calls
   expected_behavior: FSM stabilizes cleanly in `AVID_FSM_SAFE_STATIC_PRIOR` (`state==2`) with bounded constant static weights
     (`0x0468`)
@@ -1878,7 +1878,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/fault_injection
   test_file: test_malformed_packet_recovery.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Recovery failure — Keep `bounds_ok=false` or `bus_ok=false` while trying to recover
   expected_behavior: FSM remains strictly locked in `SAFE_STATIC_PRIOR` or `DEGRADED_BYPASS` (never returns `NORMAL_ADAPTIVE`)
   traceability_gate: G5
@@ -1888,7 +1888,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Ingress throughput
   expected_behavior: Stream `1,000,000` 64-bit packets through `avid_dma_ring_push_burst` + `consume_slot` in C++ harness;
     report Mpkts/sec vs `1 MHz` requirement
@@ -1899,7 +1899,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Ingress latency
   expected_behavior: Sample per-64-packet-burst consume time (`std::chrono::steady_clock` across `5,000` bursts) -> report
     `p50, p95, p99, max` us
@@ -1910,7 +1910,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Estimator latency
   expected_behavior: Benchmark `200` dual-basis `fit_histogram` + R2D2 calls in C++ (`clock_gettime` + `steady_clock`) ->
     report `p50, p95, p99, max` us (x86_64 host + comparison vs `system_timing.yaml` 10 ms budget)
@@ -1921,7 +1921,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Scheduler latency
   expected_behavior: Benchmark `10,000` calls to `avid_scheduler_poll_commit_ready` & `avid_fast_detector_step` -> report
     `p50, p95, p99, max` ns/us
@@ -1932,7 +1932,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Commit latency
   expected_behavior: Measure round-trip latency for `avid_hal_write_weights_and_commit` over `physical` (emulated MMIO) AND
     `simulation` Unix socket bridge -> report `p50, p95, p99, max` us
@@ -1943,7 +1943,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Concurrent workload
   expected_behavior: 'Spawn 3 C++ threads: ingress producer, mutex-guarded estimator solver, and telemetry/MMIO reader running
     `5` seconds -> verify zero data races (`-fsanitize=thread` or deterministic invariants)'
@@ -1954,7 +1954,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: CPU utilization
   expected_behavior: Extract `slow_loop_cpu_utilization_10ms_pct` from `avid_daemon` JSON + measure OS `/usr/bin/time` user+sys
     CPU across `50,000` rounds
@@ -1965,7 +1965,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Memory utilization
   expected_behavior: Measure `ru_maxrss` across short (`1,024`) vs long (`100,000`) round runs + verify `AvidR2D2LSTMController::get_memory_audit()`
     static sizes (`total_params=19744, lbfgs_workspace=2688 B`)
@@ -1976,7 +1976,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Priority inversion
   expected_behavior: 'Lock/contention test: run heavy L-BFGS estimation loop on low-priority thread while timing high-rate
     `CycleAccurateBPEngine::decode` calls on fast thread -> verify `p99` decode latency unimpacted'
@@ -1987,7 +1987,7 @@ tests:
   test_set: set4_execution_recovery
   primary_directory: set4_execution_recovery/concurrency
   test_file: test_race_conditions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Timing overrun
   expected_behavior: Configure `avid_profiler_init(&p, "est", 1.0)` (`1 us` artificially tight deadline!) -> run real `fit_histogram`
     -> prove `avid_profiler_end` returns `false`, `deadline_misses > 0`, feeding `deadline_ok=false -> HOLD_LAST_GOOD`!
@@ -1998,7 +1998,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/likelihood
   test_file: test_dp_vs_bruteforce.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: 'Probability normalization — Across 20 random valid `theta_[0..20]` vectors (X-checks & Z-checks): assert `\sum_{s=0}^{15}
     P_joint(s'
   expected_behavior: theta) == 1.0` to `< 1e-14`
@@ -2009,7 +2009,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/likelihood
   test_file: test_dp_vs_bruteforce.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Nonnegative probabilities — Assert every `P_joint(s
   expected_behavior: theta) >= 0.0` even at boundary parameters `1e-6` and `0.49`
   traceability_gate: G6
@@ -2019,7 +2019,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/likelihood
   test_file: test_dp_vs_bruteforce.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Zero-event case
   expected_behavior: Set `theta = [1e-6]*21` (and test exact `0.0` in pure reference) -> `P(0)` ~ `1.0`, sum of `s > 0` matches
     exact `21 * 1e-6` first-order expansion
@@ -2030,7 +2030,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/likelihood
   test_file: test_dp_vs_bruteforce.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Certain-event case
   expected_behavior: Set single edge `e` (with `g_e != 0`) to upper clamped bound `0.49` (vs `p_e -> 1.0` XOR swap property
     `P'(s) = P(s ^ g_e)` in convolution algebra)
@@ -2041,7 +2041,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/likelihood
   test_file: test_dp_vs_bruteforce.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Single-mechanism likelihood
   expected_behavior: Turn on ONLY one mechanism `e` at `p_e = 0.08`, others `~0` -> verify `P(0) = 1 - p_e` and `P(g_e) =
     p_e` (`< 1e-12` modulo `1e-6` clamp)
@@ -2052,7 +2052,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/likelihood
   test_file: test_dp_vs_bruteforce.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Multi-mechanism likelihood
   expected_behavior: 'Activate `k=8` distinct non-zero mechanisms (remaining `13` at `0` / `1e-6`): brute-force enumerate
     all `2^8 = 256` fault subsets in Python -> assert max error `< 1e-12` against `NoiseModel::compute_joint_distribution()`
@@ -2065,7 +2065,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/likelihood
   test_file: test_dp_vs_bruteforce.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Syndrome XOR convolution
   expected_behavior: Check exact Walsh-Hadamard identity `E[(-1)^{<u, s>}] = \prod_e (1 - 2 p_e)^{\mathbb{I}[<u, g_e> = 1]}`
     across all 16 masks `u in 0..15` (`< 1e-13`)
@@ -2076,7 +2076,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/likelihood
   test_file: test_dp_vs_bruteforce.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Joint parameter model
   expected_behavior: Verify each `theta[e]` (`0..20`) strictly matches `parameter_schema.json` stabilizer XOR check signature
     `H_X * e_Z` & `H_Z * e_X` (`g_{i,j} == g_i ^ g_j` on all 12 NN pairs!)
@@ -2087,7 +2087,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/gradient
   test_file: test_finite_difference_gradient.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Negative log-likelihood — Compare `compute_nll_from_histogram` (with `prior_lambda_=0`) against reference empirical
     cross-entropy `-\sum_s (hist[s]/N) \log P_ref(s
   expected_behavior: theta)` (`< 1e-12`)
@@ -2098,7 +2098,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/gradient
   test_file: test_finite_difference_gradient.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: MAP regularization
   expected_behavior: Compare `nll(lambda=0.5) - nll(lambda=0.0)` against `0.5 * 0.5 *
   traceability_gate: G6
@@ -2108,7 +2108,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/gradient
   test_file: test_finite_difference_gradient.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Gradient calculation
   expected_behavior: Compare `compute_gradient_from_histogram` coset-inversion derivative against independent Python autodiff
     / central finite differences (`eps=1e-7`) across all 21 coordinates (`< 1e-7`)
@@ -2119,7 +2119,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/gradient
   test_file: test_finite_difference_gradient.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Hessian diagnostic
   expected_behavior: Compute exact `21 x 21` finite-difference Hessian of NLL around MAP optimum & compare eigenvalues against
     Fisher Information `I(theta) + lambda * I_{21}`
@@ -2130,7 +2130,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/gradient
   test_file: test_finite_difference_gradient.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Gradient direction
   expected_behavior: Verify two-loop recursion `d_k` satisfies `g^T d_k < 0` & projected steepest descent `-g_proj^T g < 0`
     on non-stationary interior states
@@ -2141,7 +2141,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/gradient
   test_file: test_finite_difference_gradient.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Line search
   expected_behavior: Verify Armijo sufficient decrease condition `f(x_new) <= f(x_0) + 1e-4 * <g, x_new - x_0>` holds at every
     accepted step
@@ -2152,7 +2152,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Bound constraints
   expected_behavior: Start near boundaries `0.00002` & `0.449` with adversarial histogram -> assert every intermediate and
     final iterate remains strictly inside `[1e-5, 0.45]`
@@ -2163,7 +2163,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Convergence criterion
   expected_behavior: Check early stop at `
   traceability_gate: G6
@@ -2173,7 +2173,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Maximum iterations
   expected_behavior: Force tiny `max_iters in {1, 4, 8}` on far init -> assert executed iterations bounded exactly `<= max_iters`
   traceability_gate: G6
@@ -2183,7 +2183,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Initial-point sensitivity
   expected_behavior: Launch optimization from 5 corners `[1e-4, 0.005, 0.012, 0.10, 0.30]` on exact DP multinomial expectation
     histogram -> verify identical stationary value on identifiable orbits
@@ -2194,7 +2194,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Ill-conditioned model
   expected_behavior: Construct flat/high-condition problem (`prior_lambda_=1e-8`, near-collinear aliased bins) -> verify solver
     remains finite, tracks conditioning & doesn't claim false accuracy when unconstrained
@@ -2205,7 +2205,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Flat likelihood
   expected_behavior: Drive `Z_3 Z_6` (`e=16, g=0`) & `Z_2 Z_5` (`e=19, g=0`) -> verify gradient wrt `NLL_data` is exact `0.0`,
     estimate strictly stays at `prior_theta`, variance stays prior-dominated
@@ -2216,7 +2216,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Synthetic recovery — Feed exact noiseless infinite-sample expectation histogram `round(100000 * P(s
   expected_behavior: theta_true))` on non-aliased hotspots (`q1, q4, q7`) -> recover `< 0.002` error on identifiable params
     & `< 1e-3` on `orbit_9class_rmse`
@@ -2227,7 +2227,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Model mismatch
   expected_behavior: Feed uniform empirical histogram `[100]*16` (maximally entropic, violates low-p assumption) -> expose
     large KS/KL divergence & hitting box cap rather than low confidence
@@ -2238,7 +2238,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Prior sensitivity
   expected_behavior: Sweep `prior_lambda_` across `{0.0, 0.04, 0.5, 5.0}` keeping histogram constant -> assert monotone decrease
     in `
@@ -2249,7 +2249,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/optimizer
   test_file: test_lbfgs_standalone.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: DP/reference consistency
   expected_behavior: Compare objective & solution found by C++ `HistogramLBFGSSolver` / `LBFGSOptimizer` against `scipy.optimize.minimize(...,
     method="L-BFGS-B")` on independent Python DP oracle
@@ -2260,7 +2260,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/identifiability
   test_file: test_jacobian_rank.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Jacobian rank — Compute `16 x 21` sensitivity Jacobian `J_{s,e} = d P(s
   expected_behavior: 'theta) / d theta_e` at baseline `theta`: verify **exact theoretical rank <= 9** (at most the 9 non-zero
     quotient orbits in `parameter_schema.json`!)'
@@ -2271,7 +2271,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/identifiability
   test_file: test_jacobian_rank.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Fisher information
   expected_behavior: Compute multinomial Fisher matrix `I(theta)_{a,b} = \sum_s (1/P(s)) (dP(s)/d\theta_a)(dP(s)/d\theta_b)`
     (per shot & scaled by `W`) -> inspect full eigenspectrum (`lambda_1..lambda_21`)
@@ -2282,7 +2282,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/identifiability
   test_file: test_jacobian_rank.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Parameter correlation
   expected_behavior: Extract regularized posterior covariance `(N * I(theta) + lambda * I_21)^{-1}` -> identify strongly anti-correlated
     parameter pairs within shared orbits `(Z_0, ZZ_1_2)`, `(Z_2, Z_5, ZZ_0_1, ZZ_3_4)`, `(Z_3, Z_6, ZZ_4_5, ZZ_7_8)`
@@ -2293,7 +2293,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/identifiability
   test_file: test_jacobian_rank.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Non-identifiable parameters
   expected_behavior: Confirm strictly `12` zero-eigenvalue / null-space directions of unregularized `I(theta)`, specifically
     including exact zero sensitivity on `ZZ_3_6` (`e=16`) and `ZZ_2_5` (`e=19`) in X-checks (`ZZ_0_1, ZZ_7_8` in Z-checks)
@@ -2304,7 +2304,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/identifiability
   test_file: test_jacobian_rank.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Sample-size dependence
   expected_behavior: Evaluate Cramer-Rao lower bound `sqrt((N*I + lambda*I)^{-1}_{ii})` across `N in {256, 1000, 10000}` ->
     show identifiable `Z_1, Z_4, Z_7` shrink as `1/sqrt(N)` while null params stay capped by `1/sqrt(lambda)`
@@ -2315,7 +2315,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/identifiability
   test_file: test_jacobian_rank.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Prior-dominated estimates
   expected_behavior: Measure ratio of Fisher sample information to prior stiffness `lambda` for `(3,6)` & `(2,5)` -> confirm
     `~100%` prior-dominated (`ratio == 0.0`)
@@ -2326,7 +2326,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/identifiability
   test_file: test_jacobian_rank.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Confidence calibration
   expected_behavior: Verify empirical Monte Carlo SD across 30 trials matches asymptotic inverse-Hessian SE within statistical
     factor on singleton orbits `{Z_1, Z_4, Z_7}`
@@ -2337,7 +2337,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/identifiability
   test_file: test_jacobian_rank.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Alias construction
   expected_behavior: 'Construct two distinct parameter vectors `theta^(A)` (high `Z_0`, low `ZZ_1_2`) vs `theta^(B)` (low
     `Z_0`, high `ZZ_1_2`) satisfying exact equal `(1-2p_a)(1-2p_b)` on orbit `0x1`: prove exact identical `P_joint(0..15)`
@@ -2349,7 +2349,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: LLR reference
   expected_behavior: Sweep 100 `p in [1e-5, 0.49]` -> compare `avid_prob_to_q78_llr` vs Python `round(math.log((1-p)/p) *
     256)` (`diff == 0`)
@@ -2360,7 +2360,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Sign
   expected_behavior: Confirm `p < 0.5 => LLR > 0` (`q78 > 0`, `0`-bit preferred), `p > 0.5 => LLR < 0` in direct log equation
     (`clamped to 0.49` inside `avid_prob_to_q78_llr`)
@@ -2371,7 +2371,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Scaling
   expected_behavior: Verify exact `2^8 = 256.0` scale factor (`LLR = 1.0 => 256`, `2.5 => 640`, `4.0 => 1024`)
   traceability_gate: G8
@@ -2381,7 +2381,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Rounding
   expected_behavior: Test exact `.5` midpoints (`round(x * 256)`) in `llr_quantizer.cpp` (`std::lround`) vs `wrd_float_to_q78`
     truncation (`DEF-L3-06`)
@@ -2392,7 +2392,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Saturation
   expected_behavior: Assert signed 16-bit bounds `[-32768, 32767]` in `avid_prob_to_q78_llr` & `[0x0040, 0x3000]` safe bounds
     in `avid_quantize_and_validate_bank`
@@ -2403,7 +2403,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Dequantization
   expected_behavior: Reconstruct `llr_deq = q78 / 256.0`, `p_deq = 1 / (1 + exp(llr_deq))`
   traceability_gate: G8
@@ -2413,7 +2413,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: 'Error bound — Preconditions: Over unsaturated range `0x0040..0x3000`, assert `; Procedure: q78/256.0 - log((1-p)/p)'
   expected_behavior: <= 1/512 + 1e-12` everywhere
   traceability_gate: G8
@@ -2423,7 +2423,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Extreme probabilities
   expected_behavior: Evaluate `p in {0, -1, 1e-12, 1e-5, 0.49, 0.5, 1.0, NaN, Inf}` cleanly across `avid_prob_to_q78_llr`
     & `avid_quantize_and_validate_bank`
@@ -2434,7 +2434,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Weight ordering
   expected_behavior: Set distinct probabilities per qubit `q=0..8` -> verify `q78[0..8]` order matches `effective_p(0..8)`
     & `NM_CHECK_CONN` qubit indices `0..8`
@@ -2445,7 +2445,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/quantization
   test_file: test_llr_formula.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Decoder compatibility
   expected_behavior: Write quantized `weights_q78[0..8]` through `wrd_write_all_weights -> wrd_commit` -> decode single-qubit
     syndromes with `CycleAccurateBPEngine` verifying Q7.8 sign-magnitude/two's-complement bit interpretation matches RTL `weight_map_reg.sv`
@@ -2457,7 +2457,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Evidence timestamp
   expected_behavior: Record exact `window_end_round` passed to `avid_scheduler_schedule_commit` & burst trigger `round_idx`
     -> match actual window end
@@ -2468,7 +2468,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Commit eligibility
   expected_behavior: 'Across 50 random `(t_e, d_c)` pairs: verify `poll_commit_ready(sched, round_now)` is `false` for EVERY
     `round_now < t_e + d_c` and `true` at `t_c == t_e + d_c`'
@@ -2479,7 +2479,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Epoch ordering
   expected_behavior: Execute 20 scheduled commits -> verify `active_epoch_id` forms strict sequence `0, 1, 2, ..., 20` (and
     `hw_epoch` strictly monotonic except explicit RTL reset)
@@ -2490,7 +2490,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Stale update rejection
   expected_behavior: Attempt to schedule commit with `window_end < current_round` / old epoch when newer commit is already
     active or pending -> guarded scheduler rejects stale overwrite *(DEF-L3-08)*
@@ -2501,7 +2501,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Duplicate commit prevention
   expected_behavior: Poll repeatedly at `t_c, t_c+1, ...` after single `schedule_commit` -> second poll returns `false`, firing
     commit strictly once; sustained burst does not re-trigger `trigger_count`
@@ -2512,7 +2512,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Busy-state handling
   expected_behavior: Emulate `bp_ready_in == 0` -> confirm `wrd_commit_and_wait` defers / times out cleanly instead of dropping
     active bank integrity
@@ -2523,7 +2523,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Reset handling
   expected_behavior: Call `avid_scheduler_init` (and `avid_fast_detector_init`) mid-pending commit -> verify `has_pending_commit=false`,
     `active_epoch_id=0`, ring/debounce cleared
@@ -2534,7 +2534,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Timestamp causality
   expected_behavior: 'Prefix-equivalence oracle: feed common prefix `r=0..499` followed by divergent suffixes `A` vs `B` (`r=500..999`)
     -> prove ALL decisions for `r <= 499` are bit-identical (`zero lookahead leakage`)'
@@ -2545,7 +2545,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Burst detection delay
   expected_behavior: 'Inject burst at `r=B_0` with densities `0.38..1.0`: compute analytical trigger step from `16`-round
     sliding sum `>= ceil(0.35 * 16) = 6` plus `4`-round debounce -> match C++ `avid_fast_detector_step` exact round!'
@@ -2556,7 +2556,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/scheduler
   test_file: test_window_length.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Slow-loop limitation
   expected_behavior: 'Formally contrast 10 ms window (`N_a = 10,000`, dilution `60/10000 = 0.6%`) vs fast 16-round detector
     (`N_b = 60`, `20 us` max trigger): assert `L3-FLOW-034` only credits fast detector for `< 60 us` detection!'
@@ -2567,7 +2567,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: State completeness
   expected_behavior: Evaluate every `(state in {0..3}) x (est_ok, deadline_ok, bounds_ok, bus_ok in {0,1}^4)` (`64` combinations)
     — every pair returns defined valid state `0..3`
@@ -2578,7 +2578,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Transition validity
   expected_behavior: Compare all `64` observed C++ transitions against exact mathematical transition relation extracted from
     `fallback_fsm.cpp`
@@ -2589,7 +2589,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Safety invariant
   expected_behavior: Whenever `bounds_ok == false` OR `estimator_ok == false` OR `deadline_ok == false` OR `bus_ok == false`,
     verify candidate unsafe `cand_q78` NEVER appears in `out_selected_q78` with `should_commit == true`!
@@ -2600,7 +2600,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Fallback invariant
   expected_behavior: In `SAFE_STATIC_PRIOR(2)` & `DEGRADED_BYPASS(3)`, `out_selected_q78` ALWAYS equals `static_prior_q78`;
     in `HOLD_LAST_GOOD(1)`, `out_selected_q78` equals `last_good_q78` & `out_should_commit == false`
@@ -2611,7 +2611,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Recovery condition
   expected_behavior: Prove transition back to `NORMAL_ADAPTIVE` happens ONLY when `estimator_ok && deadline_ok && bounds_ok
     && bus_ok == true` *(explicitly documenting `1`-step code behavior vs `fault_policy.yaml` 3-step spec, `DEF-L3-07`)*
@@ -2622,7 +2622,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Invalid event
   expected_behavior: Pass uninitialized/out-of-range integer state (`fsm.state = 99`) or null candidate pointer under faulted
     input -> safe guarded behavior without committing unvalidated weights *(DEF-L3-10)*
@@ -2633,7 +2633,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Repeated fault
   expected_behavior: Drive `HOLD_LAST_GOOD` -> `3x` faults -> `SAFE_STATIC_PRIOR` -> `50x` more faults -> verify `consecutive_holds`
     never overflows to trigger wrap bug & stays safe
@@ -2644,7 +2644,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Reset invariant
   expected_behavior: Call `avid_fallback_init(&fsm, AVID_Q78_DEFAULT)` from any degraded state -> verifies `state == NORMAL_ADAPTIVE`,
     `consecutive_holds == 0`, `fallback_triggers == 0`, banks equal `default_q78`
@@ -2655,7 +2655,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Transition coverage
   expected_behavior: Construct explicit witness sequences visiting EVERY legal edge in the `4`-state graph (`NORMAL->HOLD`,
     `HOLD->HOLD`, `HOLD->SAFE_STATIC`, `NORMAL->SAFE_STATIC(!bounds)`, `ANY->DEGRADED(!bus)`, `ANY->NORMAL`) (`100%` edge
@@ -2667,7 +2667,7 @@ tests:
   test_set: set5_control_mathematics
   primary_directory: set5_control_mathematics/safety_fsm
   test_file: test_fsm_transitions.cpp
-  implementation_stage: planned_future_set
+  implementation_stage: implemented_full_layer3
   description: Forbidden transition coverage
   expected_behavior: Exhaustively prove over all `(state, inputs)` that forbidden transitions never occur (e.g., `!bus_ok`
     cannot enter `NORMAL`/`HOLD`/`SAFE_STATIC`; `HOLD` cannot set `should_commit=true`; `!bounds_ok` cannot enter `HOLD`)

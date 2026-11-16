@@ -1,0 +1,240 @@
+/* ===========================================================================
+ * tests/layer3/common/eigen_shim/Eigen/Dense
+ * General fixed-size Matrix<Scalar, Rows, Cols> for Layer 3 C++17 test suite
+ * when system libeigen3-dev is absent. Keeps software/include/Eigen/Dense untouched
+ * while providing identical ODR layout across all test build translation units.
+ * =========================================================================*/
+#pragma once
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstring>
+
+namespace Eigen {
+
+template <typename Scalar, int Rows, int Cols>
+class Matrix {
+public:
+    Scalar data_[Rows * Cols];
+
+    Matrix() { setZero(); }
+
+    static constexpr int size() { return Rows * Cols; }
+    static constexpr int rows() { return Rows; }
+    static constexpr int cols() { return Cols; }
+
+    void setZero() {
+        for (int i = 0; i < Rows * Cols; ++i) data_[i] = Scalar(0);
+    }
+
+    void setConstant(Scalar v) {
+        for (int i = 0; i < Rows * Cols; ++i) data_[i] = v;
+    }
+
+    static Matrix Zero() {
+        Matrix m;
+        m.setZero();
+        return m;
+    }
+
+    static Matrix Identity() {
+        static_assert(Rows == Cols, "Identity requires square matrix");
+        Matrix m;
+        m.setZero();
+        for (int i = 0; i < Rows; ++i) m(i, i) = Scalar(1);
+        return m;
+    }
+
+    /* 1D indexing (column or row vector) */
+    Scalar &operator()(int i) { return data_[i]; }
+    const Scalar &operator()(int i) const { return data_[i]; }
+    Scalar &operator[](int i) { return data_[i]; }
+    const Scalar &operator[](int i) const { return data_[i]; }
+
+    /* 2D indexing (row-major internal storage; Cols==1 matches data_[r]) */
+    Scalar &operator()(int r, int c) { return data_[r * Cols + c]; }
+    const Scalar &operator()(int r, int c) const { return data_[r * Cols + c]; }
+
+    Scalar *data() { return data_; }
+    const Scalar *data() const { return data_; }
+
+    Scalar dot(const Matrix &other) const {
+        Scalar acc = Scalar(0);
+        for (int i = 0; i < Rows * Cols; ++i) acc += data_[i] * other.data_[i];
+        return acc;
+    }
+
+    Scalar squaredNorm() const { return dot(*this); }
+    Scalar norm() const { return std::sqrt(squaredNorm()); }
+
+    Scalar sum() const {
+        Scalar acc = Scalar(0);
+        for (int i = 0; i < Rows * Cols; ++i) acc += data_[i];
+        return acc;
+    }
+
+    Scalar mean() const {
+        return sum() / Scalar(Rows * Cols);
+    }
+
+    Matrix cwiseAbs() const {
+        Matrix res;
+        for (int i = 0; i < Rows * Cols; ++i) res.data_[i] = std::abs(data_[i]);
+        return res;
+    }
+
+    Scalar maxCoeff() const {
+        Scalar mx = data_[0];
+        for (int i = 1; i < Rows * Cols; ++i) {
+            if (data_[i] > mx) mx = data_[i];
+        }
+        return mx;
+    }
+
+    Scalar minCoeff() const {
+        Scalar mn = data_[0];
+        for (int i = 1; i < Rows * Cols; ++i) {
+            if (data_[i] < mn) mn = data_[i];
+        }
+        return mn;
+    }
+
+    Matrix<Scalar, Cols, Rows> transpose() const {
+        Matrix<Scalar, Cols, Rows> t;
+        for (int r = 0; r < Rows; ++r) {
+            for (int c = 0; c < Cols; ++c) {
+                t(c, r) = (*this)(r, c);
+            }
+        }
+        return t;
+    }
+
+    struct ColProxy {
+        Matrix &mat;
+        int col_idx;
+        ColProxy &operator=(const Matrix<Scalar, Rows, 1> &v) {
+            for (int r = 0; r < Rows; ++r) mat(r, col_idx) = v(r);
+            return *this;
+        }
+        operator Matrix<Scalar, Rows, 1>() const {
+            Matrix<Scalar, Rows, 1> v;
+            for (int r = 0; r < Rows; ++r) v(r) = mat(r, col_idx);
+            return v;
+        }
+        Scalar norm() const {
+            return static_cast<Matrix<Scalar, Rows, 1>>(*this).norm();
+        }
+    };
+
+    ColProxy col(int c) { return ColProxy{*this, c}; }
+
+    Matrix<Scalar, Rows, 1> col(int c) const {
+        Matrix<Scalar, Rows, 1> v;
+        for (int r = 0; r < Rows; ++r) v(r) = (*this)(r, c);
+        return v;
+    }
+
+    Matrix<Scalar, 1, Cols> row(int r) const {
+        Matrix<Scalar, 1, Cols> v;
+        for (int c = 0; c < Cols; ++c) v(0, c) = (*this)(r, c);
+        return v;
+    }
+
+    Matrix inverse() const {
+        static_assert(Rows == Cols, "inverse() requires square matrix");
+        Matrix a = *this;
+        Matrix inv = Identity();
+        for (int i = 0; i < Rows; ++i) {
+            int piv = i;
+            Scalar max_v = std::abs(a(i, i));
+            for (int r = i + 1; r < Rows; ++r) {
+                if (std::abs(a(r, i)) > max_v) {
+                    max_v = std::abs(a(r, i));
+                    piv = r;
+                }
+            }
+            if (piv != i) {
+                for (int c = 0; c < Cols; ++c) {
+                    std::swap(a(i, c), a(piv, c));
+                    std::swap(inv(i, c), inv(piv, c));
+                }
+            }
+            Scalar diag = a(i, i);
+            for (int c = 0; c < Cols; ++c) {
+                a(i, c) /= diag;
+                inv(i, c) /= diag;
+            }
+            for (int r = 0; r < Rows; ++r) {
+                if (r == i) continue;
+                Scalar f = a(r, i);
+                if (f == Scalar(0)) continue;
+                for (int c = 0; c < Cols; ++c) {
+                    a(r, c) -= f * a(i, c);
+                    inv(r, c) -= f * inv(i, c);
+                }
+            }
+        }
+        return inv;
+    }
+
+    Matrix operator-() const {
+        Matrix res;
+        for (int i = 0; i < Rows * Cols; ++i) res.data_[i] = -data_[i];
+        return res;
+    }
+
+    Matrix operator+(const Matrix &rhs) const {
+        Matrix res;
+        for (int i = 0; i < Rows * Cols; ++i) res.data_[i] = data_[i] + rhs.data_[i];
+        return res;
+    }
+
+    Matrix operator-(const Matrix &rhs) const {
+        Matrix res;
+        for (int i = 0; i < Rows * Cols; ++i) res.data_[i] = data_[i] - rhs.data_[i];
+        return res;
+    }
+
+    Matrix &operator+=(const Matrix &rhs) {
+        for (int i = 0; i < Rows * Cols; ++i) data_[i] += rhs.data_[i];
+        return *this;
+    }
+
+    Matrix &operator-=(const Matrix &rhs) {
+        for (int i = 0; i < Rows * Cols; ++i) data_[i] -= rhs.data_[i];
+        return *this;
+    }
+
+    Matrix operator*(Scalar s) const {
+        Matrix res;
+        for (int i = 0; i < Rows * Cols; ++i) res.data_[i] = data_[i] * s;
+        return res;
+    }
+
+    Matrix operator/(Scalar s) const {
+        Matrix res;
+        for (int i = 0; i < Rows * Cols; ++i) res.data_[i] = data_[i] / s;
+        return res;
+    }
+
+    template <int OtherCols>
+    Matrix<Scalar, Rows, OtherCols> operator*(const Matrix<Scalar, Cols, OtherCols> &rhs) const {
+        Matrix<Scalar, Rows, OtherCols> out;
+        out.setZero();
+        for (int r = 0; r < Rows; ++r) {
+            for (int k = 0; k < Cols; ++k) {
+                Scalar aik = (*this)(r, k);
+                for (int c = 0; c < OtherCols; ++c) {
+                    out(r, c) += aik * rhs(k, c);
+                }
+            }
+        }
+        return out;
+    }
+
+    friend Matrix operator*(Scalar s, const Matrix &v) {
+        return v * s;
+    }
+};
+
+} // namespace Eigen

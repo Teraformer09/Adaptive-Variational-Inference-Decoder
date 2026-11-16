@@ -28,6 +28,7 @@ endif()
 if(AVID_SANITIZER_FLAGS)
     add_compile_options(${AVID_SANITIZER_FLAGS})
     add_link_options(${AVID_SANITIZER_FLAGS})
+    add_compile_definitions(AVID_SANITIZER_BUILD=1)
 endif()
 
 find_package(Threads REQUIRED)
@@ -60,6 +61,7 @@ target_compile_options(avid_layer3_prod PRIVATE -Wall -g)
 
 # Include both software/src and software/include across Layer 3 production translation units
 target_include_directories(avid_layer3_prod PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/eigen_shim
     ${AVID_REPO_ROOT}/software/src
     ${AVID_REPO_ROOT}/software/include
     ${AVID_REPO_ROOT}

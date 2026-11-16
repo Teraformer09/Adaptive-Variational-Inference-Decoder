@@ -1,0 +1,65 @@
+#pragma once
+#include <Eigen/Dense>
+#include <algorithm>
+#include <cmath>
+
+namespace Eigen {
+
+template <typename MatrixType>
+class SelfAdjointEigenSolver;
+
+template <typename Scalar, int N>
+class SelfAdjointEigenSolver<Matrix<Scalar, N, N>> {
+public:
+    using VecType = Matrix<Scalar, N, 1>;
+
+    explicit SelfAdjointEigenSolver(const Matrix<Scalar, N, N> &mat) {
+        Matrix<Scalar, N, N> a = mat;
+        for (int sweep = 0; sweep < 80; ++sweep) {
+            Scalar off_norm = Scalar(0);
+            for (int p = 0; p < N; ++p) {
+                for (int q = p + 1; q < N; ++q) {
+                    off_norm += a(p, q) * a(p, q);
+                }
+            }
+            if (std::sqrt(off_norm) < Scalar(1e-15)) break;
+
+            for (int p = 0; p < N; ++p) {
+                for (int q = p + 1; q < N; ++q) {
+                    Scalar apq = a(p, q);
+                    if (std::abs(apq) < Scalar(1e-16)) continue;
+                    Scalar tau = (a(q, q) - a(p, p)) / (Scalar(2) * apq);
+                    Scalar t = (tau >= Scalar(0))
+                                   ? (Scalar(1) / (tau + std::sqrt(Scalar(1) + tau * tau)))
+                                   : (Scalar(-1) / (-tau + std::sqrt(Scalar(1) + tau * tau)));
+                    Scalar c = Scalar(1) / std::sqrt(Scalar(1) + t * t);
+                    Scalar s = t * c;
+
+                    a(p, p) -= t * apq;
+                    a(q, q) += t * apq;
+                    a(p, q) = Scalar(0);
+                    a(q, p) = Scalar(0);
+
+                    for (int r = 0; r < N; ++r) {
+                        if (r == p || r == q) continue;
+                        Scalar arp = a(r, p);
+                        Scalar arq = a(r, q);
+                        a(r, p) = a(p, r) = c * arp - s * arq;
+                        a(r, q) = a(q, r) = s * arp + c * arq;
+                    }
+                }
+            }
+        }
+        Scalar ev[N];
+        for (int i = 0; i < N; ++i) ev[i] = a(i, i);
+        std::sort(ev, ev + N); /* Ascending order matching Eigen::SelfAdjointEigenSolver */
+        for (int i = 0; i < N; ++i) eigs_(i) = ev[i];
+    }
+
+    const VecType &eigenvalues() const { return eigs_; }
+
+private:
+    VecType eigs_;
+};
+
+} // namespace Eigen

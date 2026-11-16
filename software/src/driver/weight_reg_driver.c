@@ -26,10 +26,14 @@ static inline void mmio_write32(wrd_handle_t *h, uint32_t offset, uint32_t val) 
         uint32_t idx = (offset >> 2) & 0x1FU;
         h->sim_regs[idx] = val;
         if (offset == WRD_OFF_COMMIT && (val & 1U)) {
+            uint32_t st = h->sim_regs[WRD_OFF_STATUS >> 2];
+            if (st & 0x1U) {
+                /* Decoder active/busy: protect active weight bank from mid-decode overwrite */
+                return;
+            }
             for (int i = 0; i < WRD_N_DATA; i++) {
                 h->sim_regs[9 + i] = h->sim_regs[i];
             }
-            uint32_t st = h->sim_regs[WRD_OFF_STATUS >> 2];
             uint16_t swaps = (uint16_t)((st >> 16) & 0xFFFFU) + 1U;
             h->sim_regs[WRD_OFF_STATUS >> 2] = ((uint32_t)swaps << 16) | 0x2U;
         }
@@ -62,8 +66,9 @@ int wrd_open(wrd_handle_t *h, uint32_t base_addr) {
     if (h->fd < 0) {
         h->is_emulated = 1;
         for (int i = 0; i < WRD_N_DATA; i++) {
-            h->sim_regs[i]     = 0x0400U;
-            h->sim_regs[9 + i] = 0x0400U;
+            h->sim_regs[i]      = 0x0400U;
+            h->sim_regs[9 + i]  = 0x0400U;
+            h->sim_regs[23 + i] = (0x0400U << 16) | 0x0400U;
         }
         h->sim_regs[WRD_OFF_STATUS >> 2] = 0x00000002U;
         return 0;
@@ -75,6 +80,12 @@ int wrd_open(wrd_handle_t *h, uint32_t base_addr) {
         close(h->fd);
         h->fd = -1;
         h->is_emulated = 1;
+        for (int i = 0; i < WRD_N_DATA; i++) {
+            h->sim_regs[i]      = 0x0400U;
+            h->sim_regs[9 + i]  = 0x0400U;
+            h->sim_regs[23 + i] = (0x0400U << 16) | 0x0400U;
+        }
+        h->sim_regs[WRD_OFF_STATUS >> 2] = 0x00000002U;
         return 0;
     }
     return 0;

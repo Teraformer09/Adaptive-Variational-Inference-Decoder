@@ -59,7 +59,11 @@ static uint64_t extract_json_u64(const char *buf, const char *key, uint64_t def_
 static int write_all_fd(int fd, const char *buf, size_t len) {
     size_t sent = 0;
     while (sent < len) {
+#ifdef MSG_NOSIGNAL
+        ssize_t w = send(fd, buf + sent, len - sent, MSG_NOSIGNAL);
+#else
         ssize_t w = write(fd, buf + sent, len - sent);
+#endif
         if (w < 0) {
             if (errno == EINTR) continue;
             return -1;
@@ -325,7 +329,11 @@ int avid_hal_send_syndrome(avid_hal_t *hal,
         int16_t wx[9], wz[9];
         for (int i = 0; i < 9; i++) {
             wx[i] = wrd_read_active_weight(&hal->phys_wrd, i);
-            wz[i] = wx[i];
+            if (hal->phys_wrd.is_emulated) {
+                wz[i] = (int16_t)((hal->phys_wrd.sim_regs[23u + (uint32_t)i] >> 16) & 0xFFFFu);
+            } else {
+                wz[i] = wx[i];
+            }
         }
         int k_use = (hal->active_k_iter >= AVID_HAL_MIN_BP_ITER &&
                      hal->active_k_iter <= AVID_HAL_MAX_BP_ITER)

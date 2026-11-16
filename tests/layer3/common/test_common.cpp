@@ -27,7 +27,8 @@ CliOptions parse_cli_options(int argc, char **argv, const std::string &default_t
             o.validation_dir = argv[++i];
         } else if (std::strcmp(argv[i], "--daemon-bin") == 0 && i + 1 < argc) {
             o.daemon_bin = argv[++i];
-        } else if (std::strcmp(argv[i], "--strict-exit") == 0) {
+        } else if (std::strcmp(argv[i], "--strict-exit") == 0 ||
+                   std::strcmp(argv[i], "--ctest-strict") == 0) {
             o.ctest_strict_exit = true;
         }
     }

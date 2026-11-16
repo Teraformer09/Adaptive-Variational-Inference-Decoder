@@ -1,0 +1,76 @@
+#pragma once
+#include <Eigen/Dense>
+#include <algorithm>
+#include <cmath>
+
+namespace Eigen {
+
+template <typename MatrixType>
+class JacobiSVD;
+
+template <typename Scalar, int Rows, int Cols>
+class JacobiSVD<Matrix<Scalar, Rows, Cols>> {
+public:
+    static constexpr int DiagDim = (Rows < Cols) ? Rows : Cols;
+    using SVec = Matrix<Scalar, DiagDim, 1>;
+
+    explicit JacobiSVD(const Matrix<Scalar, Rows, Cols> &mat) {
+        /* One-sided Hestenes-Jacobi orthogonalization of columns of W (tall or wide via transpose) */
+        if constexpr (Rows >= Cols) {
+            compute_tall(mat);
+        } else {
+            compute_tall(mat.transpose());
+        }
+    }
+
+    const SVec &singularValues() const { return svals_; }
+
+private:
+    SVec svals_;
+
+    template <int M, int N>
+    void compute_tall(Matrix<Scalar, M, N> w) {
+        /* Here M >= N, so DiagDim == N */
+        for (int sweep = 0; sweep < 80; ++sweep) {
+            Scalar max_cos = Scalar(0);
+            for (int p = 0; p < N; ++p) {
+                for (int q = p + 1; q < N; ++q) {
+                    Scalar app = Scalar(0), aqq = Scalar(0), apq = Scalar(0);
+                    for (int r = 0; r < M; ++r) {
+                        app += w(r, p) * w(r, p);
+                        aqq += w(r, q) * w(r, q);
+                        apq += w(r, p) * w(r, q);
+                    }
+                    if (apq == Scalar(0) || app * aqq == Scalar(0)) continue;
+                    Scalar cos_ang = std::abs(apq) / std::sqrt(app * aqq);
+                    if (cos_ang > max_cos) max_cos = cos_ang;
+                    if (cos_ang < Scalar(1e-15)) continue;
+
+                    Scalar zeta = (aqq - app) / (Scalar(2) * apq);
+                    Scalar t = (zeta >= Scalar(0))
+                                   ? (Scalar(1) / (zeta + std::sqrt(Scalar(1) + zeta * zeta)))
+                                   : (Scalar(-1) / (-zeta + std::sqrt(Scalar(1) + zeta * zeta)));
+                    Scalar c = Scalar(1) / std::sqrt(Scalar(1) + t * t);
+                    Scalar s = c * t;
+                    for (int r = 0; r < M; ++r) {
+                        Scalar wp = w(r, p);
+                        Scalar wq = w(r, q);
+                        w(r, p) = c * wp - s * wq;
+                        w(r, q) = s * wp + c * wq;
+                    }
+                }
+            }
+            if (max_cos < Scalar(1e-15)) break;
+        }
+        Scalar sv[N];
+        for (int j = 0; j < N; ++j) {
+            Scalar s2 = Scalar(0);
+            for (int r = 0; r < M; ++r) s2 += w(r, j) * w(r, j);
+            sv[j] = std::sqrt(s2);
+        }
+        std::sort(sv, sv + N, [](Scalar a, Scalar b) { return a > b; }); /* Descending */
+        for (int i = 0; i < DiagDim; ++i) svals_(i) = sv[i];
+    }
+};
+
+} // namespace Eigen

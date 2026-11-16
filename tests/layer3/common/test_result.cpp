@@ -47,7 +47,7 @@ std::string json_escape(const std::string &s) {
     return oss.str();
 }
 
-static void write_kv_map(std::ostringstream &oss, const std::map<std::string, std::string> &m, int indent) {
+static void write_kv_map(std::ostringstream &oss, const std::map<std::string, RecordString> &m, int indent) {
     std::string pad(indent, ' ');
     std::string pad_inner(indent + 2, ' ');
     oss << "{\n";
