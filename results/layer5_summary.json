@@ -1,0 +1,16 @@
+{
+  "layer": 5,
+  "branch": "layer5-fpga-rtl-decoder",
+  "simulator": "verilator_c++_rtl",
+  "native_verilator_compiled": true,
+  "clock_period_ns": 4,
+  "k3_bp_core_cycles": 17,
+  "k3_bp_core_latency_ns": 68.0,
+  "k3_axis_total_cycles": 22,
+  "k3_axis_total_latency_ns": 88.0,
+  "reference_equivalence_mismatches": 0,
+  "hardware_checks_passed": 11,
+  "hardware_checks_total": 11,
+  "pytest_passed": 1,
+  "overall_status": "PASS"
+}
