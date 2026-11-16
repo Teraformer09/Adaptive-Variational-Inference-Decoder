@@ -63,6 +63,8 @@ dirty_entries = [
     and val_rel not in ln
     and "logs/layer3_validation.log" not in ln
     and "software/build_layer3" not in ln
+    and "results/" not in ln
+    and "validation/layer3/reports/" not in ln
 ]
 
 prod_unmodified = (len(changed_vs_baseline) == 0)

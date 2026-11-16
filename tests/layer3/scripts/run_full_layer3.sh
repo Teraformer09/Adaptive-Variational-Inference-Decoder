@@ -70,8 +70,15 @@ if [[ "${SAN_RC}" -ne 0 ]]; then
 fi
 
 echo "[run_full_layer3] 2/2 Running Standard C11/C++17 CTest pass across all 257 tests..."
-ctest --test-dir "${REPO_ROOT}/build/layer3_standard" --output-on-failure -j4 \
-    > "${VAL_DIR}/logs/suite/ctest_standard.log" 2>&1
+STD_RC=0
+ctest --test-dir "${REPO_ROOT}/build/layer3_standard" --output-on-failure -j2 \
+    > "${VAL_DIR}/logs/suite/ctest_standard.log" 2>&1 || STD_RC=$?
+echo "[run_full_layer3] Standard C11/C++17 CTest exit code: ${STD_RC}"
+if [[ "${STD_RC}" -ne 0 ]]; then
+    echo "ERROR: Standard CTest suite failed (rc=${STD_RC}). Tail of log:" >&2
+    tail -n 40 "${VAL_DIR}/logs/suite/ctest_standard.log" >&2
+    exit "${STD_RC}"
+fi
 
 rm -rf "${REPO_ROOT}/build"
 

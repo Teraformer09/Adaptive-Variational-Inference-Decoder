@@ -28,8 +28,8 @@ endif()
 if(AVID_SANITIZER_FLAGS)
     add_compile_options(${AVID_SANITIZER_FLAGS})
     add_link_options(${AVID_SANITIZER_FLAGS})
-    add_compile_definitions(AVID_SANITIZER_BUILD=1)
 endif()
+add_compile_definitions(AVID_SANITIZER_BUILD=1)
 
 find_package(Threads REQUIRED)
 
