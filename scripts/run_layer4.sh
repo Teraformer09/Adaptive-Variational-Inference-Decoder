@@ -122,13 +122,14 @@ rm -f "${RESULTS_JSONL}"
 
     rm -rf "${WORK_TMP}"
 
-    echo "--- [Stage 3] Evaluating Layer 4 Acceptance Gates (G1..G8) ---"
+    echo "--- [Stage 3] Evaluating Layer 4 Acceptance Gates (G1..G8) & Generating Plots ---"
     python3 tests/layer4/acceptance/evaluate_layer4_gates.py \
         --repo-root "${REPO_ROOT}" \
         --run-dir "${RUN_DIR}" \
         --results-jsonl "${RESULTS_JSONL}" \
         --report-out "${REPORT_MD}" \
         --run-id "${RUN_ID}"
+    python3 scripts/plot_layer4_results.py --run-dir "${RUN_DIR}"
 
-    echo "[PASS] Layer 4 complete 5-set validation & gate evaluation succeeded."
+    echo "[PASS] Layer 4 complete 5-set validation, gate evaluation & plot generation succeeded."
 } 2>&1 | tee "${LOG_FILE}" "${REPO_ROOT}/logs/layer4_validation.log"
