@@ -1,0 +1,81 @@
+# Layer 4 — Hardware-in-the-Loop Co-Simulation Bridge & Emulators
+# Canonical Invariants, Gate Definitions (G1..G8), and Co-Simulation Fidelity Boundaries
+
+layer: 4
+branch: layer4-cosim-bridge-emu
+frozen_baseline_commit: 54da68d92778e4e1ffde9514aaaae585638761ff
+total_canonical_test_ids: 223
+
+clock_domain:
+  rtl_frequency_mhz: 250.0
+  rtl_period_ns: 4.0
+  reset_cycles_formula: "rcyc + 2"
+  mmio_axil_latency_cycles: 2
+  syndrome_ingress_cycles: 2
+  syndrome_egress_cycles: 3
+  bp_core_cycles_mode_0_1_formula: "2 + 5 * K"
+  bp_core_cycles_mode_2_formula: "4 + 5 * K"
+  axis_total_cycles_mode_0_1_formula: "7 + 5 * K"
+  axis_total_cycles_mode_2_formula: "9 + 5 * K"
+
+register_map:
+  shadow_x_range: [0x000, 0x020]
+  shadow_z_range: [0x024, 0x044]
+  commit_offset: 0x048
+  status_offset: 0x04C
+  epoch_count_offset: 0x050
+  cfg_max_iter_offset: 0x054
+  cfg_osd_mode_offset: 0x058
+  unmapped_gap_range: [0x05C, 0x0FC]
+  active_x_range: [0x100, 0x120]
+  active_z_range: [0x124, 0x144]
+  first_upper_unmapped: 0x148
+  reset_llr_q78: 0x0232
+  cfg_max_iter_valid_range: [1, 5]
+  cfg_osd_mode_valid_range: [0, 2]
+
+gates:
+  G1:
+    name: "Protocol correctness"
+    description: "All valid/invalid RPC, MMIO, AXI4-Lite, and AXI4-Stream contracts behave as specified."
+    requires_native_verilator: true
+  G2:
+    name: "Transaction integrity"
+    description: "Every accepted request is traceable 1-to-1 to its RTL response and m3_transactions.jsonl record."
+    requires_native_verilator: true
+  G3:
+    name: "Cycle correctness"
+    description: "Bridge cycle counts agree with direct Verilator Vaa_qec_top clock progression (C_latency = C_completed - C_accepted)."
+    requires_native_verilator: true
+  G4:
+    name: "Functional equivalence"
+    description: "Bridge-mediated RTL matches standalone Vaa_qec_top across all 256 (sx, sz) syndromes, inhomogeneous wx != wz, K=1..5, and osd_mode=0..2."
+    requires_native_verilator: true
+  G5:
+    name: "Lockstep correctness"
+    description: "QEMU ARM Cortex-A9 (32-bit) and ARM64 Cortex-A53 (64-bit) guest transactions reconcile deterministically with bridge and Verilator RTL."
+    requires_native_verilator: true
+    requires_qemu_arm: true
+  G6:
+    name: "Epoch correctness"
+    description: "Software HAL and RTL agree on shadow/active triple-buffered weight banks, shadow_locked_c SLVERR protection, epoch_count, and epoch_irq."
+    requires_native_verilator: true
+  G7:
+    name: "Fault recovery"
+    description: "Injected RPC, socket, bridge, RTL, and guest faults recover safely without blind retry of non-idempotent SYNDROME_TRANSFER or COMMIT."
+    requires_native_verilator: true
+  G8:
+    name: "Reproducibility & fidelity disclosure"
+    description: "Deterministic replay, per-line durable m3_transactions.jsonl, SHA-256 provenance manifests, and explicit co-simulation boundary disclosures."
+    requires_native_verilator: true
+
+fidelity_disclaimers:
+  qemu_scope: >-
+    QEMU execution uses Linux user-mode instruction/ABI translation (qemu-arm -cpu cortex-a9 and
+    qemu-aarch64 -cpu cortex-a53) forwarding AF_UNIX socket syscalls to the host kernel. It validates
+    32-bit/64-bit ARM ELF ABI, struct packing, endianness, Q7.8 serialization, and RPC lockstep,
+    but does NOT emulate a full-system kernel, device tree, physical /dev/mem AXI bus, or GIC hardware interrupt controller.
+  rtl_timing_scope: >-
+    Verilator cycle counts prove cycle-exact synchronous RTL state-machine behavior of aa_qec_top at a
+    nominal 4.0 ns (250 MHz) simulation period, but do NOT substitute for post-place-and-route Vivado
+    Static Timing Analysis (WNS/TNS), physical clock-domain crossing jitter, or cryogenic/analog readout physics.

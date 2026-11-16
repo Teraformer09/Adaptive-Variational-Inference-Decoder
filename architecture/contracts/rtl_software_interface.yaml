@@ -3,9 +3,21 @@ protocol_version: 1
 mmio_weight_registers_x: 9
 mmio_weight_registers_z: 9
 fixed_point_format: "signed_Q7.8_int16"
+reset_default_q78: "0x0232"
+shadow_x_register_range: "0x000..0x020"
+shadow_z_register_range: "0x024..0x044"
 commit_register_offset: "0x048"
-max_iter_register_offset: "0x04C"
+status_register_offset: "0x04C"
 epoch_counter_offset: "0x050"
-status_register_offset: "0x054"
+max_iter_register_offset: "0x054"
 osd_mode_register_offset: "0x058"
+active_x_register_range: "0x100..0x120"
+active_z_register_range: "0x124..0x144"
+supported_max_iter: [1, 2, 3, 4, 5]
+supported_osd_modes: [0, 1, 2]
+status_register_bits:
+  bit_0: "swap_pending"
+  bit_1: "bp_busy (!bp_ready_in)"
+  bits_31_2: "reserved_zero"
+axis_syndrome_word_format: "16-bit beat: sx[3:0], sz[7:4], reserved_zero[15:8]; beat validity qualified by s_axis_syndrome_tvalid & s_axis_syndrome_tready"
 unmapped_register_response: "AXI_SLVERR_0x2"

@@ -1,6 +1,7 @@
 contract_id: weight_commit_protocol_v1
-banks: 2
-commit_trigger: "Write 0x1 to 0x048 (commit_reg)"
-cdc_atomicity_condition: "Swap bank_sel <= ~bank_sel only when bp_ready_in == 1"
-busy_behavior: "Latch commit_pending (status_reg[1] = 1) until current decode finishes"
+banks: 3
+bank_stages: ["shadow_x/z (0x000..0x044)", "commit_snap_x/z (internal latch)", "active_x/z (0x100..0x144)"]
+commit_trigger: "Write wdata[0]=1 with wstrb[0]=1 to 0x048 (COMMIT) snapshots shadow_x/z -> commit_snap_x/z and sets swap_pending=1 (writing 0 is an OKAY no-op)"
+cdc_atomicity_condition: "Copy commit_snap_x/z -> active_x/z, clear swap_pending, and increment epoch_count (0x050) only when swap_pending == 1 && bp_ready_in == 1"
+busy_behavior: "Latch swap_pending (status_reg[0] = 1) while !bp_ready_in (status_reg[1] = 1); lock shadow_x/z (0x000..0x044) and COMMIT (0x048) with AXI SLVERR (0x2) until swap completes"
 epoch_accounting_invariant: "initial_boot_commits + adaptive_epoch_commits - reset_cleared_commits == weight_bank_commits"

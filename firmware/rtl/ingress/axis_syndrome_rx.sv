@@ -48,7 +48,7 @@ module axis_syndrome_rx #(
                         (wr_ptr[PTR_W-1:0] == rd_ptr[PTR_W-1:0]);
     assign fifo_empty = (wr_ptr == rd_ptr);
 
-    assign s_axis_tready = !fifo_full;
+    assign s_axis_tready = aresetn && !fifo_full;
 
     // Write side
     always_ff @(posedge aclk) begin

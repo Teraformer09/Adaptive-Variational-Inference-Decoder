@@ -1,18 +1,28 @@
 /* ===========================================================================
  * avid_hal.h — AVID Hardware Abstraction Layer (HAL)
  * Separates the AVID daemon & controller from direct /dev/mem access:
- *   - physical_backend   : Hardware MMIO register interface (reserved for V2)
+ *   - physical_backend   : Hardware MMIO register interface (aligned to RTL)
  *   - simulation_backend : Hardened Unix-domain socket transport to C++ Bridge
  * =========================================================================*/
 #pragma once
 
+#ifdef __cplusplus
 #include <cstdint>
 #include <cstddef>
+#else
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#endif
+
 #include "../driver/weight_reg_driver.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define AVID_HAL_MIN_BP_ITER 1U
+#define AVID_HAL_MAX_BP_ITER 5U
 
 typedef enum {
     AVID_HAL_BACKEND_PHYSICAL   = 0,
@@ -31,7 +41,10 @@ typedef struct {
     uint64_t id_mismatch_errors;
     uint64_t reconnect_events;
     uint64_t last_accepted_cycle;
+    uint64_t last_completed_cycle;
+    uint64_t irq_events;
     uint32_t last_axis_total_cycles;
+    uint32_t last_epoch_irq;
 } avid_hal_stats_t;
 
 typedef struct {

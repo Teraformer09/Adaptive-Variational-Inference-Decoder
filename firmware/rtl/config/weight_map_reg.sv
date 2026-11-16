@@ -96,10 +96,10 @@ module weight_map_reg #(
     assign active_x        = active_x_r;
     assign active_z        = active_z_r;
 
-    assign s_axil_awready  = !aw_valid_lat && (!s_axil_bvalid || s_axil_bready);
-    assign s_axil_wready   = !w_valid_lat  && (!s_axil_bvalid || s_axil_bready);
+    assign s_axil_awready  = aresetn && !aw_valid_lat && (!s_axil_bvalid || s_axil_bready);
+    assign s_axil_wready   = aresetn && !w_valid_lat  && (!s_axil_bvalid || s_axil_bready);
     assign s_axil_bresp    = bresp_r;
-    assign s_axil_arready  = (!s_axil_rvalid || s_axil_rready);
+    assign s_axil_arready  = aresetn && (!s_axil_rvalid || s_axil_rready);
     assign s_axil_rresp    = rresp_r;
 
     assign aw_hs_c         = s_axil_awvalid && s_axil_awready;
@@ -193,7 +193,7 @@ module weight_map_reg #(
                         swap_pending <= 1'b1;
                     end
                 end else if (wr_addr_c == 32'h54) begin
-                    if (wr_strb_c[0] && wr_data_c[3:0] >= 4'd1 && wr_data_c[3:0] <= 4'd7)
+                    if (wr_strb_c[0] && wr_data_c >= 32'd1 && wr_data_c <= 32'd5)
                         cfg_max_iter_r <= wr_data_c[3:0];
                     else
                         bresp_r <= 2'b10;

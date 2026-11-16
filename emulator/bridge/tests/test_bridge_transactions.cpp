@@ -115,11 +115,12 @@ int main(int argc, char **argv) {
     CHECK_TRUE(std::strstr(resp, "ERR_MALFORMED_JSON") != nullptr, "malformed JSON was not rejected");
 
     /* 6d. Invalid MMIO register / invalid K=0 via HAL */
+    hal.next_tx_id = 5010;
     CHECK_TRUE(avid_hal_mmio_write(&hal, 0x054u, 0x0u, 0x1u, &c2) != 0, "invalid K=0 write was not rejected by HAL");
     CHECK_TRUE(avid_hal_mmio_read(&hal, 0x990u, &rdata, &c2) != 0, "unmapped read 0x990 was not rejected by HAL");
 
     /* 6e. Invalid syndrome (> 0xFF) */
-    const char *bad_synd = "{\"protocol_version\":1,\"transaction_id\":5004,\"operation\":\"SYNDROME_TRANSFER\",\"address\":\"0x0\",\"data\":\"0x1FFFF\"}\n";
+    const char *bad_synd = "{\"protocol_version\":1,\"transaction_id\":5020,\"operation\":\"SYNDROME_TRANSFER\",\"address\":\"0x0\",\"data\":\"0x1FFFF\"}\n";
     CHECK_TRUE(send_raw_and_read_line(hal.sock_fd, bad_synd, resp, sizeof(resp), false) == 0, "bad_synd write failed");
     CHECK_TRUE(std::strstr(resp, "ERR_INVALID_SYNDROME") != nullptr, "invalid syndrome was not rejected");
 

@@ -8,6 +8,9 @@
 # =============================================================================
 set -euo pipefail
 
+if [[ -d "${HOME}/.local/bin" ]]; then
+    export PATH="${HOME}/.local/bin:${PATH}"
+fi
 if [[ -d "${HOME}/.local/verilator/bin" ]]; then
     export PATH="${HOME}/.local/verilator/bin:${PATH}"
 fi
@@ -20,6 +23,7 @@ mkdir -p "${MODEL_DIR}" "${SCRIPT_DIR}/scripts"
 
 RTL_FILES=(
     "${REPO_ROOT}/firmware/rtl/decoder/check_node_minsum.sv"
+    "${REPO_ROOT}/firmware/rtl/ingress/axis_ingress_tap.sv"
     "${REPO_ROOT}/firmware/rtl/ingress/axis_syndrome_rx.sv"
     "${REPO_ROOT}/firmware/rtl/decoder/axis_correction_tx.sv"
     "${REPO_ROOT}/firmware/rtl/config/weight_map_reg.sv"
@@ -31,7 +35,7 @@ REQUIRE_NATIVE="${AVID_REQUIRE_NATIVE_VERILATOR:-0}"
 
 if command -v verilator >/dev/null 2>&1; then
     echo "[Verilator Build] Compiling SystemVerilog RTL (aa_qec_top) with Verilator (--assert enabled)..."
-    VERILATOR_FLAGS="--cc --exe --build --trace --assert -Wno-fatal --top-module aa_qec_top"
+    VERILATOR_FLAGS="--cc --exe --build --build-jobs 4 --trace --assert -Wno-fatal --top-module aa_qec_top"
     CFLAGS_BASE="-O2 -std=c++17 -DUSE_VERILATOR=1 -I${SCRIPT_DIR}/tb -I${BRIDGE_DIR}/include -I${REPO_ROOT}/software/src"
 
     verilator ${VERILATOR_FLAGS} \
@@ -84,6 +88,7 @@ repo_root = "${REPO_ROOT}"
 model_dir = "${MODEL_DIR}"
 rtl_files = [
     "firmware/rtl/decoder/check_node_minsum.sv",
+    "firmware/rtl/ingress/axis_ingress_tap.sv",
     "firmware/rtl/ingress/axis_syndrome_rx.sv",
     "firmware/rtl/decoder/axis_correction_tx.sv",
     "firmware/rtl/config/weight_map_reg.sv",

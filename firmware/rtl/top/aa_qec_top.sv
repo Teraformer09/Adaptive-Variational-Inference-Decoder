@@ -62,8 +62,42 @@ module aa_qec_top #(
     // ---- Cycle-Level Co-Simulation Monitor Ports ----
     output logic                     bp_core_start_mon,
     output logic                     bp_core_done_mon,
-    output logic                     bp_core_busy_mon
+    output logic                     bp_core_busy_mon,
+    input  logic                     dma_tap_stall_in,
+    output logic [AXIS_S_WIDTH-1:0]  dma_tap_tdata_mon,
+    output logic                     dma_tap_tvalid_mon,
+    output logic [31:0]              dma_tap_drop_count_mon,
+    output logic [31:0]              rx_epoch_count_mon
 );
+
+    // =========================================================================
+    // Zero-cycle non-blocking AXI4-Stream Ingress Tap (Fast BP + Slow DMA Tap)
+    // =========================================================================
+    logic [AXIS_S_WIDTH-1:0] tap_bp_tdata;
+    logic                    tap_bp_tvalid;
+    logic                    tap_bp_tready;
+    logic                    tap_bp_tlast;
+    logic                    dma_tap_tlast_unused;
+
+    axis_ingress_tap #(
+        .DATA_WIDTH (AXIS_S_WIDTH)
+    ) u_ingress_tap (
+        .aclk              (aclk),
+        .aresetn           (aresetn),
+        .s_axis_tdata      (s_axis_syndrome_tdata),
+        .s_axis_tvalid     (s_axis_syndrome_tvalid),
+        .s_axis_tready     (s_axis_syndrome_tready),
+        .s_axis_tlast      (s_axis_syndrome_tlast),
+        .m_axis_bp_tdata   (tap_bp_tdata),
+        .m_axis_bp_tvalid  (tap_bp_tvalid),
+        .m_axis_bp_tready  (tap_bp_tready),
+        .m_axis_bp_tlast   (tap_bp_tlast),
+        .m_axis_dma_tdata  (dma_tap_tdata_mon),
+        .m_axis_dma_tvalid (dma_tap_tvalid_mon),
+        .m_axis_dma_tready (!dma_tap_stall_in),
+        .m_axis_dma_tlast  (dma_tap_tlast_unused),
+        .dma_drop_count    (dma_tap_drop_count_mon)
+    );
 
     // =========================================================================
     // Syndrome receiver (with 16-deep FIFO elastic buffer)
@@ -74,6 +108,7 @@ module aa_qec_top #(
     logic               bp_idle_int;
     logic               corr_tx_ready_int;
     logic [31:0]        epoch_count_rx;
+    assign rx_epoch_count_mon = epoch_count_rx;
 
     axis_syndrome_rx #(
         .DATA_WIDTH (AXIS_S_WIDTH),
@@ -83,10 +118,10 @@ module aa_qec_top #(
     ) u_syndrome_rx (
         .aclk           (aclk),
         .aresetn        (aresetn),
-        .s_axis_tdata   (s_axis_syndrome_tdata),
-        .s_axis_tvalid  (s_axis_syndrome_tvalid),
-        .s_axis_tready  (s_axis_syndrome_tready),
-        .s_axis_tlast   (s_axis_syndrome_tlast),
+        .s_axis_tdata   (tap_bp_tdata),
+        .s_axis_tvalid  (tap_bp_tvalid),
+        .s_axis_tready  (tap_bp_tready),
+        .s_axis_tlast   (tap_bp_tlast),
         .syndrome_x     (syndrome_x_bits),
         .syndrome_z     (syndrome_z_bits),
         .syndrome_valid (syndrome_valid_int),

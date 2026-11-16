@@ -22,6 +22,7 @@ extern int  avid_hal_open_physical(avid_hal_t *hal, uint32_t phys_base_addr);
 extern void avid_hal_close_physical(avid_hal_t *hal);
 extern int  avid_hal_mmio_write_physical(avid_hal_t *hal, uint32_t offset, uint32_t data, uint8_t byte_enable, uint64_t *accepted_cycle);
 extern int  avid_hal_mmio_read_physical(avid_hal_t *hal, uint32_t offset, uint32_t *rdata, uint64_t *accepted_cycle);
+extern uint16_t avid_eval_rtl_bp_reference_phys(uint8_t synd, const int16_t channel_llr[9], int max_iter, bool basis_z, uint32_t osd_mode);
 
 static bool extract_json_str(const char *buf, const char *key, char *out, size_t max_len) {
     char pat[64];
@@ -59,7 +60,7 @@ static uint64_t extract_json_u64(const char *buf, const char *key, uint64_t def_
 static int write_all_fd(int fd, const char *buf, size_t len) {
     size_t sent = 0;
     while (sent < len) {
-        ssize_t w = write(fd, buf + sent, len - sent);
+        ssize_t w = send(fd, buf + sent, len - sent, MSG_NOSIGNAL);
         if (w < 0) {
             if (errno == EINTR) continue;
             return -1;
@@ -149,6 +150,7 @@ static int send_bridge_request(avid_hal_t *hal, uint64_t expected_tx_id, const c
     }
     uint64_t cyc = extract_json_u64(resp_buf, "accepted_cycle", hal->stats.last_accepted_cycle);
     hal->stats.last_accepted_cycle = cyc;
+    hal->stats.last_completed_cycle = extract_json_u64(resp_buf, "completed_cycle", cyc);
     if (std::strcmp(status, "OK") != 0) {
         hal->stats.rejected_transactions++;
         return -1;
@@ -323,17 +325,26 @@ int avid_hal_send_syndrome(avid_hal_t *hal,
     if (hal->backend == AVID_HAL_BACKEND_PHYSICAL) {
         int16_t wx[9], wz[9];
         for (int i = 0; i < 9; i++) {
-            wx[i] = wrd_read_active_weight(&hal->phys_wrd, i);
-            wz[i] = wx[i];
+            wx[i] = wrd_read_active_x_weight(&hal->phys_wrd, i);
+            wz[i] = wrd_read_active_z_weight(&hal->phys_wrd, i);
         }
-        CycleAccurateBPEngine bp(3, 250.0);
-        avid_bp_result_t r = bp.decode((uint8_t)(sx & 0xFu), wz, 3);
-        if (corr_x) *corr_x = 0;
-        if (corr_z) *corr_z = r.correction_mask;
-        if (bp_core_cycles) *bp_core_cycles = (uint32_t)r.cycles_fused;
+        uint32_t k_iter   = hal->phys_wrd.cfg_max_iter ? hal->phys_wrd.cfg_max_iter : 3u;
+        uint32_t osd_mode = hal->phys_wrd.cfg_osd_mode;
+        uint16_t cx = avid_eval_rtl_bp_reference_phys((uint8_t)(sz & 0xFu), wx, (int)k_iter, true, osd_mode);
+        uint16_t cz = avid_eval_rtl_bp_reference_phys((uint8_t)(sx & 0xFu), wz, (int)k_iter, false, osd_mode);
+        uint32_t core_cyc = (osd_mode == 2u) ? (4u + 5u * k_iter) : (2u + 5u * k_iter);
+        uint32_t axis_cyc = 5u + core_cyc;
+        if (corr_x) *corr_x = cx;
+        if (corr_z) *corr_z = cz;
+        if (bp_core_cycles) *bp_core_cycles = core_cyc;
+        hal->stats.total_transactions++;
         hal->stats.syndrome_packets++;
-        hal->stats.last_accepted_cycle += (uint64_t)r.cycles_fused;
-        hal->stats.last_axis_total_cycles = (uint32_t)(r.cycles_fused + 5);
+        uint64_t start_cyc = hal->stats.last_completed_cycle;
+        hal->stats.last_accepted_cycle    = start_cyc;
+        hal->stats.last_completed_cycle   = start_cyc + axis_cyc;
+        hal->stats.last_axis_total_cycles = axis_cyc;
+        hal->stats.last_epoch_irq         = tlast ? 1u : 0u;
+        if (tlast) hal->stats.irq_events++;
         if (accepted_cycle) *accepted_cycle = hal->stats.last_accepted_cycle;
         return 0;
     }
@@ -343,13 +354,16 @@ int avid_hal_send_syndrome(avid_hal_t *hal,
     uint64_t tx_id = hal->next_tx_id++;
     std::snprintf(req, sizeof(req),
         "{\"protocol_version\":1,\"transaction_id\":%llu,\"operation\":\"SYNDROME_TRANSFER\","
-        "\"address\":\"0x00000000\",\"data\":\"0x%04X\",\"tlast\":%d,\"byte_enable\":3}\n",
-        (unsigned long long)tx_id, (unsigned)packed_synd, tlast ? 1 : 0);
+        "\"address\":\"0x00000000\",\"data\":\"0x%04X\",\"tlast\":%s,\"byte_enable\":3}\n",
+        (unsigned long long)tx_id, (unsigned)packed_synd, tlast ? "true" : "false");
     if (send_bridge_request(hal, tx_id, req, resp, sizeof(resp)) != 0) return -1;
     if (corr_x) *corr_x = (uint16_t)extract_json_u64(resp, "corr_x", 0u);
     if (corr_z) *corr_z = (uint16_t)extract_json_u64(resp, "corr_z", 0u);
     if (bp_core_cycles) *bp_core_cycles = (uint32_t)extract_json_u64(resp, "bp_cycles", 17u);
     hal->stats.last_axis_total_cycles = (uint32_t)extract_json_u64(resp, "axis_total_cycles", 22u);
+    uint32_t irq = (uint32_t)extract_json_u64(resp, "epoch_irq", 0u);
+    hal->stats.last_epoch_irq = irq ? 1u : 0u;
+    if (irq) hal->stats.irq_events++;
     hal->stats.syndrome_packets++;
     if (accepted_cycle) *accepted_cycle = hal->stats.last_accepted_cycle;
     return 0;
@@ -363,8 +377,12 @@ int avid_hal_reset_rtl(avid_hal_t *hal,
         uint32_t baddr = hal->phys_wrd.base_addr ? hal->phys_wrd.base_addr : WRD_BASE_ADDR;
         wrd_close(&hal->phys_wrd);
         wrd_open(&hal->phys_wrd, baddr);
+        hal->stats.total_transactions++;
         hal->stats.reset_operations++;
-        hal->stats.last_accepted_cycle += reset_cycles;
+        uint64_t start_cyc = hal->stats.last_completed_cycle;
+        uint32_t rcyc = (reset_cycles > 0 && reset_cycles <= 1000u) ? reset_cycles : 10u;
+        hal->stats.last_accepted_cycle  = start_cyc;
+        hal->stats.last_completed_cycle = start_cyc + rcyc;
         if (accepted_cycle) *accepted_cycle = hal->stats.last_accepted_cycle;
         return 0;
     }
