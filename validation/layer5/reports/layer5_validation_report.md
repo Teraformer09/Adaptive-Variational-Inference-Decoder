@@ -1,7 +1,7 @@
 # AVID Layer 5 — 250 MHz SystemVerilog FPGA RTL Validation Report
 
 - **Run ID**: `remediated_full_layer5_v1`
-- **Branch / Commit**: `layer5-fpga-rtl-decoder` @ `8830647` (`code_git_dirty=false`)
+- **Branch / Commit**: `layer5-fpga-rtl-decoder` @ `fc5b756` (`code_git_dirty=false`)
 - **Simulator**: `Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429` (`--cc --trace --assert`, native `Vaa_qec_top`)
 - **Canonical Test IDs**: `200 / 200 PASS` (`100.0%`)
 - **Acceptance Gates (`G1`–`G8`)**: `8 / 8 PASS`
