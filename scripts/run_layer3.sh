@@ -2,7 +2,7 @@
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${REPO_ROOT}"
-mkdir -p logs software/build_layer3
+mkdir -p logs software/build_layer3 results/plots
 LOG_FILE="logs/layer3_validation.log"
 
 {
@@ -14,5 +14,6 @@ LOG_FILE="logs/layer3_validation.log"
   ./software/build_layer3/avid_daemon --self-test
   PYTHONPATH=. python3 -m pytest -v tests/test_layer3_ip_op.py
   rm -rf software/build_layer3
-  echo "[PASS] Layer 3 IP & OP verification complete."
+  PYTHONPATH=. python3 scripts/plot_layer3_results.py
+  echo "[PASS] Layer 3 validation & plot generation complete."
 } 2>&1 | tee "${LOG_FILE}"

@@ -1,0 +1,30 @@
+{
+  "layer": 3,
+  "branch": "layer3-slow-loop-software",
+  "active_stage": "set1_input_contracts",
+  "stage1_gate_decision": "STAGE1_ACCEPTED_G1_G10_PASS",
+  "overall_layer3_decision": "PENDING_SETS_2_TO_5",
+  "baseline_88df97e_gated_pass": 20,
+  "baseline_88df97e_gated_total": 51,
+  "remediated_set1_v2_gated_pass": 52,
+  "remediated_set1_v2_gated_total": 52,
+  "diagnostic_companions_pass": 2,
+  "sanitizer_ctest_exit_code": 0,
+  "w_min_samples": 64,
+  "daemon_selftest_nll": 0.7144,
+  "daemon_selftest_elapsed_us": 669.68,
+  "gates_passed": [
+    "G1",
+    "G10"
+  ],
+  "gates_pending_sets_2_to_5": [
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6",
+    "G7",
+    "G8",
+    "G9"
+  ]
+}
