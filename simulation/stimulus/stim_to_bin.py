@@ -17,7 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from simulation.stimulus.packet_codec import pack_packet_u64
+from simulation.stimulus.packet_codec import FLAG_VALID_PKT, pack_packet_u64
 
 MAGIC = 0xAAEC0001
 N_DATA = 9
@@ -47,6 +47,9 @@ def convert_npz(input_path: str, output_path: str, verify: bool = False, u64_for
         # Derive independent Z-syndrome bits rather than duplicating X
         sz_arr = np.roll(sx_arr, shift=1, axis=1) ^ 1
 
+    val_x = data["validity_mask_x"] if "validity_mask_x" in data else None
+    val_z = data["validity_mask_z"] if "validity_mask_z" in data else None
+
     n_rounds, n_check_x = sx_arr.shape
     n_check_z = sz_arr.shape[1]
 
@@ -56,7 +59,13 @@ def convert_npz(input_path: str, output_path: str, verify: bool = False, u64_for
             if u64_format:
                 sx = bits_to_nibble(sx_arr[r])
                 sz = bits_to_nibble(sz_arr[r])
-                pkt64 = pack_packet_u64(s_x=sx, s_z=sz, seq_id=r, epoch_id=0)
+                round_valid = True
+                if val_x is not None and not bool(np.all(val_x[r] != 0)):
+                    round_valid = False
+                if val_z is not None and not bool(np.all(val_z[r] != 0)):
+                    round_valid = False
+                pkt_flags = FLAG_VALID_PKT if round_valid else 0
+                pkt64 = pack_packet_u64(s_x=sx, s_z=sz, seq_id=r, epoch_id=0, flags=pkt_flags)
                 f.write(struct.pack("<Q", pkt64))
             else:
                 word = pack_syndrome_word(sx_arr[r], sz_arr[r])

@@ -160,12 +160,17 @@ class AvidInputAdapter:
                 raise ValueError(f"Payload byte size {len(payload)} != {n_rounds * 8}")
             sx_unpacked = np.zeros(n_rounds, dtype=np.uint8)
             sz_unpacked = np.zeros(n_rounds, dtype=np.uint8)
+            valid_unpacked = np.zeros(n_rounds, dtype=bool)
             seq_gaps = 0
+            dropout_packets = 0
             for r in range(n_rounds):
                 (word,) = struct.unpack_from("<Q", payload, r * 8)
                 pkt = unpack_packet_u64(word)
                 sx_unpacked[r] = pkt.s_x
                 sz_unpacked[r] = pkt.s_z
+                valid_unpacked[r] = pkt.is_valid
+                if not pkt.is_valid:
+                    dropout_packets += 1
                 if r > 0 and pkt.seq_id != r:
                     seq_gaps += 1
 
@@ -182,10 +187,21 @@ class AvidInputAdapter:
                     np.array_equal(sx_unpacked, exp_sx) and np.array_equal(sz_unpacked, exp_sz)
                 ):
                     raise ValueError("Round-trip syndrome mismatch between trajectory and binary stream")
+                if "validity_mask_x" in expected_trajectory or "validity_mask_z" in expected_trajectory:
+                    vx = expected_trajectory.get("validity_mask_x")
+                    vz = expected_trajectory.get("validity_mask_z")
+                    exp_valid = np.ones(n_rounds, dtype=bool)
+                    if vx is not None:
+                        exp_valid &= np.all(np.asarray(vx) != 0, axis=1)
+                    if vz is not None:
+                        exp_valid &= np.all(np.asarray(vz) != 0, axis=1)
+                    if not np.array_equal(valid_unpacked, exp_valid):
+                        raise ValueError("Round-trip dropout validity mismatch between trajectory and binary stream")
         else:
             if len(payload) != n_rounds * 2:
                 raise ValueError(f"Legacy u16 payload byte size {len(payload)} != {n_rounds * 2}")
             seq_gaps = 0
+            dropout_packets = 0
 
         return {
             "valid": True,
@@ -193,4 +209,6 @@ class AvidInputAdapter:
             "n_rounds": int(n_rounds),
             "u64_format": bool(is_u64 == 1),
             "seq_gaps": int(seq_gaps),
+            "dropout_packets": int(dropout_packets),
+            "valid_packets": int(n_rounds - dropout_packets),
         }

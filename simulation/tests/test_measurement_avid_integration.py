@@ -168,3 +168,36 @@ def test_invalid_packet_input_rejected(tmp_path: Path):
     trunc_bin.write_bytes(struct.pack("<IIIBBBB", MAGIC, 4, 1, 4, 4, 3, 0) + b"\x00" * 8)
     with pytest.raises(ValueError, match="Payload byte size"):
         adapter.validate_stream(trunc_bin)
+
+
+def test_detector_dropout_clears_valid_flag_while_preserving_seq_id(tmp_path: Path):
+    traj = _build_test_trajectory(16)
+    # Deterministically force readout dropouts on rounds 0, 5, and 11
+    traj["validity_mask_x"] = np.ones((16, 4), dtype=np.uint8)
+    traj["validity_mask_z"] = np.ones((16, 4), dtype=np.uint8)
+    traj["validity_mask_x"][0, 2] = 0
+    traj["validity_mask_z"][5, 1] = 0
+    traj["validity_mask_x"][11, 0] = 0
+    traj["validity_mask_z"][11, 3] = 0
+
+    adapter = AvidInputAdapter()
+    bin_path = adapter.write_packet_stream(traj, tmp_path / "dropout_flags.bin", u64_format=True)
+    check = adapter.validate_stream(bin_path, expected_trajectory=traj)
+    assert check["valid"] is True
+    assert check["n_rounds"] == 16
+    assert check["seq_gaps"] == 0
+    assert check["dropout_packets"] == 3
+    assert check["valid_packets"] == 13
+
+    payload = bin_path.read_bytes()[16:]
+    for r in range(16):
+        (word,) = struct.unpack_from("<Q", payload, r * 8)
+        pkt = unpack_packet_u64(word)
+        assert pkt.seq_id == r
+        if r in (0, 5, 11):
+            assert pkt.flags == 0x00
+            assert pkt.is_valid is False
+        else:
+            assert pkt.flags == 0x01
+            assert pkt.is_valid is True
+
