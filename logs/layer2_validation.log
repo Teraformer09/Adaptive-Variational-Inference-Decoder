@@ -1,9 +1,9 @@
 === Layer 2 Validation: R2D2 ML Training, Export & C++ Parity ===
-Branch: layer2-r2d2-training-deploy | Commit: 54da68d
+Branch: layer2-r2d2-training-deploy | Commit: 7c3851f
 ============================= test session starts ==============================
 platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
 cachedir: .pytest_cache
-rootdir: /tmp/avid_layer_worktrees/layer2-r2d2-training-deploy
+rootdir: /home/tirtha/avid-validation/layer2
 configfile: pytest.ini
 plugins: typeguard-4.4.4, anyio-4.11.0
 collecting ... collected 9 items
@@ -18,5 +18,8 @@ tests/test_checkpoint_export.py::test_roundtrip_export_and_load_exact_parity PAS
 tests/test_checkpoint_export.py::test_corrupted_checkpoint_rejected PASSED [ 88%]
 tests/test_layer2_ip_op.py::test_layer2_cpp_python_ip_op_parity PASSED   [100%]
 
-============================== 9 passed in 2.36s ===============================
-[PASS] Layer 2 IP & OP verification complete.
+============================== 9 passed in 1.04s ===============================
+/usr/lib/python3/dist-packages/pyparsing/core.py:5637: SyntaxWarning: 'return' in a 'finally' block
+  return f"{type(self).__name__}: {retString}"
+[Layer 2 Plot] Saved /home/tirtha/avid-validation/layer2/results/plots/layer2_validation_summary.png and /home/tirtha/avid-validation/layer2/results/layer2_summary.json
+[PASS] Layer 2 IP, OP & plot generation complete.

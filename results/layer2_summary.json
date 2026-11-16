@@ -1,0 +1,17 @@
+{
+  "layer": 2,
+  "branch": "layer2-r2d2-training-deploy",
+  "pytest_passed": 9,
+  "pytest_failed": 0,
+  "num_updates": 320,
+  "initial_loss": 0.565784,
+  "final_loss": 0.029208,
+  "pre_train_step_reward": -1.0921,
+  "post_train_step_reward": 1.8734,
+  "static_step_reward": -0.5679,
+  "oracle_action_agreement": 0.8342,
+  "distinct_actions_selected": 6,
+  "max_cpp_q_abs_error": 2.6645352591003757e-15,
+  "max_cpp_gain_abs_error": 1.5959455978986625e-16,
+  "overall_status": "PASS"
+}
