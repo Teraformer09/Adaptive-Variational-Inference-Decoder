@@ -59,6 +59,13 @@ rm -f "${RESULTS_JSONL}"
     echo "=== Layer 4 Validation: Co-Simulation Bridge & Emulators (Run: ${RUN_ID}) ==="
     echo "Branch: $(git rev-parse --abbrev-ref HEAD) | Commit: $(git rev-parse HEAD)"
 
+    if ! command -v verilator >/dev/null 2>&1 || ! command -v qemu-arm >/dev/null 2>&1 || ! command -v arm-linux-gnueabihf-g++ >/dev/null 2>&1 || ! command -v aarch64-linux-gnu-g++ >/dev/null 2>&1; then
+        if command -v sudo >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+            echo "[BOOTSTRAP] Installing missing Verilator / QEMU / ARM cross-toolchains via apt-get..."
+            sudo apt-get update -qq && sudo apt-get install -y -qq verilator qemu-user gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        fi
+    fi
+
     if [[ "${SKIP_EMU_REBUILD}" -eq 0 ]]; then
         AVID_REQUIRE_NATIVE_VERILATOR=1 bash emulator/verilator/build.sh
         AVID_REQUIRE_ARM_GUEST=1 bash emulator/qemu/build.sh
@@ -75,6 +82,7 @@ rm -f "${RESULTS_JSONL}"
     PYTHONPATH=. python3 -m pytest -v tests/test_layer4_ip_op.py
 
     echo "--- [Stage 2] Building 19 Layer 4 C++ Validation Binaries + Fallback Reference Bridge ---"
+    rm -rf build/layer4_tests
     cmake -S tests/layer4 -B build/layer4_tests -DCMAKE_BUILD_TYPE=Release
     cmake --build build/layer4_tests -j4
 

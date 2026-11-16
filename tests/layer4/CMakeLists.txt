@@ -60,10 +60,9 @@ target_include_directories(avid_cosim_bridge_fallback PRIVATE
 target_compile_options(avid_cosim_bridge_fallback PRIVATE -O2 -Wall)
 target_link_libraries(avid_cosim_bridge_fallback PRIVATE Threads::Threads)
 
+file(GLOB VLT_RUNTIME_OBJS "${VLT_OBJ_DIR}/verilated*.o")
 set(VLT_LINK_OBJECTS
-    "${VLT_OBJ_DIR}/verilated.o"
-    "${VLT_OBJ_DIR}/verilated_vcd_c.o"
-    "${VLT_OBJ_DIR}/verilated_threads.o"
+    ${VLT_RUNTIME_OBJS}
     "${VLT_OBJ_DIR}/Vaa_qec_top__ALL.a"
 )
 

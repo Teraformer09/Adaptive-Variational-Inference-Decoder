@@ -35,6 +35,7 @@ REQUIRE_NATIVE="${AVID_REQUIRE_NATIVE_VERILATOR:-0}"
 
 if command -v verilator >/dev/null 2>&1; then
     echo "[Verilator Build] Compiling SystemVerilog RTL (aa_qec_top) with Verilator (--assert enabled)..."
+    rm -rf "${MODEL_DIR}/obj_standalone" "${MODEL_DIR}/obj_bridge"
     VERILATOR_FLAGS="--cc --exe --build --build-jobs 4 --trace --assert -Wno-fatal --top-module aa_qec_top"
     CFLAGS_BASE="-O2 -std=c++17 -DUSE_VERILATOR=1 -I${SCRIPT_DIR}/tb -I${BRIDGE_DIR}/include -I${REPO_ROOT}/software/src"
 

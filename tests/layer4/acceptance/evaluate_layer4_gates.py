@@ -120,9 +120,17 @@ def main() -> int:
 
     git_commit = cmd_first_line(["git", "rev-parse", "HEAD"], cwd=repo_root)
     git_branch = cmd_first_line(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=repo_root)
-    # Ignore untracked files inside validation/layer4/ during active run generation when computing code dirtiness
+    # Ignore untracked/regenerated files inside validation/layer4, results, and logs during active run generation when computing code dirtiness
     git_status_out = subprocess.check_output(
-        ["git", "status", "--porcelain", "--", ":(exclude)validation/layer4", ":(exclude)logs/layer4_validation.log"],
+        [
+            "git",
+            "status",
+            "--porcelain",
+            "--",
+            ":(exclude)validation/layer4",
+            ":(exclude)results",
+            ":(exclude)logs/layer4_validation.log",
+        ],
         cwd=str(repo_root),
         text=True,
     ).strip()
