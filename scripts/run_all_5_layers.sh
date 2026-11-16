@@ -1,22 +1,32 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # AVID End-to-End 5-Layer Master Pipeline Runner (Layers 1 -> 5)
-# Executes all 5 layers and collects all logs, JSON summaries, reports & plots
-# into ~/avid-e2e/all_results/ + ~/avid_all_5_layers_results.tar.gz
+# Executes all 5 layers (resuming any already-completed layers unless --clean
+# is passed) and collects all logs, JSON summaries, reports & plots into
+# ~/avid-e2e/all_results/ + ~/avid_all_5_layers_results.tar.gz
 # ==============================================================================
 set -euo pipefail
 
 mkdir -p "${HOME}/.cloudshell"
 touch "${HOME}/.cloudshell/no-apt-get-warning"
 
-echo "=== [Step 1/4] Installing System & Python Toolchains ==="
-if command -v sudo >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
-    sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-        cmake g++ verilator qemu-user \
-        gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
-        gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-        python3-numpy python3-scipy python3-yaml python3-pytest python3-matplotlib
+CLEAN_RUN=0
+for arg in "$@"; do
+    if [[ "${arg}" == "--clean" ]]; then
+        CLEAN_RUN=1
+    fi
+done
+
+echo "=== [Step 1/4] Checking System & Python Toolchains ==="
+if ! command -v verilator >/dev/null 2>&1 || ! command -v qemu-arm >/dev/null 2>&1 || ! command -v arm-linux-gnueabihf-g++ >/dev/null 2>&1 || ! command -v aarch64-linux-gnu-g++ >/dev/null 2>&1; then
+    if command -v sudo >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+        sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            cmake g++ verilator qemu-user \
+            gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
+            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+            python3-numpy python3-scipy python3-yaml python3-pytest python3-matplotlib
+    fi
 fi
 
 python3 -c "import numpy, scipy, yaml, pytest, matplotlib" 2>/dev/null || \
@@ -27,18 +37,36 @@ E2E_ROOT="${HOME}/avid-e2e"
 OUT_ROOT="${E2E_ROOT}/all_results"
 REPO_URL="https://github.com/Teraformer09/Adaptive-Variational-Inference-Decoder.git"
 
-rm -rf "${E2E_ROOT}"
+if [[ "${CLEAN_RUN}" -eq 1 ]]; then
+    rm -rf "${E2E_ROOT}"
+fi
 mkdir -p "${OUT_ROOT}/logs" "${OUT_ROOT}/summaries" "${OUT_ROOT}/reports" "${OUT_ROOT}/plots"
 
-echo "=== [Step 2/4] Cloning All 5 Validated AVID Layer Branches ==="
-git clone -b layer1-noise-stimulus     --single-branch "${REPO_URL}" "${E2E_ROOT}/layer1"
-git clone -b layer2-r2d2-training-deploy --single-branch "${REPO_URL}" "${E2E_ROOT}/layer2"
-git clone -b layer3-slow-loop-software --single-branch "${REPO_URL}" "${E2E_ROOT}/layer3"
-git clone -b layer4-cosim-bridge-emu   --single-branch "${REPO_URL}" "${E2E_ROOT}/layer4"
-git clone -b layer5-fpga-rtl-decoder   --single-branch "${REPO_URL}" "${E2E_ROOT}/layer5"
+declare -A BRANCH_MAP=(
+    [1]="layer1-noise-stimulus"
+    [2]="layer2-r2d2-training-deploy"
+    [3]="layer3-slow-loop-software"
+    [4]="layer4-cosim-bridge-emu"
+    [5]="layer5-fpga-rtl-decoder"
+)
+
+echo "=== [Step 2/4] Preparing All 5 Validated AVID Layer Branches ==="
+for i in 1 2 3 4 5; do
+    BR="${BRANCH_MAP[$i]}"
+    if [[ ! -d "${E2E_ROOT}/layer${i}/.git" ]]; then
+        git clone -b "${BR}" --single-branch "${REPO_URL}" "${E2E_ROOT}/layer${i}"
+    else
+        git -C "${E2E_ROOT}/layer${i}" fetch origin "${BR}"
+        git -C "${E2E_ROOT}/layer${i}" reset --hard "origin/${BR}"
+    fi
+done
 
 echo "=== [Step 3/4] Executing Layers 1 -> 5 End-to-End Validation ==="
 for i in 1 2 3 4 5; do
+    if [[ "${CLEAN_RUN}" -eq 0 && -s "${OUT_ROOT}/summaries/layer${i}_summary.json" && -s "${OUT_ROOT}/plots/layer${i}_validation_summary.png" && -s "${OUT_ROOT}/logs/layer${i}_validation.log" ]]; then
+        echo "[SKIP] Layer ${i} already completed in ${OUT_ROOT} (pass --clean to re-run from scratch)."
+        continue
+    fi
     echo ""
     echo "========================================================================"
     echo " RUNNING LAYER ${i} VALIDATION PIPELINE"

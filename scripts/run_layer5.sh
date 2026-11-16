@@ -55,17 +55,17 @@ LOG_FILE="logs/layer5_validation.log"
   echo "[Layer 5] Compiling native SystemVerilog aa_qec_top + bound SVA with ${VLT_VER}..."
 
   verilator --cc --exe --build -j 4 --trace --assert -Wno-fatal --top-module aa_qec_top \
-    -Mdir firmware/build_layer5/obj_standalone \
+    -Mdir "${REPO_ROOT}/firmware/build_layer5/obj_standalone" \
     -CFLAGS "-O2 -std=c++17 -DUSE_VERILATOR=1 -I${REPO_ROOT}/emulator/verilator/tb" \
-    firmware/rtl/ingress/axis_ingress_tap.sv \
-    firmware/rtl/ingress/axis_syndrome_rx.sv \
-    firmware/rtl/decoder/check_node_minsum.sv \
-    firmware/rtl/decoder/axis_correction_tx.sv \
-    firmware/rtl/config/weight_map_reg.sv \
-    firmware/rtl/decoder/bp_engine.sv \
-    firmware/rtl/top/aa_qec_top.sv \
-    firmware/formal/assertions/sva_weight_commit_assertions.sv \
-    emulator/verilator/tb/standalone_rtl_tb.cpp \
+    "${REPO_ROOT}/firmware/rtl/ingress/axis_ingress_tap.sv" \
+    "${REPO_ROOT}/firmware/rtl/ingress/axis_syndrome_rx.sv" \
+    "${REPO_ROOT}/firmware/rtl/decoder/check_node_minsum.sv" \
+    "${REPO_ROOT}/firmware/rtl/decoder/axis_correction_tx.sv" \
+    "${REPO_ROOT}/firmware/rtl/config/weight_map_reg.sv" \
+    "${REPO_ROOT}/firmware/rtl/decoder/bp_engine.sv" \
+    "${REPO_ROOT}/firmware/rtl/top/aa_qec_top.sv" \
+    "${REPO_ROOT}/firmware/formal/assertions/sva_weight_commit_assertions.sv" \
+    "${REPO_ROOT}/emulator/verilator/tb/standalone_rtl_tb.cpp" \
     -o standalone_rtl_tb
 
   cp -f firmware/build_layer5/obj_standalone/standalone_rtl_tb firmware/build_layer5/standalone_rtl_tb
