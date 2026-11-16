@@ -1,0 +1,13 @@
+{
+  "layer": 1,
+  "branch": "layer1-noise-stimulus",
+  "pytest_passed": 89,
+  "pytest_failed": 0,
+  "pytest_duration_s": 183.52,
+  "stage5_synchronized_samples": 2500,
+  "stage6_packets_verified": 250,
+  "stage6_dropout_flag_agreement": 1.0,
+  "stage7_oracle_ler": 0.067816,
+  "stage7_exact_vs_mc_tvd": 0.007706,
+  "overall_status": "PASS"
+}
