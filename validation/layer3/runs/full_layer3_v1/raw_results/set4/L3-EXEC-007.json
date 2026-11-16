@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-007",
+  "test_name": "repeated_start_stop_determinism",
+  "test_description": "Spawn avid_daemon 10 times sequentially with identical CLI arguments and seed",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (10x sequential restarts)",
+  "input_contract": "",
+  "independent_oracle": "All 10 runs exit 0 and produce bit-identical JSON output (zero cross-run state leakage)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-007$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-007.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-007.json"
+  ],
+  "duration_ms": 258.411,
+  "failure_classification": null
+}

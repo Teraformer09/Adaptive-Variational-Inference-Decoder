@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-024",
+  "test_name": "empty_observation_window_safe_hold",
+  "test_description": "Force all-zero histogram hist={0}*16 in solver and pass estimator_ok=false into FSM",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp, software/src/control/fallback_fsm.cpp",
+  "implementation_function": "fit_histogram (hist=0) -> avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "fit_histogram returns 0.0 with converged==false; FSM enters HOLD_LAST_GOOD with should_commit==false",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-024$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-024.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-024.json"
+  ],
+  "duration_ms": 0.058,
+  "failure_classification": null
+}

@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-EXEC-041
+Test Name: three_thread_5s_concurrent_workload_stress
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/ingress/dma_ingress_tap.cpp, software/src/estimator/lbfgs_solver.cpp, software/src/driver/weight_reg_driver.c
+Implementation Function: 3-thread concurrent ingress + solver + MMIO reader (5s)
+Execution Command: ctest --test-dir build/layer3 -R "^L3-EXEC-041$" --output-on-failure
+Fixture: 
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+5s_stress: fits=3378 reads=11938 invariant_errors=0
+

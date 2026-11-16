@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-005",
+  "test_name": "map_estimator_gradient_output_contract",
+  "test_description": "Inspect model.grad() after fit_histogram: dimension 21, finite, and projected infinity norm == diag.final_grad_inf_norm",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "|proj_grad_inf - diag.final_grad_inf_norm| < 1e-12",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-005$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "proj_grad_inf_match": "< 1e-12"
+  },
+  "actual": {
+    "final_grad_inf_norm": "0.0234791"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-005.log",
+    "validation/layer3/raw_results/set2/L3-OP-005.json"
+  ],
+  "duration_ms": 0.487,
+  "failure_classification": null
+}

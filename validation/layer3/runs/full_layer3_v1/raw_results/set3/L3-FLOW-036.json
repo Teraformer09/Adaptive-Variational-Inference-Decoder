@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-036",
+  "test_name": "probability_propagation_sensitivity",
+  "test_description": "Increase true p_4 from 0.012 to 0.090 on identical RNG seed and inspect fitted theta[4]",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "theta_high[4] > 2.0 * theta_low[4]",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-036$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-036.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-036.json"
+  ],
+  "duration_ms": 0.898,
+  "failure_classification": null
+}

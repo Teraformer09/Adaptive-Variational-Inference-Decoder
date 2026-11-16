@@ -1,0 +1,35 @@
+{
+  "test_id": "L3-STAT-001",
+  "test_name": "single_parameter_recovery_z4",
+  "test_description": "Vary theta[4] across {0.015, 0.04, 0.08} over >=30 seeds per level and verify bias/variance/MSE/95% CI",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "|Bias| <= 0.015 and predictive TVD <= 0.020",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_stationary_recovery.py --test-id L3-STAT-001 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "abs_bias_max": "0.015",
+    "mean_tvd_max": "0.02",
+    "min_seeds": "30"
+  },
+  "actual": {
+    "bias": "0.000885",
+    "variance": "2.954e-05",
+    "mse": "3.002e-05",
+    "ci95": "[-0.00020, 0.00197]",
+    "mean_tvd": "0.012804"
+  },
+  "assertion_notes": [
+    "3x32=96 MC runs: bias=0.000885, mse=3.001507e-05, tvd=0.012804"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-001.json",
+    "logs/set2/L3-STAT-001.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 119.221
+}

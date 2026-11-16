@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-INT-001
+Test Name: production_daemon_ingress_path_audit
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/inference/avid_daemon.cpp
+Implementation Function: main (--stim-bin fread -> avid_unpack_packet_u64 -> avid_pack_packet_u64 -> avid_dma_ring_push_burst)
+Execution Command: ctest --test-dir build/layer3 -R "^L3-INT-001$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/truncated_3B.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

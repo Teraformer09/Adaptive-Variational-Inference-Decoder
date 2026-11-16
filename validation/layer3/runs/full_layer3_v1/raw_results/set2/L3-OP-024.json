@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-024",
+  "test_name": "scheduler_delayed_commit_threshold",
+  "test_description": "Schedule commit at window_end=256 with commit_delay=32 -> false at 287, true at 288",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_schedule_commit, avid_scheduler_poll_commit_ready",
+  "input_contract": "",
+  "independent_oracle": "poll(287)==false, poll(288)==true",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-024$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "poll_287_288": "false, true"
+  },
+  "actual": {
+    "poll_287_288": "false, true"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-024.log",
+    "validation/layer3/raw_results/set2/L3-OP-024.json"
+  ],
+  "duration_ms": 0.043,
+  "failure_classification": null
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-054",
+  "test_name": "fsm_transition_relation_exact_oracle_match",
+  "test_description": "Compare all 64 (state, input) transitions and holds=2 escalation against independent symbolic FSM specification",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "128/128 exact matches on next_state, should_commit, and selected bank",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-054$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "exact_symbolic_matches": "128"
+  },
+  "actual": {
+    "exact_symbolic_matches": "128"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-054.log",
+    "validation/layer3/raw_results/set5/L3-MATH-054.json"
+  ],
+  "duration_ms": 0.063,
+  "failure_classification": null
+}

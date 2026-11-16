@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-018",
+  "test_name": "cold_restart_and_crc32_warm_state_resume",
+  "test_description": "Test deterministic cold start, valid --state-out -> --state-in warm resume, and corrupt CRC32 state rejection",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "save_persisted_state_atomic + load_persisted_state",
+  "input_contract": "",
+  "independent_oracle": "Valid state loads cleanly (state_in_loaded==true); 1-bit flip triggers state_in_rejected==true & safe cold fallback",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-018$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-018.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-018.json"
+  ],
+  "duration_ms": 75.599,
+  "failure_classification": null
+}

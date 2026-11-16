@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-028",
+  "test_name": "null_space_dimension_and_zero_signature_columns",
+  "test_description": "Confirm 12 null-space directions and exact zero Jacobian columns on g=0 edges (e=16,19 in X-basis; e=9,14 in Z-basis)",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NM_EVENT_SIGNATURES, NM_EVENT_SIGNATURES_Z_BASIS",
+  "input_contract": "",
+  "independent_oracle": "||J.col(16)||==0, ||J.col(19)||==0 in X-basis; ||J.col(9)||==0, ||J.col(14)||==0 in Z-basis",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-028$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "zero_columns": "X:(16,19)==0, Z:(9,14)==0"
+  },
+  "actual": {
+    "norms": "verified 0.0 to 1e-15"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-028.log",
+    "validation/layer3/raw_results/set5/L3-MATH-028.json"
+  ],
+  "duration_ms": 0.232,
+  "failure_classification": null
+}

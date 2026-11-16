@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-FLOW-008",
+  "test_name": "burst_detector_to_scheduler_and_r2d2_score_flow",
+  "test_description": "Drive 60-round burst through avid_fast_detector_step, verify <=20-round trigger and burst_score delivery to R2D2",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp, software/src/control/r2d2_lstm_controller.h",
+  "implementation_function": "avid_fast_detector_step -> AvidR2D2LSTMController::step_causal",
+  "input_contract": "",
+  "independent_oracle": "100 <= trig_round <= 119, trigger_count == 1, peak_density >= 0.35",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-008$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "trigger_lag_max_rounds": "20"
+  },
+  "actual": {
+    "trigger_lag_rounds": "9"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-008.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-008.json"
+  ],
+  "duration_ms": 3.525,
+  "failure_classification": null
+}

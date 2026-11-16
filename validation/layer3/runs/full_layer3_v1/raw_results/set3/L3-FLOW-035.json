@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-035",
+  "test_name": "system_timing_yaml_claim_cross_validation",
+  "test_description": "Cross-check architecture/contracts/system_timing.yaml parameters against live C++ structures and daemon telemetry",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "architecture/contracts/system_timing.yaml, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_fast_detector_init + CycleAccurateBPEngine + avid_daemon",
+  "input_contract": "",
+  "independent_oracle": "subwindow=16, debounce=4, worst_case=20 rounds, v1_window=256, v2_window=10000, BP K=3 cycles=17 (68 ns), AXIS=22 (88 ns)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-035$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-035.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-035.json"
+  ],
+  "duration_ms": 21.137,
+  "failure_classification": null
+}

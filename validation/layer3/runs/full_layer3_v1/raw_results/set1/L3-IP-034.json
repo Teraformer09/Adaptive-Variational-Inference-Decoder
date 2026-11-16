@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-034",
+  "test_name": "burst_threshold_and_debounce_bounds",
+  "test_description": "Burst threshold bounds — test valid threshold=0.35/debounce=4 and invalid threshold in {-0.2, 0.0, 1.5, NaN, +Inf}",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_init, avid_fast_detector_step",
+  "input_contract": "density_threshold in (0.0, 1.0]; reject <=0, >1.0, NaN, +Inf",
+  "independent_oracle": "16-round sliding density lies in [0, 1]; threshold > 1.0 permanently disables burst detection",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-034$\" --output-on-failure",
+  "fixture": "none",
+  "expected": {
+    "burst_threshold_bounds": "Reject threshold <= 0, > 1.0, NaN, and +Inf"
+  },
+  "actual": {
+    "burst_threshold_bounds": "avid_fast_detector_init_checked rejects -0.2, 0.0, 1.5, NaN, +Inf, nullptr (false, config_valid=false) and accepts (0.35, 1.0)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-034.log",
+    "validation/layer3/raw_results/set1/L3-IP-034.json"
+  ],
+  "duration_ms": 0.061,
+  "failure_classification": null
+}

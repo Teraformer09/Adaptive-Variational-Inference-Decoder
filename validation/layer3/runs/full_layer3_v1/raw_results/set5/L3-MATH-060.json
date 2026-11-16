@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-060",
+  "test_name": "fsm_reset_invariant_from_all_degraded_states",
+  "test_description": "Call avid_fallback_init from HOLD, SAFE_STATIC, and DEGRADED states and verify complete restoration",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_init",
+  "input_contract": "",
+  "independent_oracle": "state==NORMAL_ADAPTIVE, consecutive_holds==0, fallback_triggers==0, banks==AVID_Q78_DEFAULT",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-060$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "reset_invariant": "Clean restoration from all 3 degraded states"
+  },
+  "actual": {
+    "reset_invariant": "Verified"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-060.log",
+    "validation/layer3/raw_results/set5/L3-MATH-060.json"
+  ],
+  "duration_ms": 0.053,
+  "failure_classification": null
+}

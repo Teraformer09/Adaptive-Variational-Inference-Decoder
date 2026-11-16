@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-012",
+  "test_name": "hal_commit_response_to_daemon_reconciliation",
+  "test_description": "Run avid_daemon_under_test and verify HAL commit_operations, weight_bank_commits, and epoch_commit_reconciled==true",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (epoch_commit_reconciled & metrics JSON)",
+  "input_contract": "",
+  "independent_oracle": "rc==0, epoch_commit_reconciled==true, weight_bank_commits == initial_boot_commits + adaptive_epoch_commits",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-012$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-012.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-012.json"
+  ],
+  "duration_ms": 24.180,
+  "failure_classification": null
+}

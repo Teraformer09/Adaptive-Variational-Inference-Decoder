@@ -1,23 +1,34 @@
 {
   "layer": 3,
   "branch": "layer3-slow-loop-software",
-  "active_stage": "set1_input_contracts",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "dirty_working_tree": false,
+  "active_stage": "full_layer3_sets1_to_5",
   "stage1_gate_decision": "STAGE1_ACCEPTED_G1_G10_PASS",
-  "overall_layer3_decision": "PENDING_SETS_2_TO_5",
+  "overall_layer3_decision": "ACCEPTED_ALL_GATES_G1_TO_G10_PASS",
   "baseline_88df97e_gated_pass": 20,
   "baseline_88df97e_gated_total": 51,
   "remediated_set1_v2_gated_pass": 52,
   "remediated_set1_v2_gated_total": 52,
-  "diagnostic_companions_pass": 2,
+  "canonical_total": 243,
+  "canonical_pass": 243,
+  "c_abi_pass": 7,
+  "supplementary_and_integration_pass": 7,
+  "total_executed_checks": 257,
+  "total_passed_checks": 257,
+  "per_set_pass_counts": {
+    "set1_input_contracts": 40,
+    "set2_output_statistics": 51,
+    "set3_pipeline_flow": 45,
+    "set4_execution_recovery": 45,
+    "set5_control_mathematics": 62
+  },
   "sanitizer_ctest_exit_code": 0,
   "w_min_samples": 64,
   "daemon_selftest_nll": 0.7144,
-  "daemon_selftest_elapsed_us": 669.68,
+  "daemon_selftest_elapsed_us": 690.5,
   "gates_passed": [
     "G1",
-    "G10"
-  ],
-  "gates_pending_sets_2_to_5": [
     "G2",
     "G3",
     "G4",
@@ -25,6 +36,8 @@
     "G6",
     "G7",
     "G8",
-    "G9"
-  ]
+    "G9",
+    "G10"
+  ],
+  "gates_failed": []
 }

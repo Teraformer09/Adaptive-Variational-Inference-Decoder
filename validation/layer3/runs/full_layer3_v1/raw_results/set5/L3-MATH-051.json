@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-051",
+  "test_name": "analytical_burst_detection_delay_formula",
+  "test_description": "Compare analytical trigger round (16-round sum >= ceil(0.35*16)=6 + 4-round debounce) against C++ avid_fast_detector_step",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "Exact round-index match across burst densities {1.0, 0.50} and latency <= 20 rounds",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-051$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "trigger_rounds_100pct_50pct": "108, 113"
+  },
+  "actual": {
+    "trigger_rounds_100pct_50pct": "108, 113"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-051.log",
+    "validation/layer3/raw_results/set5/L3-MATH-051.json"
+  ],
+  "duration_ms": 0.057,
+  "failure_classification": null
+}

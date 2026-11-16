@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-020",
+  "test_name": "flat_likelihood_zero_signature_edges",
+  "test_description": "Verify zero-signature edges ZZ_3_6 (e=16) and ZZ_2_5 (e=19) in X-basis have exact zero data gradient and stay at prior",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_gradient_from_histogram",
+  "input_contract": "",
+  "independent_oracle": "grad_data(16) == 0.0, grad_data(19) == 0.0, and MAP estimate equals prior_theta",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-020$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "zero_sig_edges": "grad_data == 0.0 and MAP estimate == prior_theta (0.008)"
+  },
+  "actual": {
+    "theta_16_19": "0.007997, 0.007997"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-020.log",
+    "validation/layer3/raw_results/set5/L3-MATH-020.json"
+  ],
+  "duration_ms": 1.222,
+  "failure_classification": null
+}

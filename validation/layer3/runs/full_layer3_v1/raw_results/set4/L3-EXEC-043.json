@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-043",
+  "test_name": "memory_utilization_rss_and_r2d2_static_audit",
+  "test_description": "Compare ru_maxrss across 1,024 vs 100,000 rounds and verify get_memory_audit() exact byte counts",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/r2d2_lstm_controller.h, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "AvidR2D2LSTMController::get_memory_audit + 100k-round RSS",
+  "input_contract": "",
+  "independent_oracle": "total_params==19744, fp32_bytes==78976, int8==19744, lbfgs_workspace==2688, and RSS delta < 16 MB",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-043$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-043.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-043.json"
+  ],
+  "duration_ms": 1647.553,
+  "failure_classification": null
+}

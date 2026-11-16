@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-028",
+  "test_name": "commit_delay_enforcement_tc_ge_te_plus_dc",
+  "test_description": "Set commit_delay=100 after window_end=256 and poll rounds 256..360",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_schedule_commit -> avid_scheduler_poll_commit_ready",
+  "input_contract": "",
+  "independent_oracle": "poll_commit_ready is false for 256..355, true strictly once at 356, and false thereafter",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-028$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-028.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-028.json"
+  ],
+  "duration_ms": 0.073,
+  "failure_classification": null
+}

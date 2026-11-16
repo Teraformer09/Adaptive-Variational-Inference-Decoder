@@ -1,0 +1,4 @@
+[L3-STAT-009] initial_point_sensitivity_identifiable_vs_null -> PASS (126.30 ms)
+expected={"singleton_init_spread_max": 0.012, "null_space_init_retention_min": 0.14}
+actual={"singleton_z4_spread_mean": 1e-06, "null_zz36_spread_mean": 0.148}
+Init sweep p0=[0.002..0.15]: singleton spread=0.000001 vs null-space spread=0.148000

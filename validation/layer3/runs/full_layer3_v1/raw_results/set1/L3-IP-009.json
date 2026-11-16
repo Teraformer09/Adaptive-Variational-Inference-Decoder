@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-009",
+  "test_name": "packet_truncation_and_boundaries",
+  "test_description": "Packet truncation — test min/max 64-bit boundary packets, partial JSON without newline over Unix socket, and 3-byte EOF mid-uint64_t in --stim-bin",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/hal/simulation_backend.cpp, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "send_bridge_request, avid_daemon(--stim-bin fread)",
+  "input_contract": "Truncated JSON socket frames and truncated (<8B) binary --stim-bin frames must be rejected",
+  "independent_oracle": "Min/max bitfield oracle + socketpair truncated reply + 3-byte binary file daemon probe",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-009$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/invalid/truncated_3B.bin",
+  "expected": {
+    "socket_truncated_json": "rc=-1, rejected_transactions==1",
+    "stim_bin_truncated_3B": "Non-zero exit / incomplete frame error"
+  },
+  "actual": {
+    "socket_truncated_json": "rc=-1, rejected_transactions=1 (PASS)",
+    "stim_bin_truncated_3B": "Rejected"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-009.log",
+    "validation/layer3/raw_results/set1/L3-IP-009.json"
+  ],
+  "duration_ms": 22.734,
+  "failure_classification": null
+}

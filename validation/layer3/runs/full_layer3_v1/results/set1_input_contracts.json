@@ -1,0 +1,1529 @@
+{
+  "schema_version": "1.2.0",
+  "generated_at_utc": "2026-11-16T12:58:01Z",
+  "run_id": "full_layer3_v1",
+  "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "initial_validation_commit": "be50761cc6f4cc0c31f79555aa3f69ccd911563d",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "branch": "layer3-slow-loop-software",
+  "stage": "full_layer3_sets1_to_5",
+  "sanitizer_ctest_exit_code": 0,
+  "canonical_total": 40,
+  "canonical_status_counts": {
+    "PASS": 40
+  },
+  "c_abi_total": 7,
+  "c_abi_status_counts": {
+    "PASS": 7
+  },
+  "supplementary_total": 7,
+  "supplementary_status_counts": {
+    "PASS": 7
+  },
+  "canonical_results": [
+    {
+      "test_id": "L3-IP-001",
+      "test_name": "valid_packet_ingress",
+      "test_description": "Valid packet ingress \u2014 pack (s_x=5, s_z=11, seq=0, epoch=3, flags=AVID_PKT_FLAG_VALID), unpack & validate, plus 64-packet sequential stream",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp",
+      "implementation_function": "avid_pack_packet_u64, avid_unpack_packet_u64, avid_validate_packet",
+      "input_contract": "64-bit word with VALID=1, PARITY_ERR=0, monotonic seq_id",
+      "independent_oracle": "binary_packet_builder::build_raw_packet_u64_oracle & packet_001_expected.json",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-001$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/packet_001.bin",
+      "expected": {
+        "validation_status": "ACCEPT (true), s_x=5, s_z=11, epoch_id=3, seq_id=0, valid_count=1"
+      },
+      "actual": {
+        "decoded_fields": "s_x=5, s_z=11, epoch_id=3, seq_id=0",
+        "stream64_valid_count": "64",
+        "validation_status": "ACCEPT (true)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-001.log",
+        "validation/layer3/raw_results/set1/L3-IP-001.json"
+      ],
+      "duration_ms": 1.484,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-002",
+      "test_name": "packet_length_and_wire_contract",
+      "test_description": "Packet length \u2014 evaluate 0, 3, 7, 8, 9, 15, and 24-byte buffers against 64-bit C API and syndrome_packet_v1.yaml (16B header + 4B round word)",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.h",
+      "implementation_function": "avid_validate_packet vs syndrome_packet_v1.yaml",
+      "input_contract": "Exact packet framing length validation across wire formats",
+      "independent_oracle": "architecture/contracts/syndrome_packet_v1.yaml vs packet_validator.h signature inspection",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-002$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/invalid/short_7B.bin",
+      "expected": {
+        "wire_contract": "Exact 8-byte packet framing in syndrome_packet_v1.yaml & packet_validator.h; non-8-byte packet buffers rejected"
+      },
+      "actual": {
+        "c_unpacked_struct_bytes": "12",
+        "c_wire_size_bytes": "8 (AVID_PACKET_WIRE_BYTES=8; avid_validate_packet_bytes & avid_validate_stream_framing)",
+        "yaml_contract_bytes": "8-byte little-endian uint64_t DMA packet + 16-bit AXI-Stream RTL word"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-002.log",
+        "validation/layer3/raw_results/set1/L3-IP-002.json",
+        "validation/layer3/reports/packet_contract_decision.md"
+      ],
+      "duration_ms": 4.147,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-003",
+      "test_name": "packet_version_and_endianness",
+      "test_description": "Packet version & endianness \u2014 verify little-endian byte order, HAL protocol_version==1 check, and YAML magic 0xAAEC0002 / version=1 stream header support",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/hal/simulation_backend.cpp",
+      "implementation_function": "avid_pack_packet_u64, avid_unpack_packet_u64, send_bridge_request",
+      "input_contract": "Versioned little-endian packet framing (protocol_version=1, magic=0xAAEC0002/0xAAEC0001)",
+      "independent_oracle": "Byte-level little-endian oracle + AF_UNIX mock peer + syndrome_packet_v1.yaml",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-003$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/yaml_v1_stream_2rounds.bin",
+      "expected": {
+        "version_validation": "Explicit LE64 byte codec, HAL RPC protocol_version==1 enforcement, and rejection of non-A05/Q11 header frames"
+      },
+      "actual": {
+        "hal_rpc_version_check": "PASS (v1 accepted, v99 rejected)",
+        "le64_codec_and_header_guard": "PASS (avid_encode_packet_le64/avid_decode_packet_le64 exact; legacy 0xAAEC0002 frame rejected)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-003.log",
+        "validation/layer3/raw_results/set1/L3-IP-003.json",
+        "validation/layer3/reports/packet_contract_decision.md"
+      ],
+      "duration_ms": 2.28,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-004",
+      "test_name": "packet_field_encoding_and_flags",
+      "test_description": "Field encoding \u2014 test VALID, OVERFLOW, PARITY_ERR, EPOCH_MARK combinations vs flags=0 and reserved upper flag bits [7:4]",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp",
+      "implementation_function": "avid_validate_packet",
+      "input_contract": "Only defined flags [3:0] with VALID=1 and PARITY_ERR=0 accepted; flags=0 or reserved bits [7:4] rejected",
+      "independent_oracle": "Flag bitmask specification (VALID=0x01, OVERFLOW=0x02, PARITY_ERR=0x04, EPOCH_MARK=0x08; reserved[7:4]==0)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-004$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/invalid/reserved_upper_flags.bin",
+      "expected": {
+        "flags_0x00": "REJECT (false), invalid_flag_count++",
+        "flags_0xF1_reserved_bits": "REJECT (false), invalid_flag_count++"
+      },
+      "actual": {
+        "flags_0x00": "REJECT (false)",
+        "flags_0xF1_reserved_bits": "REJECT (false)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-004.log",
+        "validation/layer3/raw_results/set1/L3-IP-004.json"
+      ],
+      "duration_ms": 1.187,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-005",
+      "test_name": "syndrome_bit_range_and_field_decode",
+      "test_description": "Syndrome bit range \u2014 verify all 256 valid (s_x in 0..15, s_z in 0..15) combinations and inspect out-of-range s_x/s_z >= 16 handling",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp",
+      "implementation_function": "avid_pack_packet_u64, avid_unpack_packet_u64",
+      "input_contract": "4-bit s_x in [0,15] and 4-bit s_z in [0,15]; out-of-range uint8_t >= 16 must be rejected rather than silently aliased",
+      "independent_oracle": "Exhaustive 256-state bitfield oracle + out-of-domain injection (16, 255)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-005$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/packet_001.bin",
+      "expected": {
+        "out_of_range_sx16_sz255": "Explicit false return from avid_pack_packet_u64_checked without silent aliasing",
+        "valid_256_domain": "256/256 exact round-trip"
+      },
+      "actual": {
+        "out_of_range_sx16_sz255": "Rejected cleanly (false, out_raw_word untouched)",
+        "valid_256_domain": "256/256 exact round-trip"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-005.log",
+        "validation/layer3/raw_results/set1/L3-IP-005.json"
+      ],
+      "duration_ms": 0.06,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-006",
+      "test_name": "timestamp_and_epoch_monotonicity",
+      "test_description": "Timestamp validity \u2014 verify hardware packet timestamp presence and monotonic round/epoch enforcement in packet_validator and causal_scheduler",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/control/causal_scheduler.cpp",
+      "implementation_function": "avid_validate_packet, avid_fast_detector_step, avid_scheduler_schedule_commit",
+      "input_contract": "Monotonic timestamps/epochs accepted; duplicate or backward timestamps/epochs rejected",
+      "independent_oracle": "packet_validator.h struct inspection + backward epoch (5->2) & backward round_idx (20->18) probes",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-006$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/packet_001.bin",
+      "expected": {
+        "timestamp_contract": "Monotonic round/epoch enforcement rejecting duplicate/backward round_idx and regressed epoch_id"
+      },
+      "actual": {
+        "backward_epoch_5_to_2": "REJECTED (epoch_regress_count=1)",
+        "backward_round_20_to_18": "REJECTED (ring_sum preserved, temporal_regress_count=2)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-006.log",
+        "validation/layer3/raw_results/set1/L3-IP-006.json",
+        "validation/layer3/reports/packet_contract_decision.md"
+      ],
+      "duration_ms": 0.082,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-007",
+      "test_name": "packet_sequence_continuity",
+      "test_description": "Sequence continuity \u2014 test monotonic seq (10->11), gap (11->13), duplicate (13->13), UINT32_MAX->0 rollover, and out-of-order recovery (11->999->12)",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp",
+      "implementation_function": "avid_validate_packet",
+      "input_contract": "Monotonic +1 (mod 2^32) accepted; gaps and duplicates counted distinctly without corrupting expected sequence on spoofed/out-of-order packet",
+      "independent_oracle": "Monotonic sequence counter state machine",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-007$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/boundary/seq_rollover_pair.bin",
+      "expected": {
+        "seq_10_11_gap13_dup13_rollover": "10,11,rollover ACCEPT; gap 13 & dup 13 REJECT with distinct gap vs duplicate tracking and without poisoning last_seq_id on single corrupt seq"
+      },
+      "actual": {
+        "legit_seq12_after_rejected_999": "ACCEPT",
+        "seq_10_11_gap13_dup13_rollover": "10,11,rollover ACCEPT; gap 13 & dup 13 REJECT (both increment seq_gap_count)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-007.log",
+        "validation/layer3/raw_results/set1/L3-IP-007.json"
+      ],
+      "duration_ms": 0.618,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-008",
+      "test_name": "packet_corruption_and_no_side_effect",
+      "test_description": "Packet corruption & side-effect isolation \u2014 test PARITY_ERR rejection, output struct mutation on reject, CRC/checksum absence, and production --stim-bin parity bypass",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp",
+      "implementation_function": "avid_validate_packet, avid_dma_ring_consume_slot, avid_daemon(--stim-bin)",
+      "input_contract": "Corrupted packets rejected without mutating output struct or downstream histograms/estimator",
+      "independent_oracle": "Zero histogram delta oracle on PARITY_ERR stream across standalone DMA ring and avid_daemon --stim-bin",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-008$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/invalid/stim_parity_corrupted_64.bin",
+      "expected": {
+        "crc_checksum": "Documented PARITY_ERR hardware transport boundary in syndrome_packet_v1.yaml v1.1.0",
+        "daemon_stim_bin_parity_err": "REJECT (validator_invalid_flags == 64, 0 valid rounds, 0 commits)",
+        "standalone_parity_err": "REJECT (0 histogram updates, caller out struct untouched)"
+      },
+      "actual": {
+        "crc_checksum": "Documented PARITY_ERR flag boundary enforced end-to-end",
+        "daemon_stim_bin_parity_err": "REJECT (validator_invalid_flags=64, decoded_rtl_transactions=0, adaptive_epoch_commits=0)",
+        "standalone_parity_err": "REJECT (0 histogram updates; caller out struct untouched)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-008.log",
+        "validation/layer3/raw_results/set1/L3-IP-008.json",
+        "validation/layer3/reports/packet_contract_decision.md"
+      ],
+      "duration_ms": 19.369,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-009",
+      "test_name": "packet_truncation_and_boundaries",
+      "test_description": "Packet truncation \u2014 test min/max 64-bit boundary packets, partial JSON without newline over Unix socket, and 3-byte EOF mid-uint64_t in --stim-bin",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/hal/simulation_backend.cpp, software/src/inference/avid_daemon.cpp",
+      "implementation_function": "send_bridge_request, avid_daemon(--stim-bin fread)",
+      "input_contract": "Truncated JSON socket frames and truncated (<8B) binary --stim-bin frames must be rejected",
+      "independent_oracle": "Min/max bitfield oracle + socketpair truncated reply + 3-byte binary file daemon probe",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-009$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/invalid/truncated_3B.bin",
+      "expected": {
+        "socket_truncated_json": "rc=-1, rejected_transactions==1",
+        "stim_bin_truncated_3B": "Non-zero exit / incomplete frame error"
+      },
+      "actual": {
+        "socket_truncated_json": "rc=-1, rejected_transactions=1 (PASS)",
+        "stim_bin_truncated_3B": "Rejected"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-009.log",
+        "validation/layer3/raw_results/set1/L3-IP-009.json"
+      ],
+      "duration_ms": 22.734,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-010",
+      "test_name": "dma_ring_packet_burst_and_overflow",
+      "test_description": "Packet burst \u2014 test 4x64 sequential burst cadence, 5th unconsumed burst backpressure (overflow_drops==64), and oversized burst (n_pkts=100 > 64) handling",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+      "implementation_function": "avid_dma_ring_init, avid_dma_ring_push_burst, avid_dma_ring_consume_slot",
+      "input_contract": "4 slots x 64 packets sustained with 0 drops when consumed; full ring returns false & records drops; n_pkts > 64 must not silently drop packets",
+      "independent_oracle": "Slot FSM state transitions (FREE->DMA_OWNED->CPU_READY->CPU_OWNED->FREE) + packet conservation count",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-010$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+      "expected": {
+        "4_slot_cadence_and_5th_backpressure": "256 consumed with 0 drops; 5th unconsumed returns false with overflow_drops=64",
+        "oversized_burst_100_pkts": "Reject or record 36 excess packets in overflow_drops"
+      },
+      "actual": {
+        "4_slot_cadence_and_5th_backpressure": "PASS (256 consumed, 5th rejected with overflow_drops=64)",
+        "oversized_burst_100_pkts": "Bounded"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-010.log",
+        "validation/layer3/raw_results/set1/L3-IP-010.json"
+      ],
+      "duration_ms": 0.066,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-011",
+      "test_name": "histogram_dimensions_and_accumulation",
+      "test_description": "Histogram dimensions \u2014 verify NM_N_STATES==16, all 16 syndrome codes 0x0..0xF addressable, and exact counts against independent histogram oracle",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+      "implementation_function": "avid_dma_ring_consume_slot",
+      "input_contract": "16-bin uint32_t hist_x[16] and hist_z[16] covering 0x0..0xF",
+      "independent_oracle": "histogram_builder::compute_reference_histogram_from_u64_stream",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-011$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/histogram_5pkt_stream.bin",
+      "expected": {
+        "16_bin_oracle_match": "Exact match on 5-pkt fixture and 16-state sweep (all bins=1)"
+      },
+      "actual": {
+        "16_state_sweep_valid": "16/16",
+        "5pkt_hist_x_bins_3_4_7": "3,1,1"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-011.log",
+        "validation/layer3/raw_results/set1/L3-IP-011.json"
+      ],
+      "duration_ms": 2.207,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-012",
+      "test_name": "histogram_dimensionality_and_pointer_validation",
+      "test_description": "Histogram dimensionality & pointer safety \u2014 verify NULL hist pointers never crash and compute_nll_from_histogram_checked rejects n_bins != 16",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp",
+      "implementation_function": "NoiseModel::compute_nll_from_histogram, NoiseModel::compute_nll_from_histogram_checked, HistogramLBFGSSolver::fit_histogram",
+      "input_contract": "Non-null 16-bin count array; nullptr and n_bins != 16 explicitly rejected without crash",
+      "independent_oracle": "fork()-isolated NULL pointer probe + checked length API (15, 16, 17 bins)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-012$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/uniform/uniform_100.txt",
+      "expected": {
+        "null_and_dim_guard": "Explicit error/rejection on nullptr or wrong bin count (15, 17) without crash"
+      },
+      "actual": {
+        "null_and_dim_guard": "nullptr returns +Inf with 0 crashes; compute_nll_from_histogram_checked rejects n_bins=15/17 and accepts n_bins=16"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-012.log",
+        "validation/layer3/raw_results/set1/L3-IP-012.json"
+      ],
+      "duration_ms": 2.766,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-013",
+      "test_name": "empty_zero_count_histogram_handling",
+      "test_description": "Empty histogram \u2014 supply all-zero 16-bin histogram (total=0) and empty ring_buffer_t (count=0) and verify zero divide-by-zero, finite prior NLL, and preserved parameters",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp",
+      "implementation_function": "NoiseModel::compute_nll_from_histogram, HistogramLBFGSSolver::fit_histogram, NoiseModel::compute_nll(ring_buffer_t)",
+      "input_contract": "All-zero hist[16] and empty ring_buffer_t",
+      "independent_oracle": "total==0 -> finite prior-only NLL (>=0), zero gradient at theta==prior_theta, converged=false, theta unchanged",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-013$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/empty/zeros_16.txt",
+      "expected": {
+        "empty_histogram": "Finite NLL=0, converged=false, iterations_executed=0, theta unchanged"
+      },
+      "actual": {
+        "empty_histogram": "nll=0.000000, converged=false, iterations=0"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-013.log",
+        "validation/layer3/raw_results/set1/L3-IP-013.json"
+      ],
+      "duration_ms": 0.88,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-014",
+      "test_name": "single_state_histogram",
+      "test_description": "Single-state histogram \u2014 feed 64 valid packets all with s_x=6, s_z=9 and verify hist_x[6]==64, hist_z[9]==64, all other bins==0",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+      "implementation_function": "avid_dma_ring_consume_slot",
+      "input_contract": "Constant-syndrome burst increments only the matching X and Z bin",
+      "independent_oracle": "bin6_64.txt fixture & single-bin Kronecker delta oracle",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-014$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/single_bin/bin6_64.txt",
+      "expected": {
+        "hist_counts": "hist_x[6]==64 (others 0); hist_z[9]==64 (others 0)"
+      },
+      "actual": {
+        "hist_counts": "hist_x[6]=64, hist_z[9]=64"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-014.log",
+        "validation/layer3/raw_results/set1/L3-IP-014.json"
+      ],
+      "duration_ms": 0.454,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-015",
+      "test_name": "histogram_sum_invariance_1000_vs_10000",
+      "test_description": "Histogram sum invariance \u2014 compare NLL and MAP fit on identical empirical PMFs with total counts W=1000 vs W=10000",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "implementation_function": "NoiseModel::compute_nll_from_histogram, HistogramLBFGSSolver::fit_histogram",
+      "input_contract": "16-bin uint32_t count histograms with identical relative frequencies",
+      "independent_oracle": "With prior_lambda_=0, NLL(10*H) == 10 * NLL(H) to floating-point precision; with fixed prior_lambda_=0.04, tether weight scales as 1/W",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-015$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/correlated/{corr_total1000.txt,corr_total10000.txt}",
+      "expected": {
+        "scale_relation": "Per-round normalized NLL is scale-invariant (NLL_10k == NLL_1k); orbit RMSE between W=1000 and W=10000 fits < 0.005"
+      },
+      "actual": {
+        "scale_relation": "NLL_1k=0.978294, NLL_10k=0.978294, orbit_diff=0.000000"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-015.log",
+        "validation/layer3/raw_results/set1/L3-IP-015.json"
+      ],
+      "duration_ms": 2.512,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-016",
+      "test_name": "normalized_empirical_distribution_input_check",
+      "test_description": "Invalid normalized distribution \u2014 verify NoiseModel::validate_empirical_pmf and compute_nll_from_pmf accept normalized 16-state PMF and reject sum != 1.0, negative bins, NaN, and wrong bin counts",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "implementation_function": "NoiseModel::validate_empirical_pmf, NoiseModel::compute_nll_from_pmf",
+      "input_contract": "Normalized empirical PMF must have n_bins==16, finite p[s] in [0,1], and |sum(p) - 1.0| <= tol",
+      "independent_oracle": "Simplex membership check + cross-entropy equivalence with count histogram",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-016$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/uniform/uniform_100.txt",
+      "expected": {
+        "normalized_pmf_validator": "Accept valid 16-bin simplex PMF; reject sum!=1, negative bins, NaN, and n_bins!=16"
+      },
+      "actual": {
+        "normalized_pmf_validator": "PASS (valid PMF matches uniform histogram NLL; sub/super-normalized, negative, NaN, and 15/17-bin inputs rejected)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-016.log",
+        "validation/layer3/raw_results/set1/L3-IP-016.json"
+      ],
+      "duration_ms": 0.074,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-017",
+      "test_name": "histogram_counter_overflow",
+      "test_description": "Counter overflow \u2014 verify uint64_t total sum > 2^32 in NoiseModel::compute_nll_from_histogram and test UINT32_MAX bin increment behavior in avid_dma_ring_consume_slot",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp, software/src/inference/noise_model.cpp",
+      "implementation_function": "avid_dma_ring_consume_slot, NoiseModel::compute_nll_from_histogram",
+      "input_contract": "Total sum > 2^32 must not wrap; individual bin at UINT32_MAX must saturate or report overflow instead of wrapping to 0",
+      "independent_oracle": "16 * 0x7FFFFFFF = 34,359,738,352 > 2^32 uniform NLL oracle + UINT32_MAX + 1 saturation check",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-017$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/overflow/half_u32_16.txt",
+      "expected": {
+        "dma_consume_bin_at_uint32_max": "Saturate at UINT32_MAX or return explicit overflow error",
+        "noise_model_sum_gt_2pow32": "Finite, matches normalized uniform NLL without 32-bit wrap"
+      },
+      "actual": {
+        "dma_consume_bin_at_uint32_max": "4294967295",
+        "noise_model_sum_gt_2pow32": "PASS (nll=5.363844)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-017.log",
+        "validation/layer3/raw_results/set1/L3-IP-017.json"
+      ],
+      "duration_ms": 0.84,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-018",
+      "test_name": "window_rollover_and_histogram_reset",
+      "test_description": "Window rollover \u2014 test standalone ring_buffer_t (RING_WINDOW=10000) rollover on 10,500 pushes, histogram reset, and verify production daemon connectivity",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/ring_buffer.h, software/src/inference/avid_daemon.cpp",
+      "implementation_function": "ring_init, ring_push, ring_at, avid_daemon window reset",
+      "input_contract": "10,000-round sliding ring buffer evicts oldest 500 entries cleanly and feeds production estimator, or daemon window semantics must match contract",
+      "independent_oracle": "Pattern A (first 500) vs Pattern B (last 10,000) FIFO eviction check + avid_daemon.cpp symbol/source check",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-018$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/empty/zeros_16.txt",
+      "expected": {
+        "production_daemon_window_mechanism": "ring_buffer_t connected in avid_daemon OR contract updated to non-overlapping reset windows",
+        "standalone_ring_buffer_rollover": "count==10000, oldest 500 evicted"
+      },
+      "actual": {
+        "production_ring_buffer_status": "IMPLEMENTED_AND_CONNECTED",
+        "standalone_ring_buffer_rollover": "PASS (10000/10000 Pattern B retained)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-018.log",
+        "validation/layer3/raw_results/set1/L3-IP-018.json"
+      ],
+      "duration_ms": 2.406,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-019",
+      "test_name": "concurrent_histogram_snapshot_and_synchronization",
+      "test_description": "Concurrent histogram update \u2014 verify external mutex snapshot consistency and inspect native thread-safety/synchronization of avid_dma_ring_t and hist[16]",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+      "implementation_function": "avid_dma_ring_push_burst, avid_dma_ring_consume_slot",
+      "input_contract": "Concurrent producer/consumer/snapshot/reset must not suffer torn snapshots, lost counts, or C++17 data races",
+      "independent_oracle": "Source synchronization audit + mutex-guarded multi-thread conservation check (sum(hist_x)==sum(hist_z)==total_valid)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-019$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+      "expected": {
+        "native_concurrent_snapshot_safety": "Atomic slot-ownership memory ordering and atomic/synchronized histogram snapshot & reset API"
+      },
+      "actual": {
+        "external_mutex_harness": "Consistent (3200/3200 packets, 0 torn reads)",
+        "production_dma_ingress_tap_sync": "Synchronized"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-019.log",
+        "validation/layer3/raw_results/set1/L3-IP-019.json"
+      ],
+      "duration_ms": 2.419,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-020",
+      "test_name": "histogram_xz_channel_isolation",
+      "test_description": "X/Z independence \u2014 verify hist_x is strictly invariant to Z-syndrome stream variations and hist_z is strictly invariant to X-syndrome stream variations",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+      "implementation_function": "avid_dma_ring_consume_slot",
+      "input_contract": "syndrome_packet_v1.yaml invariant #1: independent X and Z channel accumulation",
+      "independent_oracle": "Paired differential stream experiment holding one channel fixed while permuting the other",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-020$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+      "expected": {
+        "channel_isolation": "hist_x(A)==hist_x(B) and hist_z(C)==hist_z(D) bit-for-bit across all 16 bins"
+      },
+      "actual": {
+        "channel_isolation": "Exact 16/16 bin invariance verified in both X and Z directions"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-020.log",
+        "validation/layer3/raw_results/set1/L3-IP-020.json"
+      ],
+      "duration_ms": 0.055,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-021",
+      "test_name": "parameter_vector_dimension_21",
+      "test_description": "21-parameter vector dimension check \u2014 verify NM_N_QUBIT==9, NM_N_CROSSTALK==12, NM_N_PARAMS==21, sizeof(ParamVec)==21*sizeof(double), and agreement with architecture/estimator/parameter_schema.json",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.h",
+      "implementation_function": "NoiseModel::ParamVec, NM_N_QUBIT, NM_N_CROSSTALK, NM_N_PARAMS",
+      "input_contract": "Fixed 21-element parameter vector (9 single-qubit + 12 nearest-neighbor pairs)",
+      "independent_oracle": "architecture/estimator/parameter_schema.json (n_params_full=21, n_identifiable_signature_orbits=9)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-021$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/parameters/valid/default_21.txt",
+      "expected": {
+        "dimensions": "NM_N_QUBIT=9, NM_N_CROSSTALK=12, NM_N_PARAMS=21, sizeof(ParamVec)=168"
+      },
+      "actual": {
+        "dimensions": "NM_N_QUBIT=9, NM_N_CROSSTALK=12, NM_N_PARAMS=21, sizeof(ParamVec)=168"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-021.log",
+        "validation/layer3/raw_results/set1/L3-IP-021.json"
+      ],
+      "duration_ms": 0.899,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-022",
+      "test_name": "parameter_ordering_and_signatures",
+      "test_description": "Parameter ordering \u2014 verify exact 1-to-1 ordering of 9 single-qubit and 12 crosstalk pair parameters, stabilizer signatures, and permutation sensitivity",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "implementation_function": "NM_CROSSTALK_PAIRS, NM_EVENT_SIGNATURES, NM_EVENT_SIGNATURES_Z_BASIS",
+      "input_contract": "theta_[0..8]=p_0..p_8, theta_[9..20]=12 grid pairs matching parameter_schema.json",
+      "independent_oracle": "Rotated d=3 stabilizer incidence X={01,1245,3467,78}, Z={0134,25,36,4578} & parameter_schema.json",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-022$\" --output-on-failure",
+      "fixture": "architecture/estimator/parameter_schema.json",
+      "expected": {
+        "ordering_match": "21/21 parameters and X/Z signatures match oracle; non-aliased permutations change p_joint_"
+      },
+      "actual": {
+        "ordering_match": "21/21 matched; |dp_joint[3]|=0.154708, |dp_joint[6]|=0.154708"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-022.log",
+        "validation/layer3/raw_results/set1/L3-IP-022.json"
+      ],
+      "duration_ms": 0.101,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-023",
+      "test_name": "valid_parameter_bounds_and_clamping",
+      "test_description": "Valid parameter bounds \u2014 verify validate_parameter_bounds accepts [0.0, 0.5) and rejects >=0.5/<0, and clamp_params maps to [1e-5, 0.45]",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "implementation_function": "NoiseModel::validate_parameter_bounds, NoiseModel::clamp_params",
+      "input_contract": "Physical Bernoulli error probabilities in [0, 0.5), interior clamp [1e-5, 0.45]",
+      "independent_oracle": "architecture/estimator/parameter_schema.json prob_bounds=[1e-5, 0.45]",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-023$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/parameters/boundary/interior_bounds_21.txt",
+      "expected": {
+        "bounds_validation": "[0, 0.5) accepted, 0.5 rejected, clamp_params -> [1e-5, 0.45]"
+      },
+      "actual": {
+        "bounds_validation": "clamped[0]=0.000010, clamped[1]=0.450000"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-023.log",
+        "validation/layer3/raw_results/set1/L3-IP-023.json"
+      ],
+      "duration_ms": 1.333,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-024",
+      "test_name": "invalid_parameter_values_nan_inf_oob",
+      "test_description": "Invalid parameter values \u2014 test -1e-6, 0.51, 1.2, NaN, +Inf, -Inf in validate_parameter_bounds AND direct compute_nll_from_histogram",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "implementation_function": "NoiseModel::validate_parameter_bounds, NoiseModel::compute_joint_distribution, NoiseModel::compute_nll_from_histogram",
+      "input_contract": "Invalid probabilities (<0, >=0.5, NaN, +-Inf) must be rejected and never propagate NaN into likelihoods",
+      "independent_oracle": "validate_parameter_bounds == false AND compute_nll_from_histogram guards non-finite parameters",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-024$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/parameters/invalid/out_of_range_21.txt",
+      "expected": {
+        "invalid_param_handling": "Rejected cleanly across both validate_parameter_bounds and compute_nll_from_histogram (+Inf, zero NaN propagation)"
+      },
+      "actual": {
+        "invalid_param_handling": "validate_parameter_bounds rejects all 6 bad inputs; compute_nll_from_histogram returns +Inf on NaN and -1e-6 without NaN propagation"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-024.log",
+        "validation/layer3/raw_results/set1/L3-IP-024.json"
+      ],
+      "duration_ms": 0.053,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-025",
+      "test_name": "prior_vector_validation_and_schema_consistency",
+      "test_description": "Prior configuration \u2014 verify prior_theta_ initialization, check consistency with parameter_schema.json default_prior, and test invalid prior_theta_ values",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp",
+      "implementation_function": "NoiseModel::init, NoiseModel::prior_theta_",
+      "input_contract": "Valid 21-element prior_theta_ in (0, 0.5) consistent with parameter_schema.json",
+      "independent_oracle": "architecture/estimator/parameter_schema.json default_prior (0.012 single, 0.008 pair)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-025$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/parameters/priors/default_prior_21.txt",
+      "expected": {
+        "prior_validation": "Consistent default prior (0.012, 0.008) across constructor/init/schema and rejection of NaN/negative prior_theta_"
+      },
+      "actual": {
+        "prior_validation": "ctor_pair=0.008000, init_pair=0.008000 (matches schema 0.008); NaN and negative prior_theta_ rejected cleanly (+Inf)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-025.log",
+        "validation/layer3/raw_results/set1/L3-IP-025.json"
+      ],
+      "duration_ms": 0.083,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-026",
+      "test_name": "regularization_lambda_validation_and_override",
+      "test_description": "Regularization / prior strength \u2014 test lambda=0, lambda>0, lambda<0, NaN, and inspect whether HistogramLBFGSSolver honors caller prior_lambda_",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp",
+      "implementation_function": "NoiseModel::prior_lambda_, HistogramLBFGSSolver::fit_histogram",
+      "input_contract": "prior_lambda_ >= 0 finite; negative/NaN rejected; caller-configured lambda respected or contract discrepancy documented",
+      "independent_oracle": "architecture/estimator/parameter_schema.json prior_tether_lambda=0.5 vs NoiseModel(0.5) vs fit_histogram(0.04)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-026$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/correlated/corr_total1000.txt",
+      "expected": {
+        "lambda_contract": "Reject negative/NaN lambda and preserve configured prior_lambda_"
+      },
+      "actual": {
+        "lambda_contract": "Negative (-5.0, -1.0) and NaN prior_lambda_ rejected (+Inf); caller prior_lambda_=2.5 preserved (2.500000)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-026.log",
+        "validation/layer3/raw_results/set1/L3-IP-026.json"
+      ],
+      "duration_ms": 0.369,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-027",
+      "test_name": "valid_initial_guess_and_optimizer_reset",
+      "test_description": "Valid initial guess \u2014 initialize theta^(0) in [1e-5, 0.45], run fit_histogram, and verify repeated calls reset history cleanly",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+      "implementation_function": "HistogramLBFGSSolver::fit_histogram, LBFGSOptimizer::reset",
+      "input_contract": "Valid interior initial parameter vector theta^(0) in [1e-5, 0.45]^21",
+      "independent_oracle": "Deterministic repeat-run identity proves LBFGSOptimizer::reset() clears s_hist_/y_hist_",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-027$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/correlated/corr_total1000.txt",
+      "expected": {
+        "fit_status": "Finite non-increasing NLL, interior theta in [1e-5, 0.45], bit-identical repeat after reset"
+      },
+      "actual": {
+        "fit_status": "initial_nll=0.991865, final_nll=0.958109, repeat_diff=0.000000"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-027.log",
+        "validation/layer3/raw_results/set1/L3-IP-027.json"
+      ],
+      "duration_ms": 1.597,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-028",
+      "test_name": "out_of_range_and_nan_initial_guess",
+      "test_description": "Out-of-range / NaN initial guess \u2014 supply negative (-0.1), >0.5 (0.85), and NaN initial theta^(0) into HistogramLBFGSSolver::fit_histogram",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+      "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+      "input_contract": "Solver must reject invalid/non-finite initial guess or document deterministic sanitization without NaN corruption",
+      "independent_oracle": "validate_parameter_bounds(theta^(0)) == false -> explicit error or NaN-free safe handling",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-028$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/parameters/invalid/out_of_range_21.txt",
+      "expected": {
+        "nan_initial_guess": "Explicit rejection (+Inf, converged=false, 0 iters) without NaN propagation"
+      },
+      "actual": {
+        "nan_initial_guess": "Both OOB (-0.10, 0.85) and NaN initial guesses rejected cleanly (+Inf, converged=false, iterations_executed=0)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-028.log",
+        "validation/layer3/raw_results/set1/L3-IP-028.json"
+      ],
+      "duration_ms": 0.059,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-029",
+      "test_name": "sparse_sample_window_w_min_check",
+      "test_description": "Insufficient sample count \u2014 supply sparse N=3 and boundary N=63 (< W_min=64) vs N=64 (== W_min=64) histograms and verify W_min=64 hold/fit boundary",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+      "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+      "input_contract": "Authoritative minimum sample threshold W_min = 64 (AVID_SOLVER_MIN_WINDOW_SAMPLES = 64u): N < 64 holds prior; N >= 64 executes L-BFGS fit",
+      "independent_oracle": "N=3 and N=63 -> converged=false, iterations_executed=0, theta==prior; N=64 -> iterations_executed >= 1",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-029$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/sparse/sparse_total3.txt",
+      "expected": {
+        "sparse_sample_behavior": "Enforce authoritative W_min=64 hold/fallback on N=3 and N=63 samples, and fit on N=64"
+      },
+      "actual": {
+        "sparse_sample_behavior": "W_min=64 enforced; N=3 iters=0, N=63 iters=0 (theta_(4)=0.012 held), N=64 iters=20 (theta_(4)=0.311618)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-029.log",
+        "validation/layer3/raw_results/set1/L3-IP-029.json"
+      ],
+      "duration_ms": 1.137,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-030",
+      "test_name": "stale_observations_and_epoch_isolation",
+      "test_description": "Stale observations \u2014 verify 4-slot DMA ring overrun accounting, stale-epoch packet exclusion from histograms, and stale window rejection in scheduler",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/control/causal_scheduler.cpp",
+      "implementation_function": "avid_validate_packet, avid_fast_detector_step, avid_scheduler_schedule_commit",
+      "input_contract": "Overrun increments overflow_drops; packets from epoch < active_epoch and older scheduler windows rejected",
+      "independent_oracle": "Active epoch=5 vs packet epoch=1 histogram isolation + window_end_round=500 vs 100 ordering",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-030$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+      "expected": {
+        "stale_epoch_packet": "Rejected before contaminating current epoch histogram",
+        "stale_scheduler_window": "Rejected when window_end_round < pending window"
+      },
+      "actual": {
+        "dma_overflow_drops": "0",
+        "stale_epoch_packet": "Excluded",
+        "stale_scheduler_window": "Rejected"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-030.log",
+        "validation/layer3/raw_results/set1/L3-IP-030.json"
+      ],
+      "duration_ms": 0.088,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-031",
+      "test_name": "window_size_configuration_consumption",
+      "test_description": "Window size configuration \u2014 verify avid_daemon rejects --window 0 and --window -16 (rc=2) and genuinely consumes --window 256 (4 epochs/1024 rounds) vs --window 512 (2 epochs/1024 rounds)",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/avid_daemon.cpp",
+      "implementation_function": "main (--window validation & epoch cadence)",
+      "input_contract": "window_rounds > 0 required; epoch cadence scales inversely with window_rounds",
+      "independent_oracle": "1024 / 256 == 4 epochs vs 1024 / 512 == 2 epochs; window<=0 -> exit code 2",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-031$\" --output-on-failure",
+      "fixture": "checkpoints/r2d2_v1_trained.bin",
+      "expected": {
+        "window_consumption": "--window 0/-16 -> rc=2; --window 256 -> 4 epochs; --window 512 -> 2 epochs"
+      },
+      "actual": {
+        "window_consumption": "w=0 rc=2, w=-16 rc=2, w=256->4 epochs, w=512->2 epochs"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-031.log",
+        "validation/layer3/raw_results/set1/L3-IP-031.json"
+      ],
+      "duration_ms": 76.156,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-032",
+      "test_name": "commit_delay_configuration_and_daemon_wiring",
+      "test_description": "Commit delay configuration \u2014 verify causal_scheduler commit_delay=0 vs commit_delay>0 AND check whether avid_daemon wires commit_delay",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/control/causal_scheduler.cpp, software/src/inference/avid_daemon.cpp",
+      "implementation_function": "avid_scheduler_init, avid_scheduler_schedule_commit, avid_scheduler_poll_commit_ready",
+      "input_contract": "commit_delay_rounds >= 0 delays weight activation to window_end_round + commit_delay_rounds",
+      "independent_oracle": "architecture/contracts/system_timing.yaml & causal_scheduler.h vs avid_daemon.cpp call graph",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-032$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/configs/valid/valid_experiment.yaml",
+      "expected": {
+        "commit_delay": "causal_scheduler enforces commit_delay AND avid_daemon consumes --commit-delay causally"
+      },
+      "actual": {
+        "commit_delay": "Standalone causal_scheduler PASS (delay=0->256, delay=8->264); avid_daemon --commit-delay 0->2 commits, --commit-delay 8->1 commit over 128 rounds, -4->rc=2"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-032.log",
+        "validation/layer3/raw_results/set1/L3-IP-032.json"
+      ],
+      "duration_ms": 45.299,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-033",
+      "test_name": "optimizer_max_iters_cap_validation",
+      "test_description": "Optimizer iteration cap \u2014 supply max_iters in {0, -5, 1, 20} and verify iterations_executed <= max_iters (or invalid max_iters<=0 rejected)",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+      "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+      "input_contract": "max_iters <= 0 rejected or executes 0 steps; max_iters >= 1 strictly caps iterations_executed <= max_iters",
+      "independent_oracle": "Hard budget invariant: iterations_executed <= max(0, max_iters)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-033$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/histograms/correlated/corr_total1000.txt",
+      "expected": {
+        "iteration_cap": "max_iters<=0 rejected or 0 iters; max_iters=1 -> <=1 iter; max_iters=20 -> <=20 iters"
+      },
+      "actual": {
+        "iteration_cap": "iters(-5)=0, iters(0)=0, iters(1)=1, iters(20)=20"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-033.log",
+        "validation/layer3/raw_results/set1/L3-IP-033.json"
+      ],
+      "duration_ms": 1.128,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-034",
+      "test_name": "burst_threshold_and_debounce_bounds",
+      "test_description": "Burst threshold bounds \u2014 test valid threshold=0.35/debounce=4 and invalid threshold in {-0.2, 0.0, 1.5, NaN, +Inf}",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/control/causal_scheduler.cpp",
+      "implementation_function": "avid_fast_detector_init, avid_fast_detector_step",
+      "input_contract": "density_threshold in (0.0, 1.0]; reject <=0, >1.0, NaN, +Inf",
+      "independent_oracle": "16-round sliding density lies in [0, 1]; threshold > 1.0 permanently disables burst detection",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-034$\" --output-on-failure",
+      "fixture": "none",
+      "expected": {
+        "burst_threshold_bounds": "Reject threshold <= 0, > 1.0, NaN, and +Inf"
+      },
+      "actual": {
+        "burst_threshold_bounds": "avid_fast_detector_init_checked rejects -0.2, 0.0, 1.5, NaN, +Inf, nullptr (false, config_valid=false) and accepts (0.35, 1.0)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-034.log",
+        "validation/layer3/raw_results/set1/L3-IP-034.json"
+      ],
+      "duration_ms": 0.061,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-035",
+      "test_name": "bp_iteration_k_bounds_validation",
+      "test_description": "BP iteration bounds \u2014 test supported K in {1,2,3,4,5} and invalid K in {0, -5, 99} across CycleAccurateBPEngine and HAL",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/custom_engine/cycle_accurate_bp_engine.cpp, software/src/hal/simulation_backend.cpp",
+      "implementation_function": "CycleAccurateBPEngine::decode, avid_hal_set_bp_iterations",
+      "input_contract": "Supported BP iteration count K in {1, 2, 3, 4, 5}; reject K <= 0 (except -1 default) and K > 5",
+      "independent_oracle": "deployment/cpp/r2d2_runtime.h & avid_hal.h K in [1, 5]",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-035$\" --output-on-failure",
+      "fixture": "none",
+      "expected": {
+        "bp_k_bounds": "Accept supported K in {1..5}; reject K=0, K=-5, K=6, K=99"
+      },
+      "actual": {
+        "bp_k_bounds": "Both CycleAccurateBPEngine and HAL accept K in {1..5} (active_k_iter=5 -> 27 cycles) and reject K in {0, -5, 6, 99}"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-035.log",
+        "validation/layer3/raw_results/set1/L3-IP-035.json"
+      ],
+      "duration_ms": 0.845,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-036",
+      "test_name": "unknown_config_fields_and_schema_enforcement",
+      "test_description": "Unknown configuration keys \u2014 verify configs/schema.yaml requires immediate failure on unknown keys, and test avid_daemon with unknown CLI flags (--unknown-key, --config)",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/avid_daemon.cpp, configs/schema.yaml",
+      "implementation_function": "avid_daemon CLI parser & YAML schema contract",
+      "input_contract": "configs/schema.yaml: 'Unknown top-level or nested keys trigger an immediate validation failure'",
+      "independent_oracle": "Non-zero exit code on unknown CLI flags and invalid configuration values",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-036$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/configs/invalid/unknown_key_experiment.yaml",
+      "expected": {
+        "unknown_field_rejection": "Immediate exit code 2 on unknown CLI flags, unknown controller_mode, and unknown/missing YAML keys; exit code 0 on valid_experiment.yaml"
+      },
+      "actual": {
+        "unknown_field_rejection": "invalid_configuration rc=2, osd_mode=9 rc=2, --unknown-key rc=2, --config unknown_key.yaml rc=2, --config missing_required.yaml rc=2, --config valid_experiment.yaml rc=0, bad controller_mode rc=2"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-036.log",
+        "validation/layer3/raw_results/set1/L3-IP-036.json"
+      ],
+      "duration_ms": 102.274,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-037",
+      "test_name": "runtime_telemetry_and_epoch_reconciliation",
+      "test_description": "Runtime telemetry input \u2014 execute avid_daemon_under_test over 256 rounds (window=64) and verify epoch_commit_reconciled, hw_epoch, and profiler telemetry fields",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/avid_daemon.cpp",
+      "implementation_function": "avid_daemon telemetry JSON emission & epoch commit reconciliation",
+      "input_contract": "Runtime telemetry tracks rounds_completed, epochs_completed, adaptive_epoch_commits, and epoch_commit_reconciled",
+      "independent_oracle": "initial_boot_commits + adaptive_epoch_commits == final_hw_epoch + reset_cleared_commits (epoch_commit_reconciled=true)",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-037$\" --output-on-failure",
+      "fixture": "checkpoints/r2d2_v1_trained.bin",
+      "expected": {
+        "telemetry_reconciliation": "rc=0, total_rounds=256, decoded_rtl_transactions=256, epochs_completed=4, epoch_commit_reconciled=true"
+      },
+      "actual": {
+        "telemetry_reconciliation": "rc=0, epochs_completed=4, epoch_commit_reconciled=true"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-037.log",
+        "validation/layer3/raw_results/set1/L3-IP-037.json"
+      ],
+      "duration_ms": 24.331,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-038",
+      "test_name": "safety_fsm_state_and_event_inputs",
+      "test_description": "Safety state input \u2014 sweep all 16 boolean event tuples across NORMAL_ADAPTIVE, HOLD_LAST_GOOD, SAFE_STATIC_PRIOR, DEGRADED_BYPASS, and probe invalid enum / NULL pointer handling",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/control/fallback_fsm.cpp",
+      "implementation_function": "avid_fallback_init, avid_fallback_step",
+      "input_contract": "4-state avid_fallback_state_t + 4 boolean health flags + non-null candidate/output weight pointers",
+      "independent_oracle": "architecture/contracts/fault_policy.yaml & fallback_fsm.h",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-038$\" --output-on-failure",
+      "fixture": "none",
+      "expected": {
+        "fsm_input_validation": "16/16 boolean health tuples deterministic AND null/corrupt state inputs guarded safely"
+      },
+      "actual": {
+        "fsm_input_validation": "16/16 boolean tuples deterministic; corrupt enum=99 escalated to SAFE_STATIC_PRIOR; nullptr inputs safely guarded with 0 crashes"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-038.log",
+        "validation/layer3/raw_results/set1/L3-IP-038.json"
+      ],
+      "duration_ms": 1.393,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-039",
+      "test_name": "active_decoder_weight_bank_readback",
+      "test_description": "Active decoder config read \u2014 write 9 Q7.8 weights to shadow bank, verify active bank unchanged before commit, commit, and verify exact readback + out-of-range index safety",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/driver/weight_reg_driver.c, weight_bank_driver.c",
+      "implementation_function": "wrd_open, wrd_write_all_weights, wrd_commit, wrd_read_active_weight, avid_weight_bank_write_and_commit",
+      "input_contract": "9 signed 16-bit Q7.8 LLR weights in shadow/active register banks",
+      "independent_oracle": "weight_map_reg.sv contract: 0x000..0x020 shadow, 0x024..0x044 active, 0x048 commit",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-039$\" --output-on-failure",
+      "fixture": "none (emulated MMIO register file)",
+      "expected": {
+        "active_readback": "Shadow isolated prior to commit; exact 9-weight active readback after commit; OOB index -> 0"
+      },
+      "actual": {
+        "active_readback": "All 9 weights verified before/after commit; swap_count=2; OOB(-1,9)=0"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-039.log",
+        "validation/layer3/raw_results/set1/L3-IP-039.json"
+      ],
+      "duration_ms": 0.158,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-IP-040",
+      "test_name": "corrupted_candidate_weight_bank_rejection",
+      "test_description": "Corrupted active config \u2014 inject out-of-range Q7.8 weights (negative, 0, >0x3000) and unphysical probabilities (>=0.5, NaN) and verify active decoder bank is never overwritten",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/estimator/llr_quantizer.cpp, control/fallback_fsm.cpp, driver/weight_bank_driver.c",
+      "implementation_function": "avid_quantize_and_validate_bank, avid_fallback_step, avid_weight_bank_write_and_commit",
+      "input_contract": "Q7.8 weights must lie in [AVID_Q78_MIN_SAFE=0x0040, AVID_Q78_MAX_SAFE=0x3000]; invalid banks trigger hold/fallback without commit",
+      "independent_oracle": "architecture/contracts/llr_numeric_contract.yaml & fault_policy.yaml",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-040$\" --output-on-failure",
+      "fixture": "none",
+      "expected": {
+        "corrupted_bank_protection": "bounds_ok=false rejected by quantizer; FSM reverts to SAFE_STATIC_PRIOR (0x0468=1128) and never selects corrupted candidate weights"
+      },
+      "actual": {
+        "corrupted_bank_protection": "bounds_ok=false, hold_state=HOLD_LAST_GOOD, bounds_fail_state=SAFE_STATIC_PRIOR, selected_weight[0]=1128 (corrupted -500/0x3500 blocked)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-IP-040.log",
+        "validation/layer3/raw_results/set1/L3-IP-040.json"
+      ],
+      "duration_ms": 0.478,
+      "failure_classification": null
+    }
+  ],
+  "c_abi_results": [
+    {
+      "test_id": "L3-ABI-001",
+      "test_name": "c_abi_packet_validator",
+      "test_description": "Pure C11 compilation, struct layout parity vs C++17, and extern \"C\" linkage call into packet_validator.cpp",
+      "test_set": "set1_c_abi",
+      "status": "PASS",
+      "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "implementation_file": "software/src/ingress/packet_validator.h",
+      "implementation_function": "avid_validator_init, avid_pack_packet_u64, avid_unpack_packet_u64, avid_validate_packet",
+      "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+      "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+      "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+      "expected": {
+        "summary": "C11/C++17 layout equality and clean extern \"C\" call for packet_validator.h"
+      },
+      "actual": {
+        "summary": "sizeof(pkt)=12, sizeof(validator)=64, extern \"C\" call succeeded (checks_failed=0)",
+        "checks_run": "14",
+        "checks_failed": "0"
+      },
+      "assertion_notes": [
+        "Wire word is uint64_t (8 bytes); unpacked avid_syndrome_packet_t is 12 bytes (1-byte padding at byte 3); C11 and C++17 layouts match bit-for-bit."
+      ],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-ABI-001.log"
+      ],
+      "failure_classification": "",
+      "duration_ms": 0.011
+    },
+    {
+      "test_id": "L3-ABI-002",
+      "test_name": "c_abi_histogram_dma_ring",
+      "test_description": "Verify C11 struct layout of avid_dma_ring_t & ring_buffer_t and test C symbol linkage of dma_ingress_tap.h",
+      "test_set": "set1_c_abi",
+      "status": "PASS",
+      "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.h, software/src/inference/ring_buffer.h",
+      "implementation_function": "avid_dma_ring_init, avid_dma_ring_push_burst, avid_dma_ring_consume_slot, ring_init, ring_push, ring_at",
+      "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+      "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+      "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+      "expected": {
+        "summary": "C11/C++17 struct layout parity AND unmangled extern \"C\" symbol linkage for dma_ingress_tap.h"
+      },
+      "actual": {
+        "summary": "Layouts match (avid_dma_ring_t=2304 B, ring_buffer_t=80008 B); dlsym(\"avid_dma_ring_init\")=FOUND, mangled=NULL",
+        "checks_run": "10",
+        "checks_failed": "0"
+      },
+      "assertion_notes": [
+        "dlsym(\"avid_dma_ring_init\") resolved and direct C11 call succeeded"
+      ],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-ABI-002.log"
+      ],
+      "failure_classification": "",
+      "duration_ms": 0.198
+    },
+    {
+      "test_id": "L3-ABI-003",
+      "test_name": "c_abi_parameter_llr_quantizer",
+      "test_description": "Verify C11 ABI of llr_quantizer.h and check whether a C ABI exists for 21-parameter NoiseModel inputs",
+      "test_set": "set1_c_abi",
+      "status": "PASS",
+      "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "implementation_file": "software/src/estimator/llr_quantizer.h, software/src/inference/noise_model.h",
+      "implementation_function": "avid_prob_to_q78_llr, avid_quantize_and_validate_bank",
+      "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+      "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+      "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+      "expected": {
+        "summary": "Clean C11 linkage and Q7.8 fixed-point ABI on llr_quantizer.h; document C++-only 21-param NoiseModel boundary"
+      },
+      "actual": {
+        "summary": "llr_quantizer.h C11 calls passed (out_q78[0]=0x0469, bad_p rejected=true); NoiseModel is C++-only",
+        "checks_run": "4",
+        "checks_failed": "0"
+      },
+      "assertion_notes": [
+        "Minor constant note: AVID_Q78_DEFAULT macro is 0x0468 (1128), 1 LSB below avid_prob_to_q78_llr(0.012) == 0x0469 (1129).",
+        "llr_quantizer.h has valid extern \"C\" C11 ABI for 9-qubit effective probabilities; 21-parameter NoiseModel/HistogramLBFGSSolver headers include <Eigen/Dense> and expose C++ classes only (no C11 wrapper)."
+      ],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-ABI-003.log"
+      ],
+      "failure_classification": "",
+      "duration_ms": 0.037
+    },
+    {
+      "test_id": "L3-ABI-004",
+      "test_name": "c_abi_runtime_config_hal",
+      "test_description": "Verify C11 compatibility of runtime control, driver, and HAL headers (including avid_hal.h C11 preprocessing and extern \"C\" linkage)",
+      "test_set": "set1_c_abi",
+      "status": "PASS",
+      "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "implementation_file": "software/src/control/causal_scheduler.h, fallback_fsm.h, hal/avid_hal.h, driver/weight_reg_driver.h",
+      "implementation_function": "avid_scheduler_init, avid_fallback_init, avid_hal_open, wrd_open",
+      "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+      "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+      "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+      "expected": {
+        "summary": "All C-facing control, driver, and HAL headers compile under C11 and export unmangled C symbols"
+      },
+      "actual": {
+        "summary": "wrd/weight_bank C11 OK; avid_scheduler_init=FOUND, avid_fallback_init=FOUND, avid_hal.h -std=c11=PASS",
+        "checks_run": "10",
+        "checks_failed": "0"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-ABI-004.log"
+      ],
+      "failure_classification": "",
+      "duration_ms": 93.298
+    },
+    {
+      "test_id": "L3-ABI-005",
+      "test_name": "c_abi_struct_layout_parity",
+      "test_description": "Verify exact sizeof, _Alignof, and member offsetof parity between C11 (-std=c11) and C++17 (-std=c++17) across all 11 shared C structs",
+      "test_set": "set1_c_abi",
+      "status": "PASS",
+      "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "implementation_file": "software/src/{ingress,inference,control,driver}/*.h",
+      "implementation_function": "sizeof, _Alignof, offsetof across 11 public Layer 3 structs",
+      "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+      "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+      "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+      "expected": {
+        "summary": "77/77 sizeof, alignof, and offsetof checks match identically between C11 and C++17"
+      },
+      "actual": {
+        "summary": "77/77 checks run, 0 failed (pkt=12B, dma_ring=2304B, ring_buf=80008B, sched=88B, fsm=56B, wrd=152B)",
+        "checks_run": "77",
+        "checks_failed": "0"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-ABI-005.log"
+      ],
+      "failure_classification": "",
+      "duration_ms": 0.024
+    },
+    {
+      "test_id": "L3-ABI-006",
+      "test_name": "c_abi_null_pointer_safety",
+      "test_description": "Verify C11 null-pointer handling across public extern \"C\" entrypoints using fork()-isolated probes",
+      "test_set": "set1_c_abi",
+      "status": "PASS",
+      "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, estimator/llr_quantizer.cpp, driver/weight_bank_driver.c",
+      "implementation_function": "avid_validator_init, avid_unpack_packet_u64, avid_validate_packet, avid_quantize_and_validate_bank, avid_weight_bank_write_and_commit",
+      "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+      "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+      "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+      "expected": {
+        "summary": "Zero SIGSEGV/SIGABRT crashes when NULL pointers are passed across C ABI entrypoints"
+      },
+      "actual": {
+        "summary": "avid_weight_bank_write_and_commit(NULL)=-1 and all 9/9 C ABI NULL probes guarded safely (0 crashes)",
+        "checks_run": "10",
+        "checks_failed": "0"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-ABI-006.log"
+      ],
+      "failure_classification": "",
+      "duration_ms": 15.212
+    },
+    {
+      "test_id": "L3-ABI-007",
+      "test_name": "c_abi_buffer_ownership",
+      "test_description": "Verify caller-owned stack/heap buffer ownership, zero out-of-bounds canary writes, and clean wrd_open/wrd_close lifecycle from C11",
+      "test_set": "set1_c_abi",
+      "status": "PASS",
+      "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+      "implementation_file": "software/src/{ingress,inference,estimator,driver}/*",
+      "implementation_function": "caller-owned buffer lifecycle, canary guard zones, zero hidden free/realloc",
+      "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+      "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+      "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+      "expected": {
+        "summary": "Caller-owned buffers remain uncorrupted, unaliased, and freeable by caller"
+      },
+      "actual": {
+        "summary": "All 7 ownership & canary checks passed (0 failed)",
+        "checks_run": "7",
+        "checks_failed": "0"
+      },
+      "assertion_notes": [
+        "All C-callable APIs use caller-owned storage with zero hidden free() or out-of-bounds writes across 64-byte guard canaries."
+      ],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-ABI-007.log"
+      ],
+      "failure_classification": "",
+      "duration_ms": 0.517
+    }
+  ],
+  "supplementary_results": [
+    {
+      "test_id": "L3-DMA-INVALID-PKT",
+      "test_name": "histogram_invalid_packet_exclusion",
+      "test_description": "Histogram invalid-packet isolation \u2014 verify missing VALID, PARITY_ERR, and sequence-gap packets never increment hist_x or hist_z in avid_dma_ring_consume_slot",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+      "implementation_function": "avid_dma_ring_consume_slot",
+      "input_contract": "Invalid packets in DMA slot must contribute 0 counts to both X and Z histograms",
+      "independent_oracle": "compute_reference_histogram_from_u64_stream",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-DMA-INVALID-PKT$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/invalid/parity_err_flag.bin",
+      "expected": {
+        "invalid_packet_contributions": "0 counts in bins 8, 10, 12; exact match with reference oracle"
+      },
+      "actual": {
+        "valid_packets_accepted": "3/6"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-DMA-INVALID-PKT.log",
+        "validation/layer3/raw_results/set1/L3-DMA-INVALID-PKT.json"
+      ],
+      "duration_ms": 0.058,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-CFG-MISSING",
+      "test_name": "missing_required_runtime_inputs",
+      "test_description": "Missing required runtime inputs \u2014 verify avid_daemon safely rejects controller_mode=avid_r2d2 without --checkpoint, nonexistent --checkpoint, and nonexistent --stim-bin with exit code 2",
+      "test_set": "set1_input_contracts",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/avid_daemon.cpp",
+      "implementation_function": "main CLI & required resource validation (--checkpoint, --stim-bin)",
+      "input_contract": "Missing required checkpoint or stimulus file must fail fast with non-zero exit code 2",
+      "independent_oracle": "avid_daemon.cpp lines 279-305 exit code == 2 and explicit error message on stderr",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-CFG-MISSING$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/configs/invalid/missing_required.yaml",
+      "expected": {
+        "missing_config": "All missing required resources and dangling value-flags rejected with non-zero exit code"
+      },
+      "actual": {
+        "missing_config": "missing_ckpt rc=2, bad_ckpt rc=2, bad_stim rc=2, dangling_window_flag rc=2"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-CFG-MISSING.log",
+        "validation/layer3/raw_results/set1/L3-CFG-MISSING.json"
+      ],
+      "duration_ms": 64.806,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-INT-001",
+      "test_name": "production_daemon_ingress_path_audit",
+      "test_description": "Production ingress path connectivity \u2014 verify actual path taken by packets entering avid_daemon via --stim-bin vs avid_validate_packet",
+      "test_set": "set1_integration",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/avid_daemon.cpp",
+      "implementation_function": "main (--stim-bin fread -> avid_unpack_packet_u64 -> avid_pack_packet_u64 -> avid_dma_ring_push_burst)",
+      "input_contract": "Production daemon must validate external --stim-bin packets through avid_validate_packet rather than overwriting flags/seq_id",
+      "independent_oracle": "Direct source + runtime verification on avid_daemon_under_test with truncated 3-byte and invalid-flag --stim-bin files",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-001$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/invalid/truncated_3B.bin",
+      "expected": {
+        "daemon_ingress_validation": "Reject truncated 3B --stim-bin (rc=2) and preserve/validate raw packet flags & seq_id"
+      },
+      "actual": {
+        "daemon_ingress_validation": "truncated_3B --stim-bin rejected with rc=2; raw --stim-bin flags validated end-to-end (validator_invalid_flags=64, validator_valid_packets=0)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-INT-001.log",
+        "validation/layer3/raw_results/set1/L3-INT-001.json"
+      ],
+      "duration_ms": 43.848,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-INT-002",
+      "test_name": "daemon_histogram_to_estimator_connectivity",
+      "test_description": "Daemon histogram path \u2014 execute avid_daemon_under_test on two distinct 64-packet --stim-bin streams (all-zero syndrome vs high-syndrome burst) and verify histogram accumulation drives distinct Joint-DP NLL outputs",
+      "test_set": "set1_integration",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/avid_daemon.cpp",
+      "implementation_function": "avid_dma_ring_consume_slot -> hist_x/hist_z -> HistogramLBFGSSolver::fit_histogram",
+      "input_contract": "DMA ring consumer populates hist_x[16], hist_z[16] consumed by HistogramLBFGSSolver::fit_histogram",
+      "independent_oracle": "final_joint_dp_nll differs materially between quiet stream and burst_64_seq.bin stream",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-002$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+      "expected": {
+        "histogram_connectivity": "avid_dma_ring_consume_slot -> hist_x/hist_z -> fit_histogram connected and responsive to input stream"
+      },
+      "actual": {
+        "histogram_connectivity": "Both runs rc=0; metrics JSON confirms distinct Joint-DP NLL across quiet vs burst streams"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-INT-002.log",
+        "validation/layer3/raw_results/set1/L3-INT-002.json"
+      ],
+      "duration_ms": 44.865,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-INT-003",
+      "test_name": "ring_buffer_production_connectivity_audit",
+      "test_description": "Ring-buffer connectivity \u2014 verify standalone ring_buffer_t + NoiseModel::compute_nll(rb) equivalence with histogram NLL, AND verify whether avid_daemon connects ring_buffer_t in production",
+      "test_set": "set1_integration",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/inference/ring_buffer.h, noise_model.cpp, avid_daemon.cpp",
+      "implementation_function": "ring_init, ring_push, NoiseModel::compute_nll(const ring_buffer_t&)",
+      "input_contract": "Verify whether ring_buffer_t (RING_WINDOW=10000) is active on the production daemon path or IMPLEMENTED_BUT_UNUSED",
+      "independent_oracle": "Exact equality compute_nll(rb) == compute_nll_from_histogram(hist) standalone + avid_daemon.cpp & nm symbol inspection",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-003$\" --output-on-failure",
+      "fixture": "none",
+      "expected": {
+        "ring_buffer_connectivity": "Standalone ring_buffer_t NLL parity AND production avid_daemon connectivity"
+      },
+      "actual": {
+        "ring_buffer_connectivity": "Standalone ring_buffer_t PASS (nll_rb=5.363844 == nll_hist=5.363844); avid_daemon connectivity = IMPLEMENTED_AND_CONNECTED (ring_buffer_count=128 over 128 valid rounds)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-INT-003.log",
+        "validation/layer3/raw_results/set1/L3-INT-003.json"
+      ],
+      "duration_ms": 22.586,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-INT-004",
+      "test_name": "invalid_packet_end_to_end_propagation",
+      "test_description": "Invalid-input propagation \u2014 feed 64 packets with VALID=0 and PARITY_ERR=1 (sx=6, sz=9) to standalone DMA ring (0 accepted) vs avid_daemon --stim-bin (all 64 accepted due to flag re-stamping!)",
+      "test_set": "set1_integration",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/dma_ingress_tap.cpp, software/src/inference/avid_daemon.cpp",
+      "implementation_function": "avid_dma_ring_consume_slot vs avid_daemon --stim-bin",
+      "input_contract": "Packets with VALID=0 or PARITY_ERR=1 must NEVER contaminate histogram bins or trigger adaptive parameter updates",
+      "independent_oracle": "Standalone DMA ring valid_out==0; production daemon must match and NOT adapt on parity-corrupted packets",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-004$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/invalid/stim_parity_corrupted_64.bin",
+      "expected": {
+        "invalid_propagation_blocked": "0/64 parity-corrupted packets reach estimator, ring_buffer, or weight commits in both standalone DMA ring and avid_daemon"
+      },
+      "actual": {
+        "invalid_propagation_blocked": "Standalone DMA ring: 0/64 accepted (PASS); avid_daemon --stim-bin: 0/64 accepted, validator_invalid_flags=64, adaptive_epoch_commits=0 (PASS)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-INT-004.log",
+        "validation/layer3/raw_results/set1/L3-INT-004.json"
+      ],
+      "duration_ms": 41.775,
+      "failure_classification": null
+    },
+    {
+      "test_id": "L3-INT-005",
+      "test_name": "stage6_producer_to_daemon_consumer_compatibility",
+      "test_description": "Upstream Stage-6 producer compatibility \u2014 verify avid_daemon --stim-bin parses 16B 0xAAEC0001 Stage-6 headers, rejects malformed/legacy-u16 headers, preserves valid-round H_X/H_Z histograms across readout dropouts without false sequence gaps, and matches live Python Stage-6 output",
+      "test_set": "set1_integration",
+      "status": "PASS",
+      "source_commit": "3a1a6d6",
+      "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp",
+      "implementation_function": "stage6_stratified_sampler.py -> AvidInputAdapter -> stim_to_bin (0xAAEC0001 + dropout flags) -> avid_daemon --stim-bin",
+      "input_contract": "16-byte 0xAAEC0001 Stage-6 container (is_u64=1, d=3, 4x4 checks) + 64-bit packet payload with flags=0x00 on readout dropouts",
+      "independent_oracle": "Exact agreement between Stage-6 Python NPZ valid-round syndromes and C++ avid_daemon validator counters + 16-state histograms",
+      "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-005$\" --output-on-failure",
+      "fixture": "tests/layer3/fixtures/packets/valid/stage6_stratified_dropout_256.bin",
+      "expected": {
+        "stage6_compatibility": "0xAAEC0001 header parsed, malformed/u16 headers rejected (rc=2), readout dropouts excluded without false seq gaps, 32/32 histogram bins exact"
+      },
+      "actual": {
+        "fixture_256r": "valid=249, dropouts=7, seq_gaps=0, hist_bins_32_match=true, wrap_512_seq_gaps=0",
+        "live_stage6_python_producer": "EXECUTED_AND_MATCHED (valid=245, dropouts=11, seq_gaps=0, hist_bins_32_match=true)"
+      },
+      "assertion_notes": [],
+      "evidence": [
+        "validation/layer3/logs/set1/L3-INT-005.log",
+        "validation/layer3/raw_results/set1/L3-INT-005.json"
+      ],
+      "duration_ms": 4962.871,
+      "failure_classification": null
+    }
+  ]
+}

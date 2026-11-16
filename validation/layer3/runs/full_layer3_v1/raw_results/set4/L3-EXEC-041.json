@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-041",
+  "test_name": "three_thread_5s_concurrent_workload_stress",
+  "test_description": "Run 3 C++ threads (DMA producer, mutex-guarded L-BFGS solver + commit, MMIO telemetry reader) for 5 seconds",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp, software/src/estimator/lbfgs_solver.cpp, software/src/driver/weight_reg_driver.c",
+  "implementation_function": "3-thread concurrent ingress + solver + MMIO reader (5s)",
+  "input_contract": "",
+  "independent_oracle": "Zero invariant violations, monotonic hardware epochs, safe active Q7.8 range [64, 12288] throughout",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-041$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-041.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-041.json"
+  ],
+  "duration_ms": 5011.999,
+  "failure_classification": null
+}

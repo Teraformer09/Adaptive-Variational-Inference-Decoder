@@ -1,0 +1,4 @@
+[L3-STAT-002] multi_parameter_joint_recovery -> PASS (61.25 ms)
+expected={"orbit_rmse_mean_max": 0.02, "singleton_rmse_mean_max": 0.02, "kl_mean_max": 0.02}
+actual={"orbit_rmse_mean": 0.003121, "orbit_rmse_ci95": "[0.00268, 0.00356]", "param_rmse_mean": 0.004851, "singleton_rmse_mean": 0.003756, "kl_mean": 0.002281}
+Joint 32-seed recovery: orbit_rmse=0.003121, kl=0.002281

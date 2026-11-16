@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-039",
+  "test_name": "llr_q78_half_lsb_quantization_error_bound",
+  "test_description": "Verify unsaturated quantization error |q78/256.0 - ln((1-p)/p)| <= 1/512 + 1e-12 everywhere on [1e-5, 0.43]",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr",
+  "input_contract": "",
+  "independent_oracle": "Max LLR error <= 0.001953125 + 1e-12",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-039$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "max_llr_quant_err": "<= 1/512 (0.001953125)"
+  },
+  "actual": {
+    "max_llr_quant_err": "0.00194217"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-039.log",
+    "validation/layer3/raw_results/set5/L3-MATH-039.json"
+  ],
+  "duration_ms": 0.162,
+  "failure_classification": null
+}

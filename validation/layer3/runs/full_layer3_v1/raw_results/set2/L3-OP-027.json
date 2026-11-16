@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-027",
+  "test_name": "burst_detector_single_trigger_debounce",
+  "test_description": "Feed sustained burst for 50 consecutive rounds and verify trigger_count == 1 (no duplicate trigger flood)",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "trigger_count == 1 across 50 sustained burst rounds",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-027$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "trigger_count": "1"
+  },
+  "actual": {
+    "trigger_count": "1"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-027.log",
+    "validation/layer3/raw_results/set2/L3-OP-027.json"
+  ],
+  "duration_ms": 0.046,
+  "failure_classification": null
+}

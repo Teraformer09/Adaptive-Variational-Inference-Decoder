@@ -1,0 +1,4 @@
+[L3-STAT-008] prior_lambda_bias_variance_shrinkage -> PASS (81.54 ms)
+expected={"monotone_shrinkage_to_prior": true, "variance_reduced_at_high_lambda": true}
+actual={"dist_to_prior_lam_0_004_05_5": [0.087717, 0.08734, 0.083467, 0.062466], "var_z4_lam_0_004_05_5": [0.00030093, 0.00029652, 0.00025232, 0.00010206]}
+Prior sweep lambda=[0,0.04,0.5,5.0]: ||theta-theta0||=[0.08771669943, 0.08733996416, 0.08346694724, 0.06246585332], var_z4=[0.0003009301967, 0.0002965247123, 0.0002523238984, 0.0001020639745]

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-057",
+  "test_name": "fsm_recovery_necessary_and_sufficient_condition",
+  "test_description": "Prove transition into NORMAL_ADAPTIVE occurs IFF (estimator_ok && deadline_ok && bounds_ok && bus_ok) == true",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "Across all 4 source states x 16 inputs, next_state == NORMAL_ADAPTIVE iff mask == 0xF (matching fault_policy.yaml 1-window recovery)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-057$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "iff_condition": "next == NORMAL_ADAPTIVE <=> all 4 predicates true"
+  },
+  "actual": {
+    "iff_condition": "Verified over 64 transitions"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-057.log",
+    "validation/layer3/raw_results/set5/L3-MATH-057.json"
+  ],
+  "duration_ms": 0.067,
+  "failure_classification": null
+}

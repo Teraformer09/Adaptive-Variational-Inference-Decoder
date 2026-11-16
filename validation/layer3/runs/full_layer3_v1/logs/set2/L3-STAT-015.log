@@ -1,0 +1,4 @@
+[L3-STAT-015] fisher_information_confidence_interval_calibration -> PASS (113.53 ms)
+expected={"empirical_95ci_coverage_band": "[0.88, 0.995]", "z_score_std_band": "[0.75, 1.25]"}
+actual={"empirical_95ci_coverage": 0.9333, "z_score_mean": -0.1498, "z_score_std": 1.01, "fisher_se_z1_z4_z7": [0.002907, 0.003606, 0.003172]}
+180 singleton CI checks (60 trials x 3 singletons): coverage=93.3%, z_std=1.010

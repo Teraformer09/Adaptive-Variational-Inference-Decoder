@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-023",
+  "test_name": "packet_duplication_rejection",
+  "test_description": "Inject duplicate sequence number back-to-back (seq=6, 7, 7, 8) into DMA ring",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_validate_packet + avid_dma_ring_consume_slot",
+  "input_contract": "",
+  "independent_oracle": "Second seq=7 is rejected by sequence continuity check, avoiding double histogram count",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-023$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-023.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-023.json"
+  ],
+  "duration_ms": 0.052,
+  "failure_classification": null
+}

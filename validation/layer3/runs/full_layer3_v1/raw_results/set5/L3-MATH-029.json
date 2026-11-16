@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-029",
+  "test_name": "crlb_sample_size_scaling_singletons_vs_null",
+  "test_description": "Evaluate regularized CRLB across N in {256, 1000, 10000}: singletons {Z_1, Z_4, Z_7} scale as 1/sqrt(N) while null edge e=16 stays constant",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_joint_distribution",
+  "input_contract": "",
+  "independent_oracle": "SE(Z_4, N=10000) / SE(Z_4, N=256) ~ sqrt(256/10000) = 0.16; SE(e=16) == 1/sqrt(N*0 + lambda_scaled)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-029$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "se4_ratio_10000_to_256": "~0.16 (1/sqrt(N)) and se16 invariant"
+  },
+  "actual": {
+    "se4_ratio_10000_to_256": "0.160019"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-029.log",
+    "validation/layer3/raw_results/set5/L3-MATH-029.json"
+  ],
+  "duration_ms": 0.518,
+  "failure_classification": null
+}

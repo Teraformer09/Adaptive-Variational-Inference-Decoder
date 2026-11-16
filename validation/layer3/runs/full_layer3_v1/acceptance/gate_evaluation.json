@@ -1,0 +1,116 @@
+{
+  "schema_version": "2.0.0",
+  "run_id": "full_layer3_v1",
+  "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "evaluated_at_utc": "2026-11-16T12:58:03Z",
+  "active_stage": "full_layer3_sets1_to_5",
+  "overall_layer3_decision": "ACCEPTED_ALL_GATES_G1_TO_G10_PASS",
+  "stage1_gate_decision": "STAGE1_ACCEPTED_G1_G10_PASS",
+  "g1_decision": "PASS",
+  "g10_decision": "PASS",
+  "gates": [
+    {
+      "gate_id": "G1",
+      "gate_name": "Input Integrity & Contract Conformance",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 52,
+      "non_pass_count": 0,
+      "diagnostic_companion_non_pass": [],
+      "sanitizer_ctest_exit_code": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated 40 canonical L3-IP + 7 C11 ABI + 5 daemon integration (+ 2 diagnostic companions; ASan+UBSan rc=0) in mode='remediated': 52/52 gated PASS, 0 non-PASS."
+    },
+    {
+      "gate_id": "G2",
+      "gate_name": "Output Contracts & 32-Seed Statistical Recovery",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 51,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated Set 2 (36 L3-OP + 15 L3-STAT): 51/51 PASS, 0 non-PASS (ASan+UBSan rc=0)."
+    },
+    {
+      "gate_id": "G3",
+      "gate_name": "Complete Ingress-to-Commit Pipeline Dataflow",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 35,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated Set 3A/3B/3D (35 L3-FLOW): 35/35 PASS, 0 non-PASS (ASan+UBSan rc=0)."
+    },
+    {
+      "gate_id": "G4",
+      "gate_name": "Causal Timing, 20 us Fast Detector vs 10 ms Slow Loop",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 10,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated Set 3C (10 L3-FLOW): 10/10 PASS, 0 non-PASS (ASan+UBSan rc=0)."
+    },
+    {
+      "gate_id": "G5",
+      "gate_name": "Clean Build, Daemon Lifecycle, Persistence, Faults & Concurrency",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 45,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated Set 4 (45 L3-EXEC): 45/45 PASS, 0 non-PASS (ASan+UBSan rc=0)."
+    },
+    {
+      "gate_id": "G6",
+      "gate_name": "Independent Joint-DP & L-BFGS Mathematical Oracles",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 24,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated Set 5A/5B (24 L3-MATH): 24/24 PASS, 0 non-PASS (ASan+UBSan rc=0)."
+    },
+    {
+      "gate_id": "G7",
+      "gate_name": "Parameter Identifiability, Jacobian Rank & Fisher Information",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 8,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated Set 5C (8 L3-MATH): 8/8 PASS, 0 non-PASS (ASan+UBSan rc=0)."
+    },
+    {
+      "gate_id": "G8",
+      "gate_name": "Q7.8 LLR Reference & Causal Scheduler Mathematics",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 20,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated Set 5D/5E (20 L3-MATH): 20/20 PASS, 0 non-PASS (ASan+UBSan rc=0)."
+    },
+    {
+      "gate_id": "G9",
+      "gate_name": "Four-State Safety FSM Exhaustive Verification",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 10,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "Evaluated Set 5F (10 L3-MATH): 10/10 PASS, 0 non-PASS (ASan+UBSan rc=0)."
+    },
+    {
+      "gate_id": "G10",
+      "gate_name": "Reproducibility, Traceability, & Branch Isolation Integrity",
+      "evaluated_in_stage": true,
+      "status": "PASS",
+      "pass_count": 243,
+      "non_pass_count": 0,
+      "blocking_ids": [],
+      "rationale": "243/243 canonical IDs executed; run_mode=remediated; baseline_be50761_evidence_preserved=True; frozen_baseline_untouched=True; asan_ubsan_rc=0; missing_artifacts=0."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-008",
+  "test_name": "map_estimator_initial_vs_final_objective",
+  "test_description": "Verify monotonic objective reduction f_final <= f_initial across single-pass LBFGSOptimizer and two-pass HistogramLBFGSSolver",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram, HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "f_final < f_initial on mismatched initialization",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-008$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "objective_reduction": "final_nll < initial_nll"
+  },
+  "actual": {
+    "initial_to_final": "1.793161 -> 0.999342"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-008.log",
+    "validation/layer3/raw_results/set2/L3-OP-008.json"
+  ],
+  "duration_ms": 0.842,
+  "failure_classification": null
+}

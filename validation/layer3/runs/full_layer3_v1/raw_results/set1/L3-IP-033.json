@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-033",
+  "test_name": "optimizer_max_iters_cap_validation",
+  "test_description": "Optimizer iteration cap — supply max_iters in {0, -5, 1, 20} and verify iterations_executed <= max_iters (or invalid max_iters<=0 rejected)",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "max_iters <= 0 rejected or executes 0 steps; max_iters >= 1 strictly caps iterations_executed <= max_iters",
+  "independent_oracle": "Hard budget invariant: iterations_executed <= max(0, max_iters)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-033$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/correlated/corr_total1000.txt",
+  "expected": {
+    "iteration_cap": "max_iters<=0 rejected or 0 iters; max_iters=1 -> <=1 iter; max_iters=20 -> <=20 iters"
+  },
+  "actual": {
+    "iteration_cap": "iters(-5)=0, iters(0)=0, iters(1)=1, iters(20)=20"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-033.log",
+    "validation/layer3/raw_results/set1/L3-IP-033.json"
+  ],
+  "duration_ms": 1.128,
+  "failure_classification": null
+}

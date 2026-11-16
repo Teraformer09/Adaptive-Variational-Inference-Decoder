@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-041",
+  "test_name": "llr_propagation_monotonicity",
+  "test_description": "Raise fitted theta[4] across {0.01, 0.04, 0.12} and inspect quantized q78[4]",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr",
+  "input_contract": "",
+  "independent_oracle": "q78[4] decreases strictly as error probability increases",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-041$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-041.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-041.json"
+  ],
+  "duration_ms": 0.064,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-043",
+  "test_name": "static_output_bypass_detection",
+  "test_description": "Run stationary_noise vs correlated_noise to fresh --metrics-out files and verify non-static telemetry",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (stationary_noise vs correlated_noise)",
+  "input_contract": "",
+  "independent_oracle": "final_nll, orbit_9class_rmse, and final_q78_z differ significantly across distinct noise regimes",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-043$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-043.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-043.json"
+  ],
+  "duration_ms": 66.904,
+  "failure_classification": null
+}

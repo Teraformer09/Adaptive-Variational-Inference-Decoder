@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-014",
+  "test_name": "lbfgs_armijo_sufficient_decrease",
+  "test_description": "Verify Armijo sufficient decrease f(x_{k+1}) <= f(x_k) + 1e-4 * <g_k, x_{k+1} - x_k> at every accepted L-BFGS step",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram",
+  "input_contract": "",
+  "independent_oracle": "0 Armijo violations across 12 consecutive optimization steps",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-014$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "armijo_steps_verified": ">= 5 with zero sufficient-decrease violations"
+  },
+  "actual": {
+    "armijo_steps_verified": "12"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-014.log",
+    "validation/layer3/raw_results/set5/L3-MATH-014.json"
+  ],
+  "duration_ms": 0.520,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-044",
+  "test_name": "priority_inversion_fast_bp_vs_slow_lbfgs",
+  "test_description": "Run heavy L-BFGS loop on background thread while timing 50,000 CycleAccurateBPEngine::decode calls",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/custom_engine/cycle_accurate_bp_engine.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "CycleAccurateBPEngine::decode under concurrent L-BFGS load",
+  "input_contract": "",
+  "independent_oracle": "p99 host decode latency < 50.0 us and cycles_fused == 17 across all 50,000 decodes",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-044$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-044.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-044.json"
+  ],
+  "duration_ms": 3258.562,
+  "failure_classification": null
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-021",
+  "test_name": "synthetic_infinite_sample_singleton_recovery",
+  "test_description": "Recover singleton hotspots q1 (0x3), q4 (0x6), q7 (0xC) from 100,000-sample exact expectation histogram",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "Singleton error < 0.002 and 9-class orbit RMSE < 1e-3",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-021$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "singleton_and_orbit_error": "err_{1,4,7} < 0.002, orbit_rmse < 1e-3"
+  },
+  "actual": {
+    "orbit_rmse": "0.000203176"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-021.log",
+    "validation/layer3/raw_results/set5/L3-MATH-021.json"
+  ],
+  "duration_ms": 0.876,
+  "failure_classification": null
+}

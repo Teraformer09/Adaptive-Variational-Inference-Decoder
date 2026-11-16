@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-030",
+  "test_name": "prior_dominated_zero_fisher_ratio",
+  "test_description": "Verify Fisher sample information to prior stiffness ratio is exact 0.0 on ZZ_3_6 (e=16) and ZZ_2_5 (e=19)",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_joint_distribution",
+  "input_contract": "",
+  "independent_oracle": "I(theta)_{16,16} / lambda == 0.0 and I(theta)_{19,19} / lambda == 0.0",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-030$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "fisher_to_prior_ratio": "0.0 on (16,19) vs >50 on singleton Z_4"
+  },
+  "actual": {
+    "ratio_z4": "94.8228"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-030.log",
+    "validation/layer3/raw_results/set5/L3-MATH-030.json"
+  ],
+  "duration_ms": 0.263,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-032",
+  "test_name": "fast_loop_isolation_from_slow_lbfgs",
+  "test_description": "Run HistogramLBFGSSolver::fit_histogram on Thread A concurrently with CycleAccurateBPEngine::decode on Thread B",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/custom_engine/cycle_accurate_bp_engine.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "CycleAccurateBPEngine::decode || HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "Zero shared lock contention; every decode reports cycles_fused == 17 and latency_ns_fused == 68.0",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-032$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-032.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-032.json"
+  ],
+  "duration_ms": 278.067,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-034",
+  "test_name": "short_burst_60us_vs_10ms_dilution_and_fast_detection",
+  "test_description": "Inject 60-round burst at r=9940..9999 inside a 10,000-round window; compare fast 16-round detector vs slow MAP dilution",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_fast_detector_step vs 10000-round slow MAP",
+  "input_contract": "",
+  "independent_oracle": "Fast detector triggers in <=20 rounds (r<=9960), while 10,000-round slow MAP shift is <0.015 due to 0.6% dilution",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-034$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-034.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-034.json"
+  ],
+  "duration_ms": 4.513,
+  "failure_classification": null
+}

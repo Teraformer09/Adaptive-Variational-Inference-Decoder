@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-048",
+  "test_name": "busy_decoder_commit_deferral_timeout",
+  "test_description": "Emulate sticky commit_pending=1 (busy decoder) in status register and verify wrd_commit_and_wait times out cleanly (-1)",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/driver/weight_reg_driver.c",
+  "implementation_function": "wrd_commit_and_wait",
+  "input_contract": "",
+  "independent_oracle": "Normal wrd_commit_and_wait returns 0; sticky bit 0 returns -1 without crash",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-048$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "busy_commit_rc": "-1"
+  },
+  "actual": {
+    "busy_commit_rc": "-1"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-048.log",
+    "validation/layer3/raw_results/set5/L3-MATH-048.json"
+  ],
+  "duration_ms": 3.288,
+  "failure_classification": null
+}

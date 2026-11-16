@@ -1,0 +1,32 @@
+{
+  "test_id": "L3-STAT-012",
+  "test_name": "nonstationary_drift_ramp_tracking",
+  "test_description": "Ramp theta[4] across 20 sequential windows over >=30 seeds measuring dynamic tracking RMSE and correlation",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Dynamic tracking RMSE < 0.45 * static RMSE and Pearson correlation >= 0.85",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_drift_recovery.py --test-id L3-STAT-012 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "dynamic_rmse_lt_045_static": "True",
+    "tracking_corr_min": "0.85"
+  },
+  "actual": {
+    "dynamic_rmse_mean": "0.01008",
+    "static_rmse_mean": "0.043535",
+    "tracking_correlation_mean": "0.90516"
+  },
+  "assertion_notes": [
+    "20-window ramp tracking: dynamic_rmse=0.01008 vs static=0.04354, r=0.9052"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-012.json",
+    "logs/set2/L3-STAT-012.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 348.449
+}

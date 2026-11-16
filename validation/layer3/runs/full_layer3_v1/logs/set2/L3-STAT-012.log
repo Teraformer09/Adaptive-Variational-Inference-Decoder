@@ -1,0 +1,4 @@
+[L3-STAT-012] nonstationary_drift_ramp_tracking -> PASS (348.45 ms)
+expected={"dynamic_rmse_lt_045_static": true, "tracking_corr_min": 0.85}
+actual={"dynamic_rmse_mean": 0.01008, "static_rmse_mean": 0.043535, "tracking_correlation_mean": 0.90516}
+20-window ramp tracking: dynamic_rmse=0.01008 vs static=0.04354, r=0.9052

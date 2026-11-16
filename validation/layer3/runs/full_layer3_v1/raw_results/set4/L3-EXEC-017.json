@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-017",
+  "test_name": "runtime_provenance_and_sha256_verification",
+  "test_description": "Verify telemetry retains checkpoint_path, seed, scenario, backend, controller_mode and SHA-256 digests",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (provenance fields)",
+  "input_contract": "",
+  "independent_oracle": "All provenance strings match invocation and sha256sum yields 64-hex digests for binary and checkpoint",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-017$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-017.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-017.json"
+  ],
+  "duration_ms": 94.305,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-025",
+  "test_name": "concurrent_syndrome_decode_and_atomic_bank_commit",
+  "test_description": "Verify active weight bank swaps atomically on commit (never exposing half-written shadow weights to decoder)",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/hal/physical_backend.cpp, software/src/driver/weight_reg_driver.c",
+  "implementation_function": "avid_hal_send_syndrome || avid_hal_write_weights_and_commit",
+  "input_contract": "",
+  "independent_oracle": "Writing partial shadow weights before 0x048 commit never alters active bank read by decoder; post-commit switches atomically",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-025$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-025.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-025.json"
+  ],
+  "duration_ms": 0.311,
+  "failure_classification": null
+}

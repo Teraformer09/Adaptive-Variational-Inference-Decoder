@@ -1,0 +1,28 @@
+{
+  "test_id": "L3-MATH-027",
+  "test_name": "posterior_covariance_aliased_anticorrelation",
+  "test_description": "Verify strong negative posterior correlation within shared syndrome orbits (Z_0, ZZ_1_2) on 0x1",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_joint_distribution",
+  "input_contract": "",
+  "independent_oracle": "Posterior correlation rho(Z_0, ZZ_1_2) < -0.90 at N=10,000, lambda=0.5",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-027$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "rho_aliased_0_10": "< -0.90"
+  },
+  "actual": {
+    "rho_aliased_0_10": "-0.999999",
+    "rho_orthogonal_1_4": "-0.0247968"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-027.log",
+    "validation/layer3/raw_results/set5/L3-MATH-027.json"
+  ],
+  "duration_ms": 0.321,
+  "failure_classification": null
+}

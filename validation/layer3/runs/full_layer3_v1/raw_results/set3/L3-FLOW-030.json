@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-030",
+  "test_name": "burst_end_window_drain_recovery",
+  "test_description": "End 60-round burst at round=160 (return to sx=0) and record round when burst_active clears",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "burst_active clears within <=16 rounds after round=160 once 16-round sliding density drops below 0.35",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-030$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-030.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-030.json"
+  ],
+  "duration_ms": 0.049,
+  "failure_classification": null
+}

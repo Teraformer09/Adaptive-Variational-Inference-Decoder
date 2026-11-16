@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-IP-018",
+  "test_name": "window_rollover_and_histogram_reset",
+  "test_description": "Window rollover — test standalone ring_buffer_t (RING_WINDOW=10000) rollover on 10,500 pushes, histogram reset, and verify production daemon connectivity",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/ring_buffer.h, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "ring_init, ring_push, ring_at, avid_daemon window reset",
+  "input_contract": "10,000-round sliding ring buffer evicts oldest 500 entries cleanly and feeds production estimator, or daemon window semantics must match contract",
+  "independent_oracle": "Pattern A (first 500) vs Pattern B (last 10,000) FIFO eviction check + avid_daemon.cpp symbol/source check",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-018$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/empty/zeros_16.txt",
+  "expected": {
+    "production_daemon_window_mechanism": "ring_buffer_t connected in avid_daemon OR contract updated to non-overlapping reset windows",
+    "standalone_ring_buffer_rollover": "count==10000, oldest 500 evicted"
+  },
+  "actual": {
+    "production_ring_buffer_status": "IMPLEMENTED_AND_CONNECTED",
+    "standalone_ring_buffer_rollover": "PASS (10000/10000 Pattern B retained)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-018.log",
+    "validation/layer3/raw_results/set1/L3-IP-018.json"
+  ],
+  "duration_ms": 2.406,
+  "failure_classification": null
+}

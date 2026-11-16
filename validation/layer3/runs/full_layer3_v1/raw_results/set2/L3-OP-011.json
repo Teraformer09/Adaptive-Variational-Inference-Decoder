@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-011",
+  "test_name": "llr_bank_dimension_nine",
+  "test_description": "Verify exact int16_t[9] output bank population without out-of-bounds canary writes",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp, software/src/inference/noise_model.cpp",
+  "implementation_function": "avid_quantize_and_validate_bank, NoiseModel::to_q7_8_llr",
+  "input_contract": "",
+  "independent_oracle": "All 9 slots populated; guard canaries before/after array untouched",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-011$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "bank_len_and_canaries": "9 elements written, 0 canary overwrites"
+  },
+  "actual": {
+    "bank_len_and_canaries": "Verified"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-011.log",
+    "validation/layer3/raw_results/set2/L3-OP-011.json"
+  ],
+  "duration_ms": 0.077,
+  "failure_classification": null
+}

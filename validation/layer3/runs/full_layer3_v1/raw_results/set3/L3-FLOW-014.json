@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-014",
+  "test_name": "slowly_drifting_noise_tracking",
+  "test_description": "Compare early vs full trajectory under slowly_drifting_noise (--window 256)",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (slowly_drifting_noise)",
+  "input_contract": "",
+  "independent_oracle": "Late-epoch estimated hotspot probability rises and active Q7.8 LLR on qubit 4 decreases to track upward drift",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-014$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-014.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-014.json"
+  ],
+  "duration_ms": 76.244,
+  "failure_classification": null
+}

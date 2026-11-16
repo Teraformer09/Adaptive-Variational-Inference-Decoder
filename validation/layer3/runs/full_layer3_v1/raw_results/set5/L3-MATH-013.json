@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-013",
+  "test_name": "lbfgs_two_loop_descent_direction",
+  "test_description": "Verify two-loop L-BFGS recursion and projected gradient step produce strict descent (<g, x_{k+1} - x_k> < 0 and f_{k+1} < f_k) on non-stationary interior state",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram",
+  "input_contract": "",
+  "independent_oracle": "Directional derivative g^T (x_{k+1} - x_k) < 0 across sequential 1-step invocations",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-013$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "strict_descent_steps": ">= 4 sequential quasi-Newton updates with g^T dx < 0"
+  },
+  "actual": {
+    "strict_descent_steps": "6"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-013.log",
+    "validation/layer3/raw_results/set5/L3-MATH-013.json"
+  ],
+  "duration_ms": 0.311,
+  "failure_classification": null
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-021",
+  "test_name": "parameter_vector_dimension_21",
+  "test_description": "21-parameter vector dimension check — verify NM_N_QUBIT==9, NM_N_CROSSTALK==12, NM_N_PARAMS==21, sizeof(ParamVec)==21*sizeof(double), and agreement with architecture/estimator/parameter_schema.json",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.h",
+  "implementation_function": "NoiseModel::ParamVec, NM_N_QUBIT, NM_N_CROSSTALK, NM_N_PARAMS",
+  "input_contract": "Fixed 21-element parameter vector (9 single-qubit + 12 nearest-neighbor pairs)",
+  "independent_oracle": "architecture/estimator/parameter_schema.json (n_params_full=21, n_identifiable_signature_orbits=9)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-021$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/parameters/valid/default_21.txt",
+  "expected": {
+    "dimensions": "NM_N_QUBIT=9, NM_N_CROSSTALK=12, NM_N_PARAMS=21, sizeof(ParamVec)=168"
+  },
+  "actual": {
+    "dimensions": "NM_N_QUBIT=9, NM_N_CROSSTALK=12, NM_N_PARAMS=21, sizeof(ParamVec)=168"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-021.log",
+    "validation/layer3/raw_results/set1/L3-IP-021.json"
+  ],
+  "duration_ms": 0.899,
+  "failure_classification": null
+}

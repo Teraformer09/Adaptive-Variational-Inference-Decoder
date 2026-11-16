@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-016",
+  "test_name": "llr_unit_and_half_probability_handling",
+  "test_description": "Pass p=0.5 and p=1.0 into scalar and bank quantizer",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr, avid_quantize_and_validate_bank",
+  "input_contract": "",
+  "independent_oracle": "Scalar clamps to 0.49 (10); bank rejects >=0.5 returning false and AVID_Q78_DEFAULT",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-016$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "unit_and_half_bank": "false, AVID_Q78_DEFAULT"
+  },
+  "actual": {
+    "out_0_1": "1128, 1128"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-016.log",
+    "validation/layer3/raw_results/set2/L3-OP-016.json"
+  ],
+  "duration_ms": 0.087,
+  "failure_classification": null
+}

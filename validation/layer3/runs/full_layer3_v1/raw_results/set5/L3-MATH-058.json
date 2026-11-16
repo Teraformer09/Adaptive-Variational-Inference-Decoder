@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-058",
+  "test_name": "fsm_corrupt_enum_and_null_pointer_sanitization",
+  "test_description": "Inject corrupt raw enum value (99) via memcpy and null pointers into avid_fallback_step without UB or unvalidated commit",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "Corrupt state 99 -> SAFE_STATIC_PRIOR (or DEGRADED_BYPASS if !bus_ok); nullptr candidate/outputs handled safely",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-058$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "corrupt_and_null_guards": "Sanitized cleanly without UBSan trap"
+  },
+  "actual": {
+    "corrupt_and_null_guards": "PASS"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-058.log",
+    "validation/layer3/raw_results/set5/L3-MATH-058.json"
+  ],
+  "duration_ms": 0.049,
+  "failure_classification": null
+}

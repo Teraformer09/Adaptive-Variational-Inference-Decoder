@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-030",
+  "test_name": "bridge_transaction_id_and_protocol_mismatch_rejection",
+  "test_description": "Mock AF_UNIX bridge responds with wrong transaction_id (tx_id+99) and protocol_version=2",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/hal/simulation_backend.cpp",
+  "implementation_function": "send_bridge_request",
+  "input_contract": "",
+  "independent_oracle": "Both responses rejected (-1); id_mismatch_errors==1 and rejected_transactions==2",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-030$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-030.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-030.json"
+  ],
+  "duration_ms": 2.427,
+  "failure_classification": null
+}

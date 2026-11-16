@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-029",
+  "test_name": "burst_onset_detection_latency_bound",
+  "test_description": "Start burst at round=100 on avid_fast_burst_detector_t (threshold=0.35, debounce=4) and record trigger round",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "16-subwindow reaches >=6/16 at r=105; 4-round debounce triggers at r_trig=108 in [103, 119] (<=20 rounds)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-029$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-029.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-029.json"
+  ],
+  "duration_ms": 0.058,
+  "failure_classification": null
+}

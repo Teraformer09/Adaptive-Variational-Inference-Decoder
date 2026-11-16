@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-026",
+  "test_name": "optimizer_nan_injection_containment",
+  "test_description": "Inject NaN into NoiseModel::theta_ and p_eff bank passed to quantizer and FSM",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp, software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_quantize_and_validate_bank + avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "validate_parameter_bounds==false, quantizer returns false & sets 0x0468, FSM enters SAFE_STATIC_PRIOR",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-026$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-026.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-026.json"
+  ],
+  "duration_ms": 0.068,
+  "failure_classification": null
+}

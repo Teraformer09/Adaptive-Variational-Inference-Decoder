@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-013",
+  "test_name": "nominal_stationary_end_to_end_flow",
+  "test_description": "Run avid_daemon --scenario stationary_noise --rounds 1536 --window 256",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main",
+  "input_contract": "",
+  "independent_oracle": "Finite NLL, fallback_events==0, epoch_commit_reconciled==true, orbit_9class_rmse < 0.03",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-013$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-013.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-013.json"
+  ],
+  "duration_ms": 36.486,
+  "failure_classification": null
+}

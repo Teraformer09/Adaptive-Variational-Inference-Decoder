@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-022",
+  "test_name": "packet_loss_sequence_gap_accounting",
+  "test_description": "Drop seq=5 cleanly (0..4, 6..8) in packet ingress stream",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/packet_validator.cpp",
+  "implementation_function": "avid_validate_packet",
+  "input_contract": "",
+  "independent_oracle": "seq_gap_count increments by exact 1 and post-gap valid stream resumes cleanly",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-022$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-022.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-022.json"
+  ],
+  "duration_ms": 0.060,
+  "failure_classification": null
+}

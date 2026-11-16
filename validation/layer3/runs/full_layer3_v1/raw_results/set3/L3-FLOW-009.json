@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-009",
+  "test_name": "scheduler_to_safety_fsm_gate_continuity",
+  "test_description": "Verify (est_ok, deadline_ok, bounds_ok, bus_ok, cand_q78) produce exact sel_q78 and should_commit across FSM states",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "NORMAL commits cand_q78; HOLD retains last_good with should_commit=false; SAFE_STATIC commits 0x0468",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-009$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-009.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-009.json"
+  ],
+  "duration_ms": 0.040,
+  "failure_classification": null
+}

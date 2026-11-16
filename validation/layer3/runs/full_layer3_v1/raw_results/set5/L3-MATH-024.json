@@ -1,0 +1,28 @@
+{
+  "test_id": "L3-MATH-024",
+  "test_name": "cpp_lbfgs_vs_independent_reference_solver",
+  "test_description": "Compare C++ LBFGSOptimizer objective and solution against independent FWHT projected-gradient reference solver",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram",
+  "input_contract": "",
+  "independent_oracle": "|NLL_cpp - NLL_ref| < 1e-5 and ||theta_cpp - theta_ref||_inf < 1e-3 (strongly convex lambda=0.2)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-024$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "objective_and_param_consistency": "|dNLL| < 1e-5, ||dtheta||_inf < 1e-3"
+  },
+  "actual": {
+    "abs_nll_diff": "1.18674e-11",
+    "max_param_diff": "4.32826e-06"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-024.log",
+    "validation/layer3/raw_results/set5/L3-MATH-024.json"
+  ],
+  "duration_ms": 68.485,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-010",
+  "test_name": "safety_fsm_to_shadow_bank_write_protection",
+  "test_description": "Verify NORMAL_ADAPTIVE writes shadow bank & commits while HOLD_LAST_GOOD blocks commit leaving active bank unchanged",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp, software/src/driver/weight_reg_driver.c",
+  "implementation_function": "avid_fallback_step -> wrd_write_all_weights",
+  "input_contract": "",
+  "independent_oracle": "Active bank stays at cand_good when HOLD_LAST_GOOD blocks cand_bad",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-010$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-010.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-010.json"
+  ],
+  "duration_ms": 0.355,
+  "failure_classification": null
+}

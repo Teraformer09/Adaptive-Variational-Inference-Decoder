@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-032
+Test Name: commit_delay_configuration_and_daemon_wiring
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/control/causal_scheduler.cpp, software/src/inference/avid_daemon.cpp
+Implementation Function: avid_scheduler_init, avid_scheduler_schedule_commit, avid_scheduler_poll_commit_ready
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-032$" --output-on-failure
+Fixture: tests/layer3/fixtures/configs/valid/valid_experiment.yaml
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

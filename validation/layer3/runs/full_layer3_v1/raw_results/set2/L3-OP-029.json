@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-029",
+  "test_name": "fsm_valid_enum_output_domain",
+  "test_description": "Verify fsm.state stays strictly in {0, 1, 2, 3} across 32 sequential mixed health steps",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "All observed states in {0..3}",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-029$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "state_domain": "{0, 1, 2, 3}"
+  },
+  "actual": {
+    "state_domain": "Verified over 32 mixed transitions"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-029.log",
+    "validation/layer3/raw_results/set2/L3-OP-029.json"
+  ],
+  "duration_ms": 0.052,
+  "failure_classification": null
+}

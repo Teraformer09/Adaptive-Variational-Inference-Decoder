@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-028",
+  "test_name": "burst_detector_subthreshold_zero_triggers",
+  "test_description": "Feed 10,000 sub-threshold rounds (5/16 = 0.3125 < 0.35) and verify exact 0 triggers",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "trigger_count == 0 and peak_density == 0.3125",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-028$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "trigger_count": "0"
+  },
+  "actual": {
+    "peak_density": "0.3125"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-028.log",
+    "validation/layer3/raw_results/set2/L3-OP-028.json"
+  ],
+  "duration_ms": 0.373,
+  "failure_classification": null
+}

@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-EXEC-027
+Test Name: out_of_bounds_probability_estimate_rejection
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/estimator/llr_quantizer.cpp, software/src/control/fallback_fsm.cpp
+Implementation Function: avid_quantize_and_validate_bank (p_eff=0.65)
+Execution Command: ctest --test-dir build/layer3 -R "^L3-EXEC-027$" --output-on-failure
+Fixture: 
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

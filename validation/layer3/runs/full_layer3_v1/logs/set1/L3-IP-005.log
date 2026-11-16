@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-005
+Test Name: syndrome_bit_range_and_field_decode
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/ingress/packet_validator.cpp
+Implementation Function: avid_pack_packet_u64, avid_unpack_packet_u64
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-005$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/valid/packet_001.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+All 256 valid (s_x, s_z) pairs round-tripped losslessly; avid_pack_packet_u64_checked rejected s_x=16, s_z=255, flags=0xF1, and nullptr without mutating out_raw_word.
+

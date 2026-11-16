@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-017",
+  "test_name": "llr_positive_sign_monotonicity",
+  "test_description": "Verify q78(p) > 0 and non-increasing across 200 samples on (0, 0.49)",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr",
+  "input_contract": "",
+  "independent_oracle": "0 sign or monotonicity inversions",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-017$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "inversions": "0"
+  },
+  "actual": {
+    "min_positive_q78": "11"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-017.log",
+    "validation/layer3/raw_results/set2/L3-OP-017.json"
+  ],
+  "duration_ms": 0.092,
+  "failure_classification": null
+}

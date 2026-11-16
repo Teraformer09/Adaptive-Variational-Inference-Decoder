@@ -1,5 +1,5 @@
-=== Layer 3 Validation: Slow-Loop Embedded Software & Control ===
-Branch: layer3-slow-loop-software | Commit: e6e3824
+=== Layer 3 Validation: Full 5-Set Slow-Loop Embedded Software & Adaptive Control ===
+Branch: layer3-slow-loop-software | Commit: 3a1a6d6
 -- The CXX compiler identification is GNU 15.3.0
 -- The C compiler identification is GNU 15.3.0
 -- Detecting CXX compiler ABI info
@@ -14,48 +14,48 @@ Branch: layer3-slow-loop-software | Commit: e6e3824
 -- Detecting C compile features - done
 -- System Eigen3 not found — using built-in zero-allocation Eigen/Dense header
 -- Configuring done (2.7s)
--- Generating done (0.2s)
+-- Generating done (0.3s)
 -- Build files have been written to: /home/tirtha/avid-validation/layer3/software/build_layer3
-[  2%] Building C object CMakeFiles/avid_daemon.dir/src/driver/weight_reg_driver.c.o
-[  5%] Building C object CMakeFiles/test_baseline_suite.dir/src/driver/weight_reg_driver.c.o
+[  2%] Building C object CMakeFiles/test_baseline_suite.dir/src/driver/weight_reg_driver.c.o
+[  5%] Building C object CMakeFiles/test_baseline_suite.dir/src/driver/dma_manager.c.o
 [  7%] Building C object CMakeFiles/test_baseline_suite.dir/src/driver/weight_bank_driver.c.o
-[ 10%] Building C object CMakeFiles/avid_daemon.dir/src/driver/weight_bank_driver.c.o
-[ 12%] Building C object CMakeFiles/test_baseline_suite.dir/src/driver/dma_manager.c.o
-[ 15%] Building C object CMakeFiles/avid_daemon.dir/src/driver/dma_manager.c.o
-[ 17%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/hal/physical_backend.cpp.o
-[ 20%] Building CXX object CMakeFiles/avid_daemon.dir/src/hal/physical_backend.cpp.o
-[ 22%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/hal/simulation_backend.cpp.o
-[ 25%] Building CXX object CMakeFiles/avid_daemon.dir/src/hal/simulation_backend.cpp.o
-[ 27%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/ingress/packet_validator.cpp.o
-[ 30%] Building CXX object CMakeFiles/avid_daemon.dir/src/ingress/packet_validator.cpp.o
-[ 32%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/ingress/dma_ingress_tap.cpp.o
+[ 10%] Building C object CMakeFiles/avid_daemon.dir/src/driver/weight_reg_driver.c.o
+[ 12%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/hal/physical_backend.cpp.o
+[ 15%] Building C object CMakeFiles/avid_daemon.dir/src/driver/weight_bank_driver.c.o
+[ 17%] Building C object CMakeFiles/avid_daemon.dir/src/driver/dma_manager.c.o
+[ 20%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/hal/simulation_backend.cpp.o
+[ 22%] Building CXX object CMakeFiles/avid_daemon.dir/src/hal/physical_backend.cpp.o
+[ 25%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/ingress/packet_validator.cpp.o
+[ 27%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/ingress/dma_ingress_tap.cpp.o
+[ 30%] Building CXX object CMakeFiles/avid_daemon.dir/src/hal/simulation_backend.cpp.o
+[ 32%] Building CXX object CMakeFiles/avid_daemon.dir/src/ingress/packet_validator.cpp.o
 [ 35%] Building CXX object CMakeFiles/avid_daemon.dir/src/ingress/dma_ingress_tap.cpp.o
 [ 37%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/inference/noise_model.cpp.o
 [ 40%] Building CXX object CMakeFiles/avid_daemon.dir/src/inference/noise_model.cpp.o
-[ 42%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/inference/lbfgs_optimizer.cpp.o
-[ 45%] Building CXX object CMakeFiles/avid_daemon.dir/src/inference/lbfgs_optimizer.cpp.o
-[ 47%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/estimator/joint_dp_estimator.cpp.o
-[ 50%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/estimator/lbfgs_solver.cpp.o
-[ 52%] Building CXX object CMakeFiles/avid_daemon.dir/src/estimator/joint_dp_estimator.cpp.o
-[ 55%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/estimator/llr_quantizer.cpp.o
-[ 57%] Building CXX object CMakeFiles/avid_daemon.dir/src/estimator/lbfgs_solver.cpp.o
+[ 42%] Building CXX object CMakeFiles/avid_daemon.dir/src/inference/lbfgs_optimizer.cpp.o
+[ 45%] Building CXX object CMakeFiles/avid_daemon.dir/src/estimator/joint_dp_estimator.cpp.o
+[ 47%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/inference/lbfgs_optimizer.cpp.o
+[ 50%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/estimator/joint_dp_estimator.cpp.o
+[ 52%] Building CXX object CMakeFiles/avid_daemon.dir/src/estimator/lbfgs_solver.cpp.o
+[ 55%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/estimator/lbfgs_solver.cpp.o
+[ 57%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/estimator/llr_quantizer.cpp.o
 [ 60%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/control/causal_scheduler.cpp.o
 [ 62%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/control/stage_profiler.cpp.o
 [ 65%] Building CXX object CMakeFiles/avid_daemon.dir/src/estimator/llr_quantizer.cpp.o
 [ 67%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/control/fallback_fsm.cpp.o
 [ 70%] Building CXX object CMakeFiles/test_baseline_suite.dir/src/custom_engine/cycle_accurate_bp_engine.cpp.o
-[ 72%] Building CXX object CMakeFiles/avid_daemon.dir/src/control/causal_scheduler.cpp.o
-[ 75%] Building CXX object CMakeFiles/test_baseline_suite.dir/home/tirtha/avid-validation/layer3/deployment/cpp/model_loader.cpp.o
+[ 72%] Building CXX object CMakeFiles/test_baseline_suite.dir/home/tirtha/avid-validation/layer3/deployment/cpp/model_loader.cpp.o
+[ 75%] Building CXX object CMakeFiles/avid_daemon.dir/src/control/causal_scheduler.cpp.o
 [ 77%] Building CXX object CMakeFiles/avid_daemon.dir/src/control/stage_profiler.cpp.o
-[ 80%] Building CXX object CMakeFiles/avid_daemon.dir/src/control/fallback_fsm.cpp.o
-[ 82%] Building CXX object CMakeFiles/avid_daemon.dir/src/custom_engine/cycle_accurate_bp_engine.cpp.o
-[ 85%] Building CXX object CMakeFiles/avid_daemon.dir/home/tirtha/avid-validation/layer3/deployment/cpp/model_loader.cpp.o
-[ 87%] Building CXX object CMakeFiles/test_baseline_suite.dir/home/tirtha/avid-validation/layer3/deployment/cpp/r2d2_runtime.cpp.o
-[ 90%] Building CXX object CMakeFiles/test_baseline_suite.dir/tests/test_baseline_suite.cpp.o
+[ 80%] Building CXX object CMakeFiles/test_baseline_suite.dir/home/tirtha/avid-validation/layer3/deployment/cpp/r2d2_runtime.cpp.o
+[ 82%] Building CXX object CMakeFiles/test_baseline_suite.dir/tests/test_baseline_suite.cpp.o
+[ 85%] Building CXX object CMakeFiles/avid_daemon.dir/src/control/fallback_fsm.cpp.o
+[ 87%] Building CXX object CMakeFiles/avid_daemon.dir/src/custom_engine/cycle_accurate_bp_engine.cpp.o
+[ 90%] Building CXX object CMakeFiles/avid_daemon.dir/home/tirtha/avid-validation/layer3/deployment/cpp/model_loader.cpp.o
 [ 92%] Building CXX object CMakeFiles/avid_daemon.dir/home/tirtha/avid-validation/layer3/deployment/cpp/r2d2_runtime.cpp.o
-[ 95%] Linking CXX executable test_baseline_suite
-[ 95%] Built target test_baseline_suite
-[ 97%] Building CXX object CMakeFiles/avid_daemon.dir/src/inference/avid_daemon.cpp.o
+[ 95%] Building CXX object CMakeFiles/avid_daemon.dir/src/inference/avid_daemon.cpp.o
+[ 97%] Linking CXX executable test_baseline_suite
+[ 97%] Built target test_baseline_suite
 [100%] Linking CXX executable avid_daemon
 [100%] Built target avid_daemon
 [PASS] C++ DMA Ring Ownership & 64-bit Packet Codec Test
@@ -64,7 +64,7 @@ Branch: layer3-slow-loop-software | Commit: e6e3824
 [PASS] C++ 16-Round Sliding-Subwindow Fast Burst Detector (lag=9 <= 20 rounds)
 [PASS] C++ Trained R2D2 Checkpoint Loaded (5 distinct actions across regimes)
 [ALL C++ BASELINE TESTS PASSED]
-[avid_daemon] Self-test passed: epochs=2 swap_cnt=3 nll=0.7144 elapsed=669.68 us
+[avid_daemon] Self-test passed: epochs=2 swap_cnt=3 nll=0.7144 elapsed=690.50 us
 ============================= test session starts ==============================
 platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
 cachedir: .pytest_cache
@@ -75,8 +75,26 @@ collecting ... collected 1 item
 
 tests/test_layer3_ip_op.py::test_layer3_cpp_ip_op_suite PASSED           [100%]
 
-============================== 1 passed in 0.10s ===============================
+============================== 1 passed in 0.08s ===============================
+========================================================================
+ AVID Layer 3 — Full 5-Set Validation (full_layer3_v1 | mode=remediated)
+ Output Validation Dir: /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1
+========================================================================
+[verify_branch] OK: branch=layer3-slow-loop-software, mode=remediated, baseline=88df97e, AVID_EPJ_Patches=54da68d
+[verify_environment] OK: c++ (Debian 15.3.0-1) 15.3.0 | cmake version 3.31.6 | Python 3.14.6
+Generated 34 deterministic fixtures and SHA-256 manifests.
+[build_layer3_tests] 1/2 Building Standard C11/C++17 suite -> /home/tirtha/avid-validation/layer3/build/layer3_standard
+[build_layer3_tests] 2/2 Building ASan+UBSan C11/C++17 suite -> /home/tirtha/avid-validation/layer3/build/layer3_sanitizers
+[build_layer3_tests] Recorded 92 compiled translation units (19 production, 8 C_ABI, 65 C++ Set 1/common).
+[run_full_layer3] 1/2 Running ASan+UBSan CTest verification across all 257 tests...
+[run_full_layer3] ASan+UBSan CTest exit code: 0
+[run_full_layer3] 2/2 Running Standard C11/C++17 CTest pass across all 257 tests...
+[collect_test_results] Aggregated 243/243 canonical IDs ({'PASS': 243}) + 7 C_ABI + 7 Integration/Supp (257 total) -> /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1/results/layer3_full_results.json
+[evaluate_acceptance] stage=full_layer3_sets1_to_5, G1=PASS, G10=PASS, overall=ACCEPTED_ALL_GATES_G1_TO_G10_PASS
+========================================================================
+ Layer 3 Full 5-Set execution complete -> /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1/
+========================================================================
 /usr/lib/python3/dist-packages/pyparsing/core.py:5637: SyntaxWarning: 'return' in a 'finally' block
   return f"{type(self).__name__}: {retString}"
 [Layer 3 Plot] Saved /home/tirtha/avid-validation/layer3/results/plots/layer3_validation_summary.png and /home/tirtha/avid-validation/layer3/results/layer3_summary.json
-[PASS] Layer 3 validation & plot generation complete.
+[PASS] Layer 3 full 5-set (243 canonical / 257 total checks, G1-G10 PASS) validation & plot generation complete.

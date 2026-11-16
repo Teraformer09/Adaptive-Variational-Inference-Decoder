@@ -1,0 +1,33 @@
+{
+  "test_id": "L3-STAT-004",
+  "test_name": "correlated_pair_crosstalk_recovery",
+  "test_description": "Activate correlated pair (4,5) across >=30 seeds and verify Pass-2 endpoint-coupled pair separation & orbit RMSE",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "orbit_rmse <= 0.025 and active pair estimate > 2x inactive pair estimate",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_correlated_noise.py --test-id L3-STAT-004 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "orbit_rmse_max": "0.025",
+    "pair_45_exceeds_2x_inactive": "True"
+  },
+  "actual": {
+    "orbit_rmse_mean": "0.003597",
+    "pair_45_mean": "0.062325",
+    "pair_45_bias": "-0.017675",
+    "inactive_pair_mean": "0.011579"
+  },
+  "assertion_notes": [
+    "Correlated pair (4,5) hat=0.06233 vs inactive=0.01158, orbit_rmse=0.00360"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-004.json",
+    "logs/set2/L3-STAT-004.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 65.993
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-001",
+  "test_name": "joint_dp_probability_normalization",
+  "test_description": "Probability normalization across 20 random 21-parameter vectors in both X and Z bases",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_joint_distribution",
+  "input_contract": "",
+  "independent_oracle": "sum_{s=0..15} P_joint(s | theta) == 1.0 within 1e-14",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-001$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "sum_p": "1.0 +/- 1e-14 across 40 (theta, basis) evaluations"
+  },
+  "actual": {
+    "max_abs_sum_err": "4.44089e-16"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-001.log",
+    "validation/layer3/raw_results/set5/L3-MATH-001.json"
+  ],
+  "duration_ms": 0.347,
+  "failure_classification": null
+}

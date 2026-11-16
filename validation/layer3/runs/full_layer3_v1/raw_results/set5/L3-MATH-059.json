@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-059",
+  "test_name": "fsm_repeated_fault_escalation_and_stability",
+  "test_description": "Drive 2 holds -> 3rd fault escalates to SAFE_STATIC_PRIOR -> 50 additional faults stay strictly in SAFE_STATIC_PRIOR",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "holds 1,2 == HOLD_LAST_GOOD; faults 3..53 == SAFE_STATIC_PRIOR; fallback_triggers == 53",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-059$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "fallback_triggers": "53"
+  },
+  "actual": {
+    "fallback_triggers": "53"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-059.log",
+    "validation/layer3/raw_results/set5/L3-MATH-059.json"
+  ],
+  "duration_ms": 0.052,
+  "failure_classification": null
+}

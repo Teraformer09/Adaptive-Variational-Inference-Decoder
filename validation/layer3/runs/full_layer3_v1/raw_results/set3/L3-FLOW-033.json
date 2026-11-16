@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-033",
+  "test_name": "stale_estimate_and_epoch_protection",
+  "test_description": "Attempt to schedule commit with stale window_end < last_scheduled_window_end and push stale-epoch DMA packets",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp, software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_scheduler_schedule_commit + avid_dma_ring_set_active_epoch",
+  "input_contract": "",
+  "independent_oracle": "Scheduler increments stale_schedule_drops without overwriting fresh weights; DMA ring increments stale_epoch_drops",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-033$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-033.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-033.json"
+  ],
+  "duration_ms": 0.044,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-015",
+  "test_name": "correlated_noise_transition_and_sim_ler_advantage",
+  "test_description": "Run correlated_noise and heldout_multi_pair_12_67 over live AF_UNIX simulation bridge and compare vs static B0 LER",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp, software/src/hal/simulation_backend.cpp",
+  "implementation_function": "main (--backend sim)",
+  "input_contract": "",
+  "independent_oracle": "Hotspot pair LLRs adapt downward and logical_error_rate < static_b0_logical_error_rate",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-015$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-015.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-015.json"
+  ],
+  "duration_ms": 1377.711,
+  "failure_classification": null
+}

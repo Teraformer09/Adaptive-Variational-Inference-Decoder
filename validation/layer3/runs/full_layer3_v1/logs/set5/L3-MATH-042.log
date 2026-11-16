@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-MATH-042
+Test Name: llr_q78_bp_decoder_degeneracy_steering
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/custom_engine/cycle_accurate_bp_engine.cpp
+Implementation Function: wrd_write_all_weights, wrd_commit, CycleAccurateBPEngine::decode
+Execution Command: ctest --test-dir build/layer3 -R "^L3-MATH-042$" --output-on-failure
+Fixture: 
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

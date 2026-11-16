@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-042",
+  "test_name": "llr_q78_bp_decoder_degeneracy_steering",
+  "test_description": "Commit distinct Q7.8 priors through wrd_handle_t and verify CycleAccurateBPEngine steers degenerate X-syndrome sx=0x2 between q2 and q5",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/custom_engine/cycle_accurate_bp_engine.cpp",
+  "implementation_function": "wrd_write_all_weights, wrd_commit, CycleAccurateBPEngine::decode",
+  "input_contract": "",
+  "independent_oracle": "Low LLR on q2 selects corr_mask==(1<<2); low LLR on q5 selects corr_mask==(1<<5)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-042$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "degenerate_sx2_steering": "q2 hot -> 0x0004, q5 hot -> 0x0020"
+  },
+  "actual": {
+    "corr_masks": "4, 32"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-042.log",
+    "validation/layer3/raw_results/set5/L3-MATH-042.json"
+  ],
+  "duration_ms": 4.258,
+  "failure_classification": null
+}

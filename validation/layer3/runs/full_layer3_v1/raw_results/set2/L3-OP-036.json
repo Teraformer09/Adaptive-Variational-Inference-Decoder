@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-036",
+  "test_name": "daemon_runtime_counters_ledger_parity",
+  "test_description": "Compare validator_valid_packets, decoded_rtl_transactions, epochs_completed, and weight_bank_commits against exact 512-round ledger",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_daemon telemetry ledger",
+  "input_contract": "",
+  "independent_oracle": "valid==512, decoded==512, epochs==2, weight_bank_commits==3 (1 boot + 2 adaptive)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-036$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "ledger_512_256": "valid=512, decoded=512, epochs=2, commits=3"
+  },
+  "actual": {
+    "ledger_512_256": "Exact match"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-036.log",
+    "validation/layer3/raw_results/set2/L3-OP-036.json"
+  ],
+  "duration_ms": 29.149,
+  "failure_classification": null
+}

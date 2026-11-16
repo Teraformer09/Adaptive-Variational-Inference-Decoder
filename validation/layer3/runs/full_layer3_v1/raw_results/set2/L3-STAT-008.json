@@ -1,0 +1,31 @@
+{
+  "test_id": "L3-STAT-008",
+  "test_name": "prior_lambda_bias_variance_shrinkage",
+  "test_description": "Sweep prior_lambda in {0.0, 0.04, 0.5, 5.0} over >=30 shared-histogram seeds to verify monotone shrinkage & variance drop",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_nll_from_histogram",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Strict monotone decrease in ||theta_hat - prior_theta||_2 and lower variance at high lambda",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_prior_sensitivity.py --test-id L3-STAT-008 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "monotone_shrinkage_to_prior": "True",
+    "variance_reduced_at_high_lambda": "True"
+  },
+  "actual": {
+    "dist_to_prior_lam_0_004_05_5": "[0.087717, 0.08734, 0.083467, 0.062466]",
+    "var_z4_lam_0_004_05_5": "[0.00030093, 0.00029652, 0.00025232, 0.00010206]"
+  },
+  "assertion_notes": [
+    "Prior sweep lambda=[0,0.04,0.5,5.0]: ||theta-theta0||=[0.08771669943, 0.08733996416, 0.08346694724, 0.06246585332], var_z4=[0.0003009301967, 0.0002965247123, 0.0002523238984, 0.0001020639745]"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-008.json",
+    "logs/set2/L3-STAT-008.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 81.542
+}

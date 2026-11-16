@@ -1,0 +1,38 @@
+{
+  "schema_version": "2.0.0",
+  "generated_at_utc": "2026-11-16T12:58:01Z",
+  "run_id": "full_layer3_v1",
+  "baseline_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "results_file": "validation/layer3/runs/full_layer3_v1/results/layer3_full_results.json",
+  "results_sha256": "47efe53a930f7467a5716d493cb1426211d110d1c56d2f9c1a96f3f37be73538",
+  "set1_results_file": "validation/layer3/runs/full_layer3_v1/results/set1_input_contracts.json",
+  "set1_results_sha256": "198c1ff05ecebaf87e9bf2dfddbbd968727428fd304e6a1a5bc08806bd8f4619",
+  "canonical_status_counts": {
+    "PASS": 243
+  },
+  "per_set_status_counts": {
+    "set1_input_contracts": {
+      "PASS": 40
+    },
+    "set2_output_statistics": {
+      "PASS": 51
+    },
+    "set3_pipeline_flow": {
+      "PASS": 45
+    },
+    "set4_execution_recovery": {
+      "PASS": 45
+    },
+    "set5_control_mathematics": {
+      "PASS": 62
+    }
+  },
+  "c_abi_status_counts": {
+    "PASS": 7
+  },
+  "supplementary_status_counts": {
+    "PASS": 7
+  },
+  "asan_ubsan_suite_executed": true
+}

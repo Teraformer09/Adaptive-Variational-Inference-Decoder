@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-019",
+  "test_name": "busy_decoder_commit_deferral_protection",
+  "test_description": "Lock emulated status_reg with commit_pending=1 (bp_ready=0) and verify wrd_commit_and_wait times out without corrupting active weights",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/driver/weight_reg_driver.c",
+  "implementation_function": "wrd_commit_and_wait",
+  "input_contract": "",
+  "independent_oracle": "wrd_commit_and_wait returns -1 when status_reg stays busy; prior active bank remains intact",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-019$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-019.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-019.json"
+  ],
+  "duration_ms": 0.166,
+  "failure_classification": null
+}

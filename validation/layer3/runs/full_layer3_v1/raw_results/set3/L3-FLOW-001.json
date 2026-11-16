@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-FLOW-001",
+  "test_name": "packet_ingress_to_histogram_continuity",
+  "test_description": "Pack known 64-bit sequence (s_x in {0,6}, s_z in {0,9}), push into DMA ring, consume slot, verify exact bin deltas",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_push_burst -> avid_dma_ring_consume_slot",
+  "input_contract": "",
+  "independent_oracle": "hist_x[0]==40, hist_x[6]==24, hist_z[0]==45, hist_z[9]==19, valid_packets==64",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-001$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "hist_x_6": "24",
+    "hist_z_9": "19"
+  },
+  "actual": {
+    "hist_x_6": "24",
+    "hist_z_9": "19"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-001.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-001.json"
+  ],
+  "duration_ms": 0.048,
+  "failure_classification": null
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-033",
+  "test_name": "daemon_health_exit_code_contract",
+  "test_description": "Run avid_daemon --self-test vs invalid CLI and verify exit code 0 vs 2",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_daemon main(--self-test / bad CLI)",
+  "input_contract": "",
+  "independent_oracle": "self-test rc==0; bad CLI rc==2",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-033$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "rc_ok_and_bad": "0, 2"
+  },
+  "actual": {
+    "rc_ok_and_bad": "0, 2"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-033.log",
+    "validation/layer3/raw_results/set2/L3-OP-033.json"
+  ],
+  "duration_ms": 41.799,
+  "failure_classification": null
+}

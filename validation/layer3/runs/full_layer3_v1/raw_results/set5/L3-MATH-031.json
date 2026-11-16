@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-031",
+  "test_name": "monte_carlo_se_vs_asymptotic_inverse_hessian",
+  "test_description": "Compare 30-trial Monte Carlo empirical SD on singleton Z_4 against asymptotic inverse-Fisher SE",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram",
+  "input_contract": "",
+  "independent_oracle": "Empirical SD within [0.5 * SE_asymp, 1.8 * SE_asymp] for 30 trials at N=4000",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-031$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "se_asymp": "0.00357901"
+  },
+  "actual": {
+    "emp_sd_30_trials": "0.00291138"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-031.log",
+    "validation/layer3/raw_results/set5/L3-MATH-031.json"
+  ],
+  "duration_ms": 54.143,
+  "failure_classification": null
+}

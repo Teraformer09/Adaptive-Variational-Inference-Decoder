@@ -1,0 +1,4 @@
+[L3-ABI-002] c_abi_histogram_dma_ring — status=PASS checks_run=10 checks_failed=0 duration_ms=0.198
+Expected: C11/C++17 struct layout parity AND unmangled extern "C" symbol linkage for dma_ingress_tap.h
+Actual:   Layouts match (avid_dma_ring_t=2304 B, ring_buffer_t=80008 B); dlsym("avid_dma_ring_init")=FOUND, mangled=NULL
+  note[0]: dlsym("avid_dma_ring_init") resolved and direct C11 call succeeded

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-FLOW-002",
+  "test_name": "histogram_to_observation_window_rollover_and_reset",
+  "test_description": "Accumulate 256 rounds across 4x64 DMA slots, verify snapshot sum == 256 and post-snapshot zero reset",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot -> avid_dma_ring_snapshot_and_reset",
+  "input_contract": "",
+  "independent_oracle": "sum(snap_hx)==256, sum(snap_hz)==256, post-reset sum == 0",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-002$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "snapshot_sum": "256"
+  },
+  "actual": {
+    "snapshot_sum": "256"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-002.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-002.json"
+  ],
+  "duration_ms": 0.061,
+  "failure_classification": null
+}

@@ -1,0 +1,4 @@
+[L3-STAT-013] short_burst_dilution_vs_fast_subwindow_trigger -> PASS (82.40 ms)
+expected={"slow_10k_dilution_shift_max": 0.01, "fast_detector_lag_in_4_20_rounds": true}
+actual={"slow_z4_shift_mean": 0.001175, "fast_trigger_lag_mean": 10.594, "fast_trigger_lag_max": 14}
+60/10000 burst dilution shift=0.00118; fast 16-round detector lag=10.59 rounds (<=20)

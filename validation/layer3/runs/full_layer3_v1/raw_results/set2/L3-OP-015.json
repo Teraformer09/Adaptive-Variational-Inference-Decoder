@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-015",
+  "test_name": "llr_zero_probability_handling",
+  "test_description": "Pass p=0.0 into scalar and bank quantizer and verify finite safe fallback",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr, avid_quantize_and_validate_bank",
+  "input_contract": "",
+  "independent_oracle": "Scalar clamps to 1e-5 (2947); bank returns false and writes AVID_Q78_DEFAULT",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-015$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "zero_prob_bank_slot": "1128"
+  },
+  "actual": {
+    "zero_prob_bank_slot": "1128"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-015.log",
+    "validation/layer3/raw_results/set2/L3-OP-015.json"
+  ],
+  "duration_ms": 0.070,
+  "failure_classification": null
+}

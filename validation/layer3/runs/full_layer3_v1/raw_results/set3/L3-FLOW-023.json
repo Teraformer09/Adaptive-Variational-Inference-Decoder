@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-023",
+  "test_name": "multiple_update_cycles_12_epochs",
+  "test_description": "Run 12 consecutive slow-loop epochs (--rounds 3072 --window 256)",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (12 epochs)",
+  "input_contract": "",
+  "independent_oracle": "epochs_completed == 12, initial_boot_commits == 1, adaptive_epoch_commits == 12, weight_bank_commits == 13",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-023$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-023.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-023.json"
+  ],
+  "duration_ms": 51.617,
+  "failure_classification": null
+}

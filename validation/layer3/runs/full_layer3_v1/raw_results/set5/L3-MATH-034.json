@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-034",
+  "test_name": "llr_sign_convention_contract",
+  "test_description": "Verify p < 0.5 => positive Q7.8 LLR (0-bit preferred) and monotonic non-increasing LLR with increasing p",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr",
+  "input_contract": "",
+  "independent_oracle": "q78(p) > 0 for all p in (0, 0.49] and strictly decreasing across discrete steps",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-034$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "sign_and_monotonicity": "Positive and strictly decreasing on [1e-5 .. 0.49]"
+  },
+  "actual": {
+    "q78_at_0_49": "10"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-034.log",
+    "validation/layer3/raw_results/set5/L3-MATH-034.json"
+  ],
+  "duration_ms": 0.075,
+  "failure_classification": null
+}

@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-FLOW-003
+Test Name: observation_window_to_estimator_snapshot_sensitivity
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp
+Implementation Function: NoiseModel::compute_nll_from_histogram, HistogramLBFGSSolver::fit_histogram
+Execution Command: ctest --test-dir build/layer3 -R "^L3-FLOW-003$" --output-on-failure
+Fixture: 
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

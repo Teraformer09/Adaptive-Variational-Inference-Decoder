@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-003",
+  "test_name": "daemon_self_test_and_baseline_suite",
+  "test_description": "Execute avid_daemon --self-test and build+run test_baseline_suite from repo root",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp, software/tests/test_baseline_suite.cpp",
+  "implementation_function": "main (--self-test) + test_baseline_suite",
+  "input_contract": "",
+  "independent_oracle": "Both exit 0 and print Self-test passed and [ALL C++ BASELINE TESTS PASSED]",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-003$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-003.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-003.json"
+  ],
+  "duration_ms": 27711.096,
+  "failure_classification": null
+}

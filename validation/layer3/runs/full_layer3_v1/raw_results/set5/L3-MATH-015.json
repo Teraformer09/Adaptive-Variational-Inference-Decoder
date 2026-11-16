@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-015",
+  "test_name": "lbfgs_box_bound_invariance",
+  "test_description": "Verify [1e-5, 0.45] box constraint invariance at every intermediate and final iterate from extreme starts",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram, HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "All 21 coordinates remain strictly inside [1e-5, 0.45]",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-015$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "bounds": "All iterates strictly in [1e-5, 0.45]"
+  },
+  "actual": {
+    "bounds": "Verified across 30 extreme low/high step iterates"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-015.log",
+    "validation/layer3/raw_results/set5/L3-MATH-015.json"
+  ],
+  "duration_ms": 0.827,
+  "failure_classification": null
+}

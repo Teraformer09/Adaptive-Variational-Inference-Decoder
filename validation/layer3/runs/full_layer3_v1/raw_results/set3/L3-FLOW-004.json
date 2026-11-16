@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-FLOW-004",
+  "test_name": "estimator_to_optimizer_two_pass_contract",
+  "test_description": "Verify fit_histogram propagates basis_z flag, priors, bounds [1e-5,0.45], and two-pass refinement into LBFGSOptimizer",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp, software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram -> LBFGSOptimizer::step_histogram",
+  "input_contract": "",
+  "independent_oracle": "diag.final_joint_dp_nll <= diag.initial_nll, X vs Z basis produce distinct priors (0.012 vs 0.005), bounds preserved",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-004$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "converged": "true"
+  },
+  "actual": {
+    "converged": "true"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-004.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-004.json"
+  ],
+  "duration_ms": 0.945,
+  "failure_classification": null
+}

@@ -1,0 +1,33 @@
+{
+  "test_id": "L3-STAT-014",
+  "test_name": "stationary_false_trigger_rate_50k_rounds",
+  "test_description": "Stream 50,000 stationary low-noise rounds across >=30 seeds through avid_fast_burst_detector_t and measure false-alarm rate",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Empirical false-alarm rate <= 1e-4 per round across 1.6M total stationary rounds",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_false_trigger_rate.py --test-id L3-STAT-014 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "mean_false_alarm_rate_max": "0.0001",
+    "p95_false_alarm_rate_max": "0.0002"
+  },
+  "actual": {
+    "p_nonzero": "0.062021",
+    "mean_triggers_per_50k": "1.4688",
+    "mean_false_alarm_rate": "2.938e-05",
+    "p95_false_alarm_rate": "6e-05"
+  },
+  "assertion_notes": [
+    "32x50,000=1.6M stationary rounds: mean false triggers=1.469, rate=2.94e-05"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-014.json",
+    "logs/set2/L3-STAT-014.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 106.07
+}

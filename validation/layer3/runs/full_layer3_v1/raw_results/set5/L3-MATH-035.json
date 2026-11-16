@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-035",
+  "test_name": "llr_q78_scale_factor_256",
+  "test_description": "Verify exact 2^8 = 256.0 Q7.8 scale factor at LLR = 1.0, 2.5, and 4.0",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr, wrd_float_to_q78",
+  "input_contract": "",
+  "independent_oracle": "LLR {1.0, 2.5, 4.0} -> Q7.8 {256, 640, 1024}",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-035$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "q78_1_2p5_4": "256, 640, 1024"
+  },
+  "actual": {
+    "q78_1_2p5_4": "256, 640, 1024"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-035.log",
+    "validation/layer3/raw_results/set5/L3-MATH-035.json"
+  ],
+  "duration_ms": 0.069,
+  "failure_classification": null
+}

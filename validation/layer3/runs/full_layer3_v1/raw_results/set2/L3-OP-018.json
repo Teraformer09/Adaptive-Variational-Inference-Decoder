@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-018",
+  "test_name": "llr_roundtrip_conversion_accuracy",
+  "test_description": "Verify round-trip LLR error |q78/256.0 - LLR| <= 1/512 + eps over [1e-4, 0.42]",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr",
+  "input_contract": "",
+  "independent_oracle": "Max LLR round-trip error <= 1/512 + 1e-12",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-018$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "max_roundtrip_llr_err": "<= 1/512"
+  },
+  "actual": {
+    "max_roundtrip_llr_err": "0.00193965"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-018.log",
+    "validation/layer3/raw_results/set2/L3-OP-018.json"
+  ],
+  "duration_ms": 0.127,
+  "failure_classification": null
+}

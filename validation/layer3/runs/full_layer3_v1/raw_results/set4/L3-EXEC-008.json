@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-008",
+  "test_name": "long_running_daemon_50k_rounds_rss_stability",
+  "test_description": "Run avid_daemon for 50,000 rounds (~195 epochs) vs 1,024 rounds and compare peak RSS",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (50,000 rounds)",
+  "input_contract": "",
+  "independent_oracle": "Exit 0, all 50,000 rounds decoded, and RSS growth < 16 MB (zero unbounded memory leaks)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-008$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-008.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-008.json"
+  ],
+  "duration_ms": 613.943,
+  "failure_classification": null
+}

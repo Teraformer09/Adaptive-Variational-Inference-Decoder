@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-ABI-006",
+  "test_name": "c_abi_null_pointer_safety",
+  "test_description": "Verify C11 null-pointer handling across public extern \"C\" entrypoints using fork()-isolated probes",
+  "test_set": "set1_c_abi",
+  "status": "PASS",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, estimator/llr_quantizer.cpp, driver/weight_bank_driver.c",
+  "implementation_function": "avid_validator_init, avid_unpack_packet_u64, avid_validate_packet, avid_quantize_and_validate_bank, avid_weight_bank_write_and_commit",
+  "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+  "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+  "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+  "expected": {
+    "summary": "Zero SIGSEGV/SIGABRT crashes when NULL pointers are passed across C ABI entrypoints"
+  },
+  "actual": {
+    "summary": "avid_weight_bank_write_and_commit(NULL)=-1 and all 9/9 C ABI NULL probes guarded safely (0 crashes)",
+    "checks_run": "10",
+    "checks_failed": "0"
+  },
+  "assertion_notes": [],
+  "evidence": ["validation/layer3/logs/set1/L3-ABI-006.log"],
+  "failure_classification": "",
+  "duration_ms": 15.212
+}

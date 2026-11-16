@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-001",
+  "test_name": "clean_cpp_cmake_build_from_scratch",
+  "test_description": "Configure and build software/CMakeLists.txt in a clean temporary directory",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/CMakeLists.txt",
+  "implementation_function": "cmake configure + build",
+  "input_contract": "",
+  "independent_oracle": "CMake exits 0 and emits executable avid_daemon and test_baseline_suite binaries",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-001$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-001.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-001.json"
+  ],
+  "duration_ms": 41082.511,
+  "failure_classification": null
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-001",
+  "test_name": "map_estimator_output_dimensions",
+  "test_description": "Verify fitted parameter vector length == 21 (9 single-qubit [0..8] + 12 crosstalk pair [9..20])",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.h, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "params().size() == 21, NM_N_QUBIT == 9, NM_N_CROSSTALK == 12",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-001$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "param_dim": "21"
+  },
+  "actual": {
+    "param_dim": "21"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-001.log",
+    "validation/layer3/raw_results/set2/L3-OP-001.json"
+  ],
+  "duration_ms": 0.410,
+  "failure_classification": null
+}

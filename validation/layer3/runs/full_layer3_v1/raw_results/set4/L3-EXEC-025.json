@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-025",
+  "test_name": "optimizer_non_convergence_commit_guard",
+  "test_description": "Run solver and avid_daemon with --lbfgs-max-iters 0 so diag.converged==false",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "fit_histogram(max_iters=0) + --lbfgs-max-iters 0",
+  "input_contract": "",
+  "independent_oracle": "diag.converged==false triggers fallback_events >= 1 and blocks un-converged adaptive commits",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-025$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-025.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-025.json"
+  ],
+  "duration_ms": 25.548,
+  "failure_classification": null
+}

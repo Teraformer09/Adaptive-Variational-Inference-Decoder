@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-010",
+  "test_name": "map_estimator_insufficient_evidence_guard",
+  "test_description": "Feed total=0 empty histogram and total=5 (< W_min=64) sparse histogram and verify solver refuses adaptation cleanly",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "total=0 -> nll=0, converged=false; total=5 (<64) -> iterations=0, converged=false, theta preserved",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-010$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "w_min_64_guard": "Both total=0 and total=5 set converged=false and preserve theta"
+  },
+  "actual": {
+    "w_min_64_guard": "Verified"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-010.log",
+    "validation/layer3/raw_results/set2/L3-OP-010.json"
+  ],
+  "duration_ms": 0.091,
+  "failure_classification": null
+}

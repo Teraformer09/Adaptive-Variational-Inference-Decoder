@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-022",
+  "test_name": "recovery_after_fallback_to_normal_adaptive",
+  "test_description": "Run fallback_safety_trigger across 4 epochs (Epoch 1 faulted, Epochs 2..4 healthy) and check final_fsm_state",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp, software/src/control/fallback_fsm.cpp",
+  "implementation_function": "main (fallback_safety_trigger -> healthy epochs)",
+  "input_contract": "",
+  "independent_oracle": "fallback_events >= 1 on Epoch 1, then daemon recovers to final_fsm_state == 0 (NORMAL_ADAPTIVE) and reconciles commits",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-022$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-022.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-022.json"
+  ],
+  "duration_ms": 30.630,
+  "failure_classification": null
+}

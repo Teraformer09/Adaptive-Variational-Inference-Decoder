@@ -1,0 +1,30 @@
+{
+  "test_id": "L3-IP-002",
+  "test_name": "packet_length_and_wire_contract",
+  "test_description": "Packet length — evaluate 0, 3, 7, 8, 9, 15, and 24-byte buffers against 64-bit C API and syndrome_packet_v1.yaml (16B header + 4B round word)",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/packet_validator.h",
+  "implementation_function": "avid_validate_packet vs syndrome_packet_v1.yaml",
+  "input_contract": "Exact packet framing length validation across wire formats",
+  "independent_oracle": "architecture/contracts/syndrome_packet_v1.yaml vs packet_validator.h signature inspection",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-002$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/invalid/short_7B.bin",
+  "expected": {
+    "wire_contract": "Exact 8-byte packet framing in syndrome_packet_v1.yaml & packet_validator.h; non-8-byte packet buffers rejected"
+  },
+  "actual": {
+    "c_unpacked_struct_bytes": "12",
+    "c_wire_size_bytes": "8 (AVID_PACKET_WIRE_BYTES=8; avid_validate_packet_bytes & avid_validate_stream_framing)",
+    "yaml_contract_bytes": "8-byte little-endian uint64_t DMA packet + 16-bit AXI-Stream RTL word"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-002.log",
+    "validation/layer3/raw_results/set1/L3-IP-002.json",
+    "validation/layer3/reports/packet_contract_decision.md"
+  ],
+  "duration_ms": 4.147,
+  "failure_classification": null
+}

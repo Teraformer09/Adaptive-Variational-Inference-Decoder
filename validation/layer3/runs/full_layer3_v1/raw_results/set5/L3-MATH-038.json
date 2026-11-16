@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-038",
+  "test_name": "llr_q78_dequantization_roundtrip",
+  "test_description": "Reconstruct p_deq = 1 / (1 + exp(q78 / 256.0)) across physical probability range [1e-4, 0.40]",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr",
+  "input_contract": "",
+  "independent_oracle": "Max probability reconstruction error |p_deq - p| < 5e-4",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-038$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "max_prob_roundtrip_err": "< 5e-4"
+  },
+  "actual": {
+    "max_prob_roundtrip_err": "0.000432836"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-038.log",
+    "validation/layer3/raw_results/set5/L3-MATH-038.json"
+  ],
+  "duration_ms": 0.132,
+  "failure_classification": null
+}

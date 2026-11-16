@@ -1,0 +1,32 @@
+{
+  "test_id": "L3-MATH-025",
+  "test_name": "jacobian_svd_rank_nine_orbits",
+  "test_description": "Compute 16x21 sensitivity Jacobian dP(s|theta)/dtheta_e and verify exact algebraic rank == 9",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_joint_distribution",
+  "input_contract": "",
+  "independent_oracle": "Eigen::JacobiSVD singular values: exactly 9 > 1e-4 and remaining <= 1e-11",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-025$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "effective_rank": "9"
+  },
+  "actual": {
+    "rank_x_basis": "9",
+    "rank_z_basis": "9",
+    "sigma10_x": "5.35592e-10",
+    "sigma10_z": "7.9692e-10",
+    "sigma9_x": "0.79708",
+    "sigma9_z": "0.79708"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-025.log",
+    "validation/layer3/raw_results/set5/L3-MATH-025.json"
+  ],
+  "duration_ms": 0.879,
+  "failure_classification": null
+}

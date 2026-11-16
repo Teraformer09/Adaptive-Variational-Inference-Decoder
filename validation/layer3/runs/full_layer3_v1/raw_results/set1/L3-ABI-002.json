@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-ABI-002",
+  "test_name": "c_abi_histogram_dma_ring",
+  "test_description": "Verify C11 struct layout of avid_dma_ring_t & ring_buffer_t and test C symbol linkage of dma_ingress_tap.h",
+  "test_set": "set1_c_abi",
+  "status": "PASS",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.h, software/src/inference/ring_buffer.h",
+  "implementation_function": "avid_dma_ring_init, avid_dma_ring_push_burst, avid_dma_ring_consume_slot, ring_init, ring_push, ring_at",
+  "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+  "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+  "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+  "expected": {
+    "summary": "C11/C++17 struct layout parity AND unmangled extern \"C\" symbol linkage for dma_ingress_tap.h"
+  },
+  "actual": {
+    "summary": "Layouts match (avid_dma_ring_t=2304 B, ring_buffer_t=80008 B); dlsym(\"avid_dma_ring_init\")=FOUND, mangled=NULL",
+    "checks_run": "10",
+    "checks_failed": "0"
+  },
+  "assertion_notes": ["dlsym(\"avid_dma_ring_init\") resolved and direct C11 call succeeded"],
+  "evidence": ["validation/layer3/logs/set1/L3-ABI-002.log"],
+  "failure_classification": "",
+  "duration_ms": 0.198
+}

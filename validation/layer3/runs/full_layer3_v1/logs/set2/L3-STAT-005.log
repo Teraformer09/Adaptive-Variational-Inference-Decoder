@@ -1,0 +1,4 @@
+[L3-STAT-005] measurement_noise_misspecification_bias -> PASS (88.57 ms)
+expected={"meas_upward_bias_detected": true, "bounded_bias_max": 0.06}
+actual={"clean_bias": -0.002773, "meas_noisy_bias": 0.000353, "clean_mse": 8.17e-06, "meas_mse": 7.9e-07}
+Phenomenological readout p_m=0.012 shifts bias from -0.00277 to +0.00035

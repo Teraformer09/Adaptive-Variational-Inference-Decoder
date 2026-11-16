@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-043",
+  "test_name": "scheduler_evidence_timestamp_accounting",
+  "test_description": "Verify exact window_end_round and pending_commit_round == window_end_round + commit_delay_rounds",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_schedule_commit, avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "last_scheduled_window_end == 512 and pending_commit_round == 544 for delay=32",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-043$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "pending_commit_round": "544"
+  },
+  "actual": {
+    "pending_commit_round": "544"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-043.log",
+    "validation/layer3/raw_results/set5/L3-MATH-043.json"
+  ],
+  "duration_ms": 0.048,
+  "failure_classification": null
+}

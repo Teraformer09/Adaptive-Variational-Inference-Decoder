@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-049",
+  "test_name": "scheduler_and_detector_reset_invariants",
+  "test_description": "Re-initialize scheduler and fast burst detector mid-operation and verify all pending/ring/debounce state clears",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_init, avid_fast_detector_init",
+  "input_contract": "",
+  "independent_oracle": "has_pending_commit==false, active_epoch_id==0, ring_sum==0, debounce_counter==0",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-049$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "post_reset_state": "All counters and pending flags == 0"
+  },
+  "actual": {
+    "post_reset_state": "Verified clean"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-049.log",
+    "validation/layer3/raw_results/set5/L3-MATH-049.json"
+  ],
+  "duration_ms": 0.052,
+  "failure_classification": null
+}

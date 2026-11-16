@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-013",
+  "test_name": "optimizer_diagnostics_persistence",
+  "test_description": "Verify final_nll, legacy_marginal_nll, lbfgs_iterations, and lbfgs_grad_inf_norm persist cleanly",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "LBFGSFitDiagnostics -> metrics JSON",
+  "input_contract": "",
+  "independent_oracle": "final_nll > 0, legacy_marginal_nll > 0, lbfgs_iterations > 0, finite lbfgs_grad_inf_norm",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-013$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-013.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-013.json"
+  ],
+  "duration_ms": 27.145,
+  "failure_classification": null
+}

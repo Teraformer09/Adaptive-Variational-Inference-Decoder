@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-045",
+  "test_name": "timing_overrun_profiler_to_hold_last_good",
+  "test_description": "Configure avid_stage_profiler_t with 0.01 us deadline and avid_daemon --slow-deadline-us 0.01",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/stage_profiler.cpp, software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_profiler_end (1.0 us budget) -> avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "avid_profiler_end returns false, deadline_misses > 0, and FSM enters HOLD_LAST_GOOD (should_commit==false)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-045$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-045.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-045.json"
+  ],
+  "duration_ms": 87.959,
+  "failure_classification": null
+}

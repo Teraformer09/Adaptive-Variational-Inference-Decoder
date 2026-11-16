@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-011",
+  "test_name": "shadow_bank_to_hal_commit_atomic_swap_and_readback",
+  "test_description": "Write distinct X and Z Q7.8 banks via HAL commit, read 0x050 epoch and 0x100..0x144 active registers",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/hal/physical_backend.cpp, software/src/driver/weight_reg_driver.c",
+  "implementation_function": "avid_hal_write_weights_and_commit -> avid_hal_mmio_read",
+  "input_contract": "",
+  "independent_oracle": "hw_epoch increments by 1 and active X (0x100..0x120) != active Z (0x124..0x144) match committed arrays",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-011$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-011.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-011.json"
+  ],
+  "duration_ms": 0.422,
+  "failure_classification": null
+}

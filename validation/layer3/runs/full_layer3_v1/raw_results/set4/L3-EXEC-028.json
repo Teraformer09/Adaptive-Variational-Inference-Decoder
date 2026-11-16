@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-028",
+  "test_name": "quantization_overflow_and_safe_floor_saturation",
+  "test_description": "Evaluate extreme p=1e-12 and near-half p=0.489 (raw Q7.8=11 < 0x0040) through quantizer",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr + avid_quantize_and_validate_bank",
+  "input_contract": "",
+  "independent_oracle": "p=1e-12 clamps deterministically at 1e-5 (2947 <= 0x3000); p=0.489 flags all_safe=false and clamps to 0x0040",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-028$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-028.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-028.json"
+  ],
+  "duration_ms": 0.069,
+  "failure_classification": null
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-021",
+  "test_name": "burst_detector_boolean_indication",
+  "test_description": "Drive avid_fast_burst_detector_t with calm sx=0 then dense sx=0x2 and verify burst_active & step return",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "Calm: burst_active==false; dense: step returns true once and burst_active==true",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-021$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "fired_and_active": "true, true"
+  },
+  "actual": {
+    "fired_and_active": "true, true"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-021.log",
+    "validation/layer3/raw_results/set2/L3-OP-021.json"
+  ],
+  "duration_ms": 0.045,
+  "failure_classification": null
+}

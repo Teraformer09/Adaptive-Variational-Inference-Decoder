@@ -1,0 +1,29 @@
+{
+  "test_id": "L3-MATH-026",
+  "test_name": "multinomial_fisher_information_eigenspectrum",
+  "test_description": "Compute 21x21 multinomial Fisher Information Matrix I(theta) and verify PSD spectrum with 9 positive eigenvalues",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_joint_distribution",
+  "input_contract": "",
+  "independent_oracle": "9 positive eigenvalues > 1.0 and 12 null eigenvalues ~ 0 (< 1e-10)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-026$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "positive_and_null_eigenvalues": "9 positive, 12 null"
+  },
+  "actual": {
+    "eig_12_largest_null": "3.96e-14",
+    "eig_13_smallest_pos": "44.6771",
+    "max_eigenvalue": "101.459"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-026.log",
+    "validation/layer3/raw_results/set5/L3-MATH-026.json"
+  ],
+  "duration_ms": 0.753,
+  "failure_classification": null
+}

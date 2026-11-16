@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-032",
+  "test_name": "fsm_recovery_eligibility_gating",
+  "test_description": "Verify faulty steps hold FSM out of NORMAL_ADAPTIVE while 1 clean contiguous window restores NORMAL_ADAPTIVE",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "Faulty steps stay in HOLD/SAFE_STATIC; all-4-true step restores NORMAL_ADAPTIVE",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-032$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "recovery": "Blocked while faulty, restored on clean window"
+  },
+  "actual": {
+    "recovery": "Verified"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-032.log",
+    "validation/layer3/raw_results/set2/L3-OP-032.json"
+  ],
+  "duration_ms": 0.042,
+  "failure_classification": null
+}

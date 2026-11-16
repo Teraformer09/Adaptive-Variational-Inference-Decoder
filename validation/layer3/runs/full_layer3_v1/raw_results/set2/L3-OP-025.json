@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-025",
+  "test_name": "scheduler_epoch_id_monotonic_assignment",
+  "test_description": "Verify active_epoch_id increments 0 -> 1 -> 2 across sequential committed weight banks",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_poll_commit_ready",
+  "input_contract": "",
+  "independent_oracle": "active_epoch_id == {0, 1, 2} with matching bank payloads",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-025$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "epoch_progression": "0 -> 1 -> 2"
+  },
+  "actual": {
+    "final_epoch": "2"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-025.log",
+    "validation/layer3/raw_results/set2/L3-OP-025.json"
+  ],
+  "duration_ms": 0.045,
+  "failure_classification": null
+}

@@ -1,0 +1,35 @@
+{
+  "test_id": "L3-STAT-002",
+  "test_name": "multi_parameter_joint_recovery",
+  "test_description": "Jointly vary theta[1], theta[4], theta[7] across >=30 seeds and measure orbit/param RMSE and KL",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_orbit_rmse",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "orbit_rmse <= 0.020, singleton_rmse <= 0.020, KL <= 0.020",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_stationary_recovery.py --test-id L3-STAT-002 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "orbit_rmse_mean_max": "0.02",
+    "singleton_rmse_mean_max": "0.02",
+    "kl_mean_max": "0.02"
+  },
+  "actual": {
+    "orbit_rmse_mean": "0.003121",
+    "orbit_rmse_ci95": "[0.00268, 0.00356]",
+    "param_rmse_mean": "0.004851",
+    "singleton_rmse_mean": "0.003756",
+    "kl_mean": "0.002281"
+  },
+  "assertion_notes": [
+    "Joint 32-seed recovery: orbit_rmse=0.003121, kl=0.002281"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-002.json",
+    "logs/set2/L3-STAT-002.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 61.251
+}

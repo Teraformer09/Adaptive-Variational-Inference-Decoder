@@ -1,0 +1,32 @@
+{
+  "test_id": "L3-STAT-013",
+  "test_name": "short_burst_dilution_vs_fast_subwindow_trigger",
+  "test_description": "Inject 60-round burst inside 10,000-round stationary window across >=30 seeds contrasting 0.6% slow MAP dilution vs <=20-round fast detector",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Slow 10k-window MAP shift <= 0.010 while fast 16-round detector triggers within [4, 20] rounds across all seeds",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_burst_contamination.py --test-id L3-STAT-013 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "slow_10k_dilution_shift_max": "0.01",
+    "fast_detector_lag_in_4_20_rounds": "True"
+  },
+  "actual": {
+    "slow_z4_shift_mean": "0.001175",
+    "fast_trigger_lag_mean": "10.594",
+    "fast_trigger_lag_max": "14"
+  },
+  "assertion_notes": [
+    "60/10000 burst dilution shift=0.00118; fast 16-round detector lag=10.59 rounds (<=20)"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-013.json",
+    "logs/set2/L3-STAT-013.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 82.399
+}

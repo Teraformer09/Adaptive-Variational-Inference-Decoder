@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-042",
+  "test_name": "commit_propagation_bitwise_equivalence",
+  "test_description": "Write bankA then bankB != bankA and commit; read active register bank",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/driver/weight_reg_driver.c",
+  "implementation_function": "wrd_write_all_weights + wrd_commit_and_wait",
+  "input_contract": "",
+  "independent_oracle": "Active register bank equals bankB bitwise across all 9 qubits",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-042$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-042.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-042.json"
+  ],
+  "duration_ms": 0.306,
+  "failure_classification": null
+}

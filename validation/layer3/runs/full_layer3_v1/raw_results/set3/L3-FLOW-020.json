@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-020",
+  "test_name": "variable_iteration_control_mmio_and_cycles",
+  "test_description": "Run variable_k_adaptation over mock Unix bridge and verify K in {1..5} writes to 0x054 and 2+5*K BP cycles",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp, software/src/hal/simulation_backend.cpp",
+  "implementation_function": "avid_hal_set_bp_iterations (0x054)",
+  "input_contract": "",
+  "independent_oracle": "bp_core_cycles_min >= 7, bp_core_cycles_max <= 27, and K spans multiple iteration counts",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-020$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-020.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-020.json"
+  ],
+  "duration_ms": 1352.310,
+  "failure_classification": null
+}

@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-OP-012
+Test Name: llr_q78_golden_reference_table
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/estimator/llr_quantizer.cpp
+Implementation Function: avid_prob_to_q78_llr
+Execution Command: ctest --test-dir build/layer3 -R "^L3-OP-012$" --output-on-failure
+Fixture: 
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

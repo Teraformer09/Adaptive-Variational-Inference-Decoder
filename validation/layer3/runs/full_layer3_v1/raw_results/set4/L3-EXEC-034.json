@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-034",
+  "test_name": "repeated_100x_safety_trigger_stability",
+  "test_description": "Trigger avid_fallback_step with estimator failures for 100 consecutive calls",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "FSM transitions HOLD(1..2) -> SAFE_STATIC_PRIOR(>=3) and remains stable with 0x0468 static weights",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-034$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-034.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-034.json"
+  ],
+  "duration_ms": 0.057,
+  "failure_classification": null
+}

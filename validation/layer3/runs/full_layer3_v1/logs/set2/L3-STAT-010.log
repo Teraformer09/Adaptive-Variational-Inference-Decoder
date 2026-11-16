@@ -1,0 +1,4 @@
+[L3-STAT-010] out_of_model_streak_kl_residual_detection -> PASS (75.31 ms)
+expected={"kl_mismatched_gt_5x_in_model": true, "clean_separation_p05_gt_p95": true}
+actual={"kl_in_model_mean": 0.0015, "kl_mismatched_mean": 0.419258, "kl_in_model_p95": 0.002497, "kl_mismatched_p05": 0.405507}
+KL residual separation: in_model=0.00150 vs out_of_model=0.41926

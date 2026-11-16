@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-017",
+  "test_name": "delayed_weight_commit_reconciliation",
+  "test_description": "Run delayed_weight_commit with --commit-delay 32 over delayed-ack Unix co-sim bridge",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/driver/weight_reg_driver.c, software/src/control/causal_scheduler.cpp",
+  "implementation_function": "main (--commit-delay 32 --scenario delayed_weight_commit)",
+  "input_contract": "",
+  "independent_oracle": "Delayed commits complete cleanly without round loss and epoch_commit_reconciled == true",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-017$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-017.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-017.json"
+  ],
+  "duration_ms": 978.120,
+  "failure_classification": null
+}

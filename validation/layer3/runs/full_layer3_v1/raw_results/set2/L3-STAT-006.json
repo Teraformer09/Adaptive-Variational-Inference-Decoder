@@ -1,0 +1,31 @@
+{
+  "test_id": "L3-STAT-006",
+  "test_name": "sample_size_monotone_variance_shrinkage",
+  "test_description": "Sweep W in {256, 1000, 5000, 20000} across >=30 seeds each and verify monotone variance & orbit RMSE decrease",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Strict monotone decrease of estimator variance and orbit RMSE with W",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_sample_size_sensitivity.py --test-id L3-STAT-006 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "monotone_decreasing_orbit_rmse": "True",
+    "monotone_decreasing_variance": "True"
+  },
+  "actual": {
+    "orbit_rmse_W256_1k_5k_20k": "[0.007769, 0.004061, 0.001813, 0.001079]",
+    "var_z4_W256_1k_5k_20k": "[0.00014367, 5.324e-05, 9.38e-06, 2.71e-06]"
+  },
+  "assertion_notes": [
+    "Monotone shrinkage across W=[256,1k,5k,20k]: orbit_rmse=[0.007769196659, 0.004061069635, 0.001812870895, 0.001079491976], var_z4=[0.0001436702437, 5.323781277e-05, 9.38002018e-06, 2.705895208e-06]"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-006.json",
+    "logs/set2/L3-STAT-006.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 108.851
+}

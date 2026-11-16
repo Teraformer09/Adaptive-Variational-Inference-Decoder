@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-024",
+  "test_name": "concurrent_ingress_and_optimization",
+  "test_description": "Multi-thread harness pushing 200x64-packet bursts while consumer thread snapshots and fits histograms",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "avid_dma_ring_push_burst + avid_dma_ring_consume_slot + fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "Total consumed + overflow_drops * 64 == 12,800 pushed packets; zero corrupted histogram bins",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-024$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-024.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-024.json"
+  ],
+  "duration_ms": 13.863,
+  "failure_classification": null
+}

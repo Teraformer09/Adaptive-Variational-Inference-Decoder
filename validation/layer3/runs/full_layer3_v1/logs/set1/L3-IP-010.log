@@ -1,0 +1,16 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-010
+Test Name: dma_ring_packet_burst_and_overflow
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/ingress/dma_ingress_tap.cpp
+Implementation Function: avid_dma_ring_init, avid_dma_ring_push_burst, avid_dma_ring_consume_slot
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-010$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/valid/burst_64_seq.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+4x64 sequential cadence: total_consumed=256, overflow_drops=0 (PASS).
+5th unconsumed slot burst: returned false, overflow_drops=64 (PASS).
+Oversized n_pkts=100 burst: returned true, consumed=0, overflow_drops=100 -> silently dropped 36 packets without incrementing overflow_drops!
+

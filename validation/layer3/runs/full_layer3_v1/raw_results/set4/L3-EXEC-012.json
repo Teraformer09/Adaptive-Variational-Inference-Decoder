@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-012",
+  "test_name": "noise_estimate_persistence_21_param_and_rmse",
+  "test_description": "Verify 21-parameter final_theta_z, orbit_9class_rmse, param_21_rmse, and final_nll persist in JSON",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (final_theta_z + orbit_9class_rmse)",
+  "input_contract": "",
+  "independent_oracle": "All 21 persisted theta_z coordinates lie strictly in [1e-5, 0.45] with finite RMSE metrics",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-012$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-012.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-012.json"
+  ],
+  "duration_ms": 30.129,
+  "failure_classification": null
+}

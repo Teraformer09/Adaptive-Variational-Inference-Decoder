@@ -1,0 +1,28 @@
+{
+  "test_id": "L3-IP-011",
+  "test_name": "histogram_dimensions_and_accumulation",
+  "test_description": "Histogram dimensions — verify NM_N_STATES==16, all 16 syndrome codes 0x0..0xF addressable, and exact counts against independent histogram oracle",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot",
+  "input_contract": "16-bin uint32_t hist_x[16] and hist_z[16] covering 0x0..0xF",
+  "independent_oracle": "histogram_builder::compute_reference_histogram_from_u64_stream",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-011$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/histogram_5pkt_stream.bin",
+  "expected": {
+    "16_bin_oracle_match": "Exact match on 5-pkt fixture and 16-state sweep (all bins=1)"
+  },
+  "actual": {
+    "16_state_sweep_valid": "16/16",
+    "5pkt_hist_x_bins_3_4_7": "3,1,1"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-011.log",
+    "validation/layer3/raw_results/set1/L3-IP-011.json"
+  ],
+  "duration_ms": 2.207,
+  "failure_classification": null
+}

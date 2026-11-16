@@ -1,0 +1,232 @@
+[  1%] Building C object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/driver/weight_reg_driver.c.o
+[  1%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/hal/physical_backend.cpp.o
+[  2%] Building C object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/driver/dma_manager.c.o
+[  2%] Building C object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/driver/weight_bank_driver.c.o
+[  3%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/hal/simulation_backend.cpp.o
+[  4%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/ingress/packet_validator.cpp.o
+[  4%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/ingress/dma_ingress_tap.cpp.o
+[  5%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/inference/noise_model.cpp.o
+[  6%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/inference/lbfgs_optimizer.cpp.o
+[  6%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/estimator/joint_dp_estimator.cpp.o
+[  7%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/estimator/lbfgs_solver.cpp.o
+[  7%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/estimator/llr_quantizer.cpp.o
+[  8%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/control/causal_scheduler.cpp.o
+[  9%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/control/stage_profiler.cpp.o
+[  9%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/control/fallback_fsm.cpp.o
+[ 10%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/software/src/custom_engine/cycle_accurate_bp_engine.cpp.o
+[ 10%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/deployment/cpp/model_loader.cpp.o
+[ 11%] Building CXX object CMakeFiles/avid_layer3_prod.dir/home/tirtha/avid-validation/layer3/deployment/cpp/r2d2_runtime.cpp.o
+[ 12%] Linking CXX static library libavid_layer3_prod.a
+[ 12%] Built target avid_layer3_prod
+[ 12%] Building CXX object CMakeFiles/avid_daemon_under_test.dir/home/tirtha/avid-validation/layer3/software/src/inference/avid_daemon.cpp.o
+[ 12%] Building CXX object set1_input_contracts/c_abi/CMakeFiles/avid_layer3_c_abi_oracle.dir/c_abi_cxx_layout_oracle.cpp.o
+[ 12%] Building CXX object set2_output_statistics/CMakeFiles/set2_stat_mc_driver.dir/statistical/stat_mc_driver.cpp.o
+[ 12%] Building CXX object common/CMakeFiles/avid_layer3_test_common.dir/test_common.cpp.o
+[ 13%] Linking CXX static library libavid_layer3_c_abi_oracle.a
+[ 13%] Built target avid_layer3_c_abi_oracle
+[ 14%] Building CXX object common/CMakeFiles/avid_layer3_test_common.dir/test_result.cpp.o
+[ 15%] Linking CXX executable set2_stat_mc_driver
+[ 15%] Built target set2_stat_mc_driver
+[ 15%] Building C object set1_input_contracts/c_abi/CMakeFiles/c_abi_test_packet_abi.dir/test_packet_abi.c.o
+[ 16%] Linking CXX executable c_abi_test_packet_abi
+[ 16%] Built target c_abi_test_packet_abi
+[ 17%] Building CXX object common/CMakeFiles/avid_layer3_test_common.dir/test_environment.cpp.o
+[ 18%] Building C object set1_input_contracts/c_abi/CMakeFiles/c_abi_test_histogram_abi.dir/test_histogram_abi.c.o
+[ 18%] Linking CXX executable c_abi_test_histogram_abi
+[ 18%] Built target c_abi_test_histogram_abi
+[ 19%] Building C object set1_input_contracts/c_abi/CMakeFiles/c_abi_test_parameter_abi.dir/test_parameter_abi.c.o
+[ 19%] Linking CXX executable c_abi_test_parameter_abi
+[ 19%] Built target c_abi_test_parameter_abi
+[ 19%] Building CXX object common/CMakeFiles/avid_layer3_test_common.dir/test_utils/binary_packet_builder.cpp.o
+[ 20%] Building CXX object common/CMakeFiles/avid_layer3_test_common.dir/test_utils/histogram_builder.cpp.o
+[ 20%] Building CXX object common/CMakeFiles/avid_layer3_test_common.dir/test_utils/fixture_loader.cpp.o
+[ 21%] Building C object set1_input_contracts/c_abi/CMakeFiles/c_abi_test_runtime_config_abi.dir/test_runtime_config_abi.c.o
+[ 22%] Building C object set1_input_contracts/c_abi/CMakeFiles/c_abi_test_struct_layout.dir/test_struct_layout.c.o
+[ 22%] Linking CXX executable c_abi_test_runtime_config_abi
+[ 22%] Built target c_abi_test_runtime_config_abi
+[ 23%] Building C object set1_input_contracts/c_abi/CMakeFiles/c_abi_test_null_pointer.dir/test_null_pointer.c.o
+[ 24%] Linking CXX executable c_abi_test_struct_layout
+[ 24%] Built target c_abi_test_struct_layout
+[ 25%] Building C object set1_input_contracts/c_abi/CMakeFiles/c_abi_test_buffer_ownership.dir/test_buffer_ownership.c.o
+[ 26%] Linking CXX executable c_abi_test_null_pointer
+[ 26%] Built target c_abi_test_null_pointer
+[ 26%] Linking CXX executable c_abi_test_buffer_ownership
+[ 26%] Built target c_abi_test_buffer_ownership
+[ 27%] Linking CXX executable avid_daemon_under_test
+[ 27%] Built target avid_daemon_under_test
+[ 28%] Linking CXX static library libavid_layer3_test_common.a
+[ 28%] Built target avid_layer3_test_common
+[ 28%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_valid.dir/packet/test_packet_valid.cpp.o
+[ 29%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_endianness.dir/packet/test_packet_endianness.cpp.o
+[ 29%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_invalid.dir/packet/test_packet_invalid.cpp.o
+[ 29%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_flags.dir/packet/test_packet_flags.cpp.o
+[ 30%] Linking CXX executable set1_test_packet_flags
+[ 30%] Built target set1_test_packet_flags
+[ 31%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_field_decode.dir/packet/test_packet_field_decode.cpp.o
+[ 32%] Linking CXX executable set1_test_packet_invalid
+[ 32%] Linking CXX executable set1_test_packet_endianness
+[ 32%] Built target set1_test_packet_invalid
+[ 33%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_epoch.dir/packet/test_packet_epoch.cpp.o
+[ 33%] Built target set1_test_packet_endianness
+[ 34%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_sequence.dir/packet/test_packet_sequence.cpp.o
+[ 35%] Linking CXX executable set1_test_packet_valid
+[ 35%] Built target set1_test_packet_valid
+[ 36%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_no_side_effect.dir/packet/test_packet_no_side_effect.cpp.o
+[ 37%] Linking CXX executable set1_test_packet_field_decode
+[ 37%] Built target set1_test_packet_field_decode
+[ 37%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_packet_boundary.dir/packet/test_packet_boundary.cpp.o
+[ 38%] Linking CXX executable set1_test_packet_sequence
+[ 38%] Built target set1_test_packet_sequence
+[ 39%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_dma_ingress.dir/dma_histogram/test_dma_ingress.cpp.o
+[ 39%] Linking CXX executable set1_test_packet_no_side_effect
+[ 39%] Linking CXX executable set1_test_packet_epoch
+[ 39%] Built target set1_test_packet_no_side_effect
+[ 39%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_histogram_accumulation.dir/dma_histogram/test_histogram_accumulation.cpp.o
+[ 39%] Built target set1_test_packet_epoch
+[ 40%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_histogram_channel_isolation.dir/dma_histogram/test_histogram_channel_isolation.cpp.o
+[ 41%] Linking CXX executable set1_test_packet_boundary
+[ 41%] Built target set1_test_packet_boundary
+[ 42%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_histogram_snapshot.dir/dma_histogram/test_histogram_snapshot.cpp.o
+[ 42%] Linking CXX executable set1_test_histogram_channel_isolation
+[ 43%] Linking CXX executable set1_test_dma_ingress
+[ 43%] Built target set1_test_histogram_channel_isolation
+[ 44%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_histogram_reset.dir/dma_histogram/test_histogram_reset.cpp.o
+[ 44%] Built target set1_test_dma_ingress
+[ 44%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_histogram_overflow.dir/dma_histogram/test_histogram_overflow.cpp.o
+[ 45%] Linking CXX executable set1_test_histogram_accumulation
+[ 45%] Built target set1_test_histogram_accumulation
+[ 46%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_histogram_invalid_packet.dir/dma_histogram/test_histogram_invalid_packet.cpp.o
+[ 46%] Linking CXX executable set1_test_histogram_snapshot
+[ 46%] Built target set1_test_histogram_snapshot
+[ 47%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_parameter_dimensions.dir/estimator_inputs/test_parameter_dimensions.cpp.o
+[ 47%] Linking CXX executable set1_test_histogram_reset
+[ 47%] Built target set1_test_histogram_reset
+[ 48%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_parameter_ordering.dir/estimator_inputs/test_parameter_ordering.cpp.o
+[ 49%] Linking CXX executable set1_test_histogram_overflow
+[ 49%] Built target set1_test_histogram_overflow
+[ 49%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_parameter_bounds.dir/estimator_inputs/test_parameter_bounds.cpp.o
+[ 50%] Linking CXX executable set1_test_histogram_invalid_packet
+[ 50%] Built target set1_test_histogram_invalid_packet
+[ 51%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_parameter_nan_inf.dir/estimator_inputs/test_parameter_nan_inf.cpp.o
+[ 51%] Linking CXX executable set1_test_parameter_dimensions
+[ 51%] Built target set1_test_parameter_dimensions
+[ 52%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_histogram_input_validation.dir/estimator_inputs/test_histogram_input_validation.cpp.o
+[ 53%] Linking CXX executable set1_test_parameter_ordering
+[ 53%] Built target set1_test_parameter_ordering
+[ 53%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_prior_validation.dir/estimator_inputs/test_prior_validation.cpp.o
+[ 53%] Linking CXX executable set1_test_parameter_nan_inf
+[ 53%] Built target set1_test_parameter_nan_inf
+[ 53%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_empty_observation.dir/estimator_inputs/test_empty_observation.cpp.o
+[ 54%] Linking CXX executable set1_test_parameter_bounds
+[ 54%] Built target set1_test_parameter_bounds
+[ 54%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_config_valid.dir/runtime_config/test_config_valid.cpp.o
+[ 54%] Linking CXX executable set1_test_histogram_input_validation
+[ 54%] Built target set1_test_histogram_input_validation
+[ 55%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_config_missing.dir/runtime_config/test_config_missing.cpp.o
+[ 56%] Linking CXX executable set1_test_prior_validation
+[ 56%] Built target set1_test_prior_validation
+[ 57%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_config_types.dir/runtime_config/test_config_types.cpp.o
+[ 58%] Linking CXX executable set1_test_config_valid
+[ 59%] Linking CXX executable set1_test_empty_observation
+[ 59%] Built target set1_test_config_valid
+[ 59%] Built target set1_test_empty_observation
+[ 59%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_config_bounds.dir/runtime_config/test_config_bounds.cpp.o
+[ 59%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_config_unknown_fields.dir/runtime_config/test_config_unknown_fields.cpp.o
+[ 59%] Linking CXX executable set1_test_config_missing
+[ 59%] Built target set1_test_config_missing
+[ 60%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_config_consumption.dir/runtime_config/test_config_consumption.cpp.o
+[ 61%] Linking CXX executable set1_test_config_types
+[ 61%] Built target set1_test_config_types
+[ 62%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_production_ingress_path.dir/integration/test_production_ingress_path.cpp.o
+[ 63%] Linking CXX executable set1_test_config_unknown_fields
+[ 63%] Built target set1_test_config_unknown_fields
+[ 64%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_daemon_histogram_path.dir/integration/test_daemon_histogram_path.cpp.o
+[ 65%] Linking CXX executable set1_test_config_bounds
+[ 65%] Built target set1_test_config_bounds
+[ 66%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_ring_buffer_connectivity.dir/integration/test_ring_buffer_connectivity.cpp.o
+[ 66%] Linking CXX executable set1_test_production_ingress_path
+[ 66%] Linking CXX executable set1_test_config_consumption
+[ 66%] Built target set1_test_production_ingress_path
+[ 67%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_invalid_input_propagation.dir/integration/test_invalid_input_propagation.cpp.o
+[ 67%] Built target set1_test_config_consumption
+[ 68%] Building CXX object set1_input_contracts/CMakeFiles/set1_test_stage6_producer_compatibility.dir/integration/test_stage6_producer_compatibility.cpp.o
+[ 68%] Linking CXX executable set1_test_daemon_histogram_path
+[ 68%] Built target set1_test_daemon_histogram_path
+[ 68%] Building CXX object set2_output_statistics/CMakeFiles/set2_parameter_output_shape.dir/estimator_output/test_parameter_output_shape.cpp.o
+[ 68%] Linking CXX executable set1_test_ring_buffer_connectivity
+[ 68%] Built target set1_test_ring_buffer_connectivity
+[ 69%] Building CXX object set2_output_statistics/CMakeFiles/set2_q78_output.dir/llr_quantization/test_q78_output.cpp.o
+[ 70%] Linking CXX executable set1_test_invalid_input_propagation
+[ 70%] Built target set1_test_invalid_input_propagation
+[ 71%] Building CXX object set2_output_statistics/CMakeFiles/set2_scheduler_decision.dir/scheduler_output/test_scheduler_decision.cpp.o
+[ 72%] Linking CXX executable set1_test_stage6_producer_compatibility
+[ 72%] Built target set1_test_stage6_producer_compatibility
+[ 72%] Building CXX object set2_output_statistics/CMakeFiles/set2_fsm_action_output.dir/fsm_output/test_fsm_action_output.cpp.o
+[ 73%] Linking CXX executable set2_parameter_output_shape
+[ 73%] Built target set2_parameter_output_shape
+[ 73%] Building CXX object set3_pipeline_flow/CMakeFiles/set3_packet_to_histogram.dir/ingress_to_histogram/test_packet_to_histogram.cpp.o
+[ 73%] Linking CXX executable set2_q78_output
+[ 73%] Built target set2_q78_output
+[ 73%] Building CXX object set3_pipeline_flow/CMakeFiles/set3_histogram_snapshot_delivery.dir/histogram_to_estimator/test_histogram_snapshot_delivery.cpp.o
+[ 74%] Linking CXX executable set2_scheduler_decision
+[ 74%] Built target set2_scheduler_decision
+[ 75%] Building CXX object set3_pipeline_flow/CMakeFiles/set3_solver_call_path.dir/optimizer_execution/test_solver_call_path.cpp.o
+[ 76%] Linking CXX executable set3_packet_to_histogram
+[ 76%] Built target set3_packet_to_histogram
+[ 77%] Building CXX object set3_pipeline_flow/CMakeFiles/set3_parameter_to_llr.dir/estimator_to_llr/test_parameter_to_llr.cpp.o
+[ 78%] Linking CXX executable set2_fsm_action_output
+[ 78%] Built target set2_fsm_action_output
+[ 78%] Building CXX object set3_pipeline_flow/CMakeFiles/set3_commit_scheduling.dir/scheduler_integration/test_commit_scheduling.cpp.o
+[ 79%] Linking CXX executable set3_histogram_snapshot_delivery
+[ 79%] Built target set3_histogram_snapshot_delivery
+[ 80%] Building CXX object set3_pipeline_flow/CMakeFiles/set3_fsm_to_hal_action.dir/fsm_to_hal/test_fsm_to_hal_action.cpp.o
+[ 80%] Linking CXX executable set3_solver_call_path
+[ 80%] Built target set3_solver_call_path
+[ 81%] Building CXX object set3_pipeline_flow/CMakeFiles/set3_fast_slow_loop_separation.dir/scheduler_integration/test_fast_slow_loop_separation.cpp.o
+[ 81%] Linking CXX executable set3_parameter_to_llr
+[ 81%] Built target set3_parameter_to_llr
+[ 82%] Building CXX object set3_pipeline_flow/CMakeFiles/set3_stationary_flow.dir/end_to_end/test_stationary_flow.cpp.o
+[ 83%] Linking CXX executable set3_fsm_to_hal_action
+[ 83%] Built target set3_fsm_to_hal_action
+[ 83%] Building CXX object set4_execution_recovery/CMakeFiles/set4_daemon_startup.dir/startup_shutdown/test_daemon_startup.cpp.o
+[ 84%] Linking CXX executable set3_commit_scheduling
+[ 84%] Built target set3_commit_scheduling
+[ 85%] Building CXX object set4_execution_recovery/CMakeFiles/set4_long_running_daemon.dir/runtime_stress/test_long_running_daemon.cpp.o
+[ 85%] Linking CXX executable set4_long_running_daemon
+[ 86%] Linking CXX executable set4_daemon_startup
+[ 86%] Built target set4_long_running_daemon
+[ 86%] Building CXX object set4_execution_recovery/CMakeFiles/set4_warm_resume.dir/persistence/test_warm_resume.cpp.o
+[ 86%] Built target set4_daemon_startup
+[ 87%] Building CXX object set4_execution_recovery/CMakeFiles/set4_malformed_packet_recovery.dir/fault_injection/test_malformed_packet_recovery.cpp.o
+[ 87%] Linking CXX executable set3_fast_slow_loop_separation
+[ 87%] Built target set3_fast_slow_loop_separation
+[ 88%] Building CXX object set4_execution_recovery/CMakeFiles/set4_race_conditions.dir/concurrency/test_race_conditions.cpp.o
+[ 89%] Linking CXX executable set3_stationary_flow
+[ 89%] Built target set3_stationary_flow
+[ 89%] Building CXX object set5_control_mathematics/CMakeFiles/set5_test_dp_vs_bruteforce.dir/likelihood/test_dp_vs_bruteforce.cpp.o
+[ 90%] Linking CXX executable set4_warm_resume
+[ 90%] Built target set4_warm_resume
+[ 91%] Building CXX object set5_control_mathematics/CMakeFiles/set5_test_finite_difference_gradient.dir/gradient/test_finite_difference_gradient.cpp.o
+[ 91%] Linking CXX executable set4_malformed_packet_recovery
+[ 91%] Built target set4_malformed_packet_recovery
+[ 91%] Building CXX object set5_control_mathematics/CMakeFiles/set5_test_lbfgs_standalone.dir/optimizer/test_lbfgs_standalone.cpp.o
+[ 92%] Linking CXX executable set4_race_conditions
+[ 92%] Built target set4_race_conditions
+[ 92%] Building CXX object set5_control_mathematics/CMakeFiles/set5_test_jacobian_rank.dir/identifiability/test_jacobian_rank.cpp.o
+[ 93%] Linking CXX executable set5_test_dp_vs_bruteforce
+[ 93%] Built target set5_test_dp_vs_bruteforce
+[ 94%] Building CXX object set5_control_mathematics/CMakeFiles/set5_test_llr_formula.dir/quantization/test_llr_formula.cpp.o
+[ 94%] Linking CXX executable set5_test_finite_difference_gradient
+[ 94%] Built target set5_test_finite_difference_gradient
+[ 95%] Building CXX object set5_control_mathematics/CMakeFiles/set5_test_window_length.dir/scheduler/test_window_length.cpp.o
+[ 96%] Linking CXX executable set5_test_lbfgs_standalone
+[ 96%] Built target set5_test_lbfgs_standalone
+[ 97%] Building CXX object set5_control_mathematics/CMakeFiles/set5_test_fsm_transitions.dir/safety_fsm/test_fsm_transitions.cpp.o
+[ 98%] Linking CXX executable set5_test_jacobian_rank
+[ 98%] Built target set5_test_jacobian_rank
+[ 99%] Linking CXX executable set5_test_window_length
+[ 99%] Linking CXX executable set5_test_llr_formula
+[ 99%] Built target set5_test_window_length
+[ 99%] Built target set5_test_llr_formula
+[100%] Linking CXX executable set5_test_fsm_transitions
+[100%] Built target set5_test_fsm_transitions

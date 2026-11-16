@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-011",
+  "test_name": "coset_inversion_gradient_vs_central_fd",
+  "test_description": "Compare analytical coset-inversion gradient against central finite differences (eps=1e-7) across all 21 parameters in X and Z bases",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_gradient_from_histogram",
+  "input_contract": "",
+  "independent_oracle": "Max gradient infinity-norm error < 1e-7",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-011$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "max_grad_err_vs_central_fd": "< 1e-7"
+  },
+  "actual": {
+    "max_grad_err_vs_central_fd": "3.53132e-09"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-011.log",
+    "validation/layer3/raw_results/set5/L3-MATH-011.json"
+  ],
+  "duration_ms": 0.380,
+  "failure_classification": null
+}

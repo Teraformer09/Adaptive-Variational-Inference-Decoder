@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-FLOW-005",
+  "test_name": "optimizer_to_noise_estimate_and_r2d2_delivery",
+  "test_description": "Verify exact bit-for-bit delivery of fitted 21-D theta_ into effective_p and AvidR2D2LSTMController::step_causal",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp, software/src/control/r2d2_lstm_controller.h",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram -> AvidR2D2LSTMController::step_causal",
+  "input_contract": "",
+  "independent_oracle": "r2d2.prev_theta_[0..20] == model.theta_[0..20] bitwise after step_causal",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-005$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "bitwise_theta_match": "21/21"
+  },
+  "actual": {
+    "action_id": "3"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-005.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-005.json"
+  ],
+  "duration_ms": 3.392,
+  "failure_classification": null
+}

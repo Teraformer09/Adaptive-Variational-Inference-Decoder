@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-056",
+  "test_name": "fsm_fallback_bank_selection_invariants",
+  "test_description": "Verify SAFE_STATIC_PRIOR & DEGRADED_BYPASS output static_prior_q78, while HOLD_LAST_GOOD outputs last_good_q78 with should_commit==false",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "Exact bank equality in all 3 fallback states",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-056$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "fallback_bank_invariants": "HOLD->last_good(no commit), STATIC->static_prior(commit), DEGRADED->static_prior(no commit)"
+  },
+  "actual": {
+    "fallback_bank_invariants": "Verified"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-056.log",
+    "validation/layer3/raw_results/set5/L3-MATH-056.json"
+  ],
+  "duration_ms": 0.053,
+  "failure_classification": null
+}

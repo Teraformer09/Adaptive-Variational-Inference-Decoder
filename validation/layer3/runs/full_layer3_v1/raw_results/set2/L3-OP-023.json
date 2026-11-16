@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-023",
+  "test_name": "burst_detector_causal_trigger_latency",
+  "test_description": "Measure trigger latency r_trig - burst_start + 1 across burst densities {0.5, 0.75, 1.0}",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "Latency strictly in [4, 20] rounds (never <= 0 retrospective)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-023$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "latency_range": "[4, 20] rounds"
+  },
+  "actual": {
+    "latency_range": "Verified across {0.50, 0.75, 1.00} burst densities"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-023.log",
+    "validation/layer3/raw_results/set2/L3-OP-023.json"
+  ],
+  "duration_ms": 0.050,
+  "failure_classification": null
+}

@@ -1,0 +1,32 @@
+{
+  "test_id": "L3-STAT-011",
+  "test_name": "quotient_orbit_vs_aliased_coordinate_identifiability",
+  "test_description": "Perturb aliased orbit 0x1 (Z_0, ZZ_1_2) and invisible g=0 edge ZZ_3_6 across >=30 seeds proving tight 9-orbit recovery",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_orbit_rmse",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Tight 9-class observable orbit RMSE <= 0.015 while unobservable g=0 coordinate stays pinned to prior",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_identifiable_parameter_recovery.py --test-id L3-STAT-011 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "orbit_rmse_mean_max": "0.015",
+    "null_coord_prior_pinned_err_min": "0.07"
+  },
+  "actual": {
+    "orbit_rmse_mean": "0.002759",
+    "orbit_rmse_ci95": "[0.00241, 0.00311]",
+    "null_zz36_abs_err_mean": "0.082"
+  },
+  "assertion_notes": [
+    "Aliased/null recovery: 9-class orbit_rmse=0.002759 while g=0 ZZ_3_6 stays prior-pinned (err=0.08200)"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-011.json",
+    "logs/set2/L3-STAT-011.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 65.075
+}

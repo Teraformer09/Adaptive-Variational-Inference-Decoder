@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-031",
+  "test_name": "fsm_independent_fault_predicate_triggers",
+  "test_description": "Independently violate estimator_ok, deadline_ok, bounds_ok, and bus_ok and verify exact fallback state and trigger counter",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "!est->HOLD, !ddl->HOLD, !bnd->SAFE_STATIC, !bus->DEGRADED, each incrementing fallback_triggers",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-031$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "independent_triggers": "4/4 predicates independently increment fallback_triggers"
+  },
+  "actual": {
+    "independent_triggers": "4/4 verified"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-031.log",
+    "validation/layer3/raw_results/set2/L3-OP-031.json"
+  ],
+  "duration_ms": 0.045,
+  "failure_classification": null
+}

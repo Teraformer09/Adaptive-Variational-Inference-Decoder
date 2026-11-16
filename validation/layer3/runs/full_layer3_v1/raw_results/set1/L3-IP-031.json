@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-031",
+  "test_name": "window_size_configuration_consumption",
+  "test_description": "Window size configuration — verify avid_daemon rejects --window 0 and --window -16 (rc=2) and genuinely consumes --window 256 (4 epochs/1024 rounds) vs --window 512 (2 epochs/1024 rounds)",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (--window validation & epoch cadence)",
+  "input_contract": "window_rounds > 0 required; epoch cadence scales inversely with window_rounds",
+  "independent_oracle": "1024 / 256 == 4 epochs vs 1024 / 512 == 2 epochs; window<=0 -> exit code 2",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-031$\" --output-on-failure",
+  "fixture": "checkpoints/r2d2_v1_trained.bin",
+  "expected": {
+    "window_consumption": "--window 0/-16 -> rc=2; --window 256 -> 4 epochs; --window 512 -> 2 epochs"
+  },
+  "actual": {
+    "window_consumption": "w=0 rc=2, w=-16 rc=2, w=256->4 epochs, w=512->2 epochs"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-031.log",
+    "validation/layer3/raw_results/set1/L3-IP-031.json"
+  ],
+  "duration_ms": 76.156,
+  "failure_classification": null
+}

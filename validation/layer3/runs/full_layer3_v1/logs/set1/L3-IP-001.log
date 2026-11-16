@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-001
+Test Name: valid_packet_ingress
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/ingress/packet_validator.cpp
+Implementation Function: avid_pack_packet_u64, avid_unpack_packet_u64, avid_validate_packet
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-001$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/valid/packet_001.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

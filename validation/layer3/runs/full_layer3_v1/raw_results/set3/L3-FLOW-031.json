@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-031",
+  "test_name": "slow_loop_latency_distribution_vs_10ms_budget",
+  "test_description": "Benchmark 100 iterations of dual-basis fit_histogram + R2D2 step_causal + Q7.8 quantization under 10,000 us budget",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/stage_profiler.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "avid_profiler_begin/end + fit_histogram + step_causal",
+  "input_contract": "",
+  "independent_oracle": "p50, p95, p99, max < 10,000 us and profiler.deadline_misses == 0",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-031$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-031.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-031.json"
+  ],
+  "duration_ms": 96.704,
+  "failure_classification": null
+}

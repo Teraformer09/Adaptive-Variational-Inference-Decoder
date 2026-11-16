@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-045",
+  "test_name": "consumer_use_trace_no_dead_intermediates",
+  "test_description": "Perturb candidate weight on aliased orbit 0x1 (q0 vs q1+q2) before commit and verify downstream BP decode decision shifts",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/driver/weight_reg_driver.c, software/src/custom_engine/cycle_accurate_bp_engine.cpp",
+  "implementation_function": "wrd_write_all_weights -> wrd_commit_and_wait -> CycleAccurateBPEngine::decode",
+  "input_contract": "",
+  "independent_oracle": "Committed active weights directly steer CycleAccurateBPEngine::decode correction mask on syndrome 0x1",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-045$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-045.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-045.json"
+  ],
+  "duration_ms": 0.432,
+  "failure_classification": null
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-046",
+  "test_name": "scheduler_stale_window_rejection",
+  "test_description": "Verify scheduling an older window_end_round < last_scheduled_window_end is rejected and increments stale_schedule_drops",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_schedule_commit",
+  "input_contract": "",
+  "independent_oracle": "Pending newer weights preserved intact; stale_schedule_drops == 1",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-046$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "stale_schedule_drops": "1"
+  },
+  "actual": {
+    "committed_weight_0": "700"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-046.log",
+    "validation/layer3/raw_results/set5/L3-MATH-046.json"
+  ],
+  "duration_ms": 0.045,
+  "failure_classification": null
+}

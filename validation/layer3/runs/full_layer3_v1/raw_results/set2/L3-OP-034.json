@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-034",
+  "test_name": "error_reporting_counters_and_diagnostics",
+  "test_description": "Verify PARITY_ERR increments invalid_flag_count and invalid daemon scenario emits explicit stderr diagnostic",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_validate_and_unpack_packet, avid_daemon",
+  "input_contract": "",
+  "independent_oracle": "invalid_flag_count == 1 and stderr non-empty on rc=2",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-034$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "invalid_flag_and_stderr": "1 and explicit stderr error"
+  },
+  "actual": {
+    "invalid_flag_count": "1"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-034.log",
+    "validation/layer3/raw_results/set2/L3-OP-034.json"
+  ],
+  "duration_ms": 22.883,
+  "failure_classification": null
+}

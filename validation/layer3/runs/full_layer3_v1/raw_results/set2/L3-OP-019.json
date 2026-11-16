@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-019",
+  "test_name": "llr_spatial_hotspot_parameter_mapping",
+  "test_description": "Elevate single qubit q=4 (theta[4]=0.12, pairs=1e-5) and verify ONLY q=4 LLR drops relative to non-adjacent qubits",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::to_q7_8_llr, NoiseModel::effective_p",
+  "input_contract": "",
+  "independent_oracle": "q78[4] < q78[0] - 500 and all non-hot qubits equal",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-019$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "spatial_isolation": "q78[4] sharply reduced; q != 4 unchanged"
+  },
+  "actual": {
+    "q78_4_vs_0": "510 vs 1129"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-019.log",
+    "validation/layer3/raw_results/set2/L3-OP-019.json"
+  ],
+  "duration_ms": 0.072,
+  "failure_classification": null
+}

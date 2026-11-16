@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-030",
+  "test_name": "fsm_canonical_transition_sequence",
+  "test_description": "Drive exact sequence NORMAL -> HOLD -> HOLD -> SAFE_STATIC -> NORMAL -> DEGRADED -> NORMAL",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "Observed states match [0, 1, 1, 2, 0, 3, 0]",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-030$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "sequence": "0->1->1->2->0->3->0"
+  },
+  "actual": {
+    "sequence": "0->1->1->2->0->3->0"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-030.log",
+    "validation/layer3/raw_results/set2/L3-OP-030.json"
+  ],
+  "duration_ms": 0.052,
+  "failure_classification": null
+}

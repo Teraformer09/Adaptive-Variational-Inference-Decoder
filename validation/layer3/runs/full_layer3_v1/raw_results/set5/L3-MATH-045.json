@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-045",
+  "test_name": "scheduler_strict_monotonic_epoch_ordering",
+  "test_description": "Execute 20 scheduled commits and verify active_epoch_id forms strict sequence 0, 1, 2, ..., 20",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_poll_commit_ready",
+  "input_contract": "",
+  "independent_oracle": "Exact integer sequence 0..20",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-045$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "final_epoch_id": "20"
+  },
+  "actual": {
+    "final_epoch_id": "20"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-045.log",
+    "validation/layer3/raw_results/set5/L3-MATH-045.json"
+  ],
+  "duration_ms": 0.049,
+  "failure_classification": null
+}

@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-029
+Test Name: sparse_sample_window_w_min_check
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/estimator/lbfgs_solver.cpp
+Implementation Function: HistogramLBFGSSolver::fit_histogram
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-029$" --output-on-failure
+Fixture: tests/layer3/fixtures/histograms/sparse/sparse_total3.txt
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Verified W_min=64 boundary: N=3 held (iters=0), N=63 held (iters=0), N=64 fitted (iters=20, theta_(4)=0.311618)
+

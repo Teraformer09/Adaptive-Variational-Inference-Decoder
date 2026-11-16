@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-013",
+  "test_name": "llr_q78_rounding_dense_grid",
+  "test_description": "Compare nearest-integer rounding in avid_prob_to_q78_llr vs truncation in wrd_float_to_q78 over 50 dense LLR points",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp, software/src/driver/weight_reg_driver.h",
+  "implementation_function": "avid_prob_to_q78_llr vs wrd_float_to_q78",
+  "input_contract": "",
+  "independent_oracle": "0 <= (q_round - q_trunc) <= 1 for all positive LLRs",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-013$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "round_minus_trunc": "in {0, 1}"
+  },
+  "actual": {
+    "max_gap": "1"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-013.log",
+    "validation/layer3/raw_results/set2/L3-OP-013.json"
+  ],
+  "duration_ms": 0.086,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-027",
+  "test_name": "evidence_availability_prefix_causality",
+  "test_description": "Inject burst starting at round=1000 vs pure stationary stream; verify rounds 0..999 show zero advance knowledge",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "avid_fast_detector_step + HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "Slow MAP estimates at r=256,512,768 and fast detector states across r=0..999 are bit-identical",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-027$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-027.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-027.json"
+  ],
+  "duration_ms": 3.118,
+  "failure_classification": null
+}

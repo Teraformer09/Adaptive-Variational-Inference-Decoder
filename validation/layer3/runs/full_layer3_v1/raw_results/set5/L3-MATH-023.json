@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-023",
+  "test_name": "prior_lambda_monotone_shrinkage",
+  "test_description": "Sweep prior_lambda across {0.0, 0.04, 0.5, 5.0} on constant histogram and verify monotone L2 shrinkage toward prior_theta",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram",
+  "input_contract": "",
+  "independent_oracle": "||theta_hat(lambda_k) - prior_theta||_2 strictly decreases with lambda",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-023$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "monotone_norms": "norm(0.0) > norm(0.04) > norm(0.5) > norm(5.0)"
+  },
+  "actual": {
+    "norms": "0.089856 > 0.089529 > 0.086074 > 0.066992"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-023.log",
+    "validation/layer3/raw_results/set5/L3-MATH-023.json"
+  ],
+  "duration_ms": 2.427,
+  "failure_classification": null
+}

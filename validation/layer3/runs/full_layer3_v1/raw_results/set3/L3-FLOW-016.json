@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-016",
+  "test_name": "burst_disturbance_zero_halted_rounds",
+  "test_description": "Run avid_daemon --scenario burst_disturbance --rounds 2048 --window 256",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (burst_disturbance)",
+  "input_contract": "",
+  "independent_oracle": "decoded_rtl_transactions == 2048, fast_burst_detector.trigger_count >= 1, epoch_commit_reconciled == true",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-016$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-016.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-016.json"
+  ],
+  "duration_ms": 47.278,
+  "failure_classification": null
+}

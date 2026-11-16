@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-026",
+  "test_name": "observation_window_timing_boundaries",
+  "test_description": "Configure window_rounds in {256, 1000, 10000} and verify exact slow-loop execution cadence without premature adaptation",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (acc_rounds == window_rounds)",
+  "input_contract": "",
+  "independent_oracle": "total_rounds == epochs_completed * window_rounds and fast_burst_subepoch_adaptations == 0 on stationary stream",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-026$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-026.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-026.json"
+  ],
+  "duration_ms": 226.811,
+  "failure_classification": null
+}

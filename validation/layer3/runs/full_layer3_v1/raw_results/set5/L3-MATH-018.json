@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-018",
+  "test_name": "lbfgs_initial_point_orbit_invariance",
+  "test_description": "Launch optimization from 5 initial points [1e-4, 0.005, 0.012, 0.10, 0.30] on exact DP expectation histogram",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram",
+  "input_contract": "",
+  "independent_oracle": "All 5 starts converge to identical 9-class observable orbit probabilities (< 1e-3)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-018$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "max_orbit_spread": "< 1e-3 across 5 initializations"
+  },
+  "actual": {
+    "max_orbit_spread": "0.000956101"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-018.log",
+    "validation/layer3/raw_results/set5/L3-MATH-018.json"
+  ],
+  "duration_ms": 6.023,
+  "failure_classification": null
+}

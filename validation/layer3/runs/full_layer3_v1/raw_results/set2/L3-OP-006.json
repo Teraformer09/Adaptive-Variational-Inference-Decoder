@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-006",
+  "test_name": "map_estimator_convergence_flag_semantics",
+  "test_description": "Verify LBFGSFitDiagnostics.converged == true on valid convergent fit vs false on max_iters=0 and empty histogram",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "valid->true, max_iters=0->false, empty_hist->false",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-006$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "converged_flags": "true, false, false"
+  },
+  "actual": {
+    "converged_flags": "true, false, false"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-006.log",
+    "validation/layer3/raw_results/set2/L3-OP-006.json"
+  ],
+  "duration_ms": 0.504,
+  "failure_classification": null
+}

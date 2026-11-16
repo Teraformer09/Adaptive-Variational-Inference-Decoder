@@ -1,0 +1,28 @@
+{
+  "test_id": "L3-MATH-032",
+  "test_name": "exact_syndrome_alias_equivalence_proof",
+  "test_description": "Construct distinct parameter vectors theta_A != theta_B with equal parity factor (1-2p_0)(1-2p_{1,2}) on orbit 0x1 and prove identical P_joint(0..15)",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_joint_distribution",
+  "input_contract": "",
+  "independent_oracle": "||theta_A - theta_B||_inf > 0.05 while ||P(theta_A) - P(theta_B)||_inf < 1e-14",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-032$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "alias_invariance": "param_gap > 0.05 AND pmf_gap < 1e-14"
+  },
+  "actual": {
+    "param_gap": "0.0656701",
+    "pmf_gap": "4.44089e-16"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-032.log",
+    "validation/layer3/raw_results/set5/L3-MATH-032.json"
+  ],
+  "duration_ms": 0.194,
+  "failure_classification": null
+}

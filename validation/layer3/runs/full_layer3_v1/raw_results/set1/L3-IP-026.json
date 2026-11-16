@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-026",
+  "test_name": "regularization_lambda_validation_and_override",
+  "test_description": "Regularization / prior strength — test lambda=0, lambda>0, lambda<0, NaN, and inspect whether HistogramLBFGSSolver honors caller prior_lambda_",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp, software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "NoiseModel::prior_lambda_, HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "prior_lambda_ >= 0 finite; negative/NaN rejected; caller-configured lambda respected or contract discrepancy documented",
+  "independent_oracle": "architecture/estimator/parameter_schema.json prior_tether_lambda=0.5 vs NoiseModel(0.5) vs fit_histogram(0.04)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-026$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/correlated/corr_total1000.txt",
+  "expected": {
+    "lambda_contract": "Reject negative/NaN lambda and preserve configured prior_lambda_"
+  },
+  "actual": {
+    "lambda_contract": "Negative (-5.0, -1.0) and NaN prior_lambda_ rejected (+Inf); caller prior_lambda_=2.5 preserved (2.500000)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-026.log",
+    "validation/layer3/raw_results/set1/L3-IP-026.json"
+  ],
+  "duration_ms": 0.369,
+  "failure_classification": null
+}

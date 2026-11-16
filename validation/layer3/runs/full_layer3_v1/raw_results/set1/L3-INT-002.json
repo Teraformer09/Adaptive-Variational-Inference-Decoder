@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-INT-002",
+  "test_name": "daemon_histogram_to_estimator_connectivity",
+  "test_description": "Daemon histogram path — execute avid_daemon_under_test on two distinct 64-packet --stim-bin streams (all-zero syndrome vs high-syndrome burst) and verify histogram accumulation drives distinct Joint-DP NLL outputs",
+  "test_set": "set1_integration",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot -> hist_x/hist_z -> HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "DMA ring consumer populates hist_x[16], hist_z[16] consumed by HistogramLBFGSSolver::fit_histogram",
+  "independent_oracle": "final_joint_dp_nll differs materially between quiet stream and burst_64_seq.bin stream",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-002$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+  "expected": {
+    "histogram_connectivity": "avid_dma_ring_consume_slot -> hist_x/hist_z -> fit_histogram connected and responsive to input stream"
+  },
+  "actual": {
+    "histogram_connectivity": "Both runs rc=0; metrics JSON confirms distinct Joint-DP NLL across quiet vs burst streams"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-INT-002.log",
+    "validation/layer3/raw_results/set1/L3-INT-002.json"
+  ],
+  "duration_ms": 44.865,
+  "failure_classification": null
+}

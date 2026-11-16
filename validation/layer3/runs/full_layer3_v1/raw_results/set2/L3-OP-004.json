@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-004",
+  "test_name": "map_estimator_objective_output_consistency",
+  "test_description": "Verify returned NLL >= 0.0, finite, and matches diag.final_joint_dp_nll",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "returned_nll == diag.final_joint_dp_nll >= 0.0",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-004$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "nll_consistency": "ret_nll == diag.final_joint_dp_nll == recomputed_nll"
+  },
+  "actual": {
+    "final_nll": "0.998373"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-004.log",
+    "validation/layer3/raw_results/set2/L3-OP-004.json"
+  ],
+  "duration_ms": 0.495,
+  "failure_classification": null
+}

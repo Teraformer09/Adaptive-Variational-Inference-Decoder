@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-014",
+  "test_name": "committed_weight_persistence_in_hal_and_telemetry",
+  "test_description": "Probe committed active weights via HAL MMIO read 0x100..0x144 and daemon final_q78_z telemetry",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/hal/physical_backend.cpp, software/src/driver/weight_reg_driver.c",
+  "implementation_function": "avid_hal_write_weights_and_commit + MMIO 0x100..0x144",
+  "input_contract": "",
+  "independent_oracle": "Shadow/active register banks match post-commit and final_q78_z persists 9 safe Q7.8 words",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-014$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-014.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-014.json"
+  ],
+  "duration_ms": 22.683,
+  "failure_classification": null
+}

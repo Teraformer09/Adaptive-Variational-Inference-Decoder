@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-022",
+  "test_name": "burst_detector_trigger_timestamp_bounds",
+  "test_description": "Burst starts at round=100 (density=1.0, threshold=0.35, debounce=4) -> verify trigger round in [100, 119]",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "r_trig == 108 in [100, 119]",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-022$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "r_trig": "108"
+  },
+  "actual": {
+    "r_trig": "108"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-022.log",
+    "validation/layer3/raw_results/set2/L3-OP-022.json"
+  ],
+  "duration_ms": 0.046,
+  "failure_classification": null
+}

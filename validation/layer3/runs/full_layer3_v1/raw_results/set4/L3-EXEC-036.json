@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-036",
+  "test_name": "dma_ingress_1m_packet_throughput",
+  "test_description": "Stream 1,000,000 64-bit packets (15,625 bursts x 64) through DMA ring and measure Mpkts/sec",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_push_burst + avid_dma_ring_consume_slot",
+  "input_contract": "",
+  "independent_oracle": "All 1,000,000 packets validated with 0 drops and sustained throughput > 1.0 Mpkts/sec",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-036$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-036.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-036.json"
+  ],
+  "duration_ms": 29.444,
+  "failure_classification": null
+}

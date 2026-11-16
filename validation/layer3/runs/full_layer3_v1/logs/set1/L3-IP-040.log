@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-040
+Test Name: corrupted_candidate_weight_bank_rejection
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/estimator/llr_quantizer.cpp, control/fallback_fsm.cpp, driver/weight_bank_driver.c
+Implementation Function: avid_quantize_and_validate_bank, avid_fallback_step, avid_weight_bank_write_and_commit
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-040$" --output-on-failure
+Fixture: none
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

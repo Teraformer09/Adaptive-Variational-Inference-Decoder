@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-035",
+  "test_name": "commit_result_and_epoch_reconciliation_output",
+  "test_description": "Verify wrd_commit_and_wait status/epoch bump vs busy timeout, and daemon epoch_commit_reconciled == true",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/driver/weight_reg_driver.c, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "wrd_commit_and_wait, avid_daemon(--metrics-out)",
+  "input_contract": "",
+  "independent_oracle": "Emulated commit increments swap_count; daemon JSON epoch_commit_reconciled == true",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-035$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "epoch_commit_reconciled": "true"
+  },
+  "actual": {
+    "epoch_commit_reconciled": "true"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-035.log",
+    "validation/layer3/raw_results/set2/L3-OP-035.json"
+  ],
+  "duration_ms": 25.513,
+  "failure_classification": null
+}

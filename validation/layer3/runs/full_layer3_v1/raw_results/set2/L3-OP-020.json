@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-020",
+  "test_name": "llr_invalid_estimate_blocks_fsm_commit",
+  "test_description": "Inject NaN, -0.1, and 0.6 into p_eff and verify bounds_ok==false routes FSM to SAFE_STATIC_PRIOR",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp, software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_quantize_and_validate_bank -> avid_fallback_step",
+  "input_contract": "",
+  "independent_oracle": "bounds_ok==false and FSM selects static_prior_q78 (never corrupted candidate)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-020$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "fsm_state_on_invalid_peff": "AVID_FSM_SAFE_STATIC_PRIOR"
+  },
+  "actual": {
+    "fsm_state_on_invalid_peff": "AVID_FSM_SAFE_STATIC_PRIOR"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-020.log",
+    "validation/layer3/raw_results/set2/L3-OP-020.json"
+  ],
+  "duration_ms": 0.062,
+  "failure_classification": null
+}

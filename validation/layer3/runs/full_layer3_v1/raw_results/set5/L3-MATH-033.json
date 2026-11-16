@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-033",
+  "test_name": "llr_q78_100_point_reference_sweep",
+  "test_description": "Sweep 100 probabilities in [1e-5, 0.49] and compare avid_prob_to_q78_llr against independent lround(ln((1-p)/p)*256)",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_prob_to_q78_llr",
+  "input_contract": "",
+  "independent_oracle": "Max integer LSB difference == 0 across all 100 points",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-033$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "max_lsb_diff": "0"
+  },
+  "actual": {
+    "max_lsb_diff": "0"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-033.log",
+    "validation/layer3/raw_results/set5/L3-MATH-033.json"
+  ],
+  "duration_ms": 0.090,
+  "failure_classification": null
+}

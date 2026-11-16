@@ -1,0 +1,28 @@
+{
+  "test_id": "L3-MATH-022",
+  "test_name": "model_mismatch_uniform_histogram_box_cap",
+  "test_description": "Feed maximally entropic uniform histogram [100]*16 and verify box cap / elevated NLL residual",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "Final NLL >= log(16) ~ 2.7725 and parameters saturate or elevate near upper regime",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-022$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "uniform_nll_and_max_theta": "nll >= ln(16)=2.772588 and max_theta > 0.25"
+  },
+  "actual": {
+    "final_nll": "2.77519",
+    "max_theta": "0.391431"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-022.log",
+    "validation/layer3/raw_results/set5/L3-MATH-022.json"
+  ],
+  "duration_ms": 0.716,
+  "failure_classification": null
+}

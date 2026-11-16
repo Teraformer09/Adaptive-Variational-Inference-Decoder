@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-018",
+  "test_name": "reset_recovery_end_to_end",
+  "test_description": "Run avid_daemon --scenario reset_recovery --rounds 1024 --window 256",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (reset_recovery)",
+  "input_contract": "",
+  "independent_oracle": "Mid-run RTL reset increments reset_cleared_commits, resumes commits, and reconciles hw_epoch",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-018$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-018.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-018.json"
+  ],
+  "duration_ms": 35.295,
+  "failure_classification": null
+}

@@ -1,0 +1,14 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-002
+Test Name: packet_length_and_wire_contract
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/ingress/packet_validator.h
+Implementation Function: avid_validate_packet vs syndrome_packet_v1.yaml
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-002$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/short_7B.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Verified authoritative A05/Q11 8-byte wire contract across syndrome_packet_v1.yaml (v1.1.0) and packet_validator.h.
+

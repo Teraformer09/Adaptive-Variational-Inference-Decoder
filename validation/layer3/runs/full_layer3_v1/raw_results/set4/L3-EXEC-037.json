@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-037",
+  "test_name": "dma_ingress_burst_consume_latency_distribution",
+  "test_description": "Measure per-64-packet-burst push+consume latency across 5,000 bursts (p50, p95, p99, max us)",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot",
+  "input_contract": "",
+  "independent_oracle": "p99 < 64.0 us (well inside 64 us 1-MHz real-time DMA slot window)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-037$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-037.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-037.json"
+  ],
+  "duration_ms": 10.796,
+  "failure_classification": null
+}

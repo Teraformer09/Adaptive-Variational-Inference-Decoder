@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-ABI-007",
+  "test_name": "c_abi_buffer_ownership",
+  "test_description": "Verify caller-owned stack/heap buffer ownership, zero out-of-bounds canary writes, and clean wrd_open/wrd_close lifecycle from C11",
+  "test_set": "set1_c_abi",
+  "status": "PASS",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "implementation_file": "software/src/{ingress,inference,estimator,driver}/*",
+  "implementation_function": "caller-owned buffer lifecycle, canary guard zones, zero hidden free/realloc",
+  "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+  "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+  "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+  "expected": {
+    "summary": "Caller-owned buffers remain uncorrupted, unaliased, and freeable by caller"
+  },
+  "actual": {
+    "summary": "All 7 ownership & canary checks passed (0 failed)",
+    "checks_run": "7",
+    "checks_failed": "0"
+  },
+  "assertion_notes": ["All C-callable APIs use caller-owned storage with zero hidden free() or out-of-bounds writes across 64-byte guard canaries."],
+  "evidence": ["validation/layer3/logs/set1/L3-ABI-007.log"],
+  "failure_classification": "",
+  "duration_ms": 0.517
+}

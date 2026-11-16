@@ -1,0 +1,33 @@
+{
+  "test_id": "L3-STAT-005",
+  "test_name": "measurement_noise_misspecification_bias",
+  "test_description": "Inject phenomenological readout bit-flip p_meas=0.012 over >=30 seeds and quantify upward parameter bias",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Positive bounded upward bias under readout noise relative to clean syndromes",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_model_mismatch.py --test-id L3-STAT-005 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "meas_upward_bias_detected": "True",
+    "bounded_bias_max": "0.06"
+  },
+  "actual": {
+    "clean_bias": "-0.002773",
+    "meas_noisy_bias": "0.000353",
+    "clean_mse": "8.17e-06",
+    "meas_mse": "7.9e-07"
+  },
+  "assertion_notes": [
+    "Phenomenological readout p_m=0.012 shifts bias from -0.00277 to +0.00035"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-005.json",
+    "logs/set2/L3-STAT-005.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 88.574
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-007",
+  "test_name": "joint_dp_walsh_hadamard_identity",
+  "test_description": "Walsh-Hadamard identity E[(-1)^<u,s>] == prod_e (1 - 2 p_e)^{I[<u,g_e>=1]} across all u in 0..15",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::compute_joint_distribution",
+  "input_contract": "",
+  "independent_oracle": "Max spectral discrepancy < 1e-13 across all 16 Dual characters u",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-007$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "max_walsh_character_err": "< 1e-13"
+  },
+  "actual": {
+    "max_walsh_character_err": "6.66134e-16"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-007.log",
+    "validation/layer3/raw_results/set5/L3-MATH-007.json"
+  ],
+  "duration_ms": 0.115,
+  "failure_classification": null
+}

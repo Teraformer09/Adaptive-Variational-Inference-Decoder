@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-026",
+  "test_name": "scheduler_stale_delayed_evidence_guard",
+  "test_description": "Schedule commit for window_end=500 then attempt out-of-order older window_end=300",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_schedule_commit",
+  "input_contract": "",
+  "independent_oracle": "Older evidence dropped (stale_schedule_drops==1); newer bank w_b preserved",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-026$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "stale_drops_and_winner": "1 drop, w_b (600) committed"
+  },
+  "actual": {
+    "committed_w0": "600"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-026.log",
+    "validation/layer3/raw_results/set2/L3-OP-026.json"
+  ],
+  "duration_ms": 0.050,
+  "failure_classification": null
+}

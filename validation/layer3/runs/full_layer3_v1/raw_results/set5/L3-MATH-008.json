@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-008",
+  "test_name": "joint_parameter_signature_algebra",
+  "test_description": "Verify all 21 Z-fault and 21 X-fault syndrome signatures match H_X*e_Z, H_Z*e_X, and g_{i,j} == g_i ^ g_j",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NM_EVENT_SIGNATURES, NM_EVENT_SIGNATURES_Z_BASIS, NM_CROSSTALK_PAIRS",
+  "input_contract": "",
+  "independent_oracle": "42/42 bit-exact signature matches against rotated d=3 stabilizer matrices",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-008$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "signature_matches": "42"
+  },
+  "actual": {
+    "signature_matches": "42"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-008.log",
+    "validation/layer3/raw_results/set5/L3-MATH-008.json"
+  ],
+  "duration_ms": 0.055,
+  "failure_classification": null
+}

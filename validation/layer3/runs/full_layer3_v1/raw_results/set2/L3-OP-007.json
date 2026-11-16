@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-007",
+  "test_name": "map_estimator_iteration_accounting",
+  "test_description": "Run fit_histogram with max_iters in {1, 6, 20} and verify 0 <= iterations_executed <= max_iters",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "",
+  "independent_oracle": "Exact cap enforcement across {1, 6, 20}",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-007$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "bounds": "1 <= iterations_executed <= cap"
+  },
+  "actual": {
+    "bounds": "Verified for {1, 6, 20}"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-007.log",
+    "validation/layer3/raw_results/set2/L3-OP-007.json"
+  ],
+  "duration_ms": 0.591,
+  "failure_classification": null
+}

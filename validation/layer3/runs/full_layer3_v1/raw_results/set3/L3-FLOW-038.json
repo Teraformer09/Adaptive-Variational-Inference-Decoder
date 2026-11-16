@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-038",
+  "test_name": "prior_propagation_sensitivity",
+  "test_description": "Shift prior_theta_(4) from 0.01 to 0.15 with prior_lambda_=2.0 on small sample N=50",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp, software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram",
+  "input_contract": "",
+  "independent_oracle": "MAP objective and fitted theta_(4) shift upward toward 0.15",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-038$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-038.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-038.json"
+  ],
+  "duration_ms": 1.552,
+  "failure_classification": null
+}

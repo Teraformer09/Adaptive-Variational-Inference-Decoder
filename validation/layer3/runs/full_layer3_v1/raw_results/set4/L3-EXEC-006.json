@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-006",
+  "test_name": "missing_input_safe_startup_failure",
+  "test_description": "Launch avid_daemon with nonexistent --checkpoint, --stim-bin, and --socket",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (missing file/socket guards)",
+  "input_contract": "",
+  "independent_oracle": "Non-zero exit code in {1, 2} with signaled==false (zero segfault)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-006$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-006.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-006.json"
+  ],
+  "duration_ms": 1070.451,
+  "failure_classification": null
+}

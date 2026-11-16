@@ -1,0 +1,4 @@
+[L3-STAT-004] correlated_pair_crosstalk_recovery -> PASS (65.99 ms)
+expected={"orbit_rmse_max": 0.025, "pair_45_exceeds_2x_inactive": true}
+actual={"orbit_rmse_mean": 0.003597, "pair_45_mean": 0.062325, "pair_45_bias": -0.017675, "inactive_pair_mean": 0.011579}
+Correlated pair (4,5) hat=0.06233 vs inactive=0.01158, orbit_rmse=0.00360

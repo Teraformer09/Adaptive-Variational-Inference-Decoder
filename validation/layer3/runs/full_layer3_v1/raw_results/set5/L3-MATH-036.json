@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-036",
+  "test_name": "llr_q78_rounding_vs_driver_truncation",
+  "test_description": "Verify nearest-integer std::lround at .5 fractional midpoints vs wrd_float_to_q78 truncation",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp, software/src/driver/weight_reg_driver.h",
+  "implementation_function": "avid_prob_to_q78_llr vs wrd_float_to_q78",
+  "input_contract": "",
+  "independent_oracle": "At LLR = (512.5 / 256.0), avid_prob_to_q78_llr rounds to 513 while wrd_float_to_q78 truncates to 512 (<= 1 LSB)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-036$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "round_vs_trunc": "513 vs 512 (exact 1 LSB midpoint behavior)"
+  },
+  "actual": {
+    "round_vs_trunc": "513 vs 512"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-036.log",
+    "validation/layer3/raw_results/set5/L3-MATH-036.json"
+  ],
+  "duration_ms": 0.071,
+  "failure_classification": null
+}

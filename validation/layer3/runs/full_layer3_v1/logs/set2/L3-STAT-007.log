@@ -1,0 +1,4 @@
+[L3-STAT-007] multi_seed_dispersion_and_percentiles -> PASS (54.99 ms)
+expected={"non_degenerate_seed_variance": true, "orbit_rmse_p95_max": 0.025, "param_rmse_p95_max": 0.045}
+actual={"nll_mean_std_iqr": "1.07985 / 0.03624 / 0.03974", "orbit_rmse_p05_p95": "[0.00344, 0.00906]", "param_rmse_p05_p95": "[0.00233, 0.00714]"}
+32-seed dispersion: NLL mean=1.07985 (IQR=0.03974), orbit p95=0.00906

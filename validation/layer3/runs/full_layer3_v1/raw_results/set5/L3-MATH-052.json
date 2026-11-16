@@ -1,0 +1,28 @@
+{
+  "test_id": "L3-MATH-052",
+  "test_name": "slow_loop_dilution_vs_fast_detector_separation",
+  "test_description": "Mathematically contrast 60-round burst inside 10,000-round (10 ms) slow window (0.6% dilution) vs 16-round fast detector (<=20 us)",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "Slow empirical density shift < 0.006 while fast subwindow density reaches >= 0.75 and triggers in <= 20 rounds",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-052$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "slow_dilution_vs_fast_latency": "slow_shift < 0.0065 (0.6%), fast_latency <= 20 rounds"
+  },
+  "actual": {
+    "fast_trigger_latency_rounds": "9",
+    "slow_density_shift": "0.0058"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-052.log",
+    "validation/layer3/raw_results/set5/L3-MATH-052.json"
+  ],
+  "duration_ms": 0.374,
+  "failure_classification": null
+}

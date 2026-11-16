@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-002",
+  "test_name": "daemon_initialization_and_boot_commit",
+  "test_description": "Launch avid_daemon --self-test --checkpoint ... --metrics-out ...",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (--self-test)",
+  "input_contract": "",
+  "independent_oracle": "Exit 0, r2d2_checkpoint_loaded==true, initial_boot_commits==1, epoch_commit_reconciled==true",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-002$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-002.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-002.json"
+  ],
+  "duration_ms": 26.614,
+  "failure_classification": null
+}

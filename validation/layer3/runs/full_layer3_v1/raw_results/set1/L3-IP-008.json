@@ -1,0 +1,32 @@
+{
+  "test_id": "L3-IP-008",
+  "test_name": "packet_corruption_and_no_side_effect",
+  "test_description": "Packet corruption & side-effect isolation — test PARITY_ERR rejection, output struct mutation on reject, CRC/checksum absence, and production --stim-bin parity bypass",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "avid_validate_packet, avid_dma_ring_consume_slot, avid_daemon(--stim-bin)",
+  "input_contract": "Corrupted packets rejected without mutating output struct or downstream histograms/estimator",
+  "independent_oracle": "Zero histogram delta oracle on PARITY_ERR stream across standalone DMA ring and avid_daemon --stim-bin",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-008$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/invalid/stim_parity_corrupted_64.bin",
+  "expected": {
+    "crc_checksum": "Documented PARITY_ERR hardware transport boundary in syndrome_packet_v1.yaml v1.1.0",
+    "daemon_stim_bin_parity_err": "REJECT (validator_invalid_flags == 64, 0 valid rounds, 0 commits)",
+    "standalone_parity_err": "REJECT (0 histogram updates, caller out struct untouched)"
+  },
+  "actual": {
+    "crc_checksum": "Documented PARITY_ERR flag boundary enforced end-to-end",
+    "daemon_stim_bin_parity_err": "REJECT (validator_invalid_flags=64, decoded_rtl_transactions=0, adaptive_epoch_commits=0)",
+    "standalone_parity_err": "REJECT (0 histogram updates; caller out struct untouched)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-008.log",
+    "validation/layer3/raw_results/set1/L3-IP-008.json",
+    "validation/layer3/reports/packet_contract_decision.md"
+  ],
+  "duration_ms": 19.369,
+  "failure_classification": null
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-FLOW-040",
+  "test_name": "threshold_propagation_sensitivity",
+  "test_description": "Run identical 50%-density syndrome stream through detector with threshold=0.20 vs 0.80",
+  "test_set": "set3_pipeline_flow",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_fast_detector_init + avid_fast_detector_step",
+  "input_contract": "",
+  "independent_oracle": "threshold=0.20 triggers >=1; threshold=0.80 triggers 0 times",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-FLOW-040$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set3/L3-FLOW-040.log",
+    "validation/layer3/raw_results/set3/L3-FLOW-040.json"
+  ],
+  "duration_ms": 0.038,
+  "failure_classification": null
+}

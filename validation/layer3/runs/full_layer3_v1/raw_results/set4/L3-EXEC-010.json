@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-010",
+  "test_name": "graceful_sigterm_shutdown_and_telemetry_flush",
+  "test_description": "Launch avid_daemon with --rounds 5000000, send SIGTERM mid-run, and verify clean exit 0 + JSON flush",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "sigint_handler + main",
+  "input_contract": "",
+  "independent_oracle": "WIFEXITED && WEXITSTATUS==0, valid metrics JSON written with epoch_commit_reconciled==true",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-010$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-010.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-010.json"
+  ],
+  "duration_ms": 124.723,
+  "failure_classification": null
+}

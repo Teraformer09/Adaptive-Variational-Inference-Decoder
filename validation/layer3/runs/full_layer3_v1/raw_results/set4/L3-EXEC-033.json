@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-033",
+  "test_name": "memory_pressure_rlimit_as_clean_execution",
+  "test_description": "Build release avid_daemon (no sanitizer shadow map) and execute under setrlimit(RLIMIT_AS, 128 MB)",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/ring_buffer.h, software/src/inference/lbfgs_optimizer.h",
+  "implementation_function": "avid_daemon under 128 MB RLIMIT_AS",
+  "input_contract": "",
+  "independent_oracle": "Succeeds cleanly (exit 0) within static pre-allocated footprint (<128 MB virtual address space)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-033$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-033.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-033.json"
+  ],
+  "duration_ms": 35872.032,
+  "failure_classification": null
+}

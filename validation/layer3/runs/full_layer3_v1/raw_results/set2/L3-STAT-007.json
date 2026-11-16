@@ -1,0 +1,33 @@
+{
+  "test_id": "L3-STAT-007",
+  "test_name": "multi_seed_dispersion_and_percentiles",
+  "test_description": "Characterize mean, std, IQR, and 5th/95th percentiles across >=30 independent seeds for NLL, orbit RMSE, and 21-param RMSE",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Bounded 95th-percentile orbit/parameter RMSE with non-degenerate multi-seed dispersion",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_seed_variance.py --test-id L3-STAT-007 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "non_degenerate_seed_variance": "True",
+    "orbit_rmse_p95_max": "0.025",
+    "param_rmse_p95_max": "0.045"
+  },
+  "actual": {
+    "nll_mean_std_iqr": "1.07985 / 0.03624 / 0.03974",
+    "orbit_rmse_p05_p95": "[0.00344, 0.00906]",
+    "param_rmse_p05_p95": "[0.00233, 0.00714]"
+  },
+  "assertion_notes": [
+    "32-seed dispersion: NLL mean=1.07985 (IQR=0.03974), orbit p95=0.00906"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-007.json",
+    "logs/set2/L3-STAT-007.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 54.986
+}

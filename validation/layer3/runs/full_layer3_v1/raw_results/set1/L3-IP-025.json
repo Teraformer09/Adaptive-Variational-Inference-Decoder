@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-025",
+  "test_name": "prior_vector_validation_and_schema_consistency",
+  "test_description": "Prior configuration — verify prior_theta_ initialization, check consistency with parameter_schema.json default_prior, and test invalid prior_theta_ values",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::init, NoiseModel::prior_theta_",
+  "input_contract": "Valid 21-element prior_theta_ in (0, 0.5) consistent with parameter_schema.json",
+  "independent_oracle": "architecture/estimator/parameter_schema.json default_prior (0.012 single, 0.008 pair)",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-025$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/parameters/priors/default_prior_21.txt",
+  "expected": {
+    "prior_validation": "Consistent default prior (0.012, 0.008) across constructor/init/schema and rejection of NaN/negative prior_theta_"
+  },
+  "actual": {
+    "prior_validation": "ctor_pair=0.008000, init_pair=0.008000 (matches schema 0.008); NaN and negative prior_theta_ rejected cleanly (+Inf)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-025.log",
+    "validation/layer3/raw_results/set1/L3-IP-025.json"
+  ],
+  "duration_ms": 0.083,
+  "failure_classification": null
+}

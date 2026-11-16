@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-041",
+  "test_name": "llr_qubit_weight_index_ordering",
+  "test_description": "Assign distinct strictly increasing error rates to qubits 0..8 and verify q78[0..8] strictly decreases in exact index order",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NoiseModel::effective_p, NoiseModel::to_q7_8_llr",
+  "input_contract": "",
+  "independent_oracle": "q78[0] > q78[1] > ... > q78[8] and each matches avid_prob_to_q78_llr(effective_p(q))",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-041$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "strict_ordering": "q78[0] > q78[1] > ... > q78[8]"
+  },
+  "actual": {
+    "q78_0_and_8": "1354 -> 415"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-041.log",
+    "validation/layer3/raw_results/set5/L3-MATH-041.json"
+  ],
+  "duration_ms": 0.079,
+  "failure_classification": null
+}

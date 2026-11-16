@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-027",
+  "test_name": "out_of_bounds_probability_estimate_rejection",
+  "test_description": "Set p_eff[0..8] = 0.65 (>= 0.5) and pass through quantizer and safety FSM",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp, software/src/control/fallback_fsm.cpp",
+  "implementation_function": "avid_quantize_and_validate_bank (p_eff=0.65)",
+  "input_contract": "",
+  "independent_oracle": "Quantizer returns false, replaces candidates with 0x0468, and triggers SAFE_STATIC_PRIOR",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-027$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-027.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-027.json"
+  ],
+  "duration_ms": 0.058,
+  "failure_classification": null
+}

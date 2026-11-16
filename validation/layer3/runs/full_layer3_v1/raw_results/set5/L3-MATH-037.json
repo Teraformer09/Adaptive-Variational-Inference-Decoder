@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-037",
+  "test_name": "llr_q78_saturation_and_safe_bank_bounds",
+  "test_description": "Verify [-32768, 32767] int16 saturation and [0x0040, 0x3000] safe bank clamp",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_quantize_and_validate_bank, wrd_float_to_q78",
+  "input_contract": "",
+  "independent_oracle": "wrd_float_to_q78(200.0f)==32767, (-200.0f)==-32768; p=0.45 (<0x0040) clamps to 0x0040 and returns false",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-037$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "unsafe_high_p_clamp": "ok==false and q_bank[4]==0x0040 (64)"
+  },
+  "actual": {
+    "q_bank_4": "64"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-037.log",
+    "validation/layer3/raw_results/set5/L3-MATH-037.json"
+  ],
+  "duration_ms": 0.064,
+  "failure_classification": null
+}

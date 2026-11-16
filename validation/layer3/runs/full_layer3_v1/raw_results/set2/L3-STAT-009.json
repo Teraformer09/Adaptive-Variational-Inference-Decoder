@@ -1,0 +1,31 @@
+{
+  "test_id": "L3-STAT-009",
+  "test_name": "initial_point_sensitivity_identifiable_vs_null",
+  "test_description": "Initialize p0 in {0.002, 0.012, 0.05, 0.15} across >=30 histograms contrasting singleton convergence vs null-space invariance",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d68b444559dfbfa4508781e10dfe20eda70",
+  "implementation_file": "software/src/inference/lbfgs_optimizer.cpp",
+  "implementation_function": "LBFGSOptimizer::step_histogram",
+  "input_contract": ">=30 independent Monte Carlo seeds over 16-state Joint-DP syndrome histograms",
+  "independent_oracle": "Identifiable singleton spread <= 0.012 while unregularized g=0 null-space retains exact initial spread (0.148)",
+  "execution_command": "/home/tirtha/avid-validation/layer3/tests/layer3/set2_output_statistics/statistical/test_initialization_sensitivity.py --test-id L3-STAT-009 --repo-root /home/tirtha/avid-validation/layer3 --validation-dir /home/tirtha/avid-validation/layer3/validation/layer3/runs/full_layer3_v1 --mc-driver /home/tirtha/avid-validation/layer3/build/layer3_standard/set2_output_statistics/set2_stat_mc_driver --ctest-strict",
+  "fixture": "monte_carlo_synthetic_32_seeds",
+  "expected": {
+    "singleton_init_spread_max": "0.012",
+    "null_space_init_retention_min": "0.14"
+  },
+  "actual": {
+    "singleton_z4_spread_mean": "1e-06",
+    "null_zz36_spread_mean": "0.148"
+  },
+  "assertion_notes": [
+    "Init sweep p0=[0.002..0.15]: singleton spread=0.000001 vs null-space spread=0.148000"
+  ],
+  "evidence": [
+    "raw_results/set2/L3-STAT-009.json",
+    "logs/set2/L3-STAT-009.log"
+  ],
+  "failure_classification": "",
+  "duration_ms": 126.303
+}

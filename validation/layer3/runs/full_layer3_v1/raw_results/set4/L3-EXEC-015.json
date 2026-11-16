@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-015",
+  "test_name": "epoch_ledger_persistence_and_reconciliation",
+  "test_description": "Verify initial_boot_commits + adaptive_epoch_commits - reset_cleared_commits == weight_bank_commits",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (commit ledger)",
+  "input_contract": "",
+  "independent_oracle": "Exact ledger identity holds across both stationary_noise and reset_recovery",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-015$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-015.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-015.json"
+  ],
+  "duration_ms": 71.086,
+  "failure_classification": null
+}

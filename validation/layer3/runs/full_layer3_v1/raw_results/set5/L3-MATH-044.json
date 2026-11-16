@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-MATH-044",
+  "test_name": "scheduler_commit_eligibility_50_random_pairs",
+  "test_description": "Across 50 random (t_e, d_c) pairs, verify poll_commit_ready is false for all t < t_e + d_c and true at t == t_e + d_c",
+  "test_set": "set5_control_mathematics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_scheduler_poll_commit_ready",
+  "input_contract": "",
+  "independent_oracle": "50/50 exact causal threshold transitions",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-MATH-044$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "causal_pairs_verified": "50"
+  },
+  "actual": {
+    "causal_pairs_verified": "50"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set5/L3-MATH-044.log",
+    "validation/layer3/raw_results/set5/L3-MATH-044.json"
+  ],
+  "duration_ms": 0.060,
+  "failure_classification": null
+}

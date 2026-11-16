@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-OP-014",
+  "test_name": "llr_q78_safe_bank_saturation",
+  "test_description": "Test p=1e-5 (0x0B83 in-bounds) vs p=0.45 (0x0033 < 0x0040 -> clamps to AVID_Q78_MIN_SAFE and returns false)",
+  "test_set": "set2_output_statistics",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp",
+  "implementation_function": "avid_quantize_and_validate_bank",
+  "input_contract": "",
+  "independent_oracle": "p=1e-5 safe; p=0.45 clamped to 0x0040 with return false",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-OP-014$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+    "q78_1e5_and_045": "2947 (safe), 64 (clamped unsafe)"
+  },
+  "actual": {
+    "q78_1e5_and_045": "2947, 64"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set2/L3-OP-014.log",
+    "validation/layer3/raw_results/set2/L3-OP-014.json"
+  ],
+  "duration_ms": 0.065,
+  "failure_classification": null
+}

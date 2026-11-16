@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-021",
+  "test_name": "malformed_packet_in_dma_slot_isolation",
+  "test_description": "Inject flags=0 and PARITY_ERR packets amidst valid packets inside a DMA slot",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp, software/src/ingress/packet_validator.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot",
+  "input_contract": "",
+  "independent_oracle": "Valid packets accumulate cleanly; malformed packets rejected with invalid_flag_count==2 and unpolluted hist",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-021$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-021.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-021.json"
+  ],
+  "duration_ms": 0.040,
+  "failure_classification": null
+}

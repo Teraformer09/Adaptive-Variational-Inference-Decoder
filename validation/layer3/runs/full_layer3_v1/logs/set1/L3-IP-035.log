@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-035
+Test Name: bp_iteration_k_bounds_validation
+Status: PASS
+Source Commit: 3a1a6d6
+Implementation File: software/src/custom_engine/cycle_accurate_bp_engine.cpp, software/src/hal/simulation_backend.cpp
+Implementation Function: CycleAccurateBPEngine::decode, avid_hal_set_bp_iterations
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-035$" --output-on-failure
+Fixture: none
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

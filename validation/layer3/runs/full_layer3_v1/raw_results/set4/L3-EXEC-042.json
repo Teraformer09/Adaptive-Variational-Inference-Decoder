@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-EXEC-042",
+  "test_name": "slow_loop_cpu_utilization_telemetry_and_os_measurement",
+  "test_description": "Run avid_daemon across 50,000 rounds under /usr/bin/time and inspect slow_loop_cpu_utilization_10ms_pct",
+  "test_set": "set4_execution_recovery",
+  "status": "PASS",
+  "source_commit": "3a1a6d6",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main (slow_loop_cpu_utilization_10ms_pct)",
+  "input_contract": "",
+  "independent_oracle": "0.0 < slow_loop_cpu_utilization_10ms_pct < 100.0 and OS user+sys CPU finishes cleanly",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-EXEC-042$\" --output-on-failure",
+  "fixture": "",
+  "expected": {
+  },
+  "actual": {
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set4/L3-EXEC-042.log",
+    "validation/layer3/raw_results/set4/L3-EXEC-042.json"
+  ],
+  "duration_ms": 1327.174,
+  "failure_classification": null
+}
