@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-CFG-MISSING",
+  "test_name": "missing_required_runtime_inputs",
+  "test_description": "Missing required runtime inputs — verify avid_daemon safely rejects controller_mode=avid_r2d2 without --checkpoint, nonexistent --checkpoint, and nonexistent --stim-bin with exit code 2",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/inference/avid_daemon.cpp",
+  "implementation_function": "main CLI & required resource validation (--checkpoint, --stim-bin)",
+  "input_contract": "Missing required checkpoint or stimulus file must fail fast with non-zero exit code 2",
+  "independent_oracle": "avid_daemon.cpp lines 279-305 exit code == 2 and explicit error message on stderr",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-CFG-MISSING$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/configs/invalid/missing_required.yaml",
+  "expected": {
+    "missing_config": "All missing required resources and dangling value-flags rejected with non-zero exit code"
+  },
+  "actual": {
+    "missing_config": "missing_ckpt rc=2, bad_ckpt rc=2, bad_stim rc=2, dangling_window_flag rc=2"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-CFG-MISSING.log",
+    "validation/layer3/raw_results/set1/L3-CFG-MISSING.json"
+  ],
+  "duration_ms": 72.202,
+  "failure_classification": null
+}

@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-009
+Test Name: packet_truncation_and_boundaries
+Status: PASS
+Source Commit: d56747f
+Implementation File: software/src/hal/simulation_backend.cpp, software/src/inference/avid_daemon.cpp
+Implementation Function: send_bridge_request, avid_daemon(--stim-bin fread)
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-009$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/truncated_3B.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+HAL Unix socket truncated JSON rejected cleanly (rc=-1, rejected_transactions=1).
+avid_daemon --stim-bin with 3-byte truncated file exited with rc=0: NO
+

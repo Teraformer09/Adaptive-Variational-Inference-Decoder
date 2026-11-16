@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-006
+Test Name: timestamp_and_epoch_monotonicity
+Status: PASS
+Source Commit: d56747f
+Implementation File: software/src/ingress/packet_validator.cpp, software/src/control/causal_scheduler.cpp
+Implementation Function: avid_validate_packet, avid_fast_detector_step, avid_scheduler_schedule_commit
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-006$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/valid/packet_001.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+Authoritative temporal contract (syndrome_packet_v1.yaml v1.1.0): logical QEC time indexed by monotonic (epoch_id, seq_id) and round_idx.
+Backward epoch (5->2) rejected (epoch_regress_count=1); duplicate/backward round_idx (20->20, 20->18) rejected with ring_sum preserved.
+

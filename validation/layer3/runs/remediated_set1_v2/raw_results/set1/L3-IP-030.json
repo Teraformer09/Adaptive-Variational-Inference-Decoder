@@ -1,0 +1,30 @@
+{
+  "test_id": "L3-IP-030",
+  "test_name": "stale_observations_and_epoch_isolation",
+  "test_description": "Stale observations — verify 4-slot DMA ring overrun accounting, stale-epoch packet exclusion from histograms, and stale window rejection in scheduler",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/control/causal_scheduler.cpp",
+  "implementation_function": "avid_validate_packet, avid_fast_detector_step, avid_scheduler_schedule_commit",
+  "input_contract": "Overrun increments overflow_drops; packets from epoch < active_epoch and older scheduler windows rejected",
+  "independent_oracle": "Active epoch=5 vs packet epoch=1 histogram isolation + window_end_round=500 vs 100 ordering",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-030$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+  "expected": {
+    "stale_epoch_packet": "Rejected before contaminating current epoch histogram",
+    "stale_scheduler_window": "Rejected when window_end_round < pending window"
+  },
+  "actual": {
+    "dma_overflow_drops": "0",
+    "stale_epoch_packet": "Excluded",
+    "stale_scheduler_window": "Rejected"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-030.log",
+    "validation/layer3/raw_results/set1/L3-IP-030.json"
+  ],
+  "duration_ms": 0.058,
+  "failure_classification": null
+}

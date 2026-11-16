@@ -1,0 +1,15 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-003
+Test Name: packet_version_and_endianness
+Status: PASS
+Source Commit: d56747f
+Implementation File: software/src/ingress/packet_validator.cpp, software/src/hal/simulation_backend.cpp
+Implementation Function: avid_pack_packet_u64, avid_unpack_packet_u64, send_bridge_request
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-003$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/valid/yaml_v1_stream_2rounds.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+HAL JSON RPC protocol_version=1 accepted (rc=0) and protocol_version=99 rejected (rc=-1, rejected_transactions=1).
+Authoritative LE64 packet codec verified and legacy 0xAAEC0002 stream header safely rejected (invalid_flag_count=1).
+

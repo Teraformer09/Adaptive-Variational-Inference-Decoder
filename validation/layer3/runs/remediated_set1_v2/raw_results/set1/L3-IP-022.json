@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-022",
+  "test_name": "parameter_ordering_and_signatures",
+  "test_description": "Parameter ordering — verify exact 1-to-1 ordering of 9 single-qubit and 12 crosstalk pair parameters, stabilizer signatures, and permutation sensitivity",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/inference/noise_model.cpp",
+  "implementation_function": "NM_CROSSTALK_PAIRS, NM_EVENT_SIGNATURES, NM_EVENT_SIGNATURES_Z_BASIS",
+  "input_contract": "theta_[0..8]=p_0..p_8, theta_[9..20]=12 grid pairs matching parameter_schema.json",
+  "independent_oracle": "Rotated d=3 stabilizer incidence X={01,1245,3467,78}, Z={0134,25,36,4578} & parameter_schema.json",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-022$\" --output-on-failure",
+  "fixture": "architecture/estimator/parameter_schema.json",
+  "expected": {
+    "ordering_match": "21/21 parameters and X/Z signatures match oracle; non-aliased permutations change p_joint_"
+  },
+  "actual": {
+    "ordering_match": "21/21 matched; |dp_joint[3]|=0.154708, |dp_joint[6]|=0.154708"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-022.log",
+    "validation/layer3/raw_results/set1/L3-IP-022.json"
+  ],
+  "duration_ms": 0.093,
+  "failure_classification": null
+}

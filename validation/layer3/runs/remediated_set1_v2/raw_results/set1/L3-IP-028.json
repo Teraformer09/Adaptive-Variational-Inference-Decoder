@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-028",
+  "test_name": "out_of_range_and_nan_initial_guess",
+  "test_description": "Out-of-range / NaN initial guess — supply negative (-0.1), >0.5 (0.85), and NaN initial theta^(0) into HistogramLBFGSSolver::fit_histogram",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "Solver must reject invalid/non-finite initial guess or document deterministic sanitization without NaN corruption",
+  "independent_oracle": "validate_parameter_bounds(theta^(0)) == false -> explicit error or NaN-free safe handling",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-028$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/parameters/invalid/out_of_range_21.txt",
+  "expected": {
+    "nan_initial_guess": "Explicit rejection (+Inf, converged=false, 0 iters) without NaN propagation"
+  },
+  "actual": {
+    "nan_initial_guess": "Both OOB (-0.10, 0.85) and NaN initial guesses rejected cleanly (+Inf, converged=false, iterations_executed=0)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-028.log",
+    "validation/layer3/raw_results/set1/L3-IP-028.json"
+  ],
+  "duration_ms": 0.058,
+  "failure_classification": null
+}

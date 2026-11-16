@@ -1,0 +1,3 @@
+[L3-ABI-004] c_abi_runtime_config_hal — status=PASS checks_run=10 checks_failed=0 duration_ms=121.607
+Expected: All C-facing control, driver, and HAL headers compile under C11 and export unmangled C symbols
+Actual:   wrd/weight_bank C11 OK; avid_scheduler_init=FOUND, avid_fallback_init=FOUND, avid_hal.h -std=c11=PASS

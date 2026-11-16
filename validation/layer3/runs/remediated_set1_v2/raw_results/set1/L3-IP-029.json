@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-029",
+  "test_name": "sparse_sample_window_w_min_check",
+  "test_description": "Insufficient sample count — supply sparse N=3 and boundary N=63 (< W_min=64) vs N=64 (== W_min=64) histograms and verify W_min=64 hold/fit boundary",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/estimator/lbfgs_solver.cpp",
+  "implementation_function": "HistogramLBFGSSolver::fit_histogram",
+  "input_contract": "Authoritative minimum sample threshold W_min = 64 (AVID_SOLVER_MIN_WINDOW_SAMPLES = 64u): N < 64 holds prior; N >= 64 executes L-BFGS fit",
+  "independent_oracle": "N=3 and N=63 -> converged=false, iterations_executed=0, theta==prior; N=64 -> iterations_executed >= 1",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-029$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/histograms/sparse/sparse_total3.txt",
+  "expected": {
+    "sparse_sample_behavior": "Enforce authoritative W_min=64 hold/fallback on N=3 and N=63 samples, and fit on N=64"
+  },
+  "actual": {
+    "sparse_sample_behavior": "W_min=64 enforced; N=3 iters=0, N=63 iters=0 (theta_(4)=0.012 held), N=64 iters=20 (theta_(4)=0.311618)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-029.log",
+    "validation/layer3/raw_results/set1/L3-IP-029.json"
+  ],
+  "duration_ms": 0.977,
+  "failure_classification": null
+}

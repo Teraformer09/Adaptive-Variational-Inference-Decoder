@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-IP-027
+Test Name: valid_initial_guess_and_optimizer_reset
+Status: PASS
+Source Commit: d56747f
+Implementation File: software/src/estimator/lbfgs_solver.cpp
+Implementation Function: HistogramLBFGSSolver::fit_histogram, LBFGSOptimizer::reset
+Execution Command: ctest --test-dir build/layer3 -R "^L3-IP-027$" --output-on-failure
+Fixture: tests/layer3/fixtures/histograms/correlated/corr_total1000.txt
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

@@ -1,0 +1,446 @@
+Internal ctest changing into directory: /home/tirtha/avid-validation/layer3/build/layer3_standard
+UpdateCTestConfiguration  from :/home/tirtha/avid-validation/layer3/build/layer3_standard/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/home/tirtha/avid-validation/layer3/build/layer3_standard/DartConfiguration.tcl
+Test project /home/tirtha/avid-validation/layer3/build/layer3_standard
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+      Start  1: L3-IP-001
+
+1: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_valid "--test-id" "L3-IP-001" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+1: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+1: Test timeout computed to be: 10000000
+1: [L3-IP-001] status=PASS (valid_packet_ingress) duration_ms=0.835693
+ 1/54 Test  #1: L3-IP-001 ........................   Passed    0.06 sec
+test 2
+      Start  2: L3-IP-002
+
+2: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_invalid "--test-id" "L3-IP-002" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+2: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+2: Test timeout computed to be: 10000000
+2: [L3-IP-002] status=PASS (packet_length_and_wire_contract) duration_ms=2.37056
+ 2/54 Test  #2: L3-IP-002 ........................   Passed    0.04 sec
+test 3
+      Start  3: L3-IP-003
+
+3: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_endianness "--test-id" "L3-IP-003" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+3: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+3: Test timeout computed to be: 10000000
+3: [L3-IP-003] status=PASS (packet_version_and_endianness) duration_ms=1.46517
+ 3/54 Test  #3: L3-IP-003 ........................   Passed    0.05 sec
+test 4
+      Start  4: L3-IP-004
+
+4: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_flags "--test-id" "L3-IP-004" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+4: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+4: Test timeout computed to be: 10000000
+4: [L3-IP-004] status=PASS (packet_field_encoding_and_flags) duration_ms=0.733923
+ 4/54 Test  #4: L3-IP-004 ........................   Passed    0.04 sec
+test 5
+      Start  5: L3-IP-005
+
+5: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_field_decode "--test-id" "L3-IP-005" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+5: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+5: Test timeout computed to be: 10000000
+5: [L3-IP-005] status=PASS (syndrome_bit_range_and_field_decode) duration_ms=0.054298
+ 5/54 Test  #5: L3-IP-005 ........................   Passed    0.04 sec
+test 6
+      Start  6: L3-IP-006
+
+6: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_epoch "--test-id" "L3-IP-006" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+6: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+6: Test timeout computed to be: 10000000
+6: [L3-IP-006] status=PASS (timestamp_and_epoch_monotonicity) duration_ms=0.048659
+ 6/54 Test  #6: L3-IP-006 ........................   Passed    0.04 sec
+test 7
+      Start  7: L3-IP-007
+
+7: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_sequence "--test-id" "L3-IP-007" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+7: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+7: Test timeout computed to be: 10000000
+7: [L3-IP-007] status=PASS (packet_sequence_continuity) duration_ms=0.579392
+ 7/54 Test  #7: L3-IP-007 ........................   Passed    0.05 sec
+test 8
+      Start  8: L3-IP-008
+
+8: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_no_side_effect "--test-id" "L3-IP-008" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+8: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+8: Test timeout computed to be: 10000000
+8: [L3-IP-008] status=PASS (packet_corruption_and_no_side_effect) duration_ms=15.633
+ 8/54 Test  #8: L3-IP-008 ........................   Passed    0.06 sec
+test 9
+      Start  9: L3-IP-009
+
+9: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_boundary "--test-id" "L3-IP-009" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+9: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+9: Test timeout computed to be: 10000000
+9: [L3-IP-009] status=PASS (packet_truncation_and_boundaries) duration_ms=13.4098
+ 9/54 Test  #9: L3-IP-009 ........................   Passed    0.07 sec
+test 10
+      Start 10: L3-IP-010
+
+10: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_dma_ingress "--test-id" "L3-IP-010" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+10: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+10: Test timeout computed to be: 10000000
+10: [L3-IP-010] status=PASS (dma_ring_packet_burst_and_overflow) duration_ms=0.065338
+10/54 Test #10: L3-IP-010 ........................   Passed    0.05 sec
+test 11
+      Start 11: L3-IP-011
+
+11: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_accumulation "--test-id" "L3-IP-011" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+11: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+11: Test timeout computed to be: 10000000
+11: [L3-IP-011] status=PASS (histogram_dimensions_and_accumulation) duration_ms=0.620083
+11/54 Test #11: L3-IP-011 ........................   Passed    0.04 sec
+test 12
+      Start 12: L3-IP-012
+
+12: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_input_validation "--test-id" "L3-IP-012" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+12: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+12: Test timeout computed to be: 10000000
+12: [L3-IP-012] status=PASS (histogram_dimensionality_and_pointer_validation) duration_ms=3.5327
+12/54 Test #12: L3-IP-012 ........................   Passed    0.04 sec
+test 13
+      Start 13: L3-IP-013
+
+13: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_empty_observation "--test-id" "L3-IP-013" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+13: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+13: Test timeout computed to be: 10000000
+13: [L3-IP-013] status=PASS (empty_zero_count_histogram_handling) duration_ms=0.646698
+13/54 Test #13: L3-IP-013 ........................   Passed    0.06 sec
+test 14
+      Start 14: L3-IP-014
+
+14: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_accumulation "--test-id" "L3-IP-014" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+14: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+14: Test timeout computed to be: 10000000
+14: [L3-IP-014] status=PASS (single_state_histogram) duration_ms=0.485867
+14/54 Test #14: L3-IP-014 ........................   Passed    0.04 sec
+test 15
+      Start 15: L3-IP-015
+
+15: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_input_validation "--test-id" "L3-IP-015" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+15: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+15: Test timeout computed to be: 10000000
+15: [L3-IP-015] status=PASS (histogram_sum_invariance_1000_vs_10000) duration_ms=1.6346
+15/54 Test #15: L3-IP-015 ........................   Passed    0.04 sec
+test 16
+      Start 16: L3-IP-016
+
+16: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_input_validation "--test-id" "L3-IP-016" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+16: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+16: Test timeout computed to be: 10000000
+16: [L3-IP-016] status=PASS (normalized_empirical_distribution_input_check) duration_ms=0.06763
+16/54 Test #16: L3-IP-016 ........................   Passed    0.04 sec
+test 17
+      Start 17: L3-IP-017
+
+17: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_overflow "--test-id" "L3-IP-017" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+17: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+17: Test timeout computed to be: 10000000
+17: [L3-IP-017] status=PASS (histogram_counter_overflow) duration_ms=0.528945
+17/54 Test #17: L3-IP-017 ........................   Passed    0.05 sec
+test 18
+      Start 18: L3-IP-018
+
+18: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_reset "--test-id" "L3-IP-018" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+18: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+18: Test timeout computed to be: 10000000
+18: [L3-IP-018] status=PASS (window_rollover_and_histogram_reset) duration_ms=1.21912
+18/54 Test #18: L3-IP-018 ........................   Passed    0.05 sec
+test 19
+      Start 19: L3-IP-019
+
+19: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_snapshot "--test-id" "L3-IP-019" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+19: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+19: Test timeout computed to be: 10000000
+19: [L3-IP-019] status=PASS (concurrent_histogram_snapshot_and_synchronization) duration_ms=2.06092
+19/54 Test #19: L3-IP-019 ........................   Passed    0.05 sec
+test 20
+      Start 20: L3-IP-020
+
+20: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_channel_isolation "--test-id" "L3-IP-020" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+20: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+20: Test timeout computed to be: 10000000
+20: [L3-IP-020] status=PASS (histogram_xz_channel_isolation) duration_ms=0.050326
+20/54 Test #20: L3-IP-020 ........................   Passed    0.04 sec
+test 21
+      Start 21: L3-IP-021
+
+21: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_parameter_dimensions "--test-id" "L3-IP-021" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+21: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+21: Test timeout computed to be: 10000000
+21: [L3-IP-021] status=PASS (parameter_vector_dimension_21) duration_ms=0.872939
+21/54 Test #21: L3-IP-021 ........................   Passed    0.04 sec
+test 22
+      Start 22: L3-IP-022
+
+22: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_parameter_ordering "--test-id" "L3-IP-022" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+22: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+22: Test timeout computed to be: 10000000
+22: [L3-IP-022] status=PASS (parameter_ordering_and_signatures) duration_ms=0.093201
+22/54 Test #22: L3-IP-022 ........................   Passed    0.04 sec
+test 23
+      Start 23: L3-IP-023
+
+23: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_parameter_bounds "--test-id" "L3-IP-023" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+23: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+23: Test timeout computed to be: 10000000
+23: [L3-IP-023] status=PASS (valid_parameter_bounds_and_clamping) duration_ms=0.519442
+23/54 Test #23: L3-IP-023 ........................   Passed    0.04 sec
+test 24
+      Start 24: L3-IP-024
+
+24: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_parameter_nan_inf "--test-id" "L3-IP-024" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+24: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+24: Test timeout computed to be: 10000000
+24: [L3-IP-024] status=PASS (invalid_parameter_values_nan_inf_oob) duration_ms=0.060478
+24/54 Test #24: L3-IP-024 ........................   Passed    0.05 sec
+test 25
+      Start 25: L3-IP-025
+
+25: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_prior_validation "--test-id" "L3-IP-025" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+25: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+25: Test timeout computed to be: 10000000
+25: [L3-IP-025] status=PASS (prior_vector_validation_and_schema_consistency) duration_ms=0.079654
+25/54 Test #25: L3-IP-025 ........................   Passed    0.05 sec
+test 26
+      Start 26: L3-IP-026
+
+26: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_prior_validation "--test-id" "L3-IP-026" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+26: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+26: Test timeout computed to be: 10000000
+26: [L3-IP-026] status=PASS (regularization_lambda_validation_and_override) duration_ms=0.347678
+26/54 Test #26: L3-IP-026 ........................   Passed    0.04 sec
+test 27
+      Start 27: L3-IP-027
+
+27: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_parameter_bounds "--test-id" "L3-IP-027" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+27: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+27: Test timeout computed to be: 10000000
+27: [L3-IP-027] status=PASS (valid_initial_guess_and_optimizer_reset) duration_ms=1.66943
+27/54 Test #27: L3-IP-027 ........................   Passed    0.04 sec
+test 28
+      Start 28: L3-IP-028
+
+28: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_parameter_nan_inf "--test-id" "L3-IP-028" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+28: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+28: Test timeout computed to be: 10000000
+28: [L3-IP-028] status=PASS (out_of_range_and_nan_initial_guess) duration_ms=0.058367
+28/54 Test #28: L3-IP-028 ........................   Passed    0.05 sec
+test 29
+      Start 29: L3-IP-029
+
+29: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_empty_observation "--test-id" "L3-IP-029" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+29: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+29: Test timeout computed to be: 10000000
+29: [L3-IP-029] status=PASS (sparse_sample_window_w_min_check) duration_ms=0.977493
+29/54 Test #29: L3-IP-029 ........................   Passed    0.04 sec
+test 30
+      Start 30: L3-IP-030
+
+30: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_packet_epoch "--test-id" "L3-IP-030" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+30: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+30: Test timeout computed to be: 10000000
+30: [L3-IP-030] status=PASS (stale_observations_and_epoch_isolation) duration_ms=0.057694
+30/54 Test #30: L3-IP-030 ........................   Passed    0.04 sec
+test 31
+      Start 31: L3-IP-031
+
+31: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_consumption "--test-id" "L3-IP-031" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+31: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+31: Test timeout computed to be: 10000000
+31: [L3-IP-031] status=PASS (window_size_configuration_consumption) duration_ms=58.4707
+31/54 Test #31: L3-IP-031 ........................   Passed    0.10 sec
+test 32
+      Start 32: L3-IP-032
+
+32: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_valid "--test-id" "L3-IP-032" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+32: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+32: Test timeout computed to be: 10000000
+32: [L3-IP-032] status=PASS (commit_delay_configuration_and_daemon_wiring) duration_ms=40.4793
+32/54 Test #32: L3-IP-032 ........................   Passed    0.10 sec
+test 33
+      Start 33: L3-IP-033
+
+33: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_bounds "--test-id" "L3-IP-033" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+33: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+33: Test timeout computed to be: 10000000
+33: [L3-IP-033] status=PASS (optimizer_max_iters_cap_validation) duration_ms=1.3105
+33/54 Test #33: L3-IP-033 ........................   Passed    0.07 sec
+test 34
+      Start 34: L3-IP-034
+
+34: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_bounds "--test-id" "L3-IP-034" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+34: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+34: Test timeout computed to be: 10000000
+34: [L3-IP-034] status=PASS (burst_threshold_and_debounce_bounds) duration_ms=0.056086
+34/54 Test #34: L3-IP-034 ........................   Passed    0.04 sec
+test 35
+      Start 35: L3-IP-035
+
+35: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_types "--test-id" "L3-IP-035" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+35: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+35: Test timeout computed to be: 10000000
+35: [L3-IP-035] status=PASS (bp_iteration_k_bounds_validation) duration_ms=0.35633
+35/54 Test #35: L3-IP-035 ........................   Passed    0.04 sec
+test 36
+      Start 36: L3-IP-036
+
+36: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_unknown_fields "--test-id" "L3-IP-036" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+36: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+36: Test timeout computed to be: 10000000
+36: [L3-IP-036] status=PASS (unknown_config_fields_and_schema_enforcement) duration_ms=80.8806
+36/54 Test #36: L3-IP-036 ........................   Passed    0.12 sec
+test 37
+      Start 37: L3-IP-037
+
+37: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_consumption "--test-id" "L3-IP-037" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+37: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+37: Test timeout computed to be: 10000000
+37: [L3-IP-037] status=PASS (runtime_telemetry_and_epoch_reconciliation) duration_ms=17.5162
+37/54 Test #37: L3-IP-037 ........................   Passed    0.06 sec
+test 38
+      Start 38: L3-IP-038
+
+38: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_types "--test-id" "L3-IP-038" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+38: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+38: Test timeout computed to be: 10000000
+38: [L3-IP-038] status=PASS (safety_fsm_state_and_event_inputs) duration_ms=0.921395
+38/54 Test #38: L3-IP-038 ........................   Passed    0.05 sec
+test 39
+      Start 39: L3-IP-039
+
+39: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_valid "--test-id" "L3-IP-039" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+39: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+39: Test timeout computed to be: 10000000
+39: [L3-IP-039] status=PASS (active_decoder_weight_bank_readback) duration_ms=0.170708
+39/54 Test #39: L3-IP-039 ........................   Passed    0.05 sec
+test 40
+      Start 40: L3-IP-040
+
+40: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_bounds "--test-id" "L3-IP-040" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+40: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+40: Test timeout computed to be: 10000000
+40: [L3-IP-040] status=PASS (corrupted_candidate_weight_bank_rejection) duration_ms=0.207738
+40/54 Test #40: L3-IP-040 ........................   Passed    0.04 sec
+test 41
+      Start 41: L3-DMA-INVALID-PKT
+
+41: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_histogram_invalid_packet "--test-id" "L3-DMA-INVALID-PKT" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+41: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+41: Test timeout computed to be: 10000000
+41: [L3-DMA-INVALID-PKT] status=PASS (histogram_invalid_packet_exclusion) duration_ms=0.054119
+41/54 Test #41: L3-DMA-INVALID-PKT ...............   Passed    0.05 sec
+test 42
+      Start 42: L3-CFG-MISSING
+
+42: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_config_missing "--test-id" "L3-CFG-MISSING" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+42: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+42: Test timeout computed to be: 10000000
+42: [L3-CFG-MISSING] status=PASS (missing_required_runtime_inputs) duration_ms=72.202
+42/54 Test #42: L3-CFG-MISSING ...................   Passed    0.11 sec
+test 43
+      Start 43: L3-INT-001
+
+43: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_production_ingress_path "--test-id" "L3-INT-001" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+43: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+43: Test timeout computed to be: 10000000
+43: [L3-INT-001] status=PASS (production_daemon_ingress_path_audit) duration_ms=27.8159
+43/54 Test #43: L3-INT-001 .......................   Passed    0.07 sec
+test 44
+      Start 44: L3-INT-002
+
+44: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_daemon_histogram_path "--test-id" "L3-INT-002" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+44: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+44: Test timeout computed to be: 10000000
+44: [L3-INT-002] status=PASS (daemon_histogram_to_estimator_connectivity) duration_ms=30.2245
+44/54 Test #44: L3-INT-002 .......................   Passed    0.10 sec
+test 45
+      Start 45: L3-INT-003
+
+45: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_ring_buffer_connectivity "--test-id" "L3-INT-003" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+45: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+45: Test timeout computed to be: 10000000
+45: [L3-INT-003] status=PASS (ring_buffer_production_connectivity_audit) duration_ms=16.5965
+45/54 Test #45: L3-INT-003 .......................   Passed    0.08 sec
+test 46
+      Start 46: L3-INT-004
+
+46: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_invalid_input_propagation "--test-id" "L3-INT-004" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+46: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+46: Test timeout computed to be: 10000000
+46: [L3-INT-004] status=PASS (invalid_packet_end_to_end_propagation) duration_ms=35.6985
+46/54 Test #46: L3-INT-004 .......................   Passed    0.08 sec
+test 47
+      Start 47: L3-INT-005
+
+47: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/set1_test_stage6_producer_compatibility "--test-id" "L3-INT-005" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--daemon-bin" "/home/tirtha/avid-validation/layer3/build/layer3_standard/avid_daemon_under_test"
+47: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts
+47: Test timeout computed to be: 10000000
+47: [L3-INT-005] status=PASS (stage6_producer_to_daemon_consumer_compatibility) duration_ms=4746.35
+47/54 Test #47: L3-INT-005 .......................   Passed    4.81 sec
+test 48
+      Start 48: L3-ABI-001
+
+48: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi/c_abi_test_packet_abi "--test-id" "L3-ABI-001" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--c-compiler" "/usr/bin/cc"
+48: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi
+48: Test timeout computed to be: 10000000
+48: [L3-ABI-001] c_abi_packet_validator       -> PASS (checks=14, failed=0, 0.01 ms)
+48/54 Test #48: L3-ABI-001 .......................   Passed    0.03 sec
+test 49
+      Start 49: L3-ABI-002
+
+49: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi/c_abi_test_histogram_abi "--test-id" "L3-ABI-002" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--c-compiler" "/usr/bin/cc"
+49: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi
+49: Test timeout computed to be: 10000000
+49: [L3-ABI-002] c_abi_histogram_dma_ring     -> PASS (checks=10, failed=0, 0.22 ms)
+49/54 Test #49: L3-ABI-002 .......................   Passed    0.01 sec
+test 50
+      Start 50: L3-ABI-003
+
+50: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi/c_abi_test_parameter_abi "--test-id" "L3-ABI-003" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--c-compiler" "/usr/bin/cc"
+50: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi
+50: Test timeout computed to be: 10000000
+50: [L3-ABI-003] c_abi_parameter_llr_quantizer -> PASS (checks=4, failed=0, 0.03 ms)
+50/54 Test #50: L3-ABI-003 .......................   Passed    0.01 sec
+test 51
+      Start 51: L3-ABI-004
+
+51: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi/c_abi_test_runtime_config_abi "--test-id" "L3-ABI-004" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--c-compiler" "/usr/bin/cc"
+51: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi
+51: Test timeout computed to be: 10000000
+51: [L3-ABI-004] c_abi_runtime_config_hal     -> PASS (checks=10, failed=0, 121.61 ms)
+51/54 Test #51: L3-ABI-004 .......................   Passed    0.14 sec
+test 52
+      Start 52: L3-ABI-005
+
+52: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi/c_abi_test_struct_layout "--test-id" "L3-ABI-005" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--c-compiler" "/usr/bin/cc"
+52: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi
+52: Test timeout computed to be: 10000000
+52: [L3-ABI-005] c_abi_struct_layout_parity   -> PASS (checks=77, failed=0, 0.03 ms)
+52/54 Test #52: L3-ABI-005 .......................   Passed    0.02 sec
+test 53
+      Start 53: L3-ABI-006
+
+53: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi/c_abi_test_null_pointer "--test-id" "L3-ABI-006" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--c-compiler" "/usr/bin/cc"
+53: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi
+53: Test timeout computed to be: 10000000
+53: [L3-ABI-006] c_abi_null_pointer_safety    -> PASS (checks=10, failed=0, 12.84 ms)
+53/54 Test #53: L3-ABI-006 .......................   Passed    0.03 sec
+test 54
+      Start 54: L3-ABI-007
+
+54: Test command: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi/c_abi_test_buffer_ownership "--test-id" "L3-ABI-007" "--repo-root" "/home/tirtha/avid-validation/layer3" "--validation-dir" "/home/tirtha/avid-validation/layer3/validation/layer3/runs/remediated_set1_v2" "--c-compiler" "/usr/bin/cc"
+54: Working Directory: /home/tirtha/avid-validation/layer3/build/layer3_standard/set1_input_contracts/c_abi
+54: Test timeout computed to be: 10000000
+54: [L3-ABI-007] c_abi_buffer_ownership       -> PASS (checks=7, failed=0, 0.51 ms)
+54/54 Test #54: L3-ABI-007 .......................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 54
+
+Total Test time (real) =   7.72 sec

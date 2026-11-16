@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-INT-005
+Test Name: stage6_producer_to_daemon_consumer_compatibility
+Status: PASS
+Source Commit: d56747f
+Implementation File: software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp
+Implementation Function: stage6_stratified_sampler.py -> AvidInputAdapter -> stim_to_bin (0xAAEC0001 + dropout flags) -> avid_daemon --stim-bin
+Execution Command: ctest --test-dir build/layer3 -R "^L3-INT-005$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/valid/stage6_stratified_dropout_256.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

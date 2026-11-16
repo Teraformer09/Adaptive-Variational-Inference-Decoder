@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-020",
+  "test_name": "histogram_xz_channel_isolation",
+  "test_description": "X/Z independence — verify hist_x is strictly invariant to Z-syndrome stream variations and hist_z is strictly invariant to X-syndrome stream variations",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/ingress/dma_ingress_tap.cpp",
+  "implementation_function": "avid_dma_ring_consume_slot",
+  "input_contract": "syndrome_packet_v1.yaml invariant #1: independent X and Z channel accumulation",
+  "independent_oracle": "Paired differential stream experiment holding one channel fixed while permuting the other",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-020$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/burst_64_seq.bin",
+  "expected": {
+    "channel_isolation": "hist_x(A)==hist_x(B) and hist_z(C)==hist_z(D) bit-for-bit across all 16 bins"
+  },
+  "actual": {
+    "channel_isolation": "Exact 16/16 bin invariance verified in both X and Z directions"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-020.log",
+    "validation/layer3/raw_results/set1/L3-IP-020.json"
+  ],
+  "duration_ms": 0.050,
+  "failure_classification": null
+}

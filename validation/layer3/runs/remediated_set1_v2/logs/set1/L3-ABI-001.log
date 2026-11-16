@@ -1,0 +1,4 @@
+[L3-ABI-001] c_abi_packet_validator — status=PASS checks_run=14 checks_failed=0 duration_ms=0.015
+Expected: C11/C++17 layout equality and clean extern "C" call for packet_validator.h
+Actual:   sizeof(pkt)=12, sizeof(validator)=64, extern "C" call succeeded (checks_failed=0)
+  note[0]: Wire word is uint64_t (8 bytes); unpacked avid_syndrome_packet_t is 12 bytes (1-byte padding at byte 3); C11 and C++17 layouts match bit-for-bit.

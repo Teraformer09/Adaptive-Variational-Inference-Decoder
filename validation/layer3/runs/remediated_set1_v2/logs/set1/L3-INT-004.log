@@ -1,0 +1,13 @@
+=== AVID Layer 3 Test Execution Log ===
+Test ID: L3-INT-004
+Test Name: invalid_packet_end_to_end_propagation
+Status: PASS
+Source Commit: d56747f
+Implementation File: software/src/ingress/dma_ingress_tap.cpp, software/src/inference/avid_daemon.cpp
+Implementation Function: avid_dma_ring_consume_slot vs avid_daemon --stim-bin
+Execution Command: ctest --test-dir build/layer3 -R "^L3-INT-004$" --output-on-failure
+Fixture: tests/layer3/fixtures/packets/invalid/stim_parity_corrupted_64.bin
+Failure Classification: NONE
+----------------------------------------
+Initialized test context: build_config=Standard compiler=GCC/Clang 15.3.0 os=Linux 7.0.12+kali-amd64 x86_64
+

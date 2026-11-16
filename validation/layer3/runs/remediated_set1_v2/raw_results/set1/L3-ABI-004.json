@@ -1,0 +1,25 @@
+{
+  "test_id": "L3-ABI-004",
+  "test_name": "c_abi_runtime_config_hal",
+  "test_description": "Verify C11 compatibility of runtime control, driver, and HAL headers (including avid_hal.h C11 preprocessing and extern \"C\" linkage)",
+  "test_set": "set1_c_abi",
+  "status": "PASS",
+  "source_commit": "88df97e86b579b6e2865cc70dc4d0b08225d677b",
+  "implementation_file": "software/src/control/causal_scheduler.h, fallback_fsm.h, hal/avid_hal.h, driver/weight_reg_driver.h",
+  "implementation_function": "avid_scheduler_init, avid_fallback_init, avid_hal_open, wrd_open",
+  "input_contract": "Pure C11 (-std=c11) ABI, struct layout, symbol linkage, null safety, buffer ownership",
+  "independent_oracle": "C11 _Static_assert / offsetof / dlsym vs C++17 layout oracle",
+  "fixture": "none (direct C11 <-> C++17 binary ABI inspection)",
+  "expected": {
+    "summary": "All C-facing control, driver, and HAL headers compile under C11 and export unmangled C symbols"
+  },
+  "actual": {
+    "summary": "wrd/weight_bank C11 OK; avid_scheduler_init=FOUND, avid_fallback_init=FOUND, avid_hal.h -std=c11=PASS",
+    "checks_run": "10",
+    "checks_failed": "0"
+  },
+  "assertion_notes": [],
+  "evidence": ["validation/layer3/logs/set1/L3-ABI-004.log"],
+  "failure_classification": "",
+  "duration_ms": 121.607
+}

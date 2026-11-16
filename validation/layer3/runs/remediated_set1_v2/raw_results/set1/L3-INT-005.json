@@ -1,0 +1,28 @@
+{
+  "test_id": "L3-INT-005",
+  "test_name": "stage6_producer_to_daemon_consumer_compatibility",
+  "test_description": "Upstream Stage-6 producer compatibility — verify avid_daemon --stim-bin parses 16B 0xAAEC0001 Stage-6 headers, rejects malformed/legacy-u16 headers, preserves valid-round H_X/H_Z histograms across readout dropouts without false sequence gaps, and matches live Python Stage-6 output",
+  "test_set": "set1_integration",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/ingress/packet_validator.cpp, software/src/inference/avid_daemon.cpp",
+  "implementation_function": "stage6_stratified_sampler.py -> AvidInputAdapter -> stim_to_bin (0xAAEC0001 + dropout flags) -> avid_daemon --stim-bin",
+  "input_contract": "16-byte 0xAAEC0001 Stage-6 container (is_u64=1, d=3, 4x4 checks) + 64-bit packet payload with flags=0x00 on readout dropouts",
+  "independent_oracle": "Exact agreement between Stage-6 Python NPZ valid-round syndromes and C++ avid_daemon validator counters + 16-state histograms",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-INT-005$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/packets/valid/stage6_stratified_dropout_256.bin",
+  "expected": {
+    "stage6_compatibility": "0xAAEC0001 header parsed, malformed/u16 headers rejected (rc=2), readout dropouts excluded without false seq gaps, 32/32 histogram bins exact"
+  },
+  "actual": {
+    "fixture_256r": "valid=249, dropouts=7, seq_gaps=0, hist_bins_32_match=true, wrap_512_seq_gaps=0",
+    "live_stage6_python_producer": "EXECUTED_AND_MATCHED (valid=245, dropouts=11, seq_gaps=0, hist_bins_32_match=true)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-INT-005.log",
+    "validation/layer3/raw_results/set1/L3-INT-005.json"
+  ],
+  "duration_ms": 4746.349,
+  "failure_classification": null
+}

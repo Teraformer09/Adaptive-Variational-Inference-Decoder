@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-040",
+  "test_name": "corrupted_candidate_weight_bank_rejection",
+  "test_description": "Corrupted active config — inject out-of-range Q7.8 weights (negative, 0, >0x3000) and unphysical probabilities (>=0.5, NaN) and verify active decoder bank is never overwritten",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/estimator/llr_quantizer.cpp, control/fallback_fsm.cpp, driver/weight_bank_driver.c",
+  "implementation_function": "avid_quantize_and_validate_bank, avid_fallback_step, avid_weight_bank_write_and_commit",
+  "input_contract": "Q7.8 weights must lie in [AVID_Q78_MIN_SAFE=0x0040, AVID_Q78_MAX_SAFE=0x3000]; invalid banks trigger hold/fallback without commit",
+  "independent_oracle": "architecture/contracts/llr_numeric_contract.yaml & fault_policy.yaml",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-040$\" --output-on-failure",
+  "fixture": "none",
+  "expected": {
+    "corrupted_bank_protection": "bounds_ok=false rejected by quantizer; FSM reverts to SAFE_STATIC_PRIOR (0x0468=1128) and never selects corrupted candidate weights"
+  },
+  "actual": {
+    "corrupted_bank_protection": "bounds_ok=false, hold_state=HOLD_LAST_GOOD, bounds_fail_state=SAFE_STATIC_PRIOR, selected_weight[0]=1128 (corrupted -500/0x3500 blocked)"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-040.log",
+    "validation/layer3/raw_results/set1/L3-IP-040.json"
+  ],
+  "duration_ms": 0.208,
+  "failure_classification": null
+}

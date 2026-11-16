@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-039",
+  "test_name": "active_decoder_weight_bank_readback",
+  "test_description": "Active decoder config read — write 9 Q7.8 weights to shadow bank, verify active bank unchanged before commit, commit, and verify exact readback + out-of-range index safety",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/driver/weight_reg_driver.c, weight_bank_driver.c",
+  "implementation_function": "wrd_open, wrd_write_all_weights, wrd_commit, wrd_read_active_weight, avid_weight_bank_write_and_commit",
+  "input_contract": "9 signed 16-bit Q7.8 LLR weights in shadow/active register banks",
+  "independent_oracle": "weight_map_reg.sv contract: 0x000..0x020 shadow, 0x024..0x044 active, 0x048 commit",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-039$\" --output-on-failure",
+  "fixture": "none (emulated MMIO register file)",
+  "expected": {
+    "active_readback": "Shadow isolated prior to commit; exact 9-weight active readback after commit; OOB index -> 0"
+  },
+  "actual": {
+    "active_readback": "All 9 weights verified before/after commit; swap_count=2; OOB(-1,9)=0"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-039.log",
+    "validation/layer3/raw_results/set1/L3-IP-039.json"
+  ],
+  "duration_ms": 0.171,
+  "failure_classification": null
+}

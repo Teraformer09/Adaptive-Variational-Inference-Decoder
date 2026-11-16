@@ -1,0 +1,27 @@
+{
+  "test_id": "L3-IP-036",
+  "test_name": "unknown_config_fields_and_schema_enforcement",
+  "test_description": "Unknown configuration keys — verify configs/schema.yaml requires immediate failure on unknown keys, and test avid_daemon with unknown CLI flags (--unknown-key, --config)",
+  "test_set": "set1_input_contracts",
+  "status": "PASS",
+  "source_commit": "d56747f",
+  "implementation_file": "software/src/inference/avid_daemon.cpp, configs/schema.yaml",
+  "implementation_function": "avid_daemon CLI parser & YAML schema contract",
+  "input_contract": "configs/schema.yaml: 'Unknown top-level or nested keys trigger an immediate validation failure'",
+  "independent_oracle": "Non-zero exit code on unknown CLI flags and invalid configuration values",
+  "execution_command": "ctest --test-dir build/layer3 -R \"^L3-IP-036$\" --output-on-failure",
+  "fixture": "tests/layer3/fixtures/configs/invalid/unknown_key_experiment.yaml",
+  "expected": {
+    "unknown_field_rejection": "Immediate exit code 2 on unknown CLI flags, unknown controller_mode, and unknown/missing YAML keys; exit code 0 on valid_experiment.yaml"
+  },
+  "actual": {
+    "unknown_field_rejection": "invalid_configuration rc=2, osd_mode=9 rc=2, --unknown-key rc=2, --config unknown_key.yaml rc=2, --config missing_required.yaml rc=2, --config valid_experiment.yaml rc=0, bad controller_mode rc=2"
+  },
+  "assertion_notes": [],
+  "evidence": [
+    "validation/layer3/logs/set1/L3-IP-036.log",
+    "validation/layer3/raw_results/set1/L3-IP-036.json"
+  ],
+  "duration_ms": 80.881,
+  "failure_classification": null
+}

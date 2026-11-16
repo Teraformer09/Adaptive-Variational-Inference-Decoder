@@ -1,11 +1,11 @@
-# Layer 3 — Test Set 1 Remediation & Supplemental Gate `G1` Re-Evaluation Report (`remediated_set1_v1`)
+# Layer 3 — Test Set 1 Remediation & Supplemental Gate `G1` Re-Evaluation Report (`remediated_set1_v1` & `remediated_set1_v2`)
 
 ## 1. Executive Summary & Cross-Branch Scope Statement
 
 - **Layer 3 Status (`layer3-slow-loop-software`)**:
-  - **Test Set 1 (`set1_input_contracts`, `c_abi`, `integration`) has been remediated (`698771d2148cc5436f6b1a83eb98b4592ade0deb`) and re-executed in isolated run directory `validation/layer3/runs/remediated_set1_v1/`.**
-  - **Stage 1 Gate Outcome**: **`G1 = PASS`** (`51/51` gated items `PASS` + `2/2` diagnostic companions `PASS`; `ASan+UBSan CTest rc = 0`) and **`G10 = PASS`** (`stage1_gate_decision = STAGE1_ACCEPTED_G1_G10_PASS`).
-  - **Sets 2–5 Status**: **Not yet started (`G2..G9 = NOT_EVALUATED_YET`, `overall_layer3_decision = PENDING_SETS_2_TO_5`)** — execution halts here per the mandatory Stage 1 review gate.
+  - **Test Set 1 (`set1_input_contracts`, `c_abi`, `integration`) was initially remediated in `698771d` (`remediated_set1_v1`) and subsequently aligned in Phase 1 (`d56747fe57149aba132eeddff499482a23620a14`, recorded in `validation/layer3/runs/remediated_set1_v2/`) to resolve the `W_min = 64` specification discrepancy and verify live upstream Stage-6 `0xAAEC0001` + readout-dropout compatibility (`L3-INT-005`).**
+  - **Stage 1 Gate Outcome (`remediated_set1_v2`)**: **`G1 = PASS`** (`52/52` gated items `PASS`: `40 L3-IP + 7 L3-ABI + 5 L3-INT`, plus `2/2` diagnostic companions `PASS`; `ASan+UBSan CTest rc = 0`) and **`G10 = PASS`** (`stage1_gate_decision = STAGE1_ACCEPTED_G1_G10_PASS`).
+  - **Sets 2–5 Status (at Set 1 sign-off)**: **`G2..G9 = NOT_EVALUATED_YET` (`overall_layer3_decision = PENDING_SETS_2_TO_5`)** until Sets 2–5 are implemented and executed in Phase 3.
 - **Layer 4 Status (`layer4-cosim-bridge-emu` @ `dd5ec1f2dcb531764a6d3f5940f184f426e93f10`)**:
   - **Only pre-implementation traceability (`LAYER4_IMPLEMENTATION_TO_TEST_TRACEABILITY.md`) is complete and pushed.** Layer 4 test implementation and execution have **not** started.
 - **Frozen Reference Baseline (`AVID_EPJ_Patches`)**:
@@ -106,4 +106,19 @@
 | `G2`–`G9` | Mathematical, Output/Statistical, Flow, Execution, & Efficacy Gates | `NOT_EVALUATED_YET` | Deferred to Sets 2–5 |
 | `G10` | Reproducibility, Traceability, & Branch Isolation Integrity | **`PASS`** | `243/243` canonical IDs intact, `be50761` baseline artifacts untouched, `AVID_EPJ_Patches` (`54da68d`) untouched |
 
-**Next Action**: Pause at Stage 1 completion (`STAGE1_ACCEPTED_G1_G10_PASS`) awaiting user review before starting Layer 3 Test Set 2 (`set2_output_and_stats`).
+---
+
+## 6. Phase 1 Audit-Gap Alignment (`remediated_set1_v2` @ `d56747f`)
+
+Following independent review of `remediated_set1_v1` (`698771d` / `ce1b64c`), two cross-cutting Set 1 items were resolved in `d56747fe57149aba132eeddff499482a23620a14` and verified in isolated run directory `validation/layer3/runs/remediated_set1_v2/` (preserving `88df97e_set1_baseline` and `remediated_set1_v1` untouched):
+
+1. **Authoritative `W_min = 64` Specification & Implementation Alignment (`D1`)**:
+   - Updated `AVID_SOLVER_MIN_WINDOW_SAMPLES` from `16u` to `64u` in `software/src/estimator/lbfgs_solver.h` (and `lbfgs_solver.cpp`), aligned `F02`/`F04` in `architecture/contracts/fault_policy.yaml` to `W_min = 64`, and expanded `L3-IP-029` (`test_empty_observation.cpp`) to verify both `N = 3` and exact below-threshold boundary `N = 63` hold the prior (`insufficient_samples = true, iterations_executed = 0`) while exact threshold `N = 64` executes the L-BFGS fit (`PASS`).
+2. **Upstream Stage-6 Producer (`0xAAEC0001` Header + Readout Dropouts) Compatibility (`D2` / `L3-INT-005`)**:
+   - Updated Layer 1 (`layer1-noise-stimulus` @ `5b4e53b`, `simulation/stimulus/stim_to_bin.py` & `avid_input_adapter.py`) so detector readout dropouts (`validity_mask_x == 0` or `validity_mask_z == 0`) clear `flags = 0x00` (`VALID = 0`) while keeping monotonic `seq_id`.
+   - Added `avid_inspect_stream_container` and `pending_dropout_span` sequence tracking (`sizeof(avid_packet_validator_t) == 64` preserved across all `7/7` C11 ABI checks) in `software/src/ingress/packet_validator.{h,cpp}` and wired header-aware `fseek(..., stim_payload_offset, SEEK_SET)` + wrapped `seq_id` continuity into `software/src/inference/avid_daemon.cpp`.
+   - Added `L3-INT-005` (`test_stage6_producer_compatibility.cpp`, **67th** compiled translation unit -> `134` dual-build compiler invocations), verifying:
+     - Malformed/truncated, legacy `is_u64 = 0`, and wrong-geometry (`d = 5`) `0xAAEC0001` headers are rejected with `rc = 2`.
+     - Deterministic 256-round Stage-6 dropout fixture (`249` valid, `7` dropouts) and 512-round wrapped pass produce `0` false sequence gaps and exact `32/32` (`H_X[16], H_Z[16]`) histogram agreement.
+     - Live Python `stage6_stratified_sampler.py -> AvidInputAdapter` stream (`245` valid, `11` dropouts) matches C++ `avid_daemon --stim-bin` counters and all `32/32` histogram bins bit-for-bit (`ASan+UBSan rc = 0`, `G1 = 52/52 PASS`, `G10 = PASS`).
+
