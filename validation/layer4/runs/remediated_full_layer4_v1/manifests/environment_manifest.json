@@ -1,0 +1,46 @@
+{
+  "run_id": "remediated_full_layer4_v1",
+  "generated_utc": "2026-11-16T06:33:25.838175+00:00",
+  "git_branch": "layer4-cosim-bridge-emu",
+  "git_commit": "a53d13fa5583195d8b8fabbd0764e7ed5a6b5d9d",
+  "code_git_dirty": false,
+  "code_git_dirty_details": [],
+  "frozen_baseline_commit": "54da68d92778e4e1ffde9514aaaae585638761ff",
+  "host_platform": "Linux-7.0.12+kali-amd64-x86_64-with-glibc2.43",
+  "python_version": "3.14.6",
+  "cxx_compiler": "g++ (Debian 15.3.0-1) 15.3.0",
+  "verilator_version": "Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429",
+  "qemu_arm_version": "qemu-arm version 11.1.0 (Debian 1:11.1.0+ds-2)",
+  "qemu_aarch64_version": "qemu-aarch64 version 11.1.0 (Debian 1:11.1.0+ds-2)",
+  "arm_cross_cxx_version": "arm-linux-gnueabihf-g++-15 (Debian 15.3.0-2) 15.3.0",
+  "aarch64_cross_cxx_version": "aarch64-linux-gnu-g++-15 (Debian 15.3.0-2) 15.3.0",
+  "rtl_build_provenance": {
+    "simulator_mode": "verilator_c++_rtl",
+    "native_verilator_compiled": true,
+    "verilator_version": "Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429",
+    "host_cxx_version": "g++ (Debian 15.3.0-1) 15.3.0",
+    "verilator_flags": "--cc --exe --build --trace --assert -Wno-fatal --top-module aa_qec_top",
+    "cflags": "-O2 -std=c++17 -DUSE_VERILATOR=1",
+    "git_commit": "a53d13fa5583195d8b8fabbd0764e7ed5a6b5d9d",
+    "rtl_source_sha256": {
+      "firmware/rtl/decoder/check_node_minsum.sv": "7c2f901bd706dbe874cb6600cf59c9866ebfed70f4dd59aad96240afa88798b3",
+      "firmware/rtl/ingress/axis_ingress_tap.sv": "8077a9d47fedf5e40881033f6335d0f219ea5d08e79474167454214cb58320d1",
+      "firmware/rtl/ingress/axis_syndrome_rx.sv": "6f3539e3aea66b5dfc2769a5200a445cce87399f7be8aca94bb46087d3a17667",
+      "firmware/rtl/decoder/axis_correction_tx.sv": "32a6414a30b9769013010a1a422b8df922f5622a5b3dc0028b5c123c09e7df29",
+      "firmware/rtl/config/weight_map_reg.sv": "e16dc34f04bda7cc7ceb5ec9e0bb5b0ae1571322f9899cd4221f14dd618d904d",
+      "firmware/rtl/decoder/bp_engine.sv": "e19f719d8fe2b695295c58c69fa9de9bcaf3bc643e2e8c6c309f675329ecb096",
+      "firmware/rtl/top/aa_qec_top.sv": "64c25452045187fec4d4d8aebe553ab030365fdaa9b0a5e2c4736f096bbabb0d"
+    },
+    "generated_verilator_header_sha256": "571b0b1c6db265d72c49a4561a233e33b19dced0d521901815e5541b84714643"
+  },
+  "guest_elf_sha256": {
+    "avid_daemon_cortex_a9": "75c263579faf005ea9725217548c43188c4aa8ba9a43ebdb1178a46dd934f2bf",
+    "avid_daemon_aarch64": "6847c3b46f75c4da3ac29b463430a167d47a25fad0ee01a1a46e66c8f4f4ea5b"
+  },
+  "standalone_vcd_sha256": "16260dfe074c776ece89bb7a02c179c3e394227622116eb3250920dba898f27e",
+  "standalone_vcd_bytes": 1566062,
+  "fidelity_disclaimers": {
+    "qemu_scope": "QEMU execution uses Linux user-mode instruction/ABI translation (qemu-arm -cpu cortex-a9 and qemu-aarch64 -cpu cortex-a53) forwarding AF_UNIX socket syscalls to the host kernel. It validates 32-bit/64-bit ARM ELF ABI, struct packing, endianness, Q7.8 serialization, and RPC lockstep, but does NOT emulate a full-system kernel, device tree, physical /dev/mem AXI bus, or GIC hardware interrupt controller.",
+    "rtl_timing_scope": "Verilator cycle counts prove cycle-exact synchronous RTL state-machine behavior of aa_qec_top at a nominal 4.0 ns (250 MHz) simulation period, but do NOT substitute for post-place-and-route Vivado Static Timing Analysis (WNS/TNS), physical clock-domain crossing jitter, or cryogenic/analog readout physics."
+  }
+}

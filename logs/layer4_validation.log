@@ -1,40 +1,280 @@
-=== Layer 4 Validation: Co-Simulation Bridge & Emulators ===
-Branch: layer4-cosim-bridge-emu | Commit: 54da68d
--- The CXX compiler identification is GNU 15.3.0
--- The C compiler identification is GNU 15.3.0
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Configuring done (3.9s)
--- Generating done (0.1s)
--- Build files have been written to: /tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/emulator/bridge/build_layer4
-[ 50%] Building CXX object CMakeFiles/avid_cosim_bridge.dir/src/cosim_bridge_main.cpp.o
-[100%] Linking CXX executable avid_cosim_bridge
-[100%] Built target avid_cosim_bridge
-[ 14%] Building CXX object CMakeFiles/test_bridge_transactions.dir/tests/test_bridge_transactions.cpp.o
-[ 28%] Building CXX object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/hal/physical_backend.cpp.o
-[ 42%] Building CXX object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/hal/simulation_backend.cpp.o
-[ 57%] Building C object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/driver/weight_reg_driver.c.o
-[ 71%] Building C object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/driver/weight_bank_driver.c.o
-[ 85%] Building CXX object CMakeFiles/test_bridge_transactions.dir/tmp/avid_layer_worktrees/layer4-cosim-bridge-emu/software/src/custom_engine/cycle_accurate_bp_engine.cpp.o
-[100%] Linking CXX executable test_bridge_transactions
-[100%] Built target test_bridge_transactions
+=== Layer 4 Validation: Co-Simulation Bridge & Emulators (Run: remediated_full_layer4_v1) ===
+Branch: layer4-cosim-bridge-emu | Commit: a53d13fa5583195d8b8fabbd0764e7ed5a6b5d9d
+[Verilator Build] Compiling SystemVerilog RTL (aa_qec_top) with Verilator (--assert enabled)...
+[Verilator Build] Built Native Verilated binaries in /home/tirtha/avid-validation/layer4/emulator/verilator/models (Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429)
+[QEMU Build] Building native x86_64 AVID guest twin...
+[QEMU Build] Cross-compiling AVID daemon for Zynq-7020 ARM Cortex-A9 (arm-linux-gnueabihf)...
+[QEMU Build] Built Zynq-7020 ARM Cortex-A9 ELF: /home/tirtha/avid-validation/layer4/emulator/qemu/images/avid_daemon_cortex_a9
+[QEMU Build] Cross-compiling AVID daemon for Kria K26 ARM64 Cortex-A53 (aarch64-linux-gnu)...
+[QEMU Build] Built Kria K26 ARM64 Cortex-A53 ELF: /home/tirtha/avid-validation/layer4/emulator/qemu/images/avid_daemon_aarch64
+--- [Stage 1] Standalone Native Verilator RTL Testbench & IP/OP Pytest ---
+[Verilator M1] Standalone RTL test passed (verilator_c++_rtl): K=1..5 core={7,12,17,22,27} axis={12,17,22,27,32} (K=3 -> 17 core / 22 AXI cycles, ref_mismatches=0)
 ============================= test session starts ==============================
 platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
 cachedir: .pytest_cache
-rootdir: /tmp/avid_layer_worktrees/layer4-cosim-bridge-emu
+rootdir: /home/tirtha/avid-validation/layer4
 configfile: pytest.ini
 plugins: typeguard-4.4.4, anyio-4.11.0
 collecting ... collected 1 item
 
 tests/test_layer4_ip_op.py::test_layer4_bridge_ip_op_protocol PASSED     [100%]
 
-============================== 1 passed in 0.17s ===============================
-[PASS] Layer 4 IP & OP verification complete.
+============================== 1 passed in 0.12s ===============================
+--- [Stage 2] Building 19 Layer 4 C++ Validation Binaries + Fallback Reference Bridge ---
+-- Configuring done (0.6s)
+-- Generating done (0.6s)
+-- Build files have been written to: /home/tirtha/avid-validation/layer4/build/layer4_tests
+[  4%] Built target avid_cosim_bridge_fallback
+[ 17%] Built target avid_l4_hal_lib
+[ 21%] Built target test_mmio_contract
+[ 26%] Built target test_transaction_ordering
+[ 30%] Built target test_rpc_schema
+[ 34%] Built target test_syndrome_transfer
+[ 39%] Built target test_socket_recovery
+[ 43%] Built target test_acknowledgements
+[ 47%] Built target test_cycle_accounting
+[ 52%] Built target test_rtl_response_consistency
+[ 56%] Built target test_deterministic_replay
+[ 60%] Built target test_bridge_startup
+[ 65%] Built target test_runtime_stress
+[ 69%] Built target test_fault_injection
+[ 73%] Built target test_restart_recovery
+[ 78%] Built target test_axil_protocol
+[ 82%] Built target test_axis_syndrome_protocol
+[ 86%] Built target test_cycle_fidelity
+[ 91%] Built target test_weight_bank_semantics
+[ 95%] Built target test_cosim_fidelity_limits
+[100%] Built target test_decoder_equivalence
+--- [Set 1] Input Contract Tests (47 IDs) ---
+[set1_rpc_schema] L4-I01         PASS   (2.20 ms, rtl_cyc=22) shadow_x[0]=320
+[set1_rpc_schema] L4-I02         PASS   (5.11 ms, rtl_cyc=36) 6 register classes matched reset/configured values
+[set1_rpc_schema] L4-I03         PASS   (1.06 ms, rtl_cyc=58) corr_x=16 corr_z=16 bp=17
+[set1_rpc_schema] L4-I04         PASS   (3.70 ms, rtl_cyc=78) delta_cyc=16 epoch=0
+[set1_rpc_schema] L4-I05         PASS   (1.27 ms, rtl_cyc=84) status=ERR_UNKNOWN_OP
+[set1_rpc_schema] L4-I06         PASS   (3.24 ms, rtl_cyc=84) ERR_MISSING_VERSION,ERR_MISSING_TX_ID,ERR_MISSING_OPERATION,ERR_MISSING_FIELD,ERR_MISSING_FIELD
+[set1_rpc_schema] L4-I07         PASS   (3.31 ms, rtl_cyc=106) ERR_INVALID_TYPE/ERR_INVALID_TYPE/ERR_INVALID_TYPE bool_tlast_irq=1
+[set1_rpc_schema] L4-I08         PASS   (4.08 ms, rtl_cyc=108) all 4 malformed variants -> ERR_MALFORMED_JSON, +0 cycles
+[set1_rpc_schema] L4-I09         PASS   (1.42 ms, rtl_cyc=112) bare '\n' + immediate-EOF client handled cleanly
+[set1_rpc_schema] L4-I10         PASS   (10.52 ms, rtl_cyc=114) oversized=ERR_OVERSIZED follow_up=OK
+[set1_rpc_schema] L4-I11         PASS   (23.14 ms, rtl_cyc=214) 50/50 pipelined 17B-chunked responses matched exact tx_id
+[set1_rpc_schema] L4-I12         PASS   (5.07 ms, rtl_cyc=238) recovered cleanly after 4 errors; corr_z=16
+[set1_mmio_contract] L4-MMIO-01     PASS   (33.19 ms, rtl_cyc=102) verified 41/41 mapped offsets
+[set1_mmio_contract] L4-MMIO-02     PASS   (11.46 ms, rtl_cyc=126) all 6 unmapped read/write pairs rejected with SLVERR
+[set1_mmio_contract] L4-MMIO-03     PASS   (11.56 ms, rtl_cyc=148) shadow_x[0] intact at 0x0232 after 5 unaligned attempts
+[set1_mmio_contract] L4-MMIO-04     PASS   (5.47 ms, rtl_cyc=160) RO registers rejected writes; epoch=0 active_x[0]=0x0232
+[set1_mmio_contract] L4-MMIO-05     PASS   (2.71 ms, rtl_cyc=166) COMMIT readback=0 when idle; write 0 leaves epoch=0
+[set1_mmio_contract] L4-MMIO-06     PASS   (16.18 ms, rtl_cyc=206) rejected {0,6,7,15,0x13,0x103} on 0x054 and {3,4,0x11} on 0x058; K=1..5 OK
+[set1_mmio_contract] L4-MMIO-07     PASS   (7.50 ms, rtl_cyc=222) verified wstrb=0x3->0x1234, 0x1->0x12AA, 0x2->0x56AA, 0x0->unchanged
+[set1_mmio_contract] L4-MMIO-08     PASS   (38.36 ms, rtl_cyc=312) all 36 weights=0x0232, status=0, epoch=0, K=3, osd=1
+[set1_mmio_contract] L4-MMIO-09     PASS   (46.49 ms, rtl_cyc=422) 18/18 inhomogeneous X/Z weights isolated before commit and exact after commit
+[set1_mmio_contract] L4-MMIO-10     PASS   (35.75 ms, rtl_cyc=512) 45 interleaved R/W ops returned exact values with zero cross-bank bleed
+[set1_mmio_contract] L4-MMIO-11     PASS   (86.91 ms, rtl_cyc=712) 100/100 MMIO ops had exact C_accepted=prev_C_completed and C_latency=2
+[set1_mmio_contract] L4-MMIO-12     PASS   (7.30 ms, rtl_cyc=748) mid_decode STATUS=3 torn_write=ERR_INVALID_REGISTER post_decode active_z[4]=320
+[set1_mmio_contract] L4-MMIO-13     PASS   (0.57 ms, rtl_cyc=17) awready=wready=arready=0 while aresetn=0; post-reset rdata=0x0232
+[set1_syndrome_transfer] L4-SYND-01     PASS   (2.85 ms, rtl_cyc=42) 0xFF->OK, 0x100->ERR_INVALID_SYNDROME, 0xFFFF->ERR_INVALID_SYNDROME
+[set1_syndrome_transfer] L4-SYND-02     PASS   (8.87 ms, rtl_cyc=218) bits 0..3 of sx and sz satisfy H_X*corr_z == sx and H_Z*corr_x == sz
+[set1_syndrome_transfer] L4-SYND-03     PASS   (361.22 ms, rtl_cyc=5850) satisfied 256/256 packed (sx,sz) combinations
+[set1_syndrome_transfer] L4-SYND-04     PASS   (51.61 ms, rtl_cyc=6598) zero cross-talk across 16 opponent-basis sweeps
+[set1_syndrome_transfer] L4-SYND-05     PASS   (1.50 ms, rtl_cyc=6620) latency=22 cycles (bp=17)
+[set1_syndrome_transfer] L4-SYND-06     PASS   (0.88 ms, rtl_cyc=32) atomic 16b beat verified (TKEEP intentionally absent per fixed-beat RTL spec)
+[set1_syndrome_transfer] L4-SYND-07     PASS   (2.35 ms, rtl_cyc=6664) tlast=0 -> irq=0; tlast=1 -> irq=1 propagated to HAL stats
+[set1_syndrome_transfer] L4-SYND-08     PASS   (0.63 ms, rtl_cyc=336) accepted=17 before s_axis_tready=0, drained=17
+[set1_syndrome_transfer] L4-SYND-09     PASS   (3.48 ms, rtl_cyc=6686) 1-byte chunked SYNDROME_TRANSFER -> status=OK
+[set1_syndrome_transfer] L4-SYND-10     PASS   (1.11 ms, rtl_cyc=6708) corr_x=0 corr_z=0 bp=17
+[set1_syndrome_transfer] L4-SYND-11     PASS   (0.99 ms, rtl_cyc=6730) sx(cz)=15 sz(cx)=15
+[set1_syndrome_transfer] L4-SYND-12     PASS   (37.90 ms, rtl_cyc=7434) 32/32 beats bit-exact with exact +22 cycle progression
+[set1_syndrome_transfer] L4-SYND-13     PASS   (2.40 ms, rtl_cyc=7456) second SYNDROME_START -> ERR_BUSY
+[set1_syndrome_transfer] L4-SYND-14     PASS   (1.69 ms, rtl_cyc=7490) post-reset decode satisfied X/Z syndromes in 17 core cycles
+[set1_tx_ordering] L4-SEQ-01      PASS   (19.08 ms, rtl_cyc=94) K=5 -> bp_cycles=27 corr_z=16
+[set1_tx_ordering] L4-SEQ-02      PASS   (1.89 ms, rtl_cyc=126) pre-config bp_cycles=17
+[set1_tx_ordering] L4-SEQ-03      PASS   (3.03 ms, rtl_cyc=164) mid-decode RESET -> post-reset SYNDROME_TRANSFER OK (bp=17)
+[set1_tx_ordering] L4-SEQ-04      PASS   (2.83 ms, rtl_cyc=168) adj=ERR_DUPLICATE_TX_ID non_adj=ERR_DUPLICATE_TX_ID
+[set1_tx_ordering] L4-SEQ-05      PASS   (1.44 ms, rtl_cyc=170) tx 85010 -> 85005 => ERR_OUT_OF_ORDER_TX_ID
+[set1_tx_ordering] L4-SEQ-06      PASS   (2.71 ms, rtl_cyc=0) rc1=-1 id_mismatch=1 rc2=-1 rejected=2
+[set1_tx_ordering] L4-SEQ-07      PASS   (7.79 ms, rtl_cyc=346) 8/8 queued decodes executed in FIFO order with 22-cycle contiguous timeline
+[set1_socket_recovery] L4-SEQ-08      PASS   (267.94 ms, rtl_cyc=524) reconnect_events=10 final_epoch=10 K=4 osd=2 intact
+--- [Set 2] Output & Transaction Correctness Tests (28 IDs) ---
+[set2_acknowledgements] L4-ACK-01      PASS   (2.80 ms, rtl_cyc=24) wr=[20,22] rd=[22,24]
+[set2_acknowledgements] L4-ACK-02      PASS   (1.14 ms, rtl_cyc=46) acc=24 comp=46 bp=17 axis=22
+[set2_acknowledgements] L4-ACK-03      PASS   (1.72 ms, rtl_cyc=68) start_comp=49 wait_comp=68 inflight=1
+[set2_acknowledgements] L4-ACK-04      PASS   (0.81 ms, rtl_cyc=68) status=ERR_INVALID_SYNDROME delta=0
+[set2_acknowledgements] L4-ACK-05      PASS   (0.83 ms, rtl_cyc=70) rdata=0xDEADBEEF delta=2
+[set2_acknowledgements] L4-ACK-06      PASS   (1.29 ms, rtl_cyc=92) acc=70 comp=92 irq_events=1
+[set2_acknowledgements] L4-ACK-07      PASS   (9.40 ms, rtl_cyc=92) tid=0 status=ERR_OVERSIZED
+[set2_cycle_accounting] L4-CYC-01      PASS   (1.78 ms, rtl_cyc=22) C_accepted=20 C_completed=22
+[set2_cycle_accounting] L4-CYC-02      PASS   (1.01 ms, rtl_cyc=24) C_accepted=22 C_completed=24
+[set2_cycle_accounting] L4-CYC-03      PASS   (10.52 ms, rtl_cyc=146) K=1..5 Mode 0 core={7,12,17,22,27} axis={12,17,22,27,32}
+[set2_cycle_accounting] L4-CYC-04      PASS   (11.87 ms, rtl_cyc=268) K=1..5 Mode 1 core={7,12,17,22,27} axis={12,17,22,27,32}
+[set2_cycle_accounting] L4-CYC-05      PASS   (16.46 ms, rtl_cyc=402) K=1..5 Mode 2 core={9,14,19,24,29} axis={14,19,24,29,34}
+[set2_cycle_accounting] L4-CYC-06      PASS   (0.82 ms, rtl_cyc=32) ingress=2 core=17 egress=3 total=22
+[set2_cycle_accounting] L4-CYC-07      PASS   (0.19 ms, rtl_cyc=41) corr_valid_c=21 irq_pulse_c=21 width=1
+[set2_cycle_accounting] L4-CYC-08      PASS   (3.87 ms, rtl_cyc=493) verified exact delta N for N in {4, 10, 25, 50}
+[set2_cycle_accounting] L4-CYC-09      PASS   (52.94 ms, rtl_cyc=497) comp1=495 acc2_after_50ms=495
+[set2_cycle_accounting] L4-CYC-10      PASS   (0.19 ms, rtl_cyc=39) held swap_pending for 7 busy core cycles
+[set2_rtl_consistency] L4-CONS-01     PASS   (32.83 ms, rtl_cyc=96) 18/18 active weights + epoch_count=1 identical between Bridge and standalone Vaa_qec_top
+[set2_rtl_consistency] L4-CONS-02     PASS   (43.98 ms, rtl_cyc=800) 32/32 decodes matched corr_x/z, bp_cycles, epoch_irq, and exact clock cycles
+[set2_rtl_consistency] L4-CONS-03     PASS   (28.84 ms, rtl_cyc=32) raw_tdata=8208 px=16 pz=16
+[set2_rtl_consistency] L4-CONS-04     PASS   (0.94 ms, rtl_cyc=802) pin_ok=0 r_pin=0xdeadbeef r_bridge=0xdeadbeef
+[set2_rtl_consistency] L4-CONS-05     PASS   (1.50 ms, rtl_cyc=824) tx_id=6000 JSONL fields matched HAL 100%
+[set2_deterministic_replay] L4-DET-01      PASS   (0.01 ms, rtl_cyc=1394) 48x5 corrections bit-exact across all 5 runs
+[set2_deterministic_replay] L4-DET-02      PASS   (0.02 ms, rtl_cyc=1394) final_cycle=1394 identical across 5 runs
+[set2_deterministic_replay] L4-DET-03      PASS   (0.00 ms, rtl_cyc=1394) final_epoch=2 active_checksum=3059738684
+[set2_deterministic_replay] L4-DET-04      PASS   (0.06 ms, rtl_cyc=1394) JSONL bytes=48261 byte-identical across 5 runs
+[set2_deterministic_replay] L4-DET-05      PASS   (0.00 ms, rtl_cyc=1394) metrics JSON bytes=435 byte-identical
+[set2_deterministic_replay] L4-DET-06      PASS   (0.01 ms, rtl_cyc=1394) final_sim_cycle=1394 final_sim_time_ns=5576
+--- [Set 5] Hardware-Interface & Co-Simulation-Specific Tests (53 IDs) ---
+[set5_axil_protocol] L4-AXIL-01     PASS   (0.50 ms, rtl_cyc=14) bvalid pulsed 1 cycle, bresp=0, rdata=0x0155
+[set5_axil_protocol] L4-AXIL-02     PASS   (0.07 ms, rtl_cyc=20) 5-cycle AW->W split write read back 0x01AA
+[set5_axil_protocol] L4-AXIL-03     PASS   (0.06 ms, rtl_cyc=20) 5-cycle W->AW split write read back 0x01BB
+[set5_axil_protocol] L4-AXIL-04     PASS   (0.08 ms, rtl_cyc=18) bvalid=1 & awready=0 held stable across 6 stalled cycles
+[set5_axil_protocol] L4-AXIL-05     PASS   (0.07 ms, rtl_cyc=20) rvalid=1, rdata=0x01DD & arready=0 held stable across 6 stalled cycles
+[set5_axil_protocol] L4-AXIL-06     PASS   (0.17 ms, rtl_cyc=82) 18/18 back-to-back writes verified
+[set5_axil_protocol] L4-AXIL-07     PASS   (0.16 ms, rtl_cyc=82) 36 reads completed in 72 cycles
+[set5_axil_protocol] L4-AXIL-08     PASS   (0.07 ms, rtl_cyc=16) simultaneous bvalid=1 & rvalid=1 (rdata=0x0277), post-read 0x000=0x0188
+[set5_axil_protocol] L4-AXIL-09     PASS   (0.10 ms, rtl_cyc=14) bresp=2 rresp=2
+[set5_axil_protocol] L4-AXIL-10     PASS   (0.05 ms, rtl_cyc=16) after wstrb=0xC rdata=0x4660
+[set5_axil_protocol] L4-AXIL-11     PASS   (0.06 ms, rtl_cyc=22) aresetn=0 drove aw/w/arready=0 and cleared latched split AW
+[set5_axis_protocol] L4-AXIS-01     PASS   (0.55 ms, rtl_cyc=33) 25 cycles with tvalid=0 produced 0 busy/valid pulses
+[set5_axis_protocol] L4-AXIS-02     PASS   (0.23 ms, rtl_cyc=43) held tvalid/tdata/tlast stable 12 cycles; single-cycle epoch_irq fired only on tready=1
+[set5_axis_protocol] L4-AXIS-03     PASS   (0.65 ms, rtl_cyc=334) queued=17 drained=17 in exact order
+[set5_axis_protocol] L4-AXIS-04     PASS   (0.43 ms, rtl_cyc=256) beats=8 tlasts=2 irqs=2 rx_epochs=2
+[set5_axis_protocol] L4-AXIS-05     PASS   (0.31 ms, rtl_cyc=176) 6 beats separated by odd idle bubbles decoded in exact 22 cycles each
+[set5_axis_protocol] L4-AXIS-06     PASS   (0.25 ms, rtl_cyc=81) fast_path_cycles=22 dma_drops=1 sticky_ovf=1
+[set5_axis_protocol] L4-AXIS-07     PASS   (0.39 ms, rtl_cyc=193) 8-of-8 backpressured burst drained with 1 tlast & 1 epoch_irq
+[set5_axis_protocol] L4-AXIS-08     PASS   (0.05 ms, rtl_cyc=12) aresetn=0 -> tready=0, tvalid=0; aresetn=1 -> tready=1
+[set5_axis_protocol] L4-AXIS-09     PASS   (0.14 ms, rtl_cyc=72) 6 queued beats flushed by reset; 0 stale beats; clean post-reset decode
+[set5_cycle_fidelity] L4-CFID-01     PASS   (4.16 ms, rtl_cyc=25) sim_cycle=25 vcd_bytes=76804
+[set5_cycle_fidelity] L4-CFID-02     PASS   (0.18 ms, rtl_cyc=38) cumulative cycles=38 (2+6+10+20=38)
+[set5_cycle_fidelity] L4-CFID-03     PASS   (0.04 ms, rtl_cyc=8) AR sampled on 1st posedge, R cleared on 2nd posedge (delta=2)
+[set5_cycle_fidelity] L4-CFID-04     PASS   (0.59 ms, rtl_cyc=340) sim_cycle=340 sim_time_ns=1360
+[set5_cycle_fidelity] L4-CFID-05     PASS   (30.77 ms, rtl_cyc=12) first_op accepted_cycle=10 completed_cycle=12
+[set5_cycle_fidelity] L4-CFID-06     PASS   (29.17 ms, rtl_cyc=60) step1=[10,47] step2=[47,60]
+[set5_cycle_fidelity] L4-CFID-07     PASS   (63.21 ms, rtl_cyc=53) 4/4 RPC JSON responses byte-for-byte identical between Verilator & C++ fallback
+[set5_cycle_fidelity] L4-CFID-08     PASS   (2.24 ms, rtl_cyc=1285) 25 busy-swap + 25 decode cycles passed all SVA invariants without abort
+[set5_decoder_equivalence] L4-EQV-01      PASS   (324.16 ms, rtl_cyc=5652) mismatches=0/256 across 4 implementations
+[set5_decoder_equivalence] L4-EQV-02      PASS   (343.85 ms, rtl_cyc=11324) mismatches=0/256 under inhomogeneous wx != wz
+[set5_decoder_equivalence] L4-EQV-03      PASS   (156.16 ms, rtl_cyc=87124) verified 3840 states with 0 mismatches
+[set5_decoder_equivalence] L4-EQV-04      PASS   (39.06 ms, rtl_cyc=11448) favor_q2->corr_z=4 (1<<2=4), favor_q5->corr_z=32 (1<<5=32)
+[set5_decoder_equivalence] L4-EQV-05      PASS   (64.19 ms, rtl_cyc=12552) 48/48 Mode 0..2 decodes matched corr_x, corr_z, and bp_cycles (17, 17, 19)
+[set5_decoder_equivalence] L4-EQV-06      PASS   (0.78 ms, rtl_cyc=400) 16/16 high-dynamic-range Q7.8 decodes matched bit-for-bit
+[set5_decoder_equivalence] L4-EQV-07      PASS   (0.27 ms, rtl_cyc=11334) PHYSICAL HAL sz=0x9 -> corr_x=16 corr_z=0
+[set5_weight_bank_semantics] L4-WBK-01      PASS   (0.59 ms, rtl_cyc=84) 36 weights=0x0232, epoch_count=0
+[set5_weight_bank_semantics] L4-WBK-02      PASS   (0.23 ms, rtl_cyc=92) pre_corr_z=4 uncommitted_corr_z=4 ep=0
+[set5_weight_bank_semantics] L4-WBK-03      PASS   (0.08 ms, rtl_cyc=32) active_x[3]=0x0177, all other 8 qubits=0x0232
+[set5_weight_bank_semantics] L4-WBK-04      PASS   (0.16 ms, rtl_cyc=88) epoch=1 status=0
+[set5_weight_bank_semantics] L4-WBK-05      PASS   (0.05 ms, rtl_cyc=18) active_x[0]=0x0232, epoch=0 after COMMIT=0
+[set5_weight_bank_semantics] L4-WBK-06      PASS   (0.07 ms, rtl_cyc=23) mid STATUS=3 active_z[4]=562 ep_mid=0
+[set5_weight_bank_semantics] L4-WBK-07      PASS   (0.11 ms, rtl_cyc=50) rej_x=1 rej_z=1 rej_c=1 ax0=324
+[set5_weight_bank_semantics] L4-WBK-08      PASS   (0.09 ms, rtl_cyc=39) auto-completed after 7 busy cycles
+[set5_weight_bank_semantics] L4-WBK-09      PASS   (0.07 ms, rtl_cyc=29) post-reset status=0 epoch=0 ax0=562
+[set5_weight_bank_semantics] L4-WBK-10      PASS   (0.29 ms, rtl_cyc=106) epoch_count advanced monotonically 1..16
+[set5_weight_bank_semantics] L4-WBK-11      PASS   (0.19 ms, rtl_cyc=104) active_x=0x0123, active_z=0x0245 strictly independent
+[set5_weight_bank_semantics] L4-WBK-12      PASS   (0.09 ms, rtl_cyc=46) 18/18 active-bank direct writes rejected with SLVERR
+[set5_weight_bank_semantics] L4-WBK-13      PASS   (0.24 ms, rtl_cyc=0) wrd_read_epoch=1, active_x[4]=0x0150, active_z[8]=0x0190
+[set5_weight_bank_semantics] L4-WBK-14      PASS   (17.04 ms, rtl_cyc=0) YAML contract offsets and status bits verified against RTL
+[set5_cosim_limits] L4-LIM-01      PASS   (2.00 ms, rtl_cyc=0) native_verilator_compiled=true with 7 RTL SHA-256 hashes & Vaa_qec_top.h hash
+[set5_cosim_limits] L4-LIM-02      PASS   (9.16 ms, rtl_cyc=0) fallback --require-native-rtl exit_code=2
+[set5_cosim_limits] L4-LIM-03      PASS   (26.43 ms, rtl_cyc=0) unsupported_isa exit_code=2 (user-mode AF_UNIX vs full-system GIC/MMIO boundary enforced)
+[set5_cosim_limits] L4-LIM-04      PASS   (0.52 ms, rtl_cyc=0) 250 MHz cycle-level contract verified; physical STA/routing/cryo analog excluded from RTL sim claims
+--- [Set 3] Pipeline & System-Flow Tests (39 IDs) ---
+[set3_e2e_transactions] L4-P01         PASS   (40.92 ms, rtl_cyc=87) K=4 bp=22 cx=0x100 cz=0x20
+[set3_e2e_transactions] L4-P02         PASS   (57.80 ms, rtl_cyc=333) 9/9 single-qubit X & Z syndromes satisfied
+[set3_e2e_transactions] L4-P03         PASS   (39.04 ms, rtl_cyc=685) 16 sequential syndromes had contiguous +22 cycle timeline
+[set3_e2e_transactions] L4-P04         PASS   (35.21 ms, rtl_cyc=1015) 15/15 X-only syndromes satisfied with corr_x==0
+[set3_e2e_transactions] L4-P05         PASS   (40.69 ms, rtl_cyc=1345) 15/15 Z-only syndromes satisfied with corr_z==0
+[set3_e2e_transactions] L4-P06         PASS   (129.63 ms, rtl_cyc=2401) 16 simultaneous X+Z pairs identical to isolated channel runs
+[set3_e2e_transactions] L4-P07         PASS   (23.69 ms, rtl_cyc=2497) pre=0x0004 uncom=0x0004 post=0x0020
+[set3_e2e_transactions] L4-P08         PASS   (30.80 ms, rtl_cyc=2627) 4 delayed rounds held q5, post-commit switched to q2
+[set3_e2e_transactions] L4-P09         PASS   (13.19 ms, rtl_cyc=2737) irqs=[0, 0, 1, 1, 0]
+[set3_e2e_transactions] L4-P10         PASS   (7.37 ms, rtl_cyc=2775) post-reset epoch=0x00000000 active=0x00000232
+[set3_e2e_transactions] L4-P11         PASS   (11.89 ms, rtl_cyc=2801) STATUS=0x00000003 torn=ERR_INVALID_REGISTER act=0x00000155
+[set3_e2e_transactions] L4-P12         PASS   (3116.86 ms, rtl_cyc=24853) 1000 syndromes + 10 commits -> epoch=10
+[set3_qemu_verilator_lockstep] L4-LOCK-01     PASS   (2.79 ms, rtl_cyc=0) ELF headers: a9=(1,40) aarch64=(2,183) x86=(2,62)
+[set3_qemu_verilator_lockstep] L4-LOCK-02     PASS   (0.16 ms, rtl_cyc=1604) isa=arm_cortex_a9(32b) sat=64/64 cyc=1604
+[set3_qemu_verilator_lockstep] L4-LOCK-03     PASS   (0.02 ms, rtl_cyc=1604) isa=aarch64(64b) sat=64/64 cyc=1604
+[set3_qemu_verilator_lockstep] L4-LOCK-04     PASS   (2.61 ms, rtl_cyc=1604) 153 bridge JSONL records bit-identical across ARM32, ARM64, and x86_64
+[set3_qemu_verilator_lockstep] L4-LOCK-05     PASS   (0.38 ms, rtl_cyc=1604) 64/64 syndrome events + 78 MMIO writes reconciled 1-to-1
+[set3_qemu_verilator_lockstep] L4-LOCK-06     PASS   (685.15 ms, rtl_cyc=1036) K=4 Mode=2 -> bp=24, axis=29 across ARM32 & ARM64 (cyc=1036)
+[set3_qemu_verilator_lockstep] L4-LOCK-07     PASS   (407.19 ms, rtl_cyc=868) reset_ops=2 post_reset_epoch=1
+[set3_qemu_verilator_lockstep] L4-LOCK-08     PASS   (35.82 ms, rtl_cyc=0) bogus_arch rejected with rc=2 (no silent x86_64 fallback)
+[set3_qemu_verilator_lockstep] L4-LOCK-09     PASS   (583.94 ms, rtl_cyc=822) served ARM32 + ARM64 sequentially on 1 bridge (syndrome_transfers=32)
+[set3_epoch_reconciliation] L4-EPOCH-01    PASS   (21.55 ms, rtl_cyc=42) uncommitted: epoch=0x00000000 active_x[0]=0x00000232
+[set3_epoch_reconciliation] L4-EPOCH-02    PASS   (8.60 ms, rtl_cyc=48) committed: epoch=0x00000001 active_x[0]=0x00000133
+[set3_epoch_reconciliation] L4-EPOCH-03    PASS   (8.81 ms, rtl_cyc=56) after COMMIT=0: epoch=0x00000001 active_x[0]=0x00000133
+[set3_epoch_reconciliation] L4-EPOCH-04    PASS   (14.24 ms, rtl_cyc=82) ep_mid=0x00000001 dup=ERR_INVALID_REGISTER ep_post=0x00000002
+[set3_epoch_reconciliation] L4-EPOCH-05    PASS   (383.61 ms, rtl_cyc=2290) 12 windows reconciled with zero off-by-one drift (epoch=14)
+[set3_epoch_reconciliation] L4-EPOCH-06    PASS   (10.75 ms, rtl_cyc=2358) 3 TLAST pulses left weight epoch_count=14 untouched
+[set3_epoch_reconciliation] L4-EPOCH-07    PASS   (8.77 ms, rtl_cyc=2376) post-reset ep0=0x00000000 -> ep1=0x00000001
+[set3_m3_trace_integrity] L4-M3-01       PASS   (0.12 ms, rtl_cyc=76) lines=12 all have 17/17 keys
+[set3_m3_trace_integrity] L4-M3-02       PASS   (0.01 ms, rtl_cyc=76) metrics.total=12 jsonl_lines=12
+[set3_m3_trace_integrity] L4-M3-03       PASS   (0.03 ms, rtl_cyc=76) accepted tx_ids=[10, 11, 12, 13, 14, 15, 16, 18, 99999999]
+[set3_m3_trace_integrity] L4-M3-04       PASS   (0.02 ms, rtl_cyc=76) paired 11 client responses + 1 SHUTDOWN
+[set3_m3_trace_integrity] L4-M3-05       PASS   (0.02 ms, rtl_cyc=76) monotonic non-overlapping cycle intervals verified
+[set3_m3_trace_integrity] L4-M3-06       PASS   (0.01 ms, rtl_cyc=76) sim_time_ns == 4 * completed_cycle across all records
+[set3_m3_trace_integrity] L4-M3-07       PASS   (0.02 ms, rtl_cyc=76) tx 14 rdata=0x0177, tx 15 rdata=0x1 verified in JSONL
+[set3_m3_trace_integrity] L4-M3-08       PASS   (0.01 ms, rtl_cyc=76) tx 16 syndrome response fields verified in JSONL
+[set3_m3_trace_integrity] L4-M3-09       PASS   (0.01 ms, rtl_cyc=76) all 3 injected error classes present in m3_transactions.jsonl
+[set3_m3_trace_integrity] L4-M3-10       PASS   (0.00 ms, rtl_cyc=76) last record op=SHUTDOWN
+[set3_m3_trace_integrity] L4-M3-11       PASS   (0.04 ms, rtl_cyc=76) reconstructed epoch=1 active_x[0]=0x0177
+--- [Set 4] Execution, Runtime & Recovery Tests (56 IDs) ---
+[set4_bridge_startup] L4-BLD-01      PASS   (0.54 ms, rtl_cyc=0) /home/tirtha/avid-validation/layer4/emulator/verilator/models/avid_cosim_bridge
+[set4_bridge_startup] L4-BLD-02      PASS   (13.70 ms, rtl_cyc=0) standalone_rtl_tb exit_code=0
+[set4_bridge_startup] L4-BLD-03      PASS   (28.34 ms, rtl_cyc=20) started and shut down cleanly with --require-native-rtl
+[set4_bridge_startup] L4-BLD-04      PASS   (391.23 ms, rtl_cyc=68) cortex-a9_rc=0 aarch64_rc=0
+[set4_bridge_startup] L4-BLD-05      PASS   (28.42 ms, rtl_cyc=20) existed=1 unlinked_on_shutdown=1
+[set4_bridge_startup] L4-BLD-06      PASS   (18.08 ms, rtl_cyc=20) rebound over stale file & served SHUTDOWN
+[set4_bridge_startup] L4-BLD-07      PASS   (32.78 ms, rtl_cyc=20) sx0=0x0232 ax0=0x0232 ep=0 K=3 osd=1
+[set4_bridge_startup] L4-BLD-08      PASS   (541.37 ms, rtl_cyc=12) first accepted_cycle=10
+[set4_bridge_startup] L4-BLD-09      PASS   (16.93 ms, rtl_cyc=0) bad socket path exit_code=1
+[set4_bridge_startup] L4-BLD-10      PASS   (31.06 ms, rtl_cyc=12) auto-exited rc=0 after 2 clients: 1
+[set4_bridge_startup] L4-BLD-11      PASS   (37.59 ms, rtl_cyc=12) rebound same socket after SIGKILL; read K=3 OK
+[set4_runtime_stress] L4-R01         PASS   (1.66 ms, rtl_cyc=22) rdata=3 rtl_delta=2
+[set4_runtime_stress] L4-R02         PASS   (4966.08 ms, rtl_cyc=6024) rtl_delta=6000 host_rate=604 rpc/s
+[set4_runtime_stress] L4-R03         PASS   (7958.58 ms, rtl_cyc=72026) rtl_delta=66000 host_rate=377 decodes/s
+[set4_runtime_stress] L4-R04         PASS   (2361.65 ms, rtl_cyc=82026) 5,000 pipelined RPCs @ 2117 rpc/s
+[set4_runtime_stress] L4-R05         PASS   (4257.28 ms, rtl_cyc=105844) final_epoch=32 after 1,024 syndromes
+[set4_runtime_stress] L4-R06         PASS   (206.33 ms, rtl_cyc=107446) 200 resets -> rtl_delta=1600
+[set4_runtime_stress] L4-R07         PASS   (3444.57 ms, rtl_cyc=120446) 1,500 interleaved ops verified
+[set4_runtime_stress] L4-R08         PASS   (323.12 ms, rtl_cyc=121652) 50 busy commits -> epoch=50
+[set4_runtime_stress] L4-R09         PASS   (35.36 ms, rtl_cyc=22) 6/6 queued client sockets served cleanly
+[set4_runtime_stress] L4-R10         PASS   (6.28 ms, rtl_cyc=120446) verified 14572 flushed JSONL records
+[set4_runtime_stress] L4-R11         PASS   (87.08 ms, rtl_cyc=123064) 64 syndromes under 4x CPU contention -> exact 1408 RTL cycles (64*22=1408)
+[set4_runtime_stress] L4-R12         PASS   (5482.59 ms, rtl_cyc=133064) bridge_rss_delta=156KB client_rss_delta=0KB
+[set4_runtime_stress] L4-R13         PASS   (94.34 ms, rtl_cyc=133264) 100/100 connect+RPC+close cycles succeeded
+[set4_runtime_stress] L4-R14         PASS   (15.43 ms, rtl_cyc=133264) SHUTDOWN ack=OK clean_exit=1
+[set4_fault_injection] L4-FLT-01      PASS   (1.25 ms, rtl_cyc=12) next client status=OK
+[set4_fault_injection] L4-FLT-02      PASS   (1.40 ms, rtl_cyc=14) survived 10 zero-byte disconnects
+[set4_fault_injection] L4-FLT-03      PASS   (20.64 ms, rtl_cyc=18) 25 malformed frames advanced 0 cycles (c0=16, acc_end=16)
+[set4_fault_injection] L4-FLT-04      PASS   (123.43 ms, rtl_cyc=0) rc=-1 timeout_tx=1 server_reqs_seen=1
+[set4_fault_injection] L4-FLT-05      PASS   (110.41 ms, rtl_cyc=0) rc=-1 commits_seen=1
+[set4_fault_injection] L4-FLT-06      PASS   (1.83 ms, rtl_cyc=20) cross-session dup tx_id=500 -> ERR_DUPLICATE_TX_ID
+[set4_fault_injection] L4-FLT-07      PASS   (1.60 ms, rtl_cyc=22) tx 600 -> 550 => ERR_OUT_OF_ORDER_TX_ID
+[set4_fault_injection] L4-FLT-08      PASS   (137.06 ms, rtl_cyc=24) 10x 4KB drained + valid follow-up OK
+[set4_fault_injection] L4-FLT-09      PASS   (0.72 ms, rtl_cyc=24) orphan SYNDROME_WAIT -> ERR_NOT_INFLIGHT
+[set4_fault_injection] L4-FLT-10      PASS   (3.54 ms, rtl_cyc=46) concurrent SYNDROME_TRANSFER -> ERR_BUSY, inflight WAIT -> OK
+[set4_fault_injection] L4-FLT-11      PASS   (2.07 ms, rtl_cyc=46) 0->ERR_INVALID_REGISTER 999999->ERR_INVALID_REGISTER
+[set4_fault_injection] L4-FLT-12      PASS   (2.28 ms, rtl_cyc=50) rc_bad=-1 rejected=1 rc_ok=0
+[set4_fault_injection] L4-FLT-13      PASS   (0.93 ms, rtl_cyc=44) mid-decode reset + clean 17-cycle recovery verified
+[set4_fault_injection] L4-FLT-14      PASS   (0.37 ms, rtl_cyc=14) all 6 defensive parameter guards returned negative error without crash
+[set4_restart_recovery] L4-FLT-15      PASS   (82.19 ms, rtl_cyc=12) rc_down=-1 rc_rec=0 rc_ok=0
+[set4_restart_recovery] L4-FLT-16      PASS   (53.74 ms, rtl_cyc=12) ep_before=1 ep_after_restart=0
+[set4_restart_recovery] L4-FLT-17      PASS   (1021.99 ms, rtl_cyc=0) rc=-1 sock_fd=-1
+[set4_restart_recovery] L4-FLT-18      PASS   (1252.13 ms, rtl_cyc=0) cortex-a9 missing-socket exit_code=1
+[set4_restart_recovery] L4-FLT-19      PASS   (1279.42 ms, rtl_cyc=0) aarch64 missing-socket exit_code=1
+[set4_restart_recovery] L4-FLT-20      PASS   (392.24 ms, rtl_cyc=0) bad_k_rc=2 bad_osd_rc=2
+/home/tirtha/avid-validation/layer4/emulator/qemu/run.sh: line 16: pwd: write error: Broken pipe
+[set4_restart_recovery] L4-FLT-21      PASS   (332.65 ms, rtl_cyc=416) follow-up aarch64 guest rc=0 cyc=416
+[set4_restart_recovery] L4-FLT-22      PASS   (1290.94 ms, rtl_cyc=416) 3/3 full lifecycles finished at exact cycle 416
+[set4_artifact_persistence] L4-PERS-01     PASS   (57.90 ms, rtl_cyc=450) 20/20 JSONL lines survived SIGKILL intact
+[set4_artifact_persistence] L4-PERS-02     PASS   (25.82 ms, rtl_cyc=42) 16/16 metrics keys present (simulator=verilator_c++_rtl)
+[set4_artifact_persistence] L4-PERS-03     PASS   (10.07 ms, rtl_cyc=0) 7/7 RTL .sv SHA-256 hashes match rtl_build_provenance.json
+[Verilator M1] Standalone RTL test passed (verilator_c++_rtl): K=1..5 core={7,12,17,22,27} axis={12,17,22,27,32} (K=3 -> 17 core / 22 AXI cycles, ref_mismatches=0)
+[set4_artifact_persistence] L4-PERS-04     PASS   (25.89 ms, rtl_cyc=1576) vcd_bytes=1566062 total_sim_cycles=1576
+[set4_artifact_persistence] L4-PERS-05     PASS   (0.58 ms, rtl_cyc=0) csv_rows=5 K=3 row='3,4,2,17,68.0,3,22,88.0,17,22,true'
+[set4_artifact_persistence] L4-PERS-06     PASS   (0.84 ms, rtl_cyc=0) 7/7 Verilator & QEMU emulator artifacts retained on disk
+[set4_artifact_persistence] L4-PERS-07     PASS   (295.10 ms, rtl_cyc=460) guest trace lines=20
+[set4_artifact_persistence] L4-PERS-08     PASS   (7618.04 ms, rtl_cyc=0) pytest rc=0
+[set4_artifact_persistence] L4-PERS-09     PASS   (25.55 ms, rtl_cyc=0) branch=layer4-cosim-bridge-emu pure_layer4_scope=True
+--- [Stage 3] Evaluating Layer 4 Acceptance Gates (G1..G8) ---
+[Layer 4 Gate Evaluator] Overall=PASS | Cases=223/223 | Dirty=False | Gates=G1:PASS, G2:PASS, G3:PASS, G4:PASS, G5:PASS, G6:PASS, G7:PASS, G8:PASS
+[PASS] Layer 4 complete 5-set validation & gate evaluation succeeded.
