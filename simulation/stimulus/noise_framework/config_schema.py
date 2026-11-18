@@ -69,6 +69,10 @@ VALID_OUTPUT_DOMAINS = {
     "measurement_fault_parameters",
 }
 
+# Per-profile cached baseline scale and dominant mask vectors to avoid repeated SHA-256 hashing on every sample
+_PD_SCALE_CACHE: Dict[Tuple[str, int], np.ndarray] = {}
+_PD_DOM_MASK_CACHE: Dict[str, np.ndarray] = {}
+
 
 def derive_deterministic_seed(master_seed: int, *components: Any) -> int:
     """Derive a deterministic 63-bit integer seed H(master_seed, *components).
@@ -82,13 +86,19 @@ def derive_deterministic_seed(master_seed: int, *components: Any) -> int:
 
 
 def _std_normal_cdf(x: float | np.ndarray) -> float | np.ndarray:
-    """Standard normal CDF Phi(x) via math.erf / vectorised erf."""
-    arr = np.asarray(x, dtype=np.float64)
-    erf_vec = np.vectorize(math.erf, otypes=[np.float64])
-    res = 0.5 * (1.0 + erf_vec(arr / math.sqrt(2.0)))
+    """Fast high-accuracy standard normal CDF Phi(x) (scalar math.erf or vectorised Abramowitz-Stegun)."""
     if np.ndim(x) == 0:
-        return float(res)
-    return res
+        return 0.5 * (1.0 + math.erf(float(x) / math.sqrt(2.0)))
+    arr = np.asarray(x, dtype=np.float64)
+    sign = np.where(arr >= 0.0, 1.0, -1.0)
+    z = np.abs(arr) / math.sqrt(2.0)
+    t = 1.0 / (1.0 + 0.3275911 * z)
+    poly = t * (
+        0.254829592
+        + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429)))
+    )
+    erf_approx = sign * (1.0 - poly * np.exp(-z * z))
+    return 0.5 * (1.0 + erf_approx)
 
 
 def _std_normal_pdf(x: float) -> float:
@@ -266,6 +276,66 @@ class NoiseProfile:
             high=self.max_val,
             size=size,
         )
+
+    def mechanism_baseline_scales(self, size: int = 21) -> np.ndarray:
+        """Return a deterministic per-PD, per-mechanism baseline scale vector in R^size."""
+        key = (self.profile_id, int(size))
+        cached = _PD_SCALE_CACHE.get(key)
+        if cached is not None:
+            return cached
+        dom_mask = self.dominant_mask_21()[:size]
+        scales = np.ones(size, dtype=np.float64)
+        for m_idx in range(size):
+            h_seed = derive_deterministic_seed(104729, "pd_mech_scale", self.profile_id, m_idx)
+            u_centered = ((h_seed % 10000) / 10000.0) - 0.5
+            scales[m_idx] = 0.82 + 0.55 * u_centered
+        scales = np.where(dom_mask > 0.5, scales * 1.85, scales * 0.72)
+        _PD_SCALE_CACHE[key] = scales
+        return scales
+
+    def dominant_mask_21(self) -> np.ndarray:
+        """Return a 21-entry binary mask (1.0 on dominant qubits/pairs, 0.0 elsewhere)."""
+        cached = _PD_DOM_MASK_CACHE.get(self.profile_id)
+        if cached is not None:
+            return cached
+        mask = np.zeros(21, dtype=np.float64)
+        for q in self.metadata.get("dominant_qubits", []):
+            if 0 <= int(q) < 9:
+                mask[int(q)] = 1.0
+        for p_idx in self.metadata.get("dominant_pairs", []):
+            if 0 <= int(p_idx) < 12:
+                mask[9 + int(p_idx)] = 1.0
+        _PD_DOM_MASK_CACHE[self.profile_id] = mask
+        return mask
+
+    def time_envelope(self, t_local_sec: float) -> Tuple[float, float]:
+        """Return `(env_t, burst_amp)` at local window time `t_local_sec` in [0, 100)."""
+        mu_t = float(self.parameters.get("temporal_mu_sec", 50.0))
+        sigma_t = max(float(self.parameters.get("temporal_sigma_sec", 10.0)), 0.5)
+        amp = float(self.parameters.get("burst_amplitude", 0.015))
+        env_t = math.exp(-0.5 * ((float(t_local_sec) - mu_t) / sigma_t) ** 2)
+        return float(env_t), float(amp)
+
+    def evaluate_pd_contract(
+        self,
+        rng: np.random.Generator,
+        t_local_sec: float,
+        size: int = 21,
+    ) -> Tuple[np.ndarray, float, np.ndarray, float]:
+        """Unified PD contract helper consumed by all 6 data-fault generators (Phase 1 Step 2).
+
+        Returns:
+          - `level_vec`: 21-entry per-mechanism baseline draw scaled by `mechanism_baseline_scales()`
+          - `env_t`: normalized Gaussian time envelope in [0, 1] at `t_local_sec`
+          - `dom_mask`: 21-entry binary mask of dominant qubits (0..8) and pairs (9..20)
+          - `burst_amp`: profile burst amplitude scalar
+        """
+        raw = self.sample_values(rng=rng, size=size)
+        scales = self.mechanism_baseline_scales(size=size)
+        level_vec = np.clip(raw * scales, self.min_val * 0.15, min(0.45, self.max_val * 1.45))
+        env_t, burst_amp = self.time_envelope(t_local_sec)
+        dom_mask = self.dominant_mask_21()[:size]
+        return level_vec, env_t, dom_mask, burst_amp
 
     def theoretical_moments(self) -> Tuple[float, float]:
         return theoretical_truncated_gaussian_moments(

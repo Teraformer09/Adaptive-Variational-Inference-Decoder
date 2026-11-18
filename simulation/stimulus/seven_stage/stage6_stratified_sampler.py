@@ -39,6 +39,7 @@ def generate_single_stratified_trajectory(
     assignment_policy: str,
     allowed_profile_ids: List[str] | None = None,
     rounds_per_composite_sample: int = 1,
+    ou_volatility_scale: float = 1.0,
 ) -> tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
     pd_reg = PDRegistry(REPO_ROOT / "configs" / "noise_framework" / "pd_profiles_16.yaml")
     gen_reg = GeneratorRegistry(
@@ -46,6 +47,9 @@ def generate_single_stratified_trajectory(
         master_seed=master_seed,
     )
     generators = gen_reg.instantiate_all(master_seed=master_seed)
+    for g in generators:
+        if g.generator_type == "ou" and hasattr(g, "volatility_scale"):
+            g.volatility_scale = float(g.volatility_scale) * float(ou_volatility_scale)
 
     pd_assign = PDAssignment(
         pd_registry=pd_reg,
@@ -116,6 +120,7 @@ def run_stage6_stratified_dataset_generation(
         seed_start = int(split_cfg["seed_range"][0])
         policy = str(split_cfg["assignment_policy"])
         allowed_pids = list(split_cfg.get("allowed_profile_ids", []))
+        ou_vol_scale = float(split_cfg.get("ou_volatility_scale", 1.0))
 
         for idx in range(n_traj):
             t_seed = seed_start + idx * 17
@@ -127,6 +132,7 @@ def run_stage6_stratified_dataset_generation(
                 duration_seconds=dur_sec,
                 assignment_policy=policy,
                 allowed_profile_ids=allowed_pids if allowed_pids else None,
+                ou_volatility_scale=ou_vol_scale,
             )
 
             split_dir = ds_root / split_name

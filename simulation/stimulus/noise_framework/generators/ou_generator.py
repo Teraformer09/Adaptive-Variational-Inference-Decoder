@@ -1,8 +1,10 @@
 """Ornstein-Uhlenbeck (OU) Continuous Stochastic Drift Generator (`ou_generator.py`).
 
-Uses the exact discrete-time Ornstein-Uhlenbeck transition:
-  x_{t + dt} = mu + (x_t - mu) * exp(-dt / tau) + sigma * sqrt(1 - exp(-2 * dt / tau)) * eps_t
-preserving continuous state `x_t` across 100-second PD assignment boundaries.
+Uses the exact discrete-time Ornstein-Uhlenbeck transition modulated by the assigned PD's
+unified contract (`evaluate_pd_contract`):
+  - Mean target and volatility are modulated by `env(t)`
+  - Dominant mechanisms receive structured boost from `dom_mask` and `burst_amp`
+  - Preserves continuous state `x_state` across 100-second PD assignment boundaries.
 """
 
 from __future__ import annotations
@@ -24,8 +26,12 @@ class OUNoiseGenerator(BaseNoiseGenerator):
     def __init__(self, spec: GeneratorSpec, seed: Optional[int] = None) -> None:
         super().__init__(spec=spec, seed=seed)
         self.basis = str(spec.parameters.get("basis", "X"))
-        self.tau_sec = max(float(spec.parameters.get("tau_sec", 8.0)), 0.1)
-        self.volatility_scale = float(spec.parameters.get("volatility_scale", 0.30))
+        self.tau_sec = max(float(spec.parameters.get("tau_sec", 3.5)), 0.1)
+        self.volatility_scale = float(spec.parameters.get("volatility_scale", 0.25))
+        self.pair_scale = float(spec.parameters.get("pair_scale", 0.45))
+        self.envelope_floor = float(spec.parameters.get("envelope_floor", 0.45))
+        self.envelope_gain = float(spec.parameters.get("envelope_gain", 1.15))
+        self.dom_boost_scale = float(spec.parameters.get("dom_boost_scale", 0.55))
         self.student_df: Optional[float] = (
             float(spec.parameters["student_df"])
             if "student_df" in spec.parameters and spec.parameters["student_df"] is not None
@@ -47,15 +53,29 @@ class OUNoiseGenerator(BaseNoiseGenerator):
             if self.last_timestamp is None
             else max(float(timestamp) - float(self.last_timestamp), 1e-4)
         )
-        mu_vec = np.full(21, prof.mean, dtype=np.float64)
-        mu_vec[9:] *= 0.40
+        t_local = float(timestamp) - 100.0 * float(window_id)
+        level_vec, env_t, dom_mask, burst_amp = prof.evaluate_pd_contract(
+            rng=self.rng, t_local_sec=t_local, size=21
+        )
+
+        # Target equilibrium mean tracks the PD baseline, time envelope, and dominant mechanisms
+        base_target = prof.mean * prof.mechanism_baseline_scales(size=21)
+        base_target[9:] *= self.pair_scale
+        env_factor = self.envelope_floor + self.envelope_gain * env_t
+        dom_boost = (1.0 + 0.65 * dom_mask) * (0.20 + 0.80 * env_t) * burst_amp * self.dom_boost_scale
+        mu_vec = base_target * env_factor + dom_boost
 
         if self.x_state is None:
-            self.x_state = prof.sample_values(self.rng, size=21)
-            self.x_state[9:] *= 0.40
+            self.x_state = level_vec.copy()
+            self.x_state[9:] *= self.pair_scale
 
         decay = math.exp(-dt / self.tau_sec)
-        ou_sigma = prof.std * self.volatility_scale * math.sqrt(max(1.0 - decay * decay, 1e-12))
+        ou_sigma = (
+            prof.std
+            * self.volatility_scale
+            * (0.60 + 0.60 * env_t)
+            * math.sqrt(max(1.0 - decay * decay, 1e-12))
+        )
 
         if self.student_df is not None and self.student_df > 2.0:
             raw_t = self.rng.standard_t(df=self.student_df, size=21)
@@ -64,7 +84,7 @@ class OUNoiseGenerator(BaseNoiseGenerator):
             eps = self.rng.standard_normal(size=21)
 
         self.x_state = mu_vec + (self.x_state - mu_vec) * decay + ou_sigma * eps
-        vec = np.clip(self.x_state, prof.min_val * 0.2, min(0.45, prof.max_val * 1.4))
+        vec = np.clip(self.x_state, prof.min_val * 0.15, min(0.45, prof.max_val * 1.45))
 
         self.samples_generated += 1
         self.last_timestamp = float(timestamp)
@@ -81,6 +101,7 @@ class OUNoiseGenerator(BaseNoiseGenerator):
                 "basis": self.basis,
                 "dt_sec": float(dt),
                 "tau_sec": self.tau_sec,
+                "envelope_value": float(env_t),
             },
         )
 

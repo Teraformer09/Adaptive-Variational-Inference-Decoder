@@ -141,6 +141,14 @@ class GeneratorRegistry:
             self.instantiate_all()
         return list(self._instances.values())
 
+    def list_specs(self) -> List[GeneratorSpec]:
+        return list(self._specs.values())
+
+    def get_generator_class(self, generator_type: str) -> Type[BaseNoiseGenerator]:
+        if generator_type not in GENERATOR_TYPE_MAP:
+            raise KeyError(f"Unknown generator_type '{generator_type}'")
+        return GENERATOR_TYPE_MAP[generator_type]
+
     @property
     def config_hash(self) -> str:
         if not self._config_hash:

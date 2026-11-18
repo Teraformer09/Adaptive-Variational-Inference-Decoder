@@ -2,6 +2,7 @@
 
 Implements Stage 4:
   p_k(t) = sigmoid(alpha_k + x_{k,t} + sum_j A_j * w_{j,k} * g_j(t - tau_j))
+using the unified `NoiseProfile.evaluate_pd_contract()` interface.
 """
 
 from __future__ import annotations
@@ -33,6 +34,12 @@ class BurstNoiseGenerator(BaseNoiseGenerator):
         super().__init__(spec=spec, seed=seed)
         self.basis = str(spec.parameters.get("basis", "Z"))
         self.kernel = str(spec.parameters.get("kernel", "gaussian_bell"))
+        self.base_scale = float(spec.parameters.get("base_scale", 0.35))
+        self.logit_jitter_std = float(spec.parameters.get("logit_jitter_std", 0.10))
+        self.dom_qubit_weight = float(spec.parameters.get("dom_qubit_weight", 0.85))
+        self.dom_pair_weight = float(spec.parameters.get("dom_pair_weight", 1.00))
+        self.secondary_burst_weight = float(spec.parameters.get("secondary_burst_weight", 0.55))
+        self.amp_logit_scale = float(spec.parameters.get("amp_logit_scale", 40.0))
 
     def _eval_kernel(self, dt_sec: float, width_sec: float) -> float:
         w = max(width_sec, 0.5)
@@ -50,30 +57,26 @@ class BurstNoiseGenerator(BaseNoiseGenerator):
         assert prof is not None
 
         t_local = float(timestamp) - 100.0 * float(window_id)
-        tau_1 = float(prof.parameters.get("temporal_mu_sec", 50.0))
-        width_1 = float(prof.parameters.get("temporal_sigma_sec", 5.0))
-        tau_2 = min(95.0, tau_1 + 1.25 * width_1)
-        width_2 = max(2.0, 0.75 * width_1)
+        level_vec, g1_env, dom_mask, burst_amp = prof.evaluate_pd_contract(
+            rng=self.rng, t_local_sec=t_local, size=21
+        )
+        # Primary burst kernel follows the PD's exact time envelope; secondary echo trails slightly
+        g1 = g1_env if self.kernel == "gaussian_bell" else self._eval_kernel(t_local - 50.0, 6.0) * g1_env
+        g2_env, _ = prof.time_envelope(max(0.0, t_local - 4.0))
+        g2 = g2_env
 
-        g1 = self._eval_kernel(t_local - tau_1, width_1)
-        g2 = self._eval_kernel(t_local - tau_2, width_2)
-
-        base_draw = prof.sample_values(self.rng, size=21) * 0.35
+        base_draw = level_vec * self.base_scale
         alpha_k = _logit(base_draw)
-        x_kt = self.rng.normal(0.0, 0.12, size=21)
+        x_kt = self.rng.normal(0.0, self.logit_jitter_std, size=21)
 
         w1 = np.full(21, 0.15, dtype=np.float64)
         w2 = np.full(21, 0.10, dtype=np.float64)
-        for q in prof.metadata.get("dominant_qubits", []):
-            if 0 <= int(q) < 9:
-                w1[int(q)] = 0.85
-        for p_idx in prof.metadata.get("dominant_pairs", []):
-            if 0 <= int(p_idx) < 12:
-                w1[9 + int(p_idx)] = 1.0
-                w2[9 + int(p_idx)] = 0.80
+        w1[:9] = np.where(dom_mask[:9] > 0.5, self.dom_qubit_weight, 0.15)
+        w1[9:] = np.where(dom_mask[9:] > 0.5, self.dom_pair_weight, 0.15)
+        w2[9:] = np.where(dom_mask[9:] > 0.5, 0.80, 0.10)
 
-        amp_logit = float(prof.parameters.get("burst_amplitude", 0.03)) * 42.0
-        total_logit = alpha_k + x_kt + amp_logit * (w1 * g1 + 0.65 * w2 * g2)
+        amp_logit = burst_amp * self.amp_logit_scale
+        total_logit = alpha_k + x_kt + amp_logit * (w1 * g1 + self.secondary_burst_weight * w2 * g2)
         p_k = np.clip(_sigmoid(total_logit), 1e-5, 0.45)
 
         self.samples_generated += 1

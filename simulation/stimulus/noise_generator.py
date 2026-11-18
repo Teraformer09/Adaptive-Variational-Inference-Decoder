@@ -138,7 +138,11 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--rounds", type=int, default=100_000)
     p.add_argument("--seed", type=int, default=42)
-    p.add_argument("--mode", choices=["legacy", "seven_stage"], default="legacy")
+    p.add_argument(
+        "--mode",
+        choices=["seven_stage", "legacy", "legacy_single_pair_baseline"],
+        default="seven_stage",
+    )
     p.add_argument("--duration-sec", type=float, default=100.0)
     p.add_argument("--output", type=str, default="simulation/stimulus/syndromes.npz")
     return p.parse_args()

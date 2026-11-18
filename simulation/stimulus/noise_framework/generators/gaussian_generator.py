@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import math
-from typing import Any, Dict, Optional
+from typing import Optional
 import numpy as np
 
 from simulation.stimulus.noise_framework.config_schema import (
@@ -14,42 +13,37 @@ from simulation.stimulus.noise_framework.generators.base_generator import BaseNo
 
 
 class GaussianNoiseGenerator(BaseNoiseGenerator):
-    """Samples 21-mechanism fault probability vectors modulated by the assigned PD's Gaussian envelope."""
+    """Samples 21-mechanism fault probability vectors modulated by the assigned PD's contract."""
 
     def __init__(self, spec: GeneratorSpec, seed: Optional[int] = None) -> None:
         super().__init__(spec=spec, seed=seed)
         self.basis = str(spec.parameters.get("basis", "Z"))
         self.single_weight = float(spec.parameters.get("single_weight", 1.0))
         self.pair_weight = float(spec.parameters.get("pair_weight", 0.35))
+        self.dom_single_boost = float(spec.parameters.get("dom_single_boost", 0.45))
+        self.dom_pair_boost = float(spec.parameters.get("dom_pair_boost", 0.65))
+        self.envelope_floor = float(spec.parameters.get("envelope_floor", 0.40))
+        self.envelope_gain = float(spec.parameters.get("envelope_gain", 0.85))
 
     def sample(self, timestamp: float, sample_id: int) -> NoiseContribution:
         window_id = self._check_ready_and_timestamp(timestamp, sample_id)
         prof = self.current_profile
         assert prof is not None
 
-        # Local time within the 100-second window t_local in [0, 100)
         t_local = float(timestamp) - 100.0 * float(window_id)
-        mu_t = float(prof.parameters.get("temporal_mu_sec", 50.0))
-        sigma_t = max(float(prof.parameters.get("temporal_sigma_sec", 10.0)), 0.5)
-        amp = float(prof.parameters.get("burst_amplitude", 0.015))
-        envelope = math.exp(-0.5 * ((t_local - mu_t) / sigma_t) ** 2)
+        level_vec, envelope, dom_mask, amp = prof.evaluate_pd_contract(
+            rng=self.rng, t_local_sec=t_local, size=21
+        )
 
-        raw = prof.sample_values(self.rng, size=21)
+        env_mod = self.envelope_floor + self.envelope_gain * envelope
         vec = np.zeros(21, dtype=np.float64)
-        vec[:9] = raw[:9] * self.single_weight
-        vec[9:] = raw[9:] * self.pair_weight
+        vec[:9] = level_vec[:9] * self.single_weight * env_mod
+        vec[9:] = level_vec[9:] * self.pair_weight * env_mod
 
-        dom_q = prof.metadata.get("dominant_qubits", [])
-        for q in dom_q:
-            if 0 <= int(q) < 9:
-                vec[int(q)] += 0.45 * amp * envelope
+        vec[:9] += self.dom_single_boost * amp * envelope * dom_mask[:9]
+        vec[9:] += self.dom_pair_boost * amp * envelope * dom_mask[9:]
 
-        dom_p = prof.metadata.get("dominant_pairs", [])
-        for p_idx in dom_p:
-            if 0 <= int(p_idx) < 12:
-                vec[9 + int(p_idx)] += 0.65 * amp * envelope
-
-        vec = np.clip(vec, prof.min_val * 0.25, min(0.45, prof.max_val * 1.5))
+        vec = np.clip(vec, prof.min_val * 0.20, min(0.45, prof.max_val * 1.5))
         self.samples_generated += 1
         self.last_timestamp = float(timestamp)
 

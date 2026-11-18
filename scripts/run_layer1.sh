@@ -29,6 +29,7 @@ LOG_FILE="logs/layer1_validation.log"
     simulation/tests/test_measurement_syndrome_integration.py \
     simulation/tests/test_measurement_avid_integration.py \
     simulation/tests/test_measurement_baselines.py \
+    simulation/tests/test_pd_contract_and_pca.py \
     tests/test_seven_stage_noise_framework.py
   echo "=== Running Stage 5 Measurement Pipeline CLI (250s, seed=42) ==="
   PYTHONPATH=. python3 -m simulation.stimulus.seven_stage.stage5_measurement_noise \
