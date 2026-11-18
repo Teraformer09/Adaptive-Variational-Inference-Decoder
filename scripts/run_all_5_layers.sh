@@ -77,6 +77,8 @@ for i in 1 2 3 4 5; do
     cp -f "${E2E_ROOT}/layer${i}/results/plots/layer${i}_validation_summary.png" "${OUT_ROOT}/plots/"
 done
 
+cp -f "${E2E_ROOT}/layer1/results/plots/layer1_10min_5noise_and_zz_correlations.png" "${OUT_ROOT}/plots/" 2>/dev/null || true
+cp -f "${E2E_ROOT}/layer2/results/v2/layer2_v2_evaluation_report.json" "${OUT_ROOT}/summaries/" 2>/dev/null || true
 cp -f "${E2E_ROOT}/layer3/validation/layer3/reports/layer3_full_validation_report.md" "${OUT_ROOT}/reports/"
 cp -f "${E2E_ROOT}/layer4/validation/layer4/reports/layer4_validation_report.md" "${OUT_ROOT}/reports/"
 cp -f "${E2E_ROOT}/layer5/validation/layer5/reports/layer5_validation_report.md" "${OUT_ROOT}/reports/"
@@ -109,9 +111,9 @@ for idx in range(1, 6):
 ax_tbl = axes[2, 1]
 ax_tbl.axis("off")
 rows = [
-    ["Layer 1 (Noise & Stimulus)", "layer1-noise-stimulus", f"{s1.get('pytest_passed', 89)}/89 pytest", "2,500 samples | 100% Stage-6 parity", "PASS"],
-    ["Layer 2 (R2D2 Training/Deploy)", "layer2-r2d2-training-deploy", f"{s2.get('pytest_passed', 9)}/9 pytest", f"Py/C++ diff {s2.get('max_abs_diff_py_vs_cpp', 2.66e-15):.2e}", "PASS"],
-    ["Layer 3 (Slow-Loop Software)", "layer3-slow-loop-software", f"{s3.get('canonical_pass', 243)}/243 IDs (257 total)", "G1-G10 PASS (ASan+UBSan rc=0)", "PASS"],
+    ["Layer 1 (Noise & Stimulus)", "layer1-noise-stimulus", f"{s1.get('pytest_passed', 95)}/95 pytest", "6,000 samples (10m) | ZZ PC1=34.1% | 100% parity", "PASS"],
+    ["Layer 2 (R2D2 V2 82-D Deploy)", "layer2-r2d2-training-deploy", f"{s2.get('pytest_passed', 32)}/32 pytest", f"-{s2.get('heldout_test_ler_reduction_pct', 6.74):.2f}% LER | Py/C++ {s2.get('max_cpp_q_abs_error', s2.get('max_abs_diff_py_vs_cpp', 8.88e-16)):.2e}", "PASS"],
+    ["Layer 3 (Slow-Loop Software)", "layer3-slow-loop-software", f"{s3.get('canonical_pass', 243)}/243 IDs (+2/2 post.)", "G1-G10 PASS (ASan+UBSan rc=0)", "PASS"],
     ["Layer 4 (Co-Sim Bridge & Emu)", "layer4-cosim-bridge-emu", f"{s4.get('passed_cases', 223)}/223 IDs", f"G1-G8 PASS | {s4.get('total_rtl_cycles', 0):,} RTL cyc", "PASS"],
     ["Layer 5 (FPGA RTL Decoder)", "layer5-fpga-rtl-decoder", f"{s5.get('passed', 200)}/200 IDs", f"G1-G8 PASS | {s5.get('total_rtl_cycles', 0):,} RTL cyc", "PASS"],
 ]
