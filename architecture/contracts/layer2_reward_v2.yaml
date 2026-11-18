@@ -1,0 +1,34 @@
+schema_version: "2.0"
+contract_name: "AVID_Layer2_Noise_Aware_Reward_Contract_V2"
+
+total_reward_bounds: [-2.0, 2.0]
+component_bounds: [-1.0, 1.0]
+
+logged_terms:
+  - "reward/qec_performance"
+  - "reward/gaussian_stability"
+  - "reward/ou_tracking"
+  - "reward/zz_correlation"
+  - "reward/tls_switching"
+  - "reward/burst_recovery"
+  - "reward/decoder_stability"
+  - "reward/safety"
+  - "reward/total_reward"
+
+weights:
+  qec_performance: 1.10
+  regime_specific: 0.55
+  decoder_stability: 0.20
+  safety: 0.35
+
+regimes:
+  - "gaussian_stationary"
+  - "ou_drift"
+  - "zz_crosstalk"
+  - "tls_telegraph"
+  - "nonstationary_burst"
+
+rules:
+  forbid_hardcoded_oracle_action_bonus: true
+  use_regime_responsibility_mask: true
+  privileged_labels_allowed_in_training_reward_only: true

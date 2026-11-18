@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_name": "AVID_R2D2_Binary_Checkpoint_Schema",
+  "schema_version": 1,
+  "magic_bytes": "AVIDR2D2",
+  "endianness": "little",
+  "float_format": "IEEE754_float64",
+  "header_layout": {
+    "magic": {"offset": 0, "size_bytes": 8, "type": "char[8]", "value": "AVIDR2D2"},
+    "version": {"offset": 8, "size_bytes": 4, "type": "uint32", "value": 1},
+    "input_dim": {"offset": 12, "size_bytes": 4, "type": "uint32", "value": 8},
+    "hidden_dim": {"offset": 16, "size_bytes": 4, "type": "uint32", "value": 64},
+    "num_actions": {"offset": 20, "size_bytes": 4, "type": "uint32", "value": 6},
+    "num_qubits": {"offset": 24, "size_bytes": 4, "type": "uint32", "value": 9},
+    "reserved": {"offset": 28, "size_bytes": 4, "type": "uint32", "value": 0}
+  },
+  "tensor_order": [
+    {"name": "feature_scale", "shape": [8], "num_elements": 8, "description": "Per-feature multiplicative scaling before LSTM"},
+    {"name": "feature_offset", "shape": [8], "num_elements": 8, "description": "Per-feature additive offset after scaling"},
+    {"name": "W_ih", "shape": [256, 8], "num_elements": 2048, "description": "LSTM input-to-hidden weights stacked as [i, f, g, o] gates (4 * 64 x 8)"},
+    {"name": "W_hh", "shape": [256, 64], "num_elements": 16384, "description": "LSTM hidden-to-hidden weights stacked as [i, f, g, o] gates (4 * 64 x 64)"},
+    {"name": "b_ih", "shape": [256], "num_elements": 256, "description": "LSTM combined gate bias stacked as [i, f, g, o] (4 * 64)"},
+    {"name": "W_val", "shape": [1, 64], "num_elements": 64, "description": "Dueling state-value stream weights V(h)"},
+    {"name": "b_val", "shape": [1], "num_elements": 1, "description": "Dueling state-value stream scalar bias"},
+    {"name": "W_adv", "shape": [6, 64], "num_elements": 384, "description": "Dueling action-advantage stream weights A(h, a) for a in 0..5"},
+    {"name": "b_adv", "shape": [6], "num_elements": 6, "description": "Dueling action-advantage stream bias"},
+    {"name": "W_gain", "shape": [9, 64], "num_elements": 576, "description": "Per-qubit LLR gain residual projection weights"},
+    {"name": "b_gain", "shape": [9], "num_elements": 9, "description": "Per-qubit LLR gain residual projection bias"}
+  ],
+  "total_float64_elements": 19744,
+  "total_payload_bytes": 157952,
+  "total_file_bytes": 157984,
+  "equations": {
+    "feature_norm": "x_norm[k] = clip(x_raw[k] * feature_scale[k] + feature_offset[k], -4.0, 4.0)",
+    "lstm_gates": "gates = W_ih @ x_norm + W_hh @ h_{t-1} + b_ih; i = sigmoid(gates[0:64]); f = sigmoid(gates[64:128]); g = tanh(gates[128:192]); o = sigmoid(gates[192:256])",
+    "lstm_state": "c_t = f * c_{t-1} + i * g; h_t = o * tanh(c_t)",
+    "dueling_q": "V = W_val @ h_t + b_val; A = W_adv @ h_t + b_adv; Q(h_t, a) = V + (A[a] - mean(A))",
+    "qubit_gains": "delta_g = 0.30 * tanh(W_gain @ h_t + b_gain)"
+  }
+}

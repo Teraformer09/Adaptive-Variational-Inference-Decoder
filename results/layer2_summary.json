@@ -1,17 +1,43 @@
 {
   "layer": 2,
   "branch": "layer2-r2d2-training-deploy",
-  "pytest_passed": 9,
-  "pytest_failed": 0,
-  "num_updates": 320,
-  "initial_loss": 0.565784,
-  "final_loss": 0.029208,
-  "pre_train_step_reward": -1.0921,
-  "post_train_step_reward": 1.8734,
-  "static_step_reward": -0.5679,
-  "oracle_action_agreement": 0.8342,
-  "distinct_actions_selected": 6,
-  "max_cpp_q_abs_error": 2.6645352591003757e-15,
-  "max_cpp_gain_abs_error": 1.5959455978986625e-16,
+  "active_schema_version": 2,
+  "v1_checkpoint_preserved": "checkpoints/v1/r2d2_v1_trained.bin",
+  "v2_checkpoint": "checkpoints/v2/r2d2_v2_trained.bin",
+  "input_dim": 82,
+  "trainable_parameters": 38672,
+  "total_serialized_floats": 38836,
+  "v2_binary_file_bytes": 310720,
+  "cpp_runtime_weights_struct_bytes": 310728,
+  "cpp_mean_inference_step_us": 95.5882,
+  "heldout_test_mean_ler": 0.06097,
+  "heldout_test_static_ler": 0.06537,
+  "heldout_test_ler_reduction_pct": 6.74,
+  "ablation_study": {
+    "1_Static_B0": {
+      "ler": 0.065252685546875,
+      "ler_reduction_vs_static_pct": 0.0
+    },
+    "2_Memoryless_JointDP_Proj": {
+      "ler": 0.06295166015625,
+      "ler_reduction_vs_static_pct": 3.526330558413602
+    },
+    "3_R2D2_V2_NoUncertainty": {
+      "ler": 0.062261962890625,
+      "ler_reduction_vs_static_pct": 4.583294359741829,
+      "mean_reward": 0.3656327679530243
+    },
+    "4_R2D2_V2_Full_82D": {
+      "ler": 0.0610595703125,
+      "ler_reduction_vs_static_pct": 6.425965765597225,
+      "mean_reward": 0.42031194154521395
+    },
+    "5_R2D2_V2_Oracle_7x3": {
+      "ler": 0.054388427734375,
+      "ler_reduction_vs_static_pct": 16.64951828640912
+    }
+  },
+  "max_cpp_q_abs_error": 8.881784197001252e-16,
+  "max_cpp_gain_abs_error": 1.1102230246251565e-16,
   "overall_status": "PASS"
 }

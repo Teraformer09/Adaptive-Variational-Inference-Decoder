@@ -1,0 +1,25 @@
+=== Layer 2 Validation: R2D2 ML Training, Export & C++ Parity ===
+Branch: layer2-r2d2-training-deploy | Commit: 7c3851f
+============================= test session starts ==============================
+platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tirtha/avid-validation/layer2
+configfile: pytest.ini
+plugins: typeguard-4.4.4, anyio-4.11.0
+collecting ... collected 9 items
+
+tests/test_training.py::test_kapturowski_value_rescaling_bijection_and_derivative PASSED [ 11%]
+tests/test_training.py::test_recurrent_lstm_bptt_gradient_vs_finite_difference PASSED [ 22%]
+tests/test_training.py::test_dueling_q_head_gradient_vs_finite_difference PASSED [ 33%]
+tests/test_training.py::test_prioritized_sequence_replay_and_target_sync PASSED [ 44%]
+tests/test_training.py::test_trained_checkpoint_metrics_and_convergence PASSED [ 55%]
+tests/test_checkpoint_export.py::test_checkpoint_files_and_schema_integrity PASSED [ 66%]
+tests/test_checkpoint_export.py::test_roundtrip_export_and_load_exact_parity PASSED [ 77%]
+tests/test_checkpoint_export.py::test_corrupted_checkpoint_rejected PASSED [ 88%]
+tests/test_layer2_ip_op.py::test_layer2_cpp_python_ip_op_parity PASSED   [100%]
+
+============================== 9 passed in 1.04s ===============================
+/usr/lib/python3/dist-packages/pyparsing/core.py:5637: SyntaxWarning: 'return' in a 'finally' block
+  return f"{type(self).__name__}: {retString}"
+[Layer 2 Plot] Saved /home/tirtha/avid-validation/layer2/results/plots/layer2_validation_summary.png and /home/tirtha/avid-validation/layer2/results/layer2_summary.json
+[PASS] Layer 2 IP, OP & plot generation complete.

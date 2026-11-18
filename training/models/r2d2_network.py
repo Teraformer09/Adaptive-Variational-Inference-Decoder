@@ -20,9 +20,7 @@ def value_rescale_h(z: np.ndarray | float, eps: float = 1e-3) -> np.ndarray | fl
 
 
 def value_rescale_h_inv(y: np.ndarray | float, eps: float = 1e-3) -> np.ndarray | float:
-    """Exact analytical inverse h^{-1}(y) of Kapturowski et al. value rescaling:
-    h^{-1}(y) = sign(y) * (((sqrt(1 + 4 * eps * (|y| + 1 + eps)) - 1) / (2 * eps))^2 - 1)
-    """
+    """Exact analytical inverse h^{-1}(y) of Kapturowski et al. value rescaling."""
     y_arr = np.asarray(y, dtype=np.float64)
     abs_y = np.abs(y_arr)
     inner = (np.sqrt(1.0 + 4.0 * eps * (abs_y + 1.0 + eps)) - 1.0) / (2.0 * eps)
@@ -48,11 +46,15 @@ ACTION_DEFINITIONS: List[Dict[str, object]] = [
 
 
 class R2D2Network:
-    """Recurrent Replay Distributed DQN (R2D2) model for adaptive QEC decoder control."""
+    """Recurrent Replay Distributed DQN (R2D2) model for adaptive QEC decoder control.
+
+    Defaults to V2 82-dimensional syndrome-conditioned observation contract (`input_dim=82`),
+    while retaining backward compatibility with V1 (`input_dim=8`).
+    """
 
     def __init__(
         self,
-        input_dim: int = 8,
+        input_dim: int = 82,
         hidden_dim: int = 64,
         num_actions: int = 6,
         num_qubits: int = 9,
@@ -78,6 +80,14 @@ class R2D2Network:
             seed=seed + 1,
         )
 
+    @property
+    def num_trainable_parameters(self) -> int:
+        return sum(int(v.size) for v in self.parameters().values())
+
+    @property
+    def num_serialized_floats(self) -> int:
+        return sum(int(v.size) for v in self.get_state_dict().values())
+
     def zero_state(self) -> Tuple[np.ndarray, np.ndarray]:
         return self.encoder.zero_state()
 
@@ -87,8 +97,16 @@ class R2D2Network:
         h_prev: np.ndarray,
         c_prev: np.ndarray,
     ) -> Dict[str, object]:
-        """Single online recurrent inference step."""
-        h_next, c_next, cache = self.encoder.step(x_raw, h_prev, c_prev)
+        """Single online recurrent inference step with strict shape and finite validation."""
+        obs = np.asarray(x_raw, dtype=np.float64)
+        if obs.shape != (self.input_dim,):
+            raise ValueError(
+                f"R2D2Network.step expected observation shape ({self.input_dim},), got {obs.shape}"
+            )
+        if not np.all(np.isfinite(obs)):
+            raise ValueError("R2D2Network.step received NaN/Inf observation")
+
+        h_next, c_next, cache = self.encoder.step(obs, h_prev, c_prev)
         q_values, state_val, advantages, qubit_gains = self.head.forward_step(h_next)
         best_action = int(np.argmax(q_values))
         action_spec = ACTION_DEFINITIONS[best_action]
@@ -117,9 +135,17 @@ class R2D2Network:
         burn_in_steps: int = 0,
     ) -> Dict[str, object]:
         """Unroll R2D2 network across sequence (T, D) with burn-in."""
-        T = obs_seq.shape[0]
+        seq = np.asarray(obs_seq, dtype=np.float64)
+        if seq.ndim != 2 or seq.shape[1] != self.input_dim:
+            raise ValueError(
+                f"R2D2Network.forward_sequence expected shape (T, {self.input_dim}), got {seq.shape}"
+            )
+        if not np.all(np.isfinite(seq)):
+            raise ValueError("R2D2Network.forward_sequence received NaN/Inf sequence")
+
+        T = seq.shape[0]
         h_seq, (h_final, c_final), caches = self.encoder.forward_sequence(
-            obs_seq, h_init=h_init, c_init=c_init, burn_in_steps=burn_in_steps
+            seq, h_init=h_init, c_init=c_init, burn_in_steps=burn_in_steps
         )
         q_seq = np.zeros((T, self.num_actions), dtype=np.float64)
         v_seq = np.zeros(T, dtype=np.float64)
@@ -223,5 +249,4 @@ class R2D2Network:
             arr[:] = state_dict[k]
 
     def clone(self) -> "R2D2Network":
-        net = copy.deepcopy(self)
-        return net
+        return copy.deepcopy(self)

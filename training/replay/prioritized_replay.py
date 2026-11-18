@@ -1,8 +1,8 @@
-"""Prioritized Sequence Replay Buffer with Kapturowski max/mean TD-error mixture."""
+"""Prioritized Sequence Replay Buffer with Kapturowski max/mean TD-error mixture and regime diagnostics."""
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from training.replay.sequence_sampler import SequenceSegment
@@ -14,12 +14,6 @@ class PrioritizedSequenceReplayBuffer:
     Priority aggregation across unroll steps t = 1..T_unroll (Kapturowski et al. Eq. 2):
       p_i = eta * max_t |delta_{i,t}| + (1 - eta) * mean_t |delta_{i,t}|
     with eta = 0.9.
-
-    Sampling probability:
-      P(i) = (p_i + eps)^alpha / sum_k (p_k + eps)^alpha
-
-    Importance-sampling weight:
-      w_i = (N * P(i))^{-beta} / max_j ((N * P(j))^{-beta})
     """
 
     def __init__(
@@ -40,9 +34,19 @@ class PrioritizedSequenceReplayBuffer:
         self.priorities: List[float] = []
         self.pos: int = 0
         self.max_priority: float = 1.0
+        self._sampled_regime_counts: Dict[str, int] = {}
 
     def __len__(self) -> int:
         return len(self.storage)
+
+    def regime_distribution(self) -> Dict[str, int]:
+        counts: Dict[str, int] = {}
+        for seg in self.storage:
+            counts[seg.family] = counts.get(seg.family, 0) + 1
+        return counts
+
+    def sampled_regime_diagnostics(self) -> Dict[str, int]:
+        return dict(self._sampled_regime_counts)
 
     def compute_sequence_priority(self, td_errors: np.ndarray) -> float:
         """Compute Kapturowski mixture priority from sequence TD errors."""
@@ -90,12 +94,15 @@ class PrioritizedSequenceReplayBuffer:
         replace = n < batch_size
         indices = self.rng.choice(n, size=batch_size, replace=replace, p=probs)
 
-        # Importance-sampling weights
         raw_weights = np.power(n * probs[indices], -float(beta))
         max_weight = np.max(np.power(n * probs, -float(beta)))
         is_weights = (raw_weights / max(max_weight, 1e-12)).astype(np.float64)
 
         batch = [self.storage[int(i)] for i in indices]
+        for seg in batch:
+            self._sampled_regime_counts[seg.family] = (
+                self._sampled_regime_counts.get(seg.family, 0) + 1
+            )
         return batch, indices.astype(np.int64), is_weights
 
     def update_priorities(

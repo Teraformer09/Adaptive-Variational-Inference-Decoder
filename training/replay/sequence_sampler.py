@@ -17,16 +17,17 @@ class SequenceSegment:
     - [burn_in_steps + unroll_steps : T_seq] -> bootstrap lookahead for n-step TD targets
     """
 
-    obs: np.ndarray          # shape (T_seq, 8)
-    actions: np.ndarray      # shape (T_seq,), int64
-    rewards: np.ndarray      # shape (T_seq,), float64
-    dones: np.ndarray        # shape (T_seq,), float64 (0.0 or 1.0)
-    target_gains: np.ndarray # shape (T_seq, 9), float64
-    optimal_actions: np.ndarray # shape (T_seq,), int64 (oracle action reference for diagnostics)
-    h_init: np.ndarray       # shape (64,), float64
-    c_init: np.ndarray       # shape (64,), float64
-    family: str = "stationary_independent"
+    obs: np.ndarray             # shape (T_seq, D), D=82 in V2 (or 8 in V1)
+    actions: np.ndarray         # shape (T_seq,), int64
+    rewards: np.ndarray         # shape (T_seq,), float64
+    dones: np.ndarray           # shape (T_seq,), float64 (0.0 or 1.0)
+    target_gains: np.ndarray    # shape (T_seq, 9), float64
+    optimal_actions: np.ndarray # shape (T_seq,), int64 (diagnostic reference only)
+    h_init: np.ndarray          # shape (64,), float64
+    c_init: np.ndarray          # shape (64,), float64
+    family: str = "gaussian_stationary"
     seed: int = 0
+    trajectory_id: str = ""
 
 
 def slice_episode_into_segments(
@@ -42,8 +43,9 @@ def slice_episode_into_segments(
     unroll_steps: int = 4,
     n_step_td: int = 3,
     stride: int = 2,
-    family: str = "stationary_independent",
+    family: str = "gaussian_stationary",
     seed: int = 0,
+    trajectory_id: str = "",
 ) -> List[SequenceSegment]:
     """Slice an episode of length T_ep into overlapping R2D2 replay segments."""
     T_ep = obs.shape[0]
@@ -51,7 +53,6 @@ def slice_episode_into_segments(
     segments: List[SequenceSegment] = []
 
     if T_ep < T_seq:
-        # Pad short episode by repeating last transition
         pad_len = T_seq - T_ep
         obs = np.concatenate([obs, np.repeat(obs[-1:], pad_len, axis=0)], axis=0)
         actions = np.concatenate([actions, np.repeat(actions[-1:], pad_len, axis=0)], axis=0)
@@ -81,6 +82,7 @@ def slice_episode_into_segments(
                 c_init=c_states[start].astype(np.float64).copy(),
                 family=family,
                 seed=seed,
+                trajectory_id=trajectory_id,
             )
         )
     return segments

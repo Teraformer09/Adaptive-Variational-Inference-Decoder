@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 import numpy as np
 
+from training.observations.feature_normalizer import default_feature_norm_for_dim
+
 
 def _sigmoid(x: np.ndarray) -> np.ndarray:
     x_clip = np.clip(x, -30.0, 30.0)
@@ -39,21 +41,19 @@ class RecurrentLSTMEncoder:
 
     def __init__(
         self,
-        input_dim: int = 8,
+        input_dim: int = 82,
         hidden_dim: int = 64,
         seed: int = 20260405,
     ) -> None:
         self.input_dim = int(input_dim)
         self.hidden_dim = int(hidden_dim)
+        if self.input_dim <= 0 or self.hidden_dim <= 0:
+            raise ValueError(f"Invalid dimensions input_dim={self.input_dim}, hidden_dim={self.hidden_dim}")
+
         rng = np.random.default_rng(seed)
 
-        # Feature normalization constants matching deployment schema
-        self.feature_scale = np.array(
-            [20.0, 15.0, 20.0, 15.0, 4.0, 6.0, 15.0, 1.0], dtype=np.float64
-        )
-        self.feature_offset = np.array(
-            [-0.35, -0.45, -0.30, -0.60, -0.70, -0.35, -0.25, -0.50], dtype=np.float64
-        )
+        # Feature normalization contract (82-element V2 default, 8-element V1 preserved)
+        self.feature_scale, self.feature_offset = default_feature_norm_for_dim(self.input_dim)
 
         H = self.hidden_dim
         D = self.input_dim
@@ -67,8 +67,14 @@ class RecurrentLSTMEncoder:
         self.b_ih[H : 2 * H] = 1.0
 
     def normalize_features(self, x_raw: np.ndarray) -> np.ndarray:
-        """Normalize raw 8-D feature vector into [-4.0, 4.0]."""
+        """Validate and normalize raw D-dimensional feature vector into [-4.0, 4.0]."""
         x = np.asarray(x_raw, dtype=np.float64)
+        if x.shape != (self.input_dim,):
+            raise ValueError(
+                f"Expected observation vector of shape ({self.input_dim},), got {x.shape}"
+            )
+        if not np.all(np.isfinite(x)):
+            raise ValueError("RecurrentLSTMEncoder received non-finite observation values")
         return np.clip(x * self.feature_scale + self.feature_offset, -4.0, 4.0)
 
     def zero_state(self) -> Tuple[np.ndarray, np.ndarray]:
@@ -120,7 +126,15 @@ class RecurrentLSTMEncoder:
         burn_in_steps: int = 0,
     ) -> Tuple[np.ndarray, Tuple[np.ndarray, np.ndarray], List[LSTMStepCache]]:
         """Unroll LSTM over a sequence of shape (T, D) with optional burn-in."""
-        T = obs_seq.shape[0]
+        seq = np.asarray(obs_seq, dtype=np.float64)
+        if seq.ndim != 2 or seq.shape[1] != self.input_dim:
+            raise ValueError(
+                f"Expected obs_seq shape (T, {self.input_dim}), got {seq.shape}"
+            )
+        if not np.all(np.isfinite(seq)):
+            raise ValueError("forward_sequence received non-finite observation sequence")
+
+        T = seq.shape[0]
         if h_init is None or c_init is None:
             h, c = self.zero_state()
         else:
@@ -130,7 +144,7 @@ class RecurrentLSTMEncoder:
         h_seq = np.zeros((T, self.hidden_dim), dtype=np.float64)
         caches: List[LSTMStepCache] = []
         for t in range(T):
-            h, c, cache = self.step(obs_seq[t], h, c)
+            h, c, cache = self.step(seq[t], h, c)
             # If t == burn_in_steps - 1, stop-gradient decouples burn-in state history
             if burn_in_steps > 0 and t == burn_in_steps - 1:
                 h = h.copy()

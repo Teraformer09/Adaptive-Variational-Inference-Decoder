@@ -1,0 +1,160 @@
+{
+  "checkpoint": "checkpoints/v2/r2d2_v2_trained.bin",
+  "regime_evaluation": {
+    "core_5_regimes_test": {
+      "split_name": "test",
+      "observation_mode": "full_82d",
+      "mean_ler": 0.0610595703125,
+      "static_ler": 0.065252685546875,
+      "ler_reduction_pct": 6.425965765597225,
+      "per_regime_ler": {
+        "gaussian_stationary": 0.02545166015625,
+        "ou_drift": 0.073760986328125,
+        "zz_crosstalk": 0.065155029296875,
+        "tls_telegraph": 0.05841064453125,
+        "nonstationary_burst": 0.08251953125
+      },
+      "per_regime_static_ler": {
+        "gaussian_stationary": 0.025421142578125,
+        "ou_drift": 0.07159423828125,
+        "zz_crosstalk": 0.092071533203125,
+        "tls_telegraph": 0.05419921875,
+        "nonstationary_burst": 0.082977294921875
+      },
+      "worst_regime": "nonstationary_burst",
+      "worst_regime_ler": 0.08251953125,
+      "mean_step_reward": 0.42031194154521384,
+      "reward_decomposition": {
+        "reward/qec_performance": 0.04408579200487363,
+        "reward/gaussian_stability": 0.07012617771849401,
+        "reward/ou_tracking": 0.11897911680843527,
+        "reward/zz_correlation": 0.15827533231394977,
+        "reward/tls_switching": 0.1577848316787228,
+        "reward/burst_recovery": 0.05644901002842937,
+        "reward/decoder_stability": 0.04790978194217836,
+        "reward/safety": 0.15242187499999998,
+        "reward/total_reward": 0.42031194154521384
+      },
+      "worst_regime_reward": 0.2367081541021298,
+      "oracle_action_agreement": 0.628125,
+      "action_switch_rate": 0.26,
+      "mean_post_burst_recovery_epochs": 1.125,
+      "posterior_21_rmse": 0.01410795229035035,
+      "gain_mse": 0.003231405506561911,
+      "action_histogram": [
+        298,
+        44,
+        112,
+        166,
+        16,
+        4
+      ],
+      "distinct_actions_selected": 6,
+      "total_steps": 640,
+      "total_rounds": 163840
+    },
+    "heldout_3_mixtures": {
+      "split_name": "heldout_mixtures",
+      "observation_mode": "full_82d",
+      "mean_ler": 0.13551839192708334,
+      "static_ler": 0.14741007486979166,
+      "ler_reduction_pct": 8.06707611621005,
+      "per_regime_ler": {
+        "zz_crosstalk": 0.13330078125,
+        "nonstationary_burst": 0.13995361328125
+      },
+      "per_regime_static_ler": {
+        "zz_crosstalk": 0.1483001708984375,
+        "nonstationary_burst": 0.1456298828125
+      },
+      "worst_regime": "nonstationary_burst",
+      "worst_regime_ler": 0.13995361328125,
+      "mean_step_reward": 0.3697791214619999,
+      "reward_decomposition": {
+        "reward/qec_performance": 0.09919441384422838,
+        "reward/gaussian_stability": 0.0,
+        "reward/ou_tracking": 0.0,
+        "reward/zz_correlation": 0.43285387729310604,
+        "reward/tls_switching": 0.0,
+        "reward/burst_recovery": -0.0015832133235385455,
+        "reward/decoder_stability": -0.031235703082900152,
+        "reward/safety": 0.08489583333333332,
+        "reward/total_reward": 0.3697791214619999
+      },
+      "worst_regime_reward": 0.0877067625810461,
+      "oracle_action_agreement": 0.5052083333333334,
+      "action_switch_rate": 0.12222222222222222,
+      "mean_post_burst_recovery_epochs": 1.0,
+      "posterior_21_rmse": 0.015841722480936425,
+      "gain_mse": 0.011930569858775395,
+      "action_histogram": [
+        24,
+        43,
+        200,
+        0,
+        92,
+        25
+      ],
+      "distinct_actions_selected": 5,
+      "total_steps": 384,
+      "total_rounds": 98304
+    },
+    "disjoint_trajectories_verified": true
+  },
+  "robustness_evaluation": {
+    "window_sweep": {
+      "W_64": {
+        "window_rounds": 64,
+        "mean_ler": 0.07892071759259259,
+        "static_ler": 0.08644386574074074,
+        "ler_reduction_pct": 8.702928870292894,
+        "posterior_21_rmse": 0.019270205078470826
+      },
+      "W_128": {
+        "window_rounds": 128,
+        "mean_ler": 0.0859375,
+        "static_ler": 0.09118200231481481,
+        "ler_reduction_pct": 5.751685838952794,
+        "posterior_21_rmse": 0.019177568141571656
+      },
+      "W_256": {
+        "window_rounds": 256,
+        "mean_ler": 0.07763671875,
+        "static_ler": 0.08863208912037036,
+        "ler_reduction_pct": 12.405631503774732,
+        "posterior_21_rmse": 0.01799003197385695
+      },
+      "W_512": {
+        "window_rounds": 512,
+        "mean_ler": 0.08150679976851852,
+        "static_ler": 0.08766456886574074,
+        "ler_reduction_pct": 7.02423929860753,
+        "posterior_21_rmse": 0.017685026599583445
+      }
+    }
+  },
+  "ablation_study": {
+    "1_Static_B0": {
+      "ler": 0.065252685546875,
+      "ler_reduction_vs_static_pct": 0.0
+    },
+    "2_Memoryless_JointDP_Proj": {
+      "ler": 0.06295166015625,
+      "ler_reduction_vs_static_pct": 3.526330558413602
+    },
+    "3_R2D2_V2_NoUncertainty": {
+      "ler": 0.062261962890625,
+      "ler_reduction_vs_static_pct": 4.583294359741829,
+      "mean_reward": 0.3656327679530243
+    },
+    "4_R2D2_V2_Full_82D": {
+      "ler": 0.0610595703125,
+      "ler_reduction_vs_static_pct": 6.425965765597225,
+      "mean_reward": 0.42031194154521395
+    },
+    "5_R2D2_V2_Oracle_7x3": {
+      "ler": 0.054388427734375,
+      "ler_reduction_vs_static_pct": 16.64951828640912
+    }
+  }
+}

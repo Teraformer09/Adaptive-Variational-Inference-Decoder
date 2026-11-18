@@ -1,0 +1,416 @@
+{
+  "model_name": "AVID_R2D2_Dueling_LSTM_V2",
+  "schema_version": 2,
+  "magic": "AVIDR2D2",
+  "architecture": {
+    "input_dim": 82,
+    "hidden_dim": 64,
+    "num_actions": 6,
+    "num_qubits": 9,
+    "gain_clip": 0.3,
+    "trainable_parameters": 38672,
+    "normalization_elements": 164
+  },
+  "binary_checkpoint": {
+    "path": "r2d2_v2_trained.bin",
+    "size_bytes": 310720,
+    "total_float64_elements": 38836,
+    "sha256": "4ac023567ee12819a8a2ebf62587614c938853692fe8c801c1f50a8aa45da8da"
+  },
+  "onnx_checkpoint": {
+    "path": "r2d2_v2_trained.onnx",
+    "sha256": "3193fa2cdce28dde9018815abb88dc9ac65ee0992035bd8a043e25f5b3177fe4"
+  },
+  "tensor_stats": {
+    "feature_scale": {
+      "shape": [
+        82
+      ],
+      "num_elements": 82,
+      "l2_norm": 127.99833006723169,
+      "min": 0.35,
+      "max": 22.0,
+      "mean": 11.723780487804879
+    },
+    "feature_offset": {
+      "shape": [
+        82
+      ],
+      "num_elements": 82,
+      "l2_norm": 17.006322353760098,
+      "min": -2.8,
+      "max": 3.5,
+      "mean": 0.4524390243902439
+    },
+    "W_ih": {
+      "shape": [
+        256,
+        82
+      ],
+      "num_elements": 20992,
+      "l2_norm": 17.615162463953876,
+      "min": -0.4529052539369788,
+      "max": 0.4762564685029778,
+      "mean": -0.0003680670239852433
+    },
+    "W_hh": {
+      "shape": [
+        256,
+        64
+      ],
+      "num_elements": 16384,
+      "l2_norm": 16.532553771432834,
+      "min": -0.4911961285798005,
+      "max": 0.5241889085574448,
+      "mean": -0.001450531450665798
+    },
+    "b_ih": {
+      "shape": [
+        256
+      ],
+      "num_elements": 256,
+      "l2_norm": 7.924684317449161,
+      "min": -0.05405988544728732,
+      "max": 1.0369099502238133,
+      "mean": 0.24776345556721838
+    },
+    "W_val": {
+      "shape": [
+        1,
+        64
+      ],
+      "num_elements": 64,
+      "l2_norm": 1.2492176590187722,
+      "min": -0.38044953533214315,
+      "max": 0.3641625176524027,
+      "mean": -0.03249551549938279
+    },
+    "b_val": {
+      "shape": [
+        1
+      ],
+      "num_elements": 1,
+      "l2_norm": 0.06015256281423598,
+      "min": 0.06015256281423598,
+      "max": 0.06015256281423598,
+      "mean": 0.06015256281423598
+    },
+    "W_adv": {
+      "shape": [
+        6,
+        64
+      ],
+      "num_elements": 384,
+      "l2_norm": 2.5579361922943806,
+      "min": -0.3769156614814182,
+      "max": 0.5039675055667516,
+      "mean": 0.00530897008533465
+    },
+    "b_adv": {
+      "shape": [
+        6
+      ],
+      "num_elements": 6,
+      "l2_norm": 0.02974447464387569,
+      "min": -0.021907029424350778,
+      "max": 0.014056018065792587,
+      "mean": -0.000308219577500015
+    },
+    "W_gain": {
+      "shape": [
+        9,
+        64
+      ],
+      "num_elements": 576,
+      "l2_norm": 3.008450154064589,
+      "min": -0.385007207134021,
+      "max": 0.4189811694474523,
+      "mean": -0.0010422030824704834
+    },
+    "b_gain": {
+      "shape": [
+        9
+      ],
+      "num_elements": 9,
+      "l2_norm": 0.05332266919180695,
+      "min": 0.0004637761015525856,
+      "max": 0.036278258270693274,
+      "mean": 0.013453911953260017
+    }
+  },
+  "training_metrics": {
+    "num_updates": 240,
+    "batch_size": 16,
+    "replay_segments_populated": 240,
+    "replay_regime_distribution": {
+      "gaussian_stationary": 72,
+      "ou_drift": 72,
+      "zz_crosstalk": 72,
+      "tls_telegraph": 72,
+      "nonstationary_burst": 72
+    },
+    "initial_loss_mean_first_20": 0.18749121318495374,
+    "final_loss_mean_last_20": 0.014628723430953047,
+    "initial_td_error_first_20": 0.4403273259884665,
+    "final_td_error_last_20": 0.23583110406804847,
+    "loss_curve_every_20": [
+      0.18749121318495374,
+      0.09784567498458052,
+      0.052445193248782475,
+      0.03806368736163041,
+      0.032942003488569536,
+      0.030969654205088647,
+      0.021646900920049752,
+      0.022687204031697637,
+      0.020706503426765284,
+      0.01752112390705642,
+      0.017111901236666737,
+      0.014628723430953047
+    ],
+    "pre_training_val_metrics": {
+      "split_name": "val",
+      "observation_mode": "full_82d",
+      "mean_ler": 0.06792689732142858,
+      "static_ler": 0.06964983258928571,
+      "ler_reduction_pct": 2.473710565848761,
+      "per_regime_ler": {
+        "gaussian_stationary": 0.025251116071428572,
+        "ou_drift": 0.07163783482142858,
+        "zz_crosstalk": 0.09256417410714286,
+        "tls_telegraph": 0.053501674107142856,
+        "nonstationary_burst": 0.0966796875
+      },
+      "per_regime_static_ler": {
+        "gaussian_stationary": 0.025251116071428572,
+        "ou_drift": 0.07198660714285714,
+        "zz_crosstalk": 0.09943498883928571,
+        "tls_telegraph": 0.05535016741071429,
+        "nonstationary_burst": 0.09622628348214286
+      },
+      "worst_regime": "nonstationary_burst",
+      "worst_regime_ler": 0.0966796875,
+      "mean_step_reward": 0.010196442228248632,
+      "reward_decomposition": {
+        "reward/qec_performance": 0.027051048468137776,
+        "reward/gaussian_stability": -0.10215697130571397,
+        "reward/ou_tracking": -0.05064820991224661,
+        "reward/zz_correlation": 0.10257518089592618,
+        "reward/tls_switching": 0.02283525515935427,
+        "reward/burst_recovery": -0.0051702008928571465,
+        "reward/decoder_stability": -0.12652620378078716,
+        "reward/safety": 0.0675892857142857,
+        "reward/total_reward": 0.010196442228248632
+      },
+      "worst_regime_reward": -0.26215815642547513,
+      "oracle_action_agreement": 0.14107142857142857,
+      "action_switch_rate": 0.046153846153846156,
+      "mean_post_burst_recovery_epochs": 1.0,
+      "posterior_21_rmse": 0.01674288092795745,
+      "gain_mse": 0.006955147390850364,
+      "action_histogram": [
+        11,
+        1,
+        0,
+        0,
+        505,
+        43
+      ],
+      "distinct_actions_selected": 4,
+      "total_steps": 560,
+      "total_rounds": 143360
+    },
+    "post_training_val_metrics": {
+      "split_name": "val",
+      "observation_mode": "full_82d",
+      "mean_ler": 0.063251953125,
+      "static_ler": 0.06791015625,
+      "ler_reduction_pct": 6.859361518550489,
+      "per_regime_ler": {
+        "gaussian_stationary": 0.025244140625,
+        "ou_drift": 0.07421875,
+        "zz_crosstalk": 0.068505859375,
+        "tls_telegraph": 0.0599853515625,
+        "nonstationary_burst": 0.0883056640625
+      },
+      "per_regime_static_ler": {
+        "gaussian_stationary": 0.025244140625,
+        "ou_drift": 0.0722412109375,
+        "zz_crosstalk": 0.0976806640625,
+        "tls_telegraph": 0.05478515625,
+        "nonstationary_burst": 0.089599609375
+      },
+      "worst_regime": "nonstationary_burst",
+      "worst_regime_ler": 0.0883056640625,
+      "mean_step_reward": 0.4094149921564842,
+      "reward_decomposition": {
+        "reward/qec_performance": 0.04060783964433593,
+        "reward/gaussian_stability": 0.07391959086184442,
+        "reward/ou_tracking": 0.11717071410704386,
+        "reward/zz_correlation": 0.1523718657045801,
+        "reward/tls_switching": 0.15697214399278406,
+        "reward/burst_recovery": 0.046661668728858935,
+        "reward/decoder_stability": 0.05584288840201687,
+        "reward/safety": 0.15049999999999997,
+        "reward/total_reward": 0.4094149921564842
+      },
+      "worst_regime_reward": 0.20778472642219198,
+      "oracle_action_agreement": 0.6275,
+      "action_switch_rate": 0.228,
+      "mean_post_burst_recovery_epochs": 1.1,
+      "posterior_21_rmse": 0.01436295871482856,
+      "gain_mse": 0.003149534359531686,
+      "action_histogram": [
+        379,
+        58,
+        153,
+        186,
+        17,
+        7
+      ],
+      "distinct_actions_selected": 6,
+      "total_steps": 800,
+      "total_rounds": 204800
+    },
+    "heldout_test_metrics": {
+      "split_name": "test",
+      "observation_mode": "full_82d",
+      "mean_ler": 0.060966796875,
+      "static_ler": 0.06537109375,
+      "ler_reduction_pct": 6.737376755303253,
+      "per_regime_ler": {
+        "gaussian_stationary": 0.0249755859375,
+        "ou_drift": 0.073291015625,
+        "zz_crosstalk": 0.0672607421875,
+        "tls_telegraph": 0.059619140625,
+        "nonstationary_burst": 0.0796875
+      },
+      "per_regime_static_ler": {
+        "gaussian_stationary": 0.024951171875,
+        "ou_drift": 0.071435546875,
+        "zz_crosstalk": 0.09306640625,
+        "tls_telegraph": 0.05634765625,
+        "nonstationary_burst": 0.0810546875
+      },
+      "worst_regime": "nonstationary_burst",
+      "worst_regime_ler": 0.0796875,
+      "mean_step_reward": 0.4184737334299997,
+      "reward_decomposition": {
+        "reward/qec_performance": 0.04683061371541032,
+        "reward/gaussian_stability": 0.06131731968066422,
+        "reward/ou_tracking": 0.12134113360250787,
+        "reward/zz_correlation": 0.1585785821656695,
+        "reward/tls_switching": 0.15973937612580358,
+        "reward/burst_recovery": 0.054716795847386784,
+        "reward/decoder_stability": 0.040753346304653555,
+        "reward/safety": 0.15193749999999998,
+        "reward/total_reward": 0.4184737334299997
+      },
+      "worst_regime_reward": 0.2357612448268836,
+      "oracle_action_agreement": 0.605,
+      "action_switch_rate": 0.264,
+      "mean_post_burst_recovery_epochs": 1.1,
+      "posterior_21_rmse": 0.013198702625036949,
+      "gain_mse": 0.0031634175615169757,
+      "action_histogram": [
+        368,
+        51,
+        147,
+        210,
+        20,
+        4
+      ],
+      "distinct_actions_selected": 6,
+      "total_steps": 800,
+      "total_rounds": 204800
+    }
+  },
+  "feature_contract": {
+    "contract_name": "AVID_Layer2_Observation_Contract_V2",
+    "schema_version": 2,
+    "num_features": 82,
+    "feature_names": [
+      "post_mean_p_0",
+      "post_mean_p_1",
+      "post_mean_p_2",
+      "post_mean_p_3",
+      "post_mean_p_4",
+      "post_mean_p_5",
+      "post_mean_p_6",
+      "post_mean_p_7",
+      "post_mean_p_8",
+      "post_mean_p_01",
+      "post_mean_p_12",
+      "post_mean_p_34",
+      "post_mean_p_45",
+      "post_mean_p_67",
+      "post_mean_p_78",
+      "post_mean_p_03",
+      "post_mean_p_36",
+      "post_mean_p_14",
+      "post_mean_p_47",
+      "post_mean_p_25",
+      "post_mean_p_58",
+      "post_logvar_p_0",
+      "post_logvar_p_1",
+      "post_logvar_p_2",
+      "post_logvar_p_3",
+      "post_logvar_p_4",
+      "post_logvar_p_5",
+      "post_logvar_p_6",
+      "post_logvar_p_7",
+      "post_logvar_p_8",
+      "post_logvar_p_01",
+      "post_logvar_p_12",
+      "post_logvar_p_34",
+      "post_logvar_p_45",
+      "post_logvar_p_67",
+      "post_logvar_p_78",
+      "post_logvar_p_03",
+      "post_logvar_p_36",
+      "post_logvar_p_14",
+      "post_logvar_p_47",
+      "post_logvar_p_25",
+      "post_logvar_p_58",
+      "hist_x_00",
+      "hist_x_01",
+      "hist_x_02",
+      "hist_x_03",
+      "hist_x_04",
+      "hist_x_05",
+      "hist_x_06",
+      "hist_x_07",
+      "hist_x_08",
+      "hist_x_09",
+      "hist_x_10",
+      "hist_x_11",
+      "hist_x_12",
+      "hist_x_13",
+      "hist_x_14",
+      "hist_x_15",
+      "hist_z_00",
+      "hist_z_01",
+      "hist_z_02",
+      "hist_z_03",
+      "hist_z_04",
+      "hist_z_05",
+      "hist_z_06",
+      "hist_z_07",
+      "hist_z_08",
+      "hist_z_09",
+      "hist_z_10",
+      "hist_z_11",
+      "hist_z_12",
+      "hist_z_13",
+      "hist_z_14",
+      "hist_z_15",
+      "syndrome_density_x",
+      "syndrome_density_z",
+      "adjacent_coactivation_x",
+      "adjacent_coactivation_z",
+      "posterior_innovation_l2",
+      "burst_score",
+      "estimator_residual_tvd",
+      "decoder_config_age_norm"
+    ]
+  }
+}

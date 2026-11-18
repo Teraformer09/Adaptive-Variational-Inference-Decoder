@@ -1,0 +1,35 @@
+schema_version: "2.0"
+contract_name: "AVID_R2D2_Deployment_Contract_V2"
+magic_bytes: "AVIDR2D2"
+binary_schema_version: 2
+endianness: "little"
+float_format: "IEEE754_float64"
+
+architecture:
+  input_dim: 82
+  hidden_dim: 64
+  num_actions: 6
+  num_qubits: 9
+  gain_clip: 0.30
+
+parameter_accounting:
+  W_ih_elements: 20992
+  W_hh_elements: 16384
+  b_ih_elements: 256
+  W_val_elements: 64
+  b_val_elements: 1
+  W_adv_elements: 384
+  b_adv_elements: 6
+  W_gain_elements: 576
+  b_gain_elements: 9
+  trainable_parameters: 38672
+  normalization_elements: 164
+  total_float64_elements: 38836
+  header_bytes: 32
+  payload_bytes: 310688
+  total_file_bytes: 310720
+
+compatibility_policy:
+  preserve_v1_checkpoint: "checkpoints/v1/r2d2_v1_trained.bin"
+  v2_checkpoint: "checkpoints/v2/r2d2_v2_trained.bin"
+  reject_version_mismatch_strictly: true

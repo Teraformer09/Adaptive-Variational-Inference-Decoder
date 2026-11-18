@@ -1,0 +1,75 @@
+"""Layer 2 V2 82-Dimensional Syndrome-Conditioned Observation Package."""
+
+from training.observations.feature_normalizer import (
+    V1_FEATURE_OFFSET_8,
+    V1_FEATURE_SCALE_8,
+    V2_FEATURE_OFFSET_82,
+    V2_FEATURE_SCALE_82,
+    build_v2_feature_normalization_82,
+    default_feature_norm_for_dim,
+)
+from training.observations.observation_builder import (
+    FORBIDDEN_GROUND_TRUTH_KEYS,
+    ObservationBuilder,
+)
+from training.observations.observation_schema import (
+    FEATURE_NAMES_82,
+    OBS_V1_DIM,
+    OBS_V2_DIM,
+    OBSERVATION_SCHEMA_VERSION,
+    POSTERIOR_VAR_EPS,
+    SLICE_HIST_X,
+    SLICE_HIST_Z,
+    SLICE_POSTERIOR_LOG_VAR,
+    SLICE_POSTERIOR_MEAN,
+    SLICE_TELEMETRY,
+    TELEMETRY_NAMES_8,
+    validate_observation_v2,
+    variance_to_log_uncertainty,
+)
+from training.observations.spatial_mapping import (
+    CANONICAL_12_COUPLERS,
+    CANONICAL_21_PARAM_NAMES,
+    CANONICAL_21_TO_7X3_COORDS,
+    CANONICAL_7X3_TO_21_INDEX,
+    CANONICAL_QUBIT_GRID_3X3,
+    SPATIAL_CELL_TABLE,
+    SPATIAL_MATRIX_SHAPE,
+    matrix7x3_to_vector21,
+    vector21_to_matrix7x3,
+)
+from training.observations.syndrome_histogram import compute_basis_syndrome_stats
+
+__all__ = [
+    "CANONICAL_12_COUPLERS",
+    "CANONICAL_21_PARAM_NAMES",
+    "CANONICAL_21_TO_7X3_COORDS",
+    "CANONICAL_7X3_TO_21_INDEX",
+    "CANONICAL_QUBIT_GRID_3X3",
+    "FEATURE_NAMES_82",
+    "FORBIDDEN_GROUND_TRUTH_KEYS",
+    "OBSERVATION_SCHEMA_VERSION",
+    "OBS_V1_DIM",
+    "OBS_V2_DIM",
+    "ObservationBuilder",
+    "POSTERIOR_VAR_EPS",
+    "SLICE_HIST_X",
+    "SLICE_HIST_Z",
+    "SLICE_POSTERIOR_LOG_VAR",
+    "SLICE_POSTERIOR_MEAN",
+    "SLICE_TELEMETRY",
+    "SPATIAL_CELL_TABLE",
+    "SPATIAL_MATRIX_SHAPE",
+    "TELEMETRY_NAMES_8",
+    "V1_FEATURE_OFFSET_8",
+    "V1_FEATURE_SCALE_8",
+    "V2_FEATURE_OFFSET_82",
+    "V2_FEATURE_SCALE_82",
+    "build_v2_feature_normalization_82",
+    "compute_basis_syndrome_stats",
+    "default_feature_norm_for_dim",
+    "matrix7x3_to_vector21",
+    "validate_observation_v2",
+    "variance_to_log_uncertainty",
+    "vector21_to_matrix7x3",
+]

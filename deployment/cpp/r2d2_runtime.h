@@ -31,8 +31,8 @@ public:
     void reset_state();
 
     /**
-     * Execute one recurrent LSTM + Dueling Q-head + per-qubit gain inference step.
-     * Matches Python `R2D2Network.step()` to within < 1e-12 numerical precision.
+     * Execute one 82-input recurrent LSTM + Dueling Q-head + per-qubit gain inference step.
+     * Matches Python `R2D2Network.step()` (V2, input_dim=82) to within < 1e-12 numerical precision.
      */
     R2D2InferenceOutput step(const double raw_features[R2D2_INPUT_DIM]);
 
@@ -49,8 +49,22 @@ private:
 };
 
 /**
- * Kapturowski et al. invertible value rescaling h(z) and h^{-1}(y) for C++ parity verification.
+ * Frozen V1 8-input runtime retained strictly for reproducing V1 Python/C++ parity evidence.
  */
+class R2D2RuntimeV1 {
+public:
+    R2D2RuntimeV1();
+    bool load_checkpoint(const std::string& path, std::string* err_msg = nullptr);
+    void reset_state();
+    R2D2InferenceOutput step(const double raw_features[R2D2_V1_INPUT_DIM]);
+    bool is_loaded() const { return weights_.loaded_from_checkpoint; }
+
+private:
+    R2D2ModelWeightsV1 weights_{};
+    double h_[R2D2_HIDDEN_DIM]{};
+    double c_[R2D2_HIDDEN_DIM]{};
+};
+
 double value_rescale_h(double z, double eps = 1e-3);
 double value_rescale_h_inv(double y, double eps = 1e-3);
 

@@ -9,13 +9,13 @@ import numpy as np
 class DuelingQValueHead:
     """Dueling action-value head + bounded per-qubit gain residual head.
 
-    Action space (6 discrete actions):
-      - a0: STATIC_PRIOR_K4        (pair_weight_scale = 0.00, K = 4)
-      - a1: ADAPTIVE_PAIR_K6       (pair_weight_scale = 1.00, K = 6)
-      - a2: AGGRESSIVE_PAIR_K8     (pair_weight_scale = 1.35, K = 8)
-      - a3: DAMPED_PRIOR_K4        (pair_weight_scale = 0.85, K = 4)
-      - a4: FAST_RECALIBRATE_K8    (pair_weight_scale = 1.15, K = 8, recalibrate = True)
-      - a5: CONSERVATIVE_FALLBACK  (pair_weight_scale = 0.00, K = 4, fallback = True)
+    Action space (6 discrete actions matching `ACTION_DEFINITIONS` & hardware `K_MAX in {3,4,5}`):
+      - a0: STATIC_PRIOR_K3          (pair_weight_scale = 0.00, K = 3, temporal_beta = 0.75)
+      - a1: ADAPTIVE_PAIR_K4         (pair_weight_scale = 1.15, K = 4, temporal_beta = 0.65)
+      - a2: AGGRESSIVE_PAIR_K5       (pair_weight_scale = 1.35, K = 5, temporal_beta = 0.50)
+      - a3: DAMPED_PRIOR_K4          (pair_weight_scale = 1.05, K = 4, temporal_beta = 0.55)
+      - a4: FAST_RECALIBRATE_K5      (pair_weight_scale = 1.25, K = 5, temporal_beta = 0.00, recalibrate = True)
+      - a5: CONSERVATIVE_FALLBACK_K3 (pair_weight_scale = 0.00, K = 3, temporal_beta = 0.00, fallback = True)
 
     Dueling decomposition:
       Q(h, a) = V(h) + A(h, a) - (1 / |A|) * sum_{a'} A(h, a')
@@ -72,10 +72,7 @@ class DuelingQValueHead:
         dqubit_gains: np.ndarray,
     ) -> Tuple[np.ndarray, Dict[str, np.ndarray]]:
         """Backpropagate gradients from dL/dQ and dL/d(delta_g) to hidden state h and weights."""
-        # Dueling Q(h, a) = V(h) + A(h, a) - mean(A(h, .))
-        # dL/dV = sum_a dL/dQ_a
         dval = np.array([np.sum(dq_values)], dtype=np.float64)
-        # dL/dA_a = dL/dQ_a - (1 / |A|) * sum_{a'} dL/dQ_{a'}
         dadv = dq_values - np.mean(dq_values)
 
         dW_val = np.outer(dval, h)

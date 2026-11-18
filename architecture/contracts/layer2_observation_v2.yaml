@@ -1,0 +1,57 @@
+schema_version: "2.0"
+contract_name: "AVID_Layer2_Observation_Contract_V2"
+total_dimensions: 82
+
+rules:
+  identical_7x3_mapping_train_and_inference: true
+  separate_x_and_z_syndrome_histograms: true
+  normalize_histograms_by_valid_rounds: true
+  forbid_simulator_ground_truth_in_observation: true
+  separate_posterior_mean_and_uncertainty: true
+  diagonal_posterior_variance_eps: 1.0e-8
+
+blocks:
+  posterior_physical_state:
+    offset: 0
+    length: 21
+    shape_2d: [7, 3]
+    representation: "vec(M_hat_stab)"
+    bounds: [0.0, 0.49]
+    description: "9 single-qubit posterior means (rows 0..2) and 12 ZZ-coupler posterior means (rows 3..6)"
+
+  posterior_uncertainty:
+    offset: 21
+    length: 21
+    shape_2d: [7, 3]
+    representation: "vec(log(sigma^2 + eps))"
+    bounds: [-18.5, 0.0]
+    description: "Log diagonal posterior variance per physical mechanism from Layer 3 inverse estimator"
+
+  joint_syndrome_statistics_x:
+    offset: 42
+    length: 16
+    representation: "f_hat_X[0..15]"
+    bounds: [0.0, 1.0]
+    sum_constraint: 1.0
+    description: "16-state empirical X-check syndrome distribution normalized by valid X rounds"
+
+  joint_syndrome_statistics_z:
+    offset: 58
+    length: 16
+    representation: "f_hat_Z[0..15]"
+    bounds: [0.0, 1.0]
+    sum_constraint: 1.0
+    description: "16-state empirical Z-check syndrome distribution normalized by valid Z rounds"
+
+  temporal_and_system_telemetry:
+    offset: 74
+    length: 8
+    features:
+      - {index: 74, name: "syndrome_density_x", bounds: [0.0, 1.0]}
+      - {index: 75, name: "syndrome_density_z", bounds: [0.0, 1.0]}
+      - {index: 76, name: "adjacent_coactivation_x", bounds: [0.0, 1.0]}
+      - {index: 77, name: "adjacent_coactivation_z", bounds: [0.0, 1.0]}
+      - {index: 78, name: "posterior_innovation_l2", bounds: [0.0, 5.0]}
+      - {index: 79, name: "burst_score", bounds: [0.0, 1.0]}
+      - {index: 80, name: "estimator_residual_tvd", bounds: [0.0, 1.0]}
+      - {index: 81, name: "decoder_config_age_norm", bounds: [0.0, 1.0]}

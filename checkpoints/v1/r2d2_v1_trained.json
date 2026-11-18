@@ -1,0 +1,222 @@
+{
+  "model_name": "AVID_R2D2_Dueling_LSTM_V1",
+  "schema_version": 1,
+  "magic": "AVIDR2D2",
+  "architecture": {
+    "input_dim": 8,
+    "hidden_dim": 64,
+    "num_actions": 6,
+    "num_qubits": 9,
+    "gain_clip": 0.3
+  },
+  "binary_checkpoint": {
+    "path": "r2d2_v1_trained.bin",
+    "size_bytes": 157984,
+    "total_float64_elements": 19744,
+    "sha256": "3c1447653d07b15962df75a5b765f03c48e196bb533cad98f3f508905d66e215"
+  },
+  "onnx_checkpoint": {
+    "path": "r2d2_v1_trained.onnx",
+    "sha256": "84310a5f886526b5547fc4f70ab7d190602ab9298bf90e668c9cf0d48fb25efc"
+  },
+  "tensor_stats": {
+    "feature_scale": {
+      "shape": [
+        8
+      ],
+      "num_elements": 8,
+      "l2_norm": 39.08964057138413,
+      "min": 1.0,
+      "max": 20.0,
+      "mean": 12.0
+    },
+    "feature_offset": {
+      "shape": [
+        8
+      ],
+      "num_elements": 8,
+      "l2_norm": 1.3038404810405297,
+      "min": -0.7,
+      "max": -0.25,
+      "mean": -0.4375
+    },
+    "W_ih": {
+      "shape": [
+        256,
+        8
+      ],
+      "num_elements": 2048,
+      "l2_norm": 8.642775739199811,
+      "min": -0.6706552662508649,
+      "max": 0.6494294147250422,
+      "mean": 0.004711091800106319
+    },
+    "W_hh": {
+      "shape": [
+        256,
+        64
+      ],
+      "num_elements": 16384,
+      "l2_norm": 20.340354288852954,
+      "min": -0.9084733949215384,
+      "max": 0.660232221402704,
+      "mean": 0.002236376542354701
+    },
+    "b_ih": {
+      "shape": [
+        256
+      ],
+      "num_elements": 256,
+      "l2_norm": 8.070285081928908,
+      "min": -0.1150475866819533,
+      "max": 1.115408106952011,
+      "mean": 0.27652959196380267
+    },
+    "W_val": {
+      "shape": [
+        1,
+        64
+      ],
+      "num_elements": 64,
+      "l2_norm": 1.7490342840889934,
+      "min": -0.41700428900436665,
+      "max": 0.42400385222489895,
+      "mean": -0.030346831853142388
+    },
+    "b_val": {
+      "shape": [
+        1
+      ],
+      "num_elements": 1,
+      "l2_norm": 0.06514386269106966,
+      "min": 0.06514386269106966,
+      "max": 0.06514386269106966,
+      "mean": 0.06514386269106966
+    },
+    "W_adv": {
+      "shape": [
+        6,
+        64
+      ],
+      "num_elements": 384,
+      "l2_norm": 2.92345941772813,
+      "min": -0.3658560924705614,
+      "max": 0.5774819147146883,
+      "mean": 0.0100928302059681
+    },
+    "b_adv": {
+      "shape": [
+        6
+      ],
+      "num_elements": 6,
+      "l2_norm": 0.07127277992163258,
+      "min": -0.03730271233080597,
+      "max": 0.05426907214261447,
+      "mean": -0.00014978841931861733
+    },
+    "W_gain": {
+      "shape": [
+        9,
+        64
+      ],
+      "num_elements": 576,
+      "l2_norm": 3.1694454131555614,
+      "min": -0.377052956742215,
+      "max": 0.4187834605055796,
+      "mean": -0.004172605387121303
+    },
+    "b_gain": {
+      "shape": [
+        9
+      ],
+      "num_elements": 9,
+      "l2_norm": 0.1343790122703161,
+      "min": -0.07133717238163162,
+      "max": 0.0614003107334077,
+      "mean": -0.01424497393984011
+    }
+  },
+  "training_metrics": {
+    "num_updates": 320,
+    "batch_size": 16,
+    "initial_loss_mean_first_20": 0.5657843542674237,
+    "final_loss_mean_last_20": 0.029207777285580345,
+    "initial_td_error_first_20": 0.9094009221742272,
+    "final_td_error_last_20": 0.5046186090261636,
+    "pre_training_val_metrics": {
+      "mean_step_reward": -1.0921395833333252,
+      "static_step_reward": -0.5679208333333311,
+      "oracle_step_reward": 2.2624999999999593,
+      "reward_advantage_over_static": -0.5242187499999941,
+      "oracle_action_agreement": 0.055,
+      "gain_mse": 0.009529282990469345,
+      "action_histogram": [
+        0,
+        132,
+        211,
+        147,
+        22,
+        688
+      ],
+      "distinct_actions_selected": 5,
+      "per_family_agreement": {
+        "stationary_independent": 0.12916666666666668,
+        "pair_correlated_crosstalk": 0.0875,
+        "smooth_sinusoidal_drift": 0.0,
+        "abrupt_regime_switch": 0.058333333333333334,
+        "burst_intermittency_r2d2": 0.0
+      },
+      "total_steps": 1200
+    },
+    "post_training_train_metrics": {
+      "mean_step_reward": 1.8451333333333055,
+      "static_step_reward": -0.5679208333333311,
+      "oracle_step_reward": 2.2624999999999593,
+      "reward_advantage_over_static": 2.4130541666666367,
+      "oracle_action_agreement": 0.8266666666666667,
+      "gain_mse": 0.006608209920990994,
+      "action_histogram": [
+        359,
+        76,
+        183,
+        365,
+        157,
+        60
+      ],
+      "distinct_actions_selected": 6,
+      "per_family_agreement": {
+        "stationary_independent": 0.8041666666666667,
+        "pair_correlated_crosstalk": 0.55,
+        "smooth_sinusoidal_drift": 0.9041666666666667,
+        "abrupt_regime_switch": 1.0,
+        "burst_intermittency_r2d2": 0.875
+      },
+      "total_steps": 1200
+    },
+    "post_training_val_metrics": {
+      "mean_step_reward": 1.8734416666666398,
+      "static_step_reward": -0.5679208333333311,
+      "oracle_step_reward": 2.2624999999999593,
+      "reward_advantage_over_static": 2.441362499999971,
+      "oracle_action_agreement": 0.8341666666666666,
+      "gain_mse": 0.006685915048554283,
+      "action_histogram": [
+        371,
+        73,
+        185,
+        354,
+        157,
+        60
+      ],
+      "distinct_actions_selected": 6,
+      "per_family_agreement": {
+        "stationary_independent": 0.8541666666666666,
+        "pair_correlated_crosstalk": 0.5416666666666666,
+        "smooth_sinusoidal_drift": 0.9,
+        "abrupt_regime_switch": 1.0,
+        "burst_intermittency_r2d2": 0.875
+      },
+      "total_steps": 1200
+    }
+  }
+}

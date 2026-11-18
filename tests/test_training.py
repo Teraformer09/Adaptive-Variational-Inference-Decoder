@@ -159,3 +159,21 @@ def test_trained_checkpoint_metrics_and_convergence() -> None:
     # Verify high action agreement and all 6 discrete actions represented
     assert tm["post_training_val_metrics"]["oracle_action_agreement"] >= 0.80
     assert tm["post_training_val_metrics"]["distinct_actions_selected"] >= 5
+
+
+def test_v2_trained_checkpoint_metrics_and_ler_improvement() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    v2_meta_path = repo_root / "checkpoints" / "v2" / "r2d2_v2_trained.json"
+    assert v2_meta_path.exists(), "Trained V2 checkpoint metadata JSON must exist"
+    meta = json.loads(v2_meta_path.read_text(encoding="utf-8"))
+    assert meta["schema_version"] == 2
+    assert meta["architecture"]["input_dim"] == 82
+    assert meta["architecture"]["trainable_parameters"] == 38672
+
+    tm = meta["training_metrics"]
+    assert tm["final_loss_mean_last_20"] < tm["initial_loss_mean_first_20"]
+    assert tm["final_td_error_last_20"] < tm["initial_td_error_first_20"]
+
+    test_m = tm["heldout_test_metrics"]
+    assert test_m["mean_ler"] < test_m["static_ler"]
+    assert test_m["ler_reduction_pct"] > 5.0

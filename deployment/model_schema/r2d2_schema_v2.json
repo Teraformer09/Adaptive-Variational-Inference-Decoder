@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_name": "AVID_R2D2_Binary_Checkpoint_Schema_V2",
+  "schema_version": 2,
+  "magic_bytes": "AVIDR2D2",
+  "endianness": "little",
+  "float_format": "IEEE754_float64",
+  "header_layout": {
+    "magic": {"offset": 0, "size_bytes": 8, "type": "char[8]", "value": "AVIDR2D2"},
+    "version": {"offset": 8, "size_bytes": 4, "type": "uint32", "value": 2},
+    "input_dim": {"offset": 12, "size_bytes": 4, "type": "uint32", "value": 82},
+    "hidden_dim": {"offset": 16, "size_bytes": 4, "type": "uint32", "value": 64},
+    "num_actions": {"offset": 20, "size_bytes": 4, "type": "uint32", "value": 6},
+    "num_qubits": {"offset": 24, "size_bytes": 4, "type": "uint32", "value": 9},
+    "reserved": {"offset": 28, "size_bytes": 4, "type": "uint32", "value": 0}
+  },
+  "tensor_order": [
+    {"name": "feature_scale", "shape": [82], "num_elements": 82, "description": "82-element multiplicative feature scaling"},
+    {"name": "feature_offset", "shape": [82], "num_elements": 82, "description": "82-element additive feature offset"},
+    {"name": "W_ih", "shape": [256, 82], "num_elements": 20992, "description": "LSTM input-to-hidden weights stacked as [i, f, g, o] (4 * 64 x 82)"},
+    {"name": "W_hh", "shape": [256, 64], "num_elements": 16384, "description": "LSTM hidden-to-hidden weights stacked as [i, f, g, o] (4 * 64 x 64)"},
+    {"name": "b_ih", "shape": [256], "num_elements": 256, "description": "LSTM combined gate bias stacked as [i, f, g, o] (4 * 64)"},
+    {"name": "W_val", "shape": [1, 64], "num_elements": 64, "description": "Dueling state-value stream weights V(h)"},
+    {"name": "b_val", "shape": [1], "num_elements": 1, "description": "Dueling state-value stream scalar bias"},
+    {"name": "W_adv", "shape": [6, 64], "num_elements": 384, "description": "Dueling action-advantage stream weights A(h, a) for a in 0..5"},
+    {"name": "b_adv", "shape": [6], "num_elements": 6, "description": "Dueling action-advantage stream bias"},
+    {"name": "W_gain", "shape": [9, 64], "num_elements": 576, "description": "Per-qubit LLR gain residual projection weights"},
+    {"name": "b_gain", "shape": [9], "num_elements": 9, "description": "Per-qubit LLR gain residual projection bias"}
+  ],
+  "trainable_parameters": 38672,
+  "normalization_elements": 164,
+  "total_float64_elements": 38836,
+  "total_payload_bytes": 310688,
+  "total_file_bytes": 310720,
+  "observation_blocks": {
+    "posterior_mean_21": [0, 21],
+    "posterior_log_variance_21": [21, 42],
+    "joint_syndrome_hist_x_16": [42, 58],
+    "joint_syndrome_hist_z_16": [58, 74],
+    "telemetry_8": [74, 82]
+  }
+}

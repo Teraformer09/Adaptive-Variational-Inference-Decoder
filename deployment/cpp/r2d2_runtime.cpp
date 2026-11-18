@@ -36,6 +36,93 @@ constexpr ActionMeta kActionTable[R2D2_NUM_ACTIONS] = {
     {"CONSERVATIVE_FALLBACK_K3", 0.00, 3, 0.00, false, true},
 };
 
+template <int InputDim, typename WeightsType>
+R2D2InferenceOutput run_lstm_dueling_step(
+    const double* raw_features,
+    const WeightsType& weights,
+    double h[R2D2_HIDDEN_DIM],
+    double c[R2D2_HIDDEN_DIM]) {
+    R2D2InferenceOutput out{};
+    if (!weights.loaded_from_checkpoint) {
+        return out;
+    }
+
+    double x_norm[InputDim];
+    for (int k = 0; k < InputDim; ++k) {
+        x_norm[k] = clamp_d(
+            raw_features[k] * weights.feature_scale[k] + weights.feature_offset[k],
+            -4.0,
+            4.0);
+    }
+
+    double gates[4 * R2D2_HIDDEN_DIM];
+    for (int r = 0; r < 4 * R2D2_HIDDEN_DIM; ++r) {
+        double acc = weights.b_ih[r];
+        for (int k = 0; k < InputDim; ++k) {
+            acc += weights.W_ih[r][k] * x_norm[k];
+        }
+        for (int j = 0; j < R2D2_HIDDEN_DIM; ++j) {
+            acc += weights.W_hh[r][j] * h[j];
+        }
+        gates[r] = acc;
+    }
+
+    for (int r = 0; r < R2D2_HIDDEN_DIM; ++r) {
+        const double i_gate = sigmoid_d(gates[r]);
+        const double f_gate = sigmoid_d(gates[R2D2_HIDDEN_DIM + r]);
+        const double g_gate = std::tanh(clamp_d(gates[2 * R2D2_HIDDEN_DIM + r], -15.0, 15.0));
+        const double o_gate = sigmoid_d(gates[3 * R2D2_HIDDEN_DIM + r]);
+
+        c[r] = f_gate * c[r] + i_gate * g_gate;
+        const double tanh_c = std::tanh(clamp_d(c[r], -15.0, 15.0));
+        h[r] = o_gate * tanh_c;
+    }
+
+    double val = weights.b_val;
+    for (int j = 0; j < R2D2_HIDDEN_DIM; ++j) {
+        val += weights.W_val[j] * h[j];
+    }
+    out.state_value = val;
+
+    double adv_mean = 0.0;
+    for (int a = 0; a < R2D2_NUM_ACTIONS; ++a) {
+        double adv_a = weights.b_adv[a];
+        for (int j = 0; j < R2D2_HIDDEN_DIM; ++j) {
+            adv_a += weights.W_adv[a][j] * h[j];
+        }
+        out.advantages[a] = adv_a;
+        adv_mean += adv_a;
+    }
+    adv_mean /= static_cast<double>(R2D2_NUM_ACTIONS);
+
+    int best_action = 0;
+    double best_q = -1e30;
+    for (int a = 0; a < R2D2_NUM_ACTIONS; ++a) {
+        out.q_values[a] = out.state_value + (out.advantages[a] - adv_mean);
+        if (out.q_values[a] > best_q) {
+            best_q = out.q_values[a];
+            best_action = a;
+        }
+    }
+
+    for (int q = 0; q < R2D2_NUM_QUBITS; ++q) {
+        double acc = weights.b_gain[q];
+        for (int j = 0; j < R2D2_HIDDEN_DIM; ++j) {
+            acc += weights.W_gain[q][j] * h[j];
+        }
+        out.qubit_gains[q] = R2D2_GAIN_CLIP * std::tanh(clamp_d(acc, -15.0, 15.0));
+    }
+
+    out.action_id = best_action;
+    out.action_name = kActionTable[best_action].name;
+    out.pair_weight_scale = kActionTable[best_action].pair_weight_scale;
+    out.bp_iterations = kActionTable[best_action].bp_iterations;
+    out.temporal_beta = kActionTable[best_action].temporal_beta;
+    out.recalibrate = kActionTable[best_action].recalibrate;
+    out.fallback = kActionTable[best_action].fallback;
+    return out;
+}
+
 }  // namespace
 
 double value_rescale_h(double z, double eps) {
@@ -70,90 +157,25 @@ void R2D2Runtime::reset_state() {
 }
 
 R2D2InferenceOutput R2D2Runtime::step(const double raw_features[R2D2_INPUT_DIM]) {
-    R2D2InferenceOutput out{};
-    if (!weights_.loaded_from_checkpoint) {
-        return out;
-    }
+    return run_lstm_dueling_step<R2D2_INPUT_DIM>(raw_features, weights_, h_, c_);
+}
 
-    // 1. Normalize features into [-4.0, 4.0]
-    double x_norm[R2D2_INPUT_DIM];
-    for (int k = 0; k < R2D2_INPUT_DIM; ++k) {
-        x_norm[k] = clamp_d(
-            raw_features[k] * weights_.feature_scale[k] + weights_.feature_offset[k],
-            -4.0,
-            4.0);
-    }
+R2D2RuntimeV1::R2D2RuntimeV1() {
+    reset_state();
+}
 
-    // 2. Compute LSTM gates: gates = W_ih @ x_norm + W_hh @ h_prev + b_ih
-    double gates[4 * R2D2_HIDDEN_DIM];
-    for (int r = 0; r < 4 * R2D2_HIDDEN_DIM; ++r) {
-        double acc = weights_.b_ih[r];
-        for (int k = 0; k < R2D2_INPUT_DIM; ++k) {
-            acc += weights_.W_ih[r][k] * x_norm[k];
-        }
-        for (int j = 0; j < R2D2_HIDDEN_DIM; ++j) {
-            acc += weights_.W_hh[r][j] * h_[j];
-        }
-        gates[r] = acc;
-    }
+bool R2D2RuntimeV1::load_checkpoint(const std::string& path, std::string* err_msg) {
+    reset_state();
+    return load_r2d2_v1_binary_checkpoint(path, weights_, err_msg);
+}
 
-    // 3. Apply gate activations and update cell & hidden states
-    for (int r = 0; r < R2D2_HIDDEN_DIM; ++r) {
-        const double i_gate = sigmoid_d(gates[r]);
-        const double f_gate = sigmoid_d(gates[R2D2_HIDDEN_DIM + r]);
-        const double g_gate = std::tanh(clamp_d(gates[2 * R2D2_HIDDEN_DIM + r], -15.0, 15.0));
-        const double o_gate = sigmoid_d(gates[3 * R2D2_HIDDEN_DIM + r]);
+void R2D2RuntimeV1::reset_state() {
+    std::memset(h_, 0, sizeof(h_));
+    std::memset(c_, 0, sizeof(c_));
+}
 
-        c_[r] = f_gate * c_[r] + i_gate * g_gate;
-        const double tanh_c = std::tanh(clamp_d(c_[r], -15.0, 15.0));
-        h_[r] = o_gate * tanh_c;
-    }
-
-    // 4. Dueling state-value V(h) and advantage A(h, a)
-    double val = weights_.b_val;
-    for (int j = 0; j < R2D2_HIDDEN_DIM; ++j) {
-        val += weights_.W_val[j] * h_[j];
-    }
-    out.state_value = val;
-
-    double adv_mean = 0.0;
-    for (int a = 0; a < R2D2_NUM_ACTIONS; ++a) {
-        double adv_a = weights_.b_adv[a];
-        for (int j = 0; j < R2D2_HIDDEN_DIM; ++j) {
-            adv_a += weights_.W_adv[a][j] * h_[j];
-        }
-        out.advantages[a] = adv_a;
-        adv_mean += adv_a;
-    }
-    adv_mean /= static_cast<double>(R2D2_NUM_ACTIONS);
-
-    int best_action = 0;
-    double best_q = -1e30;
-    for (int a = 0; a < R2D2_NUM_ACTIONS; ++a) {
-        out.q_values[a] = out.state_value + (out.advantages[a] - adv_mean);
-        if (out.q_values[a] > best_q) {
-            best_q = out.q_values[a];
-            best_action = a;
-        }
-    }
-
-    // 5. Per-qubit bounded LLR gain residuals delta_g in [-0.30, +0.30]^9
-    for (int q = 0; q < R2D2_NUM_QUBITS; ++q) {
-        double acc = weights_.b_gain[q];
-        for (int j = 0; j < R2D2_HIDDEN_DIM; ++j) {
-            acc += weights_.W_gain[q][j] * h_[j];
-        }
-        out.qubit_gains[q] = R2D2_GAIN_CLIP * std::tanh(clamp_d(acc, -15.0, 15.0));
-    }
-
-    out.action_id = best_action;
-    out.action_name = kActionTable[best_action].name;
-    out.pair_weight_scale = kActionTable[best_action].pair_weight_scale;
-    out.bp_iterations = kActionTable[best_action].bp_iterations;
-    out.temporal_beta = kActionTable[best_action].temporal_beta;
-    out.recalibrate = kActionTable[best_action].recalibrate;
-    out.fallback = kActionTable[best_action].fallback;
-    return out;
+R2D2InferenceOutput R2D2RuntimeV1::step(const double raw_features[R2D2_V1_INPUT_DIM]) {
+    return run_lstm_dueling_step<R2D2_V1_INPUT_DIM>(raw_features, weights_, h_, c_);
 }
 
 }  // namespace deployment
