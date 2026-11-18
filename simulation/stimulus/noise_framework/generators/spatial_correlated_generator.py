@@ -154,7 +154,7 @@ class SpatialCorrelatedGenerator(BaseNoiseGenerator):
         cluster_weights /= max(float(np.linalg.norm(cluster_weights)), 1e-9)
 
         # Use deterministic profile baseline for alpha_k so multi-cluster dynamics dominate PCA
-        det_base = prof.mean * prof.mechanism_baseline_scales(size=21)
+        det_base = prof.mean * prof.mechanism_baseline_scales(size=21) * (0.88 + 0.42 * dom_mask)
         det_base[:9] *= self.single_base_scale
         det_base[9:] *= self.pair_base_scale
 
