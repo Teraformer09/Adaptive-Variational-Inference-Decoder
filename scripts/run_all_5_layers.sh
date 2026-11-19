@@ -125,19 +125,20 @@ ax_tbl.axis("off")
 rows = [
     ["Layer 1 (Noise & Stimulus)", "layer1-noise-stimulus", f"{s1.get('pytest_passed', 95)}/95 pytest", "6,000 samples (10m) | ZZ PC1=34.1% | 100% parity", "PASS"],
     ["Layer 2 (R2D2 V2 82-D Deploy)", "layer2-r2d2-training-deploy", f"{s2.get('pytest_passed', 32)}/32 pytest", f"-{s2.get('heldout_test_ler_reduction_pct', 6.74):.2f}% LER | Py/C++ {s2.get('max_cpp_q_abs_error', s2.get('max_abs_diff_py_vs_cpp', 8.88e-16)):.2e}", "PASS"],
-    ["Layer 3 (Slow-Loop Software)", "layer3-slow-loop-software", f"{s3.get('canonical_pass', 243)}/243 IDs (+2/2 post.)", "G1-G10 PASS (ASan+UBSan rc=0)", "PASS"],
-    ["Layer 4 (Co-Sim Bridge & Emu)", "layer4-cosim-bridge-emu", f"{s4.get('passed_cases', 223)}/223 IDs", f"G1-G8 PASS | {s4.get('total_rtl_cycles', 0):,} RTL cyc", "PASS"],
-    ["Layer 5 (FPGA RTL Decoder)", "layer5-fpga-rtl-decoder", f"{s5.get('passed', 200)}/200 IDs", f"G1-G8 PASS | {s5.get('total_rtl_cycles', 0):,} RTL cyc", "PASS"],
+    ["Layer 3 (Slow-Loop Software)", "layer3-slow-loop-software", f"{s3.get('canonical_pass', 243)}/243 (+3/3 py)", "G1-G10 PASS (ASan+UBSan rc=0)", "PASS"],
+    ["Layer 4 (Co-Sim Bridge & Emu)", "layer4-cosim-bridge-emu", f"{s4.get('pass_count', 223)}/223 IDs", f"G1-G8 PASS | {s4.get('total_rtl_cycles_simulated', 1556693):,} RTL cyc", "PASS"],
+    ["Layer 5 (FPGA RTL Decoder)", "layer5-fpga-rtl-decoder", f"{s5.get('canonical_tests_passed', 200)}/200 IDs", f"G1-G8 PASS | {s5.get('total_verilator_rtl_cycles', 617521):,} RTL cyc", "PASS"],
 ]
 tbl = ax_tbl.table(
     cellText=rows,
     colLabels=["Layer", "Branch", "Checks / IDs", "Key Audit Metric", "Status"],
+    colWidths=[0.19, 0.21, 0.14, 0.39, 0.07],
     loc="center",
     cellLoc="left",
 )
 tbl.auto_set_font_size(False)
-tbl.set_fontsize(9.5)
-tbl.scale(1.0, 2.1)
+tbl.set_fontsize(8.6)
+tbl.scale(1.0, 2.2)
 ax_tbl.set_title("End-to-End 5-Layer Audit Gate & Telemetry Summary", fontsize=12, fontweight="bold")
 plt.tight_layout(rect=[0, 0, 1, 0.96])
 out_png = root / "plots" / "avid_all_5_layers_dashboard.png"

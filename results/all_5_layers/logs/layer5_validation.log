@@ -1,0 +1,296 @@
+=== AVID Layer 5 Full 5-Set Audit-Grade FPGA RTL Validation ===
+Branch: layer5-fpga-rtl-decoder | Commit: 029e613
+[Layer 5] Compiling native SystemVerilog aa_qec_top + bound SVA with Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429...
+make: Entering directory '/home/tirtha/avid-validation/layer5/firmware/build_layer5/obj_standalone'
+g++  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -Os  -c -o standalone_rtl_tb.o /home/tirtha/avid-validation/layer5/emulator/verilator/tb/standalone_rtl_tb.cpp
+g++ -Os  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -c -o verilated.o /home/tirtha/.local/avid-toolchains/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -c -o verilated_vcd_c.o /home/tirtha/.local/avid-toolchains/usr/share/verilator/include/verilated_vcd_c.cpp
+g++ -Os  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -c -o verilated_threads.o /home/tirtha/.local/avid-toolchains/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -x c++-header Vaa_qec_top__pch.h -o Vaa_qec_top__pch.h.fast.gch
+g++   -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -x c++-header Vaa_qec_top__pch.h -o Vaa_qec_top__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.fast -c Vaa_qec_top.cpp
+g++ -Os  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.fast -c Vaa_qec_top___024root__0.cpp
+g++ -Os  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.fast -c Vaa_qec_top___024root__1.cpp
+g++ -Os  -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.fast -c Vaa_qec_top__Trace__0.cpp
+g++   -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.slow -c Vaa_qec_top___024root__Slow.cpp
+g++   -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.slow -c Vaa_qec_top___024root__0__Slow.cpp
+g++   -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.slow -c Vaa_qec_top___024unit__Slow.cpp
+g++   -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.slow -c Vaa_qec_top__Syms__Slow.cpp
+g++   -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.slow -c Vaa_qec_top__Trace__0__Slow.cpp
+g++   -I.  -MMD -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include -I/home/tirtha/.local/avid-toolchains/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O2 -std=c++17 -DUSE_VERILATOR=1 -I/home/tirtha/avid-validation/layer5/emulator/verilator/tb   -include Vaa_qec_top__pch.h.slow -c Vaa_qec_top__TraceDecls__0__Slow.cpp
+g++    standalone_rtl_tb.o verilated.o verilated_vcd_c.o verilated_threads.o Vaa_qec_top__ALL.a    -pthread -lpthread -latomic   -o standalone_rtl_tb
+rm Vaa_qec_top__ALL.verilator_deplist.tmp
+make: Leaving directory '/home/tirtha/avid-validation/layer5/firmware/build_layer5/obj_standalone'
+- V e r i l a t i o n   R e p o r t: Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429
+- Verilator: Built from 0.355 MB sources in 10 modules, into 1.372 MB in 10 C++ files needing 0.002 MB
+- Verilator: Walltime 40.872 s (elab=0.094, cvt=0.616, bld=39.863); cpu 0.952 s on 4 threads; allocated 294.555 MB
+[Layer 5] Running standalone M1 native Verilator TB + VCD waveform capture...
+[Verilator M1] Standalone RTL test passed (verilator_c++_rtl): K=1..5 core={7,12,17,22,27} axis={12,17,22,27,32} (K=3 -> 17 core / 22 AXI cycles, ref_mismatches=0)
+[Layer 5] Running pytest IP/OP suite...
+============================= test session starts ==============================
+platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tirtha/avid-validation/layer5
+configfile: pytest.ini
+plugins: typeguard-4.4.4, anyio-4.11.0
+collecting ... collected 1 item
+
+tests/test_layer5_ip_op.py::test_layer5_rtl_ip_op_matrix PASSED          [100%]
+
+============================== 1 passed in 0.13s ===============================
+[Layer 5] Building CMake 5-Set Verilator C++ test suite...
+-- The CXX compiler identification is GNU 15.3.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (5.2s)
+-- Generating done (0.6s)
+-- Build files have been written to: /home/tirtha/avid-validation/layer5/build/layer5_tests
+[  5%] Building CXX object CMakeFiles/test_axis_ingress_contract.dir/set1_input_contracts/test_axis_ingress_contract.cpp.o
+[ 11%] Building CXX object CMakeFiles/test_cycle_latency_law.dir/set2_output_contracts/test_cycle_latency_law.cpp.o
+[ 16%] Building CXX object CMakeFiles/test_axil_register_contract.dir/set1_input_contracts/test_axil_register_contract.cpp.o
+[ 22%] Building CXX object CMakeFiles/test_correction_output_contract.dir/set2_output_contracts/test_correction_output_contract.cpp.o
+[ 27%] Linking CXX executable test_axis_ingress_contract
+[ 27%] Built target test_axis_ingress_contract
+[ 33%] Building CXX object CMakeFiles/test_ingress_tap_pipeline.dir/set3_pipeline_flow/test_ingress_tap_pipeline.cpp.o
+[ 38%] Linking CXX executable test_cycle_latency_law
+[ 38%] Built target test_cycle_latency_law
+[ 44%] Building CXX object CMakeFiles/test_weight_bank_flow.dir/set3_pipeline_flow/test_weight_bank_flow.cpp.o
+[ 50%] Linking CXX executable test_correction_output_contract
+[ 55%] Linking CXX executable test_axil_register_contract
+[ 55%] Built target test_correction_output_contract
+[ 61%] Building CXX object CMakeFiles/test_reset_and_backpressure.dir/set4_execution_stress/test_reset_and_backpressure.cpp.o
+[ 61%] Built target test_axil_register_contract
+[ 66%] Building CXX object CMakeFiles/test_streaming_stress.dir/set4_execution_stress/test_streaming_stress.cpp.o
+[ 72%] Linking CXX executable test_ingress_tap_pipeline
+[ 72%] Built target test_ingress_tap_pipeline
+[ 77%] Building CXX object CMakeFiles/test_q78_minsum_osd_math.dir/set5_hardware_verification/test_q78_minsum_osd_math.cpp.o
+[ 83%] Linking CXX executable test_weight_bank_flow
+[ 83%] Built target test_weight_bank_flow
+[ 88%] Linking CXX executable test_streaming_stress
+[ 88%] Built target test_streaming_stress
+[ 94%] Linking CXX executable test_reset_and_backpressure
+[ 94%] Built target test_reset_and_backpressure
+[100%] Linking CXX executable test_q78_minsum_osd_math
+[100%] Built target test_q78_minsum_osd_math
+[Layer 5] Executing Set 1 — Input, AXI4-Lite & AXI4-Stream Ingress Contracts (44 tests)...
+[set1_axis_ingress_contract] L5-I01         PASS   (1.23 ms, rtl_cyc=30) tready=1 bp_cyc=17 corr_z=0x16 irq=1
+[set1_axis_ingress_contract] L5-I02         PASS   (0.53 ms, rtl_cyc=30) tlast=0 -> corr_x=16 corr_z=16 epoch_irq=0
+[set1_axis_ingress_contract] L5-I03         PASS   (0.52 ms, rtl_cyc=72) 64 idle cycles with tdata=0xFF & tvalid=0 -> spurious_events=0
+[set1_axis_ingress_contract] L5-I04         PASS   (1.04 ms, rtl_cyc=360) 16/16 sx values isolated to corr_z with corr_x==0 and Hx*corr_z==sx
+[set1_axis_ingress_contract] L5-I05         PASS   (1.10 ms, rtl_cyc=360) 16/16 sz values isolated to corr_x with corr_z==0 and Hz*corr_x==sz
+[set1_axis_ingress_contract] L5-I06         PASS   (1.82 ms, rtl_cyc=536) 8/8 joint (sx, sz) decodes matched orthogonal basis superpositions
+[set1_axis_ingress_contract] L5-I07         PASS   (1.70 ms, rtl_cyc=118) 4/4 upper-byte masks (0x0100..0xFF00) produced identical corr_x/corr_z
+[set1_axis_ingress_contract] L5-I08         PASS   (2.64 ms, rtl_cyc=163) ingested & decoded 8/8 back-to-back beats in order
+[set1_axis_ingress_contract] L5-I09         PASS   (1.77 ms, rtl_cyc=109) 4/4 gapped syndrome packets completed in exact 17 core / 22 AXI cycles
+[set1_axis_ingress_contract] L5-I10         PASS   (0.67 ms, rtl_cyc=13) tready_during_reset=0 tready_after_reset=1
+[set1_axis_ingress_contract] L5-I11         PASS   (0.85 ms, rtl_cyc=48) ghost_outputs_post_reset=0
+[set1_axis_ingress_contract] L5-I12         PASS   (0.89 ms, rtl_cyc=184) rx_epoch_count: 5x(tlast=0)->0, ep1->1, ep2->2
+[set1_axis_ingress_contract] L5-I13         PASS   (0.57 ms, rtl_cyc=30) core_cyc=17 axis_cyc=22 corr=(0,0)
+[set1_axis_ingress_contract] L5-I14         PASS   (0.62 ms, rtl_cyc=30) corr_x=0x40 corr_z=0x130 sat_x=1 sat_z=1
+[set1_axil_register_contract] L5-AXIL-01     PASS   (1.00 ms, rtl_cyc=12) aw/wready=1, bvalid=1->0, bresp=0, rdata=0x0155
+[set1_axil_register_contract] L5-AXIL-02     PASS   (0.56 ms, rtl_cyc=36) AW-before-W delays {1,4,8} latched & committed accurately
+[set1_axil_register_contract] L5-AXIL-03     PASS   (0.93 ms, rtl_cyc=36) W-before-AW delays {1,4,8} latched & committed accurately
+[set1_axil_register_contract] L5-AXIL-04     PASS   (0.56 ms, rtl_cyc=18) 8-cycle BREADY=0 stall held BVALID=1 and gated AWREADY/WREADY=0
+[set1_axil_register_contract] L5-AXIL-05     PASS   (0.88 ms, rtl_cyc=20) 8-cycle RREADY=0 stall held RVALID=1, RDATA=0x01DD, and ARREADY=0
+[set1_axil_register_contract] L5-AXIL-06     PASS   (0.46 ms, rtl_cyc=14) simultaneous BVALID=1 & RVALID=1 (0x0277), post-read 0x000=0x0188
+[set1_axil_register_contract] L5-AXIL-07     PASS   (0.61 ms, rtl_cyc=12) reset *ready==0: 1, post-reset *ready==1: 1
+[set1_axil_register_contract] L5-AXIL-08     PASS   (0.49 ms, rtl_cyc=44) 9/9 shadow_x offsets (0x000..0x020) verified
+[set1_axil_register_contract] L5-AXIL-09     PASS   (0.61 ms, rtl_cyc=44) 9/9 shadow_z offsets (0x024..0x044) verified
+[set1_axil_register_contract] L5-AXIL-10     PASS   (0.52 ms, rtl_cyc=18) COMMIT=0 STATUS=0 EPOCH=0 K=3 OSD=1
+[set1_axil_register_contract] L5-AXIL-11     PASS   (0.58 ms, rtl_cyc=82) 18/18 active_x/z registers (0x100..0x144) matched committed values
+[set1_axil_register_contract] L5-AXIL-12     PASS   (0.47 ms, rtl_cyc=14) rdata after WSTRB=0xC write of 0xFFFFFFFF -> 0x4660
+[set1_axil_register_contract] L5-AXIL-13     PASS   (0.41 ms, rtl_cyc=14) 0x1234 + WSTRB=0x1(0x99AA) -> 0x12AA (got 4778)
+[set1_axil_register_contract] L5-AXIL-14     PASS   (0.37 ms, rtl_cyc=14) 0x12AA + WSTRB=0x2(0x56FF) -> 0x56AA (got 22186)
+[set1_axil_register_contract] L5-AXIL-15     PASS   (0.50 ms, rtl_cyc=18) shadow_unchanged=1 k_rej=1 m_rej=1
+[set1_axil_register_contract] L5-AXIL-16     PASS   (0.51 ms, rtl_cyc=47) SLVERR on WSTRB {0x1,0x2,0x3} torn attempts; committed active_x[0]=0x0180
+[set1_axil_register_contract] L5-AXIL-17     PASS   (0.50 ms, rtl_cyc=22) 6/6 unaligned writes returned BRESP=2'b10; shadow_x[0]=0x0232
+[set1_axil_register_contract] L5-AXIL-18     PASS   (0.41 ms, rtl_cyc=18) 5/5 unaligned reads returned RRESP=2'b10 & RDATA=0xDEADBEEF
+[set1_axil_register_contract] L5-AXIL-19     PASS   (0.42 ms, rtl_cyc=28) 5/5 gap offsets (0x05C..0x0FC) rejected with SLVERR
+[set1_axil_register_contract] L5-AXIL-20     PASS   (0.43 ms, rtl_cyc=24) 4/4 upper unmapped addresses rejected with SLVERR
+[set1_axil_register_contract] L5-AXIL-21     PASS   (0.42 ms, rtl_cyc=16) STATUS=0 EPOCH_COUNT=0 intact
+[set1_axil_register_contract] L5-AXIL-22     PASS   (0.44 ms, rtl_cyc=46) 18/18 active_x/z write attempts returned SLVERR; active_x[4]=0x0232
+[set1_axil_register_contract] L5-AXIL-23     PASS   (0.39 ms, rtl_cyc=28) K in {1,2,3,4,5} accepted and read back cleanly
+[set1_axil_register_contract] L5-AXIL-24     PASS   (0.42 ms, rtl_cyc=24) rejected {0,6,7,8,15,255} with SLVERR; preserved K=4
+[set1_axil_register_contract] L5-AXIL-25     PASS   (0.46 ms, rtl_cyc=16) upper-bit garbage rejected with SLVERR; K remained 3
+[set1_axil_register_contract] L5-AXIL-26     PASS   (0.54 ms, rtl_cyc=20) OSD_MODE {0,1,2} accepted and read back cleanly
+[set1_axil_register_contract] L5-AXIL-27     PASS   (0.40 ms, rtl_cyc=24) rejected {3,4,7,16,255,0x101} with SLVERR; preserved OSD_MODE=2
+[set1_axil_register_contract] L5-AXIL-28     PASS   (0.44 ms, rtl_cyc=30) verified Q7.8 boundaries {0, +1, +562, +5120, +32767} in active bank
+[set1_axil_register_contract] L5-AXIL-29     PASS   (0.45 ms, rtl_cyc=22) {-32768, -5120, -1} stored as exact 16-bit signed Q7.8; decode corr_z matched golden=1
+[set1_axil_register_contract] L5-AXIL-30     PASS   (0.42 ms, rtl_cyc=24) no-op ep=0, after wdata=1&wstrb=1 ep=1 active_x[0]=0x0199
+[Layer 5] Executing Set 2 — Output, Deterministic Cycle Law & Correction Stream (38 tests)...
+[set2_cycle_latency_law] L5-CYC-01      PASS   (1.07 ms, rtl_cyc=24) K=1 mode=0 -> core=7c (28ns), axis=12c (48ns)
+[set2_cycle_latency_law] L5-CYC-02      PASS   (0.62 ms, rtl_cyc=29) K=2 mode=0 -> core=12c (48ns), axis=17c (68ns)
+[set2_cycle_latency_law] L5-CYC-03      PASS   (0.41 ms, rtl_cyc=34) K=3 mode=0 -> core=17c (68ns), axis=22c (88ns)
+[set2_cycle_latency_law] L5-CYC-04      PASS   (0.51 ms, rtl_cyc=39) K=4 mode=0 -> core=22c (88ns), axis=27c (108ns)
+[set2_cycle_latency_law] L5-CYC-05      PASS   (0.43 ms, rtl_cyc=44) K=5 mode=0 -> core=27c (108ns), axis=32c (128ns)
+[set2_cycle_latency_law] L5-CYC-06      PASS   (0.43 ms, rtl_cyc=24) K=1 mode=1 -> core=7c (28ns), axis=12c (48ns)
+[set2_cycle_latency_law] L5-CYC-07      PASS   (0.51 ms, rtl_cyc=29) K=2 mode=1 -> core=12c (48ns), axis=17c (68ns)
+[set2_cycle_latency_law] L5-CYC-08      PASS   (0.44 ms, rtl_cyc=34) K=3 mode=1 -> core=17c (68ns), axis=22c (88ns)
+[set2_cycle_latency_law] L5-CYC-09      PASS   (0.43 ms, rtl_cyc=39) K=4 mode=1 -> core=22c (88ns), axis=27c (108ns)
+[set2_cycle_latency_law] L5-CYC-10      PASS   (0.44 ms, rtl_cyc=44) K=5 mode=1 -> core=27c (108ns), axis=32c (128ns)
+[set2_cycle_latency_law] L5-CYC-11      PASS   (0.41 ms, rtl_cyc=26) K=1 mode=2 -> core=9c (36ns), axis=14c (56ns)
+[set2_cycle_latency_law] L5-CYC-12      PASS   (0.41 ms, rtl_cyc=31) K=2 mode=2 -> core=14c (56ns), axis=19c (76ns)
+[set2_cycle_latency_law] L5-CYC-13      PASS   (0.42 ms, rtl_cyc=36) K=3 mode=2 -> core=19c (76ns), axis=24c (96ns)
+[set2_cycle_latency_law] L5-CYC-14      PASS   (0.59 ms, rtl_cyc=41) K=4 mode=2 -> core=24c (96ns), axis=29c (116ns)
+[set2_cycle_latency_law] L5-CYC-15      PASS   (0.56 ms, rtl_cyc=46) K=5 mode=2 -> core=29c (116ns), axis=34c (136ns)
+[set2_cycle_latency_law] L5-CYC-16      PASS   (0.58 ms, rtl_cyc=30) ingress=2 core=17 egress=3 total=22
+[set2_cycle_latency_law] L5-CYC-17      PASS   (1.02 ms, rtl_cyc=384) max_axis_latency_ns=136 ns <= 300 ns (margin=2.21x)
+[set2_cycle_latency_law] L5-CYC-18      PASS   (10.17 ms, rtl_cyc=5640) 256/256 syndromes executed in constant 17 core / 22 AXI cycles
+[set2_cycle_latency_law] L5-CYC-19      PASS   (1.05 ms, rtl_cyc=248) 4/4 extreme weight profiles executed in exact 17 core / 22 AXI cycles
+[set2_cycle_latency_law] L5-CYC-20      PASS   (0.88 ms, rtl_cyc=33) bp_core_start_mon pulses=1
+[set2_cycle_latency_law] L5-CYC-21      PASS   (0.49 ms, rtl_cyc=74) bp_core_done_mon pulsed exactly once at cycle 17 (Mode 1) and cycle 19 (Mode 2)
+[set2_cycle_latency_law] L5-CYC-22      PASS   (1.34 ms, rtl_cyc=348) u_bp_x and u_bp_z matched core cycle counts across K=1..5
+[set2_correction_output_contract] L5-O01         PASS   (1.36 ms, rtl_cyc=30) raw_tdata=0x8208 cx=16 cz=16 upper14=0
+[set2_correction_output_contract] L5-O02         PASS   (1.27 ms, rtl_cyc=384) 15/15 (K, OSD_MODE) zero-syndrome decodes produced exact (0, 0)
+[set2_correction_output_contract] L5-O03         PASS   (1.17 ms, rtl_cyc=338) 15/15 X-syndromes satisfied with zero cross-basis leakage into corr_x
+[set2_correction_output_contract] L5-O04         PASS   (1.07 ms, rtl_cyc=338) 15/15 Z-syndromes satisfied with zero cross-basis leakage into corr_z
+[set2_correction_output_contract] L5-O05         PASS   (1.03 ms, rtl_cyc=386) 9/9 single-qubit Z errors recovered as exact (1 << q)
+[set2_correction_output_contract] L5-O06         PASS   (0.96 ms, rtl_cyc=386) 9/9 single-qubit X errors recovered as exact (1 << q)
+[set2_correction_output_contract] L5-O07         PASS   (1.26 ms, rtl_cyc=548) 9/9 Pauli-Y errors recovered simultaneously on corr_x and corr_z
+[set2_correction_output_contract] L5-O08         PASS   (1.14 ms, rtl_cyc=360) 16/16 mixed tlast flags propagated 1-to-1 to m_axis_correction_tlast
+[set2_correction_output_contract] L5-O09         PASS   (0.54 ms, rtl_cyc=44) epoch_irq high duration=1 cycle
+[set2_correction_output_contract] L5-O10         PASS   (4.30 ms, rtl_cyc=2208) 100x tlast=0 syndromes -> irq_count=0
+[set2_correction_output_contract] L5-O11         PASS   (0.74 ms, rtl_cyc=46) premature_irq=0 pulsed_on_release=1
+[set2_correction_output_contract] L5-O12         PASS   (0.48 ms, rtl_cyc=34) idle tvalid=0, tdata=0x0, tlast=0
+[set2_correction_output_contract] L5-O13         PASS   (9.49 ms, rtl_cyc=3760) 5/5 independent runs matched FNV-1a trace digest=10886405492813556339
+[set2_correction_output_contract] L5-O14         PASS   (4.03 ms, rtl_cyc=1828) 5/5 post-reset trajectories identical (hash=8268228793839070560)
+[set2_correction_output_contract] L5-O15         PASS   (30.28 ms, rtl_cyc=16920) h(42)=11991015257011672612 == h(42) and != h(108)=7551316118066020591
+[set2_correction_output_contract] L5-O16         PASS   (3.83 ms, rtl_cyc=1102) 48/48 Mode 0..2 decodes matched C++ golden model (mismatches=0)
+[Layer 5] Executing Set 3 — Pipeline, Ingress Tap & Atomic Weight-Bank Flow (36 tests)...
+[set3_ingress_tap_pipeline] L5-FLOW-01     PASS   (1.24 ms, rtl_cyc=30) ingress=2 core=17 egress=3 total=22
+[set3_ingress_tap_pipeline] L5-FLOW-02     PASS   (0.78 ms, rtl_cyc=33) dma_tvalid=1 drop_count=0
+[set3_ingress_tap_pipeline] L5-FLOW-03     PASS   (1.06 ms, rtl_cyc=118) 5 syndromes under dma_tap_stall_in=1 -> dma_tap_drop_count_mon=5
+[set3_ingress_tap_pipeline] L5-FLOW-04     PASS   (0.93 ms, rtl_cyc=52) clean_axis=22 dma_stalled_axis=22 s_tready=1
+[set3_ingress_tap_pipeline] L5-FLOW-05     PASS   (0.49 ms, rtl_cyc=80) beat2_overflow_warn=1 beat3_cleared=1
+[set3_ingress_tap_pipeline] L5-FLOW-06     PASS   (0.57 ms, rtl_cyc=33) dma_tap_tdata_mon=0x518 bit9_kept=1
+[set3_ingress_tap_pipeline] L5-FLOW-07     PASS   (10.22 ms, rtl_cyc=5640) 256/256 fast corrections exact; dma_tap_drop_count_mon=256
+[set3_ingress_tap_pipeline] L5-FLOW-08     PASS   (6.55 ms, rtl_cyc=2208) 100 packets (60% DMA stalled) -> dma_tap_drop_count_mon=60
+[set3_ingress_tap_pipeline] L5-FLOW-09     PASS   (1.33 ms, rtl_cyc=36) post-reset drop_count=0 & bit9=0: 1
+[set3_ingress_tap_pipeline] L5-FLOW-10     PASS   (1.17 ms, rtl_cyc=53) accepted=19 dma_drop_count=19
+[set3_ingress_tap_pipeline] L5-FLOW-11     PASS   (13.63 ms, rtl_cyc=5640) 256 rounds (4 epochs) -> irqs=4 rx_epoch_count=4
+[set3_ingress_tap_pipeline] L5-FLOW-12     PASS   (1.38 ms, rtl_cyc=152) 6 sequential runtime K reconfigurations matched 2+5*K
+[set3_ingress_tap_pipeline] L5-FLOW-13     PASS   (0.75 ms, rtl_cyc=130) 5 sequential runtime OSD_MODE transitions verified
+[set3_ingress_tap_pipeline] L5-FLOW-14     PASS   (2.37 ms, rtl_cyc=64) inflight_core=17 next_core=29
+[set3_ingress_tap_pipeline] L5-FLOW-15     PASS   (2.58 ms, rtl_cyc=239) 12/12 back-to-back queued syndromes drained in exact FIFO order
+[set3_ingress_tap_pipeline] L5-FLOW-16     PASS   (3.79 ms, rtl_cyc=30) mid_decode STATUS=0x2 core_cyc=17
+[set3_weight_bank_flow] L5-FLOW-17     PASS   (1.61 ms, rtl_cyc=90) pre_cz=4 uncommitted_cz=4 active_z[5]=0x0232
+[set3_weight_bank_flow] L5-FLOW-18     PASS   (0.67 ms, rtl_cyc=86) 18/18 active weights updated; epoch_count=1 status=0
+[set3_weight_bank_flow] L5-FLOW-19     PASS   (0.43 ms, rtl_cyc=48) active_z[4]=0x00D9, remaining 17 weights=0x0232
+[set3_weight_bank_flow] L5-FLOW-20     PASS   (0.74 ms, rtl_cyc=178) ep=4 cz={0x4,0x32,0x3,0x24}
+[set3_weight_bank_flow] L5-FLOW-21     PASS   (1.20 ms, rtl_cyc=102) active_x=0x0144 & active_z=0x0288 strictly orthogonal
+[set3_weight_bank_flow] L5-FLOW-22     PASS   (0.64 ms, rtl_cyc=70) mid_STATUS=3 inflight_cz=0x4 post_swap_cz=0x32
+[set3_weight_bank_flow] L5-FLOW-23     PASS   (0.77 ms, rtl_cyc=34) mid_STATUS=3 inflight_cz=0x4 post_ep=1
+[set3_weight_bank_flow] L5-FLOW-24     PASS   (1.18 ms, rtl_cyc=70) inflight_cz=0x4 post_cz=0x32
+[set3_weight_bank_flow] L5-FLOW-25     PASS   (1.06 ms, rtl_cyc=46) 9/9 shadow_x writes rejected with SLVERR; active_x[0]=0x0144
+[set3_weight_bank_flow] L5-FLOW-26     PASS   (0.72 ms, rtl_cyc=46) 9/9 shadow_z writes rejected with SLVERR; active_z[8]=0x0166
+[set3_weight_bank_flow] L5-FLOW-27     PASS   (1.13 ms, rtl_cyc=32) first_commit=1 dup_rejected=1 final_epoch=1
+[set3_weight_bank_flow] L5-FLOW-28     PASS   (0.67 ms, rtl_cyc=44) concurrent shadow staging during active decode committed active_x[3]=0x0173
+[set3_weight_bank_flow] L5-FLOW-29     PASS   (0.47 ms, rtl_cyc=21) STATUS=3 ep=0 ax0=0x0232
+[set3_weight_bank_flow] L5-FLOW-30     PASS   (0.51 ms, rtl_cyc=32) COMMIT readback mid=1 post=0
+[set3_weight_bank_flow] L5-FLOW-31     PASS   (1.81 ms, rtl_cyc=34) STATUS states: idle=0 busy=2 deferred=3 done=0
+[set3_weight_bank_flow] L5-FLOW-32     PASS   (0.67 ms, rtl_cyc=67) pkt0_cz=0x4 pkt1_cz=0x32
+[set3_weight_bank_flow] L5-FLOW-33     PASS   (4.10 ms, rtl_cyc=1354) 32/32 shifting hotspot epochs decoded accurately; epoch_count=32
+[set3_weight_bank_flow] L5-FLOW-34     PASS   (0.81 ms, rtl_cyc=27) post-reset STATUS=0 ep=0 ax0=0x0232
+[set3_weight_bank_flow] L5-FLOW-35     PASS   (0.80 ms, rtl_cyc=45) unlocked post-swap write succeeded; active_x[0]=0x0299, epoch=2
+[set3_weight_bank_flow] L5-FLOW-36     PASS   (0.97 ms, rtl_cyc=36) pre_reset_ep=5, cleared=5, post_commits=3 -> ep=3
+[Layer 5] Executing Set 5 — Q7.8 Min-Sum, OSD-0, Formal SVA & Constraints (42 tests)...
+[set5_q78_minsum_osd_math] L5-MATH-01     PASS   (11.39 ms, rtl_cyc=5640) vectors=256 mismatches=0 gf2_sat=256/256
+[set5_q78_minsum_osd_math] L5-MATH-02     PASS   (10.70 ms, rtl_cyc=5678) wx_ne_wz_vectors=256 mismatches=0 gf2_sat=256/256
+[set5_q78_minsum_osd_math] L5-MATH-03     PASS   (11.67 ms, rtl_cyc=5642) pure_bp_mode0_mism=0 gf2_sat=256/256
+[set5_q78_minsum_osd_math] L5-MATH-04     PASS   (22.43 ms, rtl_cyc=11872) mode1_vs_mode2_mism=0/256 (17cyc vs 19cyc)
+[set5_q78_minsum_osd_math] L5-MATH-05     PASS   (156.32 ms, rtl_cyc=87088) states=3840 mismatches=0 gf2_conv=3584/3584 k1_m0_sat=196/256
+[set5_q78_minsum_osd_math] L5-MATH-06     PASS   (11.60 ms, rtl_cyc=5678) high_snr_mism=0 gf2_sat=256/256
+[set5_q78_minsum_osd_math] L5-MATH-07     PASS   (14.10 ms, rtl_cyc=5678) low_snr_mism=0 gf2_sat=256/256
+[set5_q78_minsum_osd_math] L5-MATH-08     PASS   (16.41 ms, rtl_cyc=5678) quant_7_exact=1 rtl_256_mism=0
+[set5_q78_minsum_osd_math] L5-MATH-09     PASS   (38.69 ms, rtl_cyc=22688) gf2_satisfied=1024/1024
+[set5_q78_minsum_osd_math] L5-MATH-10     PASS   (1.96 ms, rtl_cyc=300) q7_bp=0x128 q8_bp=0x256 q7_osd=0x128 q8_osd=0x256 p14=0x18 p25=0x36
+[set5_q78_minsum_osd_math] L5-MATH-11     PASS   (1.74 ms, rtl_cyc=248) c0=0x1 c1=0x2 c36=0x72 c47=0x144
+[set5_q78_minsum_osd_math] L5-MATH-12     PASS   (1.50 ms, rtl_cyc=248) c2=0x4 c5=0x32 c01=0x3 c34=0x24
+[set5_q78_minsum_osd_math] L5-MATH-13     PASS   (1.98 ms, rtl_cyc=248) c3=0x8 c6=0x64 c45=0x48 c78=0x384
+[set5_q78_minsum_osd_math] L5-MATH-14     PASS   (1.26 ms, rtl_cyc=134) sx1=1->6 sx8=256->192
+[set5_q78_minsum_osd_math] L5-MATH-15     PASS   (0.80 ms, rtl_cyc=134) sz2=4->288 sz4=64->9
+[set5_q78_minsum_osd_math] L5-MATH-16     PASS   (0.90 ms, rtl_cyc=90) def=(0x16,0x16) alt_z=0x40
+[set5_q78_minsum_osd_math] L5-MATH-17     PASS   (1.23 ms, rtl_cyc=368) horizontal_z_pairs=6/6
+[set5_q78_minsum_osd_math] L5-MATH-18     PASS   (1.07 ms, rtl_cyc=368) vertical_x_pairs=6/6
+[set5_q78_minsum_osd_math] L5-MATH-19     PASS   (3.70 ms, rtl_cyc=1708) pure_bp_inhom_checks=75 mismatches=0
+[set5_q78_minsum_osd_math] L5-MATH-20     PASS   (2.38 ms, rtl_cyc=998) kernel_satisfied=45/45
+[set5_q78_minsum_osd_math] L5-MATH-21     PASS   (2.18 ms, rtl_cyc=754) extreme_q78_vectors=32 mismatches=0
+[set5_q78_minsum_osd_math] L5-MATH-22     PASS   (0.60 ms, rtl_cyc=28) comm_ok=1 edges_x=12 edges_z=12
+[set5_q78_minsum_osd_math] L5-MATH-23     PASS   (6.13 ms, rtl_cyc=2948) composite_checks=125 mismatches=0 gf2_sat=125/125
+[set5_q78_minsum_osd_math] L5-MATH-24     PASS   (20.95 ms, rtl_cyc=11356) cz_diff_when_wx_changed=0 cx_diff=32
+[set5_sva_and_constraints] L5-HW-01       PASS   (7.63 ms, rtl_cyc=0) has_bind=True in_verilated_cpp=True
+[set5_sva_and_constraints] L5-HW-02       PASS   (11.07 ms, rtl_cyc=42) rc=0 legal_idle_and_boundary_swaps=PASS
+[set5_sva_and_constraints] L5-HW-03       PASS   (7.71 ms, rtl_cyc=8) rc=1 assertion_fired=True
+[set5_sva_and_constraints] L5-HW-04       PASS   (6.35 ms, rtl_cyc=9) rc=0 disable_iff_aresetn=PASS
+[set5_sva_and_constraints] L5-HW-05       PASS   (1.35 ms, rtl_cyc=0) embedded_weight_svas=5/5
+[set5_sva_and_constraints] L5-HW-06       PASS   (1.04 ms, rtl_cyc=0) sva_2plus5k=2 sva_4plus5k=1
+[set5_sva_and_constraints] L5-HW-07       PASS   (972.21 ms, rtl_cyc=0) lint_rc=0 files=8
+[set5_sva_and_constraints] L5-HW-08       PASS   (25.29 ms, rtl_cyc=0) rtl_modules=7 always_ff=11 always_comb=5 latches=0
+[set5_sva_and_constraints] L5-HW-09       PASS   (6.89 ms, rtl_cyc=0) synchronous_posedge_blocks=11 async_negedge=0
+[set5_sva_and_constraints] L5-HW-10       PASS   (0.84 ms, rtl_cyc=0) active_4ns_clock=True active_rules=1
+[set5_sva_and_constraints] L5-HW-11       PASS   (24.92 ms, rtl_cyc=0) base=0x43C01000 groups=9 exact_match=True
+[set5_sva_and_constraints] L5-HW-12       PASS   (6.01 ms, rtl_cyc=0) banks=3 slverr_lock_documented=True
+[set5_sva_and_constraints] L5-HW-13       PASS   (12.64 ms, rtl_cyc=0) clk=250MHz k3_core=17 k3_axis=22
+[set5_sva_and_constraints] L5-HW-14       PASS   (39.87 ms, rtl_cyc=0) axis_width=16 q78_default=0x0232 range=[-32768,32767]
+[set5_sva_and_constraints] L5-HW-15       PASS   (7.53 ms, rtl_cyc=0) part=xc7z020clg484-1 lut_pct=2.67% ff_pct=0.92% dsp=0
+[set5_sva_and_constraints] L5-HW-16       PASS   (1.36 ms, rtl_cyc=0) cn_mul_free=True bp_arith_shifts=True
+[set5_sva_and_constraints] L5-HW-17       PASS   (9.64 ms, rtl_cyc=0) v1=xc7z020clg484-1 sim=Verilator 5.048 (verilator_c++_rtl --assert)
+[set5_sva_and_constraints] L5-HW-18       PASS   (28.18 ms, rtl_cyc=0) expected_invariants_sta_disclosure=True traceability_sta_disclosure=True
+[Layer 5] Executing Set 4 — Reset, Backpressure, 10k Streaming Stress & Persistence (40 tests)...
+[set4_reset_and_backpressure] L5-EXEC-01     PASS   (1.15 ms, rtl_cyc=92) top_ok=1 regs_41_ok=1 K=3 OSD=1
+[set4_reset_and_backpressure] L5-EXEC-02     PASS   (2.21 ms, rtl_cyc=78) short_axis=22 long_axis=22
+[set4_reset_and_backpressure] L5-EXEC-03     PASS   (0.76 ms, rtl_cyc=63) was_busy=1 ghost=0 rec_core=17 corr_x=0x16 corr_z=0x16
+[set4_reset_and_backpressure] L5-EXEC-04     PASS   (0.73 ms, rtl_cyc=64) was_busy=1 ghost=0 rec_core=17 corr_x=0x16 corr_z=0x16
+[set4_reset_and_backpressure] L5-EXEC-05     PASS   (2.18 ms, rtl_cyc=198) wait_s0=1 wait_s1=1 wait_s2=1
+[set4_reset_and_backpressure] L5-EXEC-06     PASS   (0.48 ms, rtl_cyc=68) was_busy=1 ghost=0 rec_core=17 corr_x=0x16 corr_z=0x16
+[set4_reset_and_backpressure] L5-EXEC-07     PASS   (0.47 ms, rtl_cyc=79) was_busy=1 ghost=0 rec_core=17 corr_x=0x16 corr_z=0x16
+[set4_reset_and_backpressure] L5-EXEC-08     PASS   (1.18 ms, rtl_cyc=165) osd_step1=1 osd_step2=1
+[set4_reset_and_backpressure] L5-EXEC-09     PASS   (0.41 ms, rtl_cyc=22) aw_lat=1->1 w_lat=1->1 post_ok=1
+[set4_reset_and_backpressure] L5-EXEC-10     PASS   (0.44 ms, rtl_cyc=62) stable_32cyc=1 tdata=0x8208 irq_on_release=1
+[set4_reset_and_backpressure] L5-EXEC-11     PASS   (0.65 ms, rtl_cyc=193) verify_axis_backpressure_and_consecutive=1
+[set4_reset_and_backpressure] L5-EXEC-12     PASS   (0.99 ms, rtl_cyc=387) tx_waiting=1 drained=16/16 match=1 irq=1
+[set4_reset_and_backpressure] L5-EXEC-13     PASS   (0.38 ms, rtl_cyc=27) accepted_before_full=17 (1_in_BP+16_in_FIFO) tready_at_full=0
+[set4_reset_and_backpressure] L5-EXEC-14     PASS   (1.71 ms, rtl_cyc=732) was_full=1 drained=17/17 exact_order=1
+[set4_reset_and_backpressure] L5-EXEC-15     PASS   (2.72 ms, rtl_cyc=1252) matched=64/64 rx_epochs=4
+[set4_reset_and_backpressure] L5-EXEC-16     PASS   (10.24 ms, rtl_cyc=4876) received=256/256 match=1 dma_drops=139
+[set4_reset_and_backpressure] L5-EXEC-17     PASS   (0.95 ms, rtl_cyc=104) had_tx=1 phantom=0 post_axis=22
+[set4_reset_and_backpressure] L5-EXEC-18     PASS   (3.34 ms, rtl_cyc=1416) slverr_cnt=64/64 ok_decodes=64/64
+[set4_reset_and_backpressure] L5-EXEC-19     PASS   (4.68 ms, rtl_cyc=32) vcd_bytes=94882 has_signals=1
+[set4_reset_and_backpressure] L5-EXEC-20     PASS   (0.55 ms, rtl_cyc=4) simulator=verilator_c++_rtl native=1
+[set4_reset_and_backpressure] L5-EXEC-21     PASS   (0.53 ms, rtl_cyc=45) full_before=1 status_mid=0x3 wr_after=1 status_after=0x0
+[set4_reset_and_backpressure] L5-EXEC-22     PASS   (0.89 ms, rtl_cyc=140) consecutive_1cyc_beats=6/6 empty_after=1
+[set4_streaming_stress] L5-FLT-01      PASS   (401.65 ms, rtl_cyc=220010) syndromes=10000 rtl_cycles=220010 mismatches=0 epoch_irqs=40
+[set4_streaming_stress] L5-FLT-02      PASS   (81.22 ms, rtl_cyc=44730) rounds=2000 epochs=20 mismatches=0
+[set4_streaming_stress] L5-FLT-03      PASS   (59.04 ms, rtl_cyc=34012) rounds=1000 core=29 axis=34 (136.0ns<=300ns) bad=0
+[set4_streaming_stress] L5-FLT-04      PASS   (22.55 ms, rtl_cyc=12012) rounds=1000 core=7 axis=12 (48.0ns) bad=0
+[set4_streaming_stress] L5-FLT-05      PASS   (34.68 ms, rtl_cyc=19011) decoded=1000/1000 drops=402/402
+[set4_streaming_stress] L5-FLT-06      PASS   (21.20 ms, rtl_cyc=11314) signed_mixed_vectors=512 mismatches=0
+[set4_streaming_stress] L5-FLT-07      PASS   (17.18 ms, rtl_cyc=10216) epochs=64 total_pkts=464 irqs=64 rx_epoch_mon=64
+[set4_streaming_stress] L5-FLT-08      PASS   (18.68 ms, rtl_cyc=2875) clean_commit_phases=25/25
+[set4_streaming_stress] L5-FLT-09      PASS   (12.20 ms, rtl_cyc=1150) clean_reset_phases=25/25
+[set4_streaming_stress] L5-FLT-10      PASS   (32.69 ms, rtl_cyc=14200) instances=10 per_inst_cyc=1420 fnv1a=0x715420933 identical=1
+[set4_artifact_persistence] L5-FLT-11      PASS   (17.90 ms, rtl_cyc=1576) sim=verilator_c++_rtl k3_core=17 cyc=1576
+[set4_artifact_persistence] L5-FLT-12      PASS   (14.50 ms, rtl_cyc=110) rows=5 core=[7, 12, 17, 22, 27]
+[set4_artifact_persistence] L5-FLT-13      PASS   (87.41 ms, rtl_cyc=1566) vcd_bytes=1566887 time_markers=3132
+[set4_artifact_persistence] L5-FLT-14      PASS   (20.94 ms, rtl_cyc=0) verilator=Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429 sha256_verified=10/10
+[set4_artifact_persistence] L5-FLT-15      PASS   (8374.63 ms, rtl_cyc=1576) rc=0 out=1 passed in 0.09s
+[set4_artifact_persistence] L5-FLT-16      PASS   (8.64 ms, rtl_cyc=0) sv_testbenches_audited=4 zero_stale_avid_top=True
+[set4_artifact_persistence] L5-FLT-17      PASS   (63.12 ms, rtl_cyc=0) configs_verified=2 top=aa_qec_top clk=4ns K=[1..5] assertions=True
+[set4_artifact_persistence] L5-FLT-18      PASS   (28.78 ms, rtl_cyc=0) prior_persisted_records=192 unique_ids=192 bad_schema=0 fail=0
+[Layer 5] Cleaning temporary CMake & Verilator build directories prior to clean-tree gate check...
+[Layer 5] Evaluating Acceptance Gates G1–G8...
+[Layer 5 Gates] overall=PASS canonical=200/200 gates=8/8 code_git_dirty=True total_rtl_cycles=617521
+[Layer 5] Generating validation summary JSON & diagnostic plots...
+/usr/lib/python3/dist-packages/pyparsing/core.py:5637: SyntaxWarning: 'return' in a 'finally' block
+  return f"{type(self).__name__}: {retString}"
+/home/tirtha/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-q_iyvryo because there was an issue with the default path (/home/tirtha/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+Matplotlib is building the font cache; this may take a moment.
+[Layer 5 Plot] Saved /home/tirtha/avid-validation/layer5/results/plots/layer5_validation_summary.png and /home/tirtha/avid-validation/layer5/results/layer5_summary.json
+[PASS] Layer 5 5-Set (200/200) & G1-G8 validation complete.
