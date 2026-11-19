@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 import numpy as np
 
 
@@ -24,6 +24,9 @@ class PosteriorPacket:
     observability_leverage_21: np.ndarray = field(
         default_factory=lambda: np.zeros(21, dtype=np.float64)
     )
+    posterior_mean_x_21: Optional[np.ndarray] = None
+    posterior_var_x_21: Optional[np.ndarray] = None
+    estimator_residual_tvd_z: float = 0.0
     diagnostics: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -43,7 +46,7 @@ class PosteriorPacket:
 
     def to_layer2_dict(self) -> Dict[str, Any]:
         """Serialize into the clean syndrome-conditioned dictionary consumed by Layer 2 `ObservationBuilder`."""
-        return {
+        out: Dict[str, Any] = {
             "epoch_id": int(self.epoch_id),
             "posterior_mean_21": self.posterior_mean_21.copy(),
             "posterior_var_21": self.posterior_var_21.copy(),
@@ -56,3 +59,10 @@ class PosteriorPacket:
             "burst_score": float(self.burst_score),
             "observability_leverage_21": self.observability_leverage_21.copy(),
         }
+        if self.posterior_mean_x_21 is not None:
+            out["posterior_mean_x_21"] = self.posterior_mean_x_21.copy()
+        if self.posterior_var_x_21 is not None:
+            out["posterior_var_x_21"] = self.posterior_var_x_21.copy()
+        if self.estimator_residual_tvd_z > 0.0 or self.posterior_mean_x_21 is not None:
+            out["estimator_residual_tvd_z"] = float(self.estimator_residual_tvd_z)
+        return out

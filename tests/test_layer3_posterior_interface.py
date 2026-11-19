@@ -73,3 +73,28 @@ def test_layer3_sequential_posterior_packet_export_and_calibration() -> None:
 
     theta_null = sample_nullspace_perturbation(theta_z, rng=rng, scale=0.01)
     assert theta_null.shape == (21,)
+
+
+def test_layer3_symmetric_dual_basis_x_and_z_estimation() -> None:
+    rng = np.random.default_rng(3003)
+    theta_z = np.full(21, 0.010, dtype=np.float64)
+    theta_z[4] = 0.048
+    theta_z[9 + 3] = 0.080
+    theta_x = np.full(21, 0.009, dtype=np.float64)
+    theta_x[2] = 0.055
+    theta_x[9 + 8] = 0.075  # vertical X-pair (1, 4)
+
+    fwd = JointSyndromeForwardModel()
+    _, _, sx, sz = fwd.sample_syndrome_window(rng, theta_z, theta_x, window_rounds=1024)
+
+    est = SequentialPosteriorEstimator(temporal_beta=0.50, infer_x_faults=True)
+    pkt = est.step_from_syndrome_windows(sx, sz)
+    assert pkt.posterior_mean_x_21 is not None
+    assert pkt.posterior_var_x_21 is not None
+    assert pkt.posterior_mean_x_21.shape == (21,)
+    assert pkt.estimator_residual_tvd < 0.05
+    assert pkt.estimator_residual_tvd_z < 0.05
+    payload = pkt.to_layer2_dict()
+    assert "posterior_mean_x_21" in payload
+    assert "posterior_var_x_21" in payload
+

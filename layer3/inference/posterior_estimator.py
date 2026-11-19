@@ -49,11 +49,13 @@ class SequentialPosteriorEstimator:
         temporal_beta: float = 0.55,
         readout_flip_prob: float = 0.0,
         ar_persistence: float = 0.72,
+        infer_x_faults: bool = False,
     ) -> None:
         self.temporal_encoder = TemporalSyndromeEncoder(temporal_beta=temporal_beta)
         self.transition_prior = ParameterTransitionPrior(ar_persistence=ar_persistence)
         self.posterior_head = LogitLaplacePosteriorHead(max_iters=6, readout_flip_prob=readout_flip_prob)
         self.readout_flip_prob = float(readout_flip_prob)
+        self.infer_x_faults = bool(infer_x_faults)
 
         ref_svd = analyze_jacobian_svd(
             np.full(21, 0.012, dtype=np.float64),
@@ -68,6 +70,8 @@ class SequentialPosteriorEstimator:
 
         self._prev_mean_logit: Optional[np.ndarray] = None
         self._prev_var_logit: Optional[np.ndarray] = None
+        self._prev_mean_logit_x: Optional[np.ndarray] = None
+        self._prev_var_logit_x: Optional[np.ndarray] = None
         self._prev_mean_prob: Optional[np.ndarray] = None
         self._epoch_counter: int = 0
 
@@ -75,6 +79,8 @@ class SequentialPosteriorEstimator:
         self.temporal_encoder.reset()
         self._prev_mean_logit = None
         self._prev_var_logit = None
+        self._prev_mean_logit_x = None
+        self._prev_var_logit_x = None
         self._prev_mean_prob = None
         self._epoch_counter = 0
 
@@ -83,6 +89,8 @@ class SequentialPosteriorEstimator:
         if recalibrate:
             self._prev_mean_logit = None
             self._prev_var_logit = None
+            self._prev_mean_logit_x = None
+            self._prev_var_logit_x = None
 
     def step_from_histograms(
         self,
@@ -135,6 +143,34 @@ class SequentialPosteriorEstimator:
             readout_flip_prob=self.readout_flip_prob,
         )
 
+        mean_x_21: Optional[np.ndarray] = None
+        var_x_21: Optional[np.ndarray] = None
+        tvd_z = 0.0
+        if self.infer_x_faults:
+            prior_mu_x, prior_var_x = self.transition_prior.predict_prior(
+                prev_mean_logit=self._prev_mean_logit_x,
+                prev_var_logit=self._prev_var_logit_x,
+                reset_prior=recalibrate,
+            )
+            post_x = self.posterior_head.infer_posterior(
+                hist_16=np.asarray(filt["filtered_hist_z"], dtype=np.float64),
+                effective_rounds=float(filt["effective_rounds_z"]),
+                prior_mean_logit=prior_mu_x,
+                prior_var_logit=prior_var_x,
+                basis_checks="Z",
+            )
+            mean_x_21 = np.asarray(post_x["posterior_mean_21"], dtype=np.float64)
+            var_x_21 = np.asarray(post_x["posterior_var_21"], dtype=np.float64)
+            self._prev_mean_logit_x = np.asarray(post_x["posterior_mean_logit_21"], dtype=np.float64)
+            self._prev_var_logit_x = np.asarray(post_x["posterior_var_logit_21"], dtype=np.float64)
+            ppc_z = compute_posterior_predictive_checks(
+                observed_hist_16=hist_z_16,
+                posterior_mean_21=mean_x_21,
+                basis_checks="Z",
+                readout_flip_prob=self.readout_flip_prob,
+            )
+            tvd_z = float(ppc_z["tvd"])
+
         pkt = PosteriorPacket(
             epoch_id=self._epoch_counter,
             posterior_mean_21=mean_21,
@@ -147,10 +183,14 @@ class SequentialPosteriorEstimator:
             posterior_innovation_l2=innovation,
             burst_score=float(burst_score),
             observability_leverage_21=self._cached_leverage.copy(),
+            posterior_mean_x_21=mean_x_21,
+            posterior_var_x_21=var_x_21,
+            estimator_residual_tvd_z=tvd_z,
             diagnostics={
                 "kl_divergence": float(ppc["kl_divergence"]),
                 "jacobian_rank": self._cached_rank,
                 "jacobian_nullity": self._cached_nullity,
+                "dual_basis_active": self.infer_x_faults,
             },
         )
         self._epoch_counter += 1
