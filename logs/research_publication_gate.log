@@ -1,0 +1,65 @@
+========================================================================
+ AVID MINIMUM PUBLICATION GATE & 14-DAY CHECKLIST SUITE
+ Layers Root : /home/tirtha/avid-validation
+ Verilator   : Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429
+========================================================================
+[1/3] Executing Groups A, B, C, E, F & Checklist BM3/BM4 in Parallel...
+[Group A] overall_passed=True
+[Group C] overall_passed=False
+[Group E RTL] overall_passed=true | total_rtl_cycles=512122
+[Groups E+F+BM3/4] E=True F=False BM3/4=False
+[Group B] overall_passed=True
+[2/3] Rendering 6 Publication-Ready 300-DPI Figures (.png + .pdf) & Audit Report...
+/usr/lib/python3/dist-packages/pyparsing/core.py:5637: SyntaxWarning: 'return' in a 'finally' block
+  return f"{type(self).__name__}: {retString}"
+[Plot & Report Generator] overall_passed=False
+[3/3] Executing Pytest Acceptance Gate Verification...
+============================= test session starts ==============================
+platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tirtha/avid-validation/research_tests
+plugins: typeguard-4.4.4, anyio-4.11.0
+collecting ... collected 6 items
+
+tests/test_publication_gate_suite.py::test_group_a_noise_model_validity_gates PASSED [ 16%]
+tests/test_publication_gate_suite.py::test_group_b_adaptive_controller_and_paired_ci_gates PASSED [ 33%]
+tests/test_publication_gate_suite.py::test_group_c_bayesian_inference_and_controller_sufficiency_gates FAILED [ 50%]
+tests/test_publication_gate_suite.py::test_group_e_native_verilator_rtl_and_dualloop_isolation_gates PASSED [ 66%]
+tests/test_publication_gate_suite.py::test_group_f_full_system_closedloop_and_honest_timescales FAILED [ 83%]
+tests/test_publication_gate_suite.py::test_checklist_bm3_bm4_and_publication_plots_present FAILED [100%]
+
+=================================== FAILURES ===================================
+_______ test_group_c_bayesian_inference_and_controller_sufficiency_gates _______
+
+    def test_group_c_bayesian_inference_and_controller_sufficiency_gates() -> None:
+        gc = _load("group_c_bayesian_sufficiency.json")
+        g = gc["gates"]
+        assert g["C1_jacobian_rank_and_dual_basis"]["passed"] is True
+        assert g["C2_prior_sensitivity"]["passed"] is True
+        assert g["C3_posterior_calibration"]["passed"] is True
+>       assert g["C4_uncertainty_propagation"]["passed"] is True
+E       assert False is True
+
+tests/test_publication_gate_suite.py:55: AssertionError
+__________ test_group_f_full_system_closedloop_and_honest_timescales ___________
+
+    def test_group_f_full_system_closedloop_and_honest_timescales() -> None:
+        gf = _load("group_f_full_system.json")
+        g = gf["gates"]
+>       assert g["F1_and_F2_end_to_end_closedloop_and_cpp_parity"]["passed"] is True
+E       assert False is True
+
+tests/test_publication_gate_suite.py:94: AssertionError
+_____________ test_checklist_bm3_bm4_and_publication_plots_present _____________
+
+    def test_checklist_bm3_bm4_and_publication_plots_present() -> None:
+        gbm = _load("checklist_bm3_bm4_scaling.json")
+>       assert gbm["gates"]["BM4_window_complexity_and_causal_regret"]["passed"] is True
+E       assert False is True
+
+tests/test_publication_gate_suite.py:113: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_publication_gate_suite.py::test_group_c_bayesian_inference_and_controller_sufficiency_gates
+FAILED tests/test_publication_gate_suite.py::test_group_f_full_system_closedloop_and_honest_timescales
+FAILED tests/test_publication_gate_suite.py::test_checklist_bm3_bm4_and_publication_plots_present
+========================= 3 failed, 3 passed in 0.26s ==========================

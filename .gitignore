@@ -1,0 +1,5 @@
+build_rtl/
+__pycache__/
+*.pyc
+.pytest_cache/
+results/waveforms/*.vcd
