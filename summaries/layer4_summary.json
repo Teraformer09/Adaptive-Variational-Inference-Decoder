@@ -1,0 +1,23 @@
+{
+  "layer": 4,
+  "branch": "layer4-cosim-bridge-emu",
+  "run_id": "remediated_full_layer4_v1",
+  "overall_status": "PASS",
+  "canonical_id_count": 223,
+  "pass_count": 223,
+  "code_git_dirty": false,
+  "total_rtl_cycles_simulated": 1556693,
+  "gates_passed": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6",
+    "G7",
+    "G8"
+  ],
+  "k3_bp_core_cycles": 17,
+  "k3_axis_total_cycles": 22,
+  "native_verilator_compiled": true
+}

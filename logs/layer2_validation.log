@@ -1,0 +1,51 @@
+=== Layer 2 V2 Validation: 82-D Syndrome-Conditioned R2D2-LSTM, Rewards, Ablations & C++17 Parity ===
+Branch: layer2-r2d2-training-deploy | Commit: f80422a
+============================= test session starts ==============================
+platform linux -- Python 3.14.6, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/tirtha/avid-validation/layer2
+configfile: pytest.ini
+plugins: typeguard-4.4.4, anyio-4.11.0
+collecting ... collected 32 items
+
+tests/unit/test_spatial_mapping.py::test_obs01_exact_roundtrip_vector21_and_matrix7x3 PASSED [  3%]
+tests/unit/test_spatial_mapping.py::test_obs02_physical_geometry_qubits_and_couplers PASSED [  6%]
+tests/unit/test_posterior_contract.py::test_obs03_posterior_uncertainty_validity_and_window_scaling PASSED [  9%]
+tests/unit/test_posterior_contract.py::test_identifiability_rank9_nullity12_and_nullspace_ambiguity PASSED [ 12%]
+tests/unit/test_observation_builder.py::test_obs04_separate_xz_histograms_normalized_by_valid_rounds PASSED [ 15%]
+tests/unit/test_observation_builder.py::test_obs05_observation_construction_exact_82d_ordering PASSED [ 18%]
+tests/unit/test_observation_builder.py::test_obs06_no_ground_truth_leakage PASSED [ 21%]
+tests/unit/test_reward_components.py::test_rwd01_all_components_and_total_strictly_bounded PASSED [ 25%]
+tests/unit/test_reward_components.py::test_rwd02_stationary_gaussian_penalizes_unnecessary_churn_and_masks_other_regimes PASSED [ 28%]
+tests/unit/test_reward_components.py::test_rwd03_ou_drift_tracking_score PASSED [ 31%]
+tests/unit/test_reward_components.py::test_rwd04_zz_correlations_evaluated_separately PASSED [ 34%]
+tests/unit/test_reward_components.py::test_rwd05_tls_switching_detection_and_recovery PASSED [ 37%]
+tests/unit/test_reward_components.py::test_rwd06_burst_damage_and_post_burst_recovery PASSED [ 40%]
+tests/unit/test_reward_components.py::test_rwd07_reward_decomposition_and_diagnostics_logging PASSED [ 43%]
+tests/integration/test_layer3_layer2_interface.py::test_multi_epoch_layer3_to_layer2_sequential_interface PASSED [ 46%]
+tests/integration/test_training_episode.py::test_net01_python_82_input_architecture_and_parameter_count PASSED [ 50%]
+tests/integration/test_training_episode.py::test_net02_sequence_continuity_burnin_and_bptt_82d PASSED [ 53%]
+tests/integration/test_training_episode.py::test_eval01_and_eval02_disjoint_heldout_mixtures_and_ablation PASSED [ 56%]
+tests/integration/test_decoder_control_update.py::test_hardware_q78_weight_projection_and_decoder_control_effectiveness PASSED [ 59%]
+tests/parity/test_layer2_cpp_python_parity.py::test_dep01_v2_82d_cpp_python_numerical_parity_and_latency PASSED [ 62%]
+tests/parity/test_layer2_cpp_python_parity.py::test_dep02_checkpoint_version_distinction_and_v1_reproducibility PASSED [ 65%]
+tests/test_training.py::test_kapturowski_value_rescaling_bijection_and_derivative PASSED [ 68%]
+tests/test_training.py::test_recurrent_lstm_bptt_gradient_vs_finite_difference PASSED [ 71%]
+tests/test_training.py::test_dueling_q_head_gradient_vs_finite_difference PASSED [ 75%]
+tests/test_training.py::test_prioritized_sequence_replay_and_target_sync PASSED [ 78%]
+tests/test_training.py::test_trained_checkpoint_metrics_and_convergence PASSED [ 81%]
+tests/test_training.py::test_v2_trained_checkpoint_metrics_and_ler_improvement PASSED [ 84%]
+tests/test_checkpoint_export.py::test_v1_frozen_checkpoint_files_and_schema_integrity PASSED [ 87%]
+tests/test_checkpoint_export.py::test_v2_checkpoint_files_and_schema_integrity PASSED [ 90%]
+tests/test_checkpoint_export.py::test_roundtrip_export_and_load_exact_parity_v2_and_v1 PASSED [ 93%]
+tests/test_checkpoint_export.py::test_corrupted_checkpoint_rejected PASSED [ 96%]
+tests/test_layer2_ip_op.py::test_layer2_cpp_python_ip_op_parity PASSED   [100%]
+
+============================= 32 passed in 40.66s ==============================
+/usr/lib/python3/dist-packages/pyparsing/core.py:5637: SyntaxWarning: 'return' in a 'finally' block
+  return f"{type(self).__name__}: {retString}"
+/home/tirtha/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-xt5qii1f because there was an issue with the default path (/home/tirtha/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+Matplotlib is building the font cache; this may take a moment.
+[Layer 2 V2 Plot] Saved /home/tirtha/avid-validation/layer2/results/v2/plots/layer2_v2_validation_summary.png and /home/tirtha/avid-validation/layer2/results/v2/layer2_v2_summary.json
+[PASS] Layer 2 V2 (and preserved V1) full validation & plot generation complete.

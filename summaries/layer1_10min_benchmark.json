@@ -1,0 +1,89 @@
+{
+  "duration_seconds": 600.0,
+  "total_samples_at_10Hz": 6000,
+  "num_100s_windows": 6,
+  "family_stats": {
+    "1. Gaussian Envelope (z_single_noise_01)": {
+      "mean_prob": 0.00338,
+      "peak_prob": 0.05621,
+      "std_prob": 0.00337,
+      "lag1_acf": 0.9956,
+      "pc1_var_share": 0.6406,
+      "modes_for_95pct_var": 3
+    },
+    "2. OU Continuous Drift (x_single_noise_01)": {
+      "mean_prob": 0.0106,
+      "peak_prob": 0.0802,
+      "std_prob": 0.00693,
+      "lag1_acf": 0.9999,
+      "pc1_var_share": 0.8492,
+      "modes_for_95pct_var": 3
+    },
+    "3. Multi-Cluster ZZ Crosstalk (zz_01 + zz_02)": {
+      "mean_prob": 0.00239,
+      "peak_prob": 0.01019,
+      "std_prob": 0.00049,
+      "lag1_acf": 0.9951,
+      "pc1_var_share": 0.3413,
+      "modes_for_95pct_var": 13
+    },
+    "4. RTN Telegraph TLS (telegraph_tls_01)": {
+      "mean_prob": 0.0042,
+      "peak_prob": 0.11298,
+      "std_prob": 0.00554,
+      "lag1_acf": 0.9935,
+      "pc1_var_share": 0.6778,
+      "modes_for_95pct_var": 7
+    },
+    "5. Non-Stationary Burst (burst_noise_01)": {
+      "mean_prob": 0.00334,
+      "peak_prob": 0.20788,
+      "std_prob": 0.00313,
+      "lag1_acf": 0.9828,
+      "pc1_var_share": 0.789,
+      "modes_for_95pct_var": 7
+    },
+    "6. Markov Regime Switching (markov_regime_01)": {
+      "mean_prob": 0.00361,
+      "peak_prob": 0.11991,
+      "std_prob": 0.00405,
+      "lag1_acf": 0.9851,
+      "pc1_var_share": 0.6708,
+      "modes_for_95pct_var": 5
+    }
+  },
+  "pd_response_table": {
+    "gaussian": {
+      "envelope_correlation": 0.9955,
+      "dominant_set_hit_rate": 1.0
+    },
+    "burst": {
+      "envelope_correlation": 0.8874,
+      "dominant_set_hit_rate": 1.0
+    },
+    "spatial_correlated": {
+      "envelope_correlation": 0.8973,
+      "dominant_set_hit_rate": 0.8067
+    },
+    "ou": {
+      "envelope_correlation": 0.9242,
+      "dominant_set_hit_rate": 1.0
+    },
+    "telegraph": {
+      "envelope_correlation": 0.9823,
+      "dominant_set_hit_rate": 1.0
+    },
+    "markov": {
+      "envelope_correlation": 0.9439,
+      "dominant_set_hit_rate": 1.0
+    }
+  },
+  "z_mass_shares": {
+    "z_single_noise_01": 0.2153,
+    "zz_crosstalk_01": 0.1648,
+    "zz_crosstalk_02": 0.1396,
+    "telegraph_tls_01": 0.2675,
+    "burst_noise_01": 0.2128
+  },
+  "max_z_generator_share": 0.2675
+}
