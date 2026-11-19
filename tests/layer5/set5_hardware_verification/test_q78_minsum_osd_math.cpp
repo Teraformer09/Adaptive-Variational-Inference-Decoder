@@ -272,29 +272,44 @@ int main(int argc, char **argv) {
     /* L5-MATH-04: Exhaustive 256-syndrome sweep in Post-BP OSD-0 (OSD_MODE=2) & Mode 1 bit-parity */
     suite.run_case("L5-MATH-04", "G6", "OSD_MODE=2 (19-cycle Post-BP OSD-0) matches OSD_MODE=1 (17-cycle Inline OSD-0) & golden across all 256 syndromes", sim_mode,
                    [&](uint64_t &cyc, std::string &det) {
-        AvidVerilatorRtlModel rtl1(4, 8), rtl2(4, 8);
-        uint64_t c = 0;
         int16_t wx[9] = {0x0320, 0x0190, 0x02B0, 0x0140, 0x0260, 0x0390, 0x0210, 0x0110, 0x0340};
         int16_t wz[9] = {0x0250, 0x02E0, 0x0130, 0x0330, 0x0180, 0x0290, 0x01A0, 0x0310, 0x0220};
-        load_weights_and_commit(rtl1, wx, wz);
-        load_weights_and_commit(rtl2, wx, wz);
-        rtl1.axil_write(avid_l5::L5_OFF_OSD_MODE, 1u, 0x1u, &c);
-        rtl2.axil_write(avid_l5::L5_OFF_OSD_MODE, 2u, 0x1u, &c);
-        int diff = 0;
-        for (int sx = 0; sx < 16; sx++) {
-            for (int sz = 0; sz < 16; sz++) {
-                RtlDecodeTrace t1 = rtl1.decode_syndrome(static_cast<uint8_t>(sx), static_cast<uint8_t>(sz), false);
-                RtlDecodeTrace t2 = rtl2.decode_syndrome(static_cast<uint8_t>(sx), static_cast<uint8_t>(sz), false);
-                uint16_t gx = CleanRoomQ78Golden::decode_basis(static_cast<uint8_t>(sz), wx, 3, true, 2u);
-                uint16_t gz = CleanRoomQ78Golden::decode_basis(static_cast<uint8_t>(sx), wz, 3, false, 2u);
-                if (t1.corr_x != t2.corr_x || t1.corr_z != t2.corr_z ||
-                    t2.corr_x != gx || t2.corr_z != gz ||
-                    t1.bp_core_cycles != 17u || t2.bp_core_cycles != 19u) {
-                    diff++;
+        RtlDecodeTrace t1_arr[16][16];
+        uint64_t cyc1 = 0, cyc2 = 0;
+        {
+            AvidVerilatorRtlModel rtl1(4, 8);
+            uint64_t c = 0;
+            load_weights_and_commit(rtl1, wx, wz);
+            rtl1.axil_write(avid_l5::L5_OFF_OSD_MODE, 1u, 0x1u, &c);
+            for (int sx = 0; sx < 16; sx++) {
+                for (int sz = 0; sz < 16; sz++) {
+                    t1_arr[sx][sz] = rtl1.decode_syndrome(static_cast<uint8_t>(sx), static_cast<uint8_t>(sz), false);
                 }
             }
+            cyc1 = rtl1.sim_cycle;
         }
-        cyc = rtl1.sim_cycle + rtl2.sim_cycle;
+        int diff = 0;
+        {
+            AvidVerilatorRtlModel rtl2(4, 8);
+            uint64_t c = 0;
+            load_weights_and_commit(rtl2, wx, wz);
+            rtl2.axil_write(avid_l5::L5_OFF_OSD_MODE, 2u, 0x1u, &c);
+            for (int sx = 0; sx < 16; sx++) {
+                for (int sz = 0; sz < 16; sz++) {
+                    const RtlDecodeTrace &t1 = t1_arr[sx][sz];
+                    RtlDecodeTrace t2 = rtl2.decode_syndrome(static_cast<uint8_t>(sx), static_cast<uint8_t>(sz), false);
+                    uint16_t gx = CleanRoomQ78Golden::decode_basis(static_cast<uint8_t>(sz), wx, 3, true, 2u);
+                    uint16_t gz = CleanRoomQ78Golden::decode_basis(static_cast<uint8_t>(sx), wz, 3, false, 2u);
+                    if (t1.corr_x != t2.corr_x || t1.corr_z != t2.corr_z ||
+                        t2.corr_x != gx || t2.corr_z != gz ||
+                        t1.bp_core_cycles != 17u || t2.bp_core_cycles != 19u) {
+                        diff++;
+                    }
+                }
+            }
+            cyc2 = rtl2.sim_cycle;
+        }
+        cyc = cyc1 + cyc2;
         det = "mode1_vs_mode2_mism=" + std::to_string(diff) + "/256 (17cyc vs 19cyc)";
         return (diff == 0);
     });
@@ -757,22 +772,36 @@ int main(int argc, char **argv) {
     /* L5-MATH-24: Orthogonal X/Z weight-bank & BP engine non-interference across 256 syndromes */
     suite.run_case("L5-MATH-24", "G6", "Mutating active_x leaves corr_z 100% invariant (and vice versa) across all 256 (sx, sz) syndromes", sim_mode,
                    [&](uint64_t &cyc, std::string &det) {
-        AvidVerilatorRtlModel rtl_a(4, 8), rtl_b(4, 8);
         int16_t wx_a[9] = {0x0090, 0x0400, 0x0090, 0x0400, 0x0090, 0x0400, 0x0090, 0x0400, 0x0090};
         int16_t wx_b[9] = {0x0400, 0x0090, 0x0400, 0x0090, 0x0400, 0x0090, 0x0400, 0x0090, 0x0400};
         int16_t wz_same[9] = {0x0250, 0x0180, 0x0310, 0x0120, 0x0290, 0x01D0, 0x0340, 0x0160, 0x02B0};
-        load_weights_and_commit(rtl_a, wx_a, wz_same);
-        load_weights_and_commit(rtl_b, wx_b, wz_same);
-        int cz_diff = 0, cx_diff = 0;
-        for (int sx = 0; sx < 16; sx++) {
-            for (int sz = 0; sz < 16; sz++) {
-                RtlDecodeTrace ta = rtl_a.decode_syndrome(static_cast<uint8_t>(sx), static_cast<uint8_t>(sz), false);
-                RtlDecodeTrace tb = rtl_b.decode_syndrome(static_cast<uint8_t>(sx), static_cast<uint8_t>(sz), false);
-                if (ta.corr_z != tb.corr_z) cz_diff++;
-                if (ta.corr_x != tb.corr_x) cx_diff++;
+        RtlDecodeTrace ta_arr[16][16];
+        uint64_t cyc_a = 0, cyc_b = 0;
+        {
+            AvidVerilatorRtlModel rtl_a(4, 8);
+            load_weights_and_commit(rtl_a, wx_a, wz_same);
+            for (int sx = 0; sx < 16; sx++) {
+                for (int sz = 0; sz < 16; sz++) {
+                    ta_arr[sx][sz] = rtl_a.decode_syndrome(static_cast<uint8_t>(sx), static_cast<uint8_t>(sz), false);
+                }
             }
+            cyc_a = rtl_a.sim_cycle;
         }
-        cyc = rtl_a.sim_cycle + rtl_b.sim_cycle;
+        int cz_diff = 0, cx_diff = 0;
+        {
+            AvidVerilatorRtlModel rtl_b(4, 8);
+            load_weights_and_commit(rtl_b, wx_b, wz_same);
+            for (int sx = 0; sx < 16; sx++) {
+                for (int sz = 0; sz < 16; sz++) {
+                    const RtlDecodeTrace &ta = ta_arr[sx][sz];
+                    RtlDecodeTrace tb = rtl_b.decode_syndrome(static_cast<uint8_t>(sx), static_cast<uint8_t>(sz), false);
+                    if (ta.corr_z != tb.corr_z) cz_diff++;
+                    if (ta.corr_x != tb.corr_x) cx_diff++;
+                }
+            }
+            cyc_b = rtl_b.sim_cycle;
+        }
+        cyc = cyc_a + cyc_b;
         det = "cz_diff_when_wx_changed=" + std::to_string(cz_diff) + " cx_diff=" + std::to_string(cx_diff);
         return (cz_diff == 0) && (cx_diff > 0);
     });

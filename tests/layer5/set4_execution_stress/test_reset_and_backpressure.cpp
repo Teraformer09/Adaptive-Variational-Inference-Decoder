@@ -52,11 +52,19 @@ int main(int argc, char **argv) {
     /* L5-EXEC-02: Short (2-cycle) vs long (32-cycle) synchronous reset parity */
     suite.run_case("L5-EXEC-02", "G5", "Short (2-cycle) and extended (32-cycle) synchronous resets restore identical state and latency", sim_mode,
                    [&](uint64_t &cyc, std::string &det) {
-        AvidVerilatorRtlModel rtl_short(4, 2);
-        AvidVerilatorRtlModel rtl_long(4, 32);
-        RtlDecodeTrace t1 = rtl_short.decode_syndrome(0x6u, 0x9u, true);
-        RtlDecodeTrace t2 = rtl_long.decode_syndrome(0x6u, 0x9u, true);
-        cyc = rtl_short.sim_cycle + rtl_long.sim_cycle;
+        RtlDecodeTrace t1{}, t2{};
+        uint64_t cyc1 = 0, cyc2 = 0;
+        {
+            AvidVerilatorRtlModel rtl_short(4, 2);
+            t1 = rtl_short.decode_syndrome(0x6u, 0x9u, true);
+            cyc1 = rtl_short.sim_cycle;
+        }
+        {
+            AvidVerilatorRtlModel rtl_long(4, 32);
+            t2 = rtl_long.decode_syndrome(0x6u, 0x9u, true);
+            cyc2 = rtl_long.sim_cycle;
+        }
+        cyc = cyc1 + cyc2;
         det = "short_axis=" + std::to_string(t1.total_axis_cycles) +
               " long_axis=" + std::to_string(t2.total_axis_cycles);
         return t1.total_axis_cycles == 22u && t2.total_axis_cycles == 22u &&
