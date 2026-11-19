@@ -2,9 +2,9 @@
   "layer": 5,
   "branch": "layer5-fpga-rtl-decoder",
   "run_id": "remediated_full_layer5_v1",
-  "evaluated_at_utc": "2026-11-16T12:34:06Z",
-  "git_commit": "fc5b756d47212fe313b9c78ee3f41c71d26e6362",
-  "git_commit_short": "fc5b756",
+  "evaluated_at_utc": "2026-11-19T04:27:01Z",
+  "git_commit": "f098160e7c41f46d1442d0929c980c73574db117",
+  "git_commit_short": "f098160",
   "code_git_dirty": false,
   "allow_dirty_override": false,
   "verilator_version": "Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429",
@@ -23,14 +23,14 @@
   "standalone_tb_rtl_cycles": 1576,
   "five_set_rtl_cycles": 615945,
   "total_verilator_rtl_cycles": 617521,
-  "five_set_wall_time_ms": 9879.5,
+  "five_set_wall_time_ms": 11054.41,
   "sets": {
     "Set1": {
       "total": 44,
       "passed": 44,
       "failed": 0,
       "rtl_cycles": 2868,
-      "wall_time_ms": 30.18,
+      "wall_time_ms": 31.55,
       "status": "PASS"
     },
     "Set2": {
@@ -38,7 +38,7 @@
       "passed": 38,
       "failed": 0,
       "rtl_cycles": 35989,
-      "wall_time_ms": 88.95,
+      "wall_time_ms": 86.17,
       "status": "PASS"
     },
     "Set3": {
@@ -46,7 +46,7 @@
       "passed": 36,
       "failed": 0,
       "rtl_cycles": 17000,
-      "wall_time_ms": 58.85,
+      "wall_time_ms": 69.81,
       "status": "PASS"
     },
     "Set4": {
@@ -54,7 +54,7 @@
       "passed": 40,
       "failed": 0,
       "rtl_cycles": 384457,
-      "wall_time_ms": 8022.61,
+      "wall_time_ms": 9354.67,
       "status": "PASS"
     },
     "Set5": {
@@ -62,7 +62,7 @@
       "passed": 42,
       "failed": 0,
       "rtl_cycles": 175631,
-      "wall_time_ms": 1678.91,
+      "wall_time_ms": 1512.2,
       "status": "PASS"
     }
   },

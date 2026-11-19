@@ -1,7 +1,7 @@
 {
   "layer": 5,
   "branch": "layer5-fpga-rtl-decoder",
-  "git_commit": "fc5b756d47212fe313b9c78ee3f41c71d26e6362",
+  "git_commit": "f098160e7c41f46d1442d0929c980c73574db117",
   "code_git_dirty": false,
   "run_id": "remediated_full_layer5_v1",
   "simulator": "verilator_c++_rtl",
@@ -31,7 +31,7 @@
       "passed": 44,
       "failed": 0,
       "rtl_cycles": 2868,
-      "wall_time_ms": 30.18,
+      "wall_time_ms": 31.55,
       "status": "PASS"
     },
     "Set2": {
@@ -39,7 +39,7 @@
       "passed": 38,
       "failed": 0,
       "rtl_cycles": 35989,
-      "wall_time_ms": 88.95,
+      "wall_time_ms": 86.17,
       "status": "PASS"
     },
     "Set3": {
@@ -47,7 +47,7 @@
       "passed": 36,
       "failed": 0,
       "rtl_cycles": 17000,
-      "wall_time_ms": 58.85,
+      "wall_time_ms": 69.81,
       "status": "PASS"
     },
     "Set4": {
@@ -55,7 +55,7 @@
       "passed": 40,
       "failed": 0,
       "rtl_cycles": 384457,
-      "wall_time_ms": 8022.61,
+      "wall_time_ms": 9354.67,
       "status": "PASS"
     },
     "Set5": {
@@ -63,7 +63,7 @@
       "passed": 42,
       "failed": 0,
       "rtl_cycles": 175631,
-      "wall_time_ms": 1678.91,
+      "wall_time_ms": 1512.2,
       "status": "PASS"
     }
   },

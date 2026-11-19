@@ -1,10 +1,10 @@
 {
   "layer": 5,
   "run_id": "remediated_full_layer5_v1",
-  "generated_at_utc": "2026-11-16T12:34:06Z",
+  "generated_at_utc": "2026-11-19T04:27:01Z",
   "git_branch": "layer5-fpga-rtl-decoder",
-  "git_commit": "fc5b756d47212fe313b9c78ee3f41c71d26e6362",
-  "git_commit_short": "fc5b756",
+  "git_commit": "f098160e7c41f46d1442d0929c980c73574db117",
+  "git_commit_short": "f098160",
   "code_git_dirty": false,
   "dirty_entries": [],
   "verilator_version": "Verilator 5.048 2026-04-26 rev vUNKNOWN-built20260429",
