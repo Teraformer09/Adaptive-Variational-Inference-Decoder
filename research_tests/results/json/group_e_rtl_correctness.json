@@ -1,0 +1,22 @@
+{
+  "group": "Group_E_Hardware_Correctness_and_DualLoop_Isolation",
+  "simulator": "verilator_c++_rtl",
+  "native_verilator": true,
+  "clock_mhz": 250.0,
+  "clock_period_ns": 4.0,
+  "total_verilator_rtl_cycles": 512122,
+  "gates": {
+    "E2_fixed_point_q78_equivalence": {"passed": true, "states_tested": 3840, "mismatches": 0},
+    "E3_bp_mode0_golden_equivalence": {"passed": true, "states_tested": 1024, "mismatches": 0},
+    "E4_osd0_degenerate_postprocessing": {"passed": true, "cases_tested": 512, "unsatisfied_syndromes": 0, "mismatches": 0, "pair_disambiguation_flipped": true},
+    "E5_atomic_shadow_commit_streaming": {"passed": true, "packets": 2000, "commits": 20, "hw_epochs": 20, "mismatches": 0},
+    "E6_mid_decode_commit_and_slverr_lock": {"passed": true, "offsets_tested": 12, "slverr_locks_verified": 12, "mid_decode_corruptions": 0},
+    "E7_elastic_fifo_full_empty_backpressure": {"passed": true, "saturated_inflight_packets": 30, "tready_deasserted_on_full": true, "drained_packets": 30, "mismatches": 0, "empty_clean": true},
+    "E8_synchronous_reset_recovery": {"passed": true, "reset_offsets_tested": 20, "ghost_outputs": 0, "post_reset_failures": 0},
+    "E9_10k_randomized_rtl_stress": {"passed": true, "packets": 10000, "mismatches": 0, "rtl_cycles": 236390},
+    "E10_cycle_budget_latency_law": {"passed": true, "configs_tested": 15, "law_violations": 0, "k_list": [1,1,1,2,2,2,3,3,3,4,4,4,5,5,5], "mode_list": [0,1,2,0,1,2,0,1,2,0,1,2,0,1,2], "core_cycles": [7,7,9,12,12,14,17,17,19,22,22,24,27,27,29], "axis_cycles": [12,12,14,17,17,19,22,22,24,27,27,29,32,32,34], "latency_ns": [48,48,56,68,68,76,88,88,96,108,108,116,128,128,136]},
+    "E11_weight_update_interference": {"passed": true, "pre_packets": 500, "during_packets": 500, "post_packets": 500, "k3_pre_cycles_min": 22, "k3_pre_cycles_max": 22, "k3_during_cycles_min": 22, "k3_during_cycles_max": 22, "k3_post_cycles_min": 22, "k3_post_cycles_max": 22, "k5_pre_cycles": 34, "k5_during_cycles": 34, "k5_post_cycles": 34, "max_abs_delta_cycles": 0, "max_abs_delta_ns": 0, "mismatches": 0},
+    "E12_fast_loop_300ns_worst_case_deadline": {"passed": true, "packets": 2000, "max_core_cycles": 29, "max_service_axis_cycles": 34, "max_service_latency_ns": 136, "deadline_ns": 300, "headroom_ns": 164, "deadline_misses": 0, "mismatches": 0}
+  },
+  "overall_passed": true
+}

@@ -1,0 +1,30 @@
+{
+  "suite": "AVID_Minimum_Publication_Gate_and_Checklist_Remediation",
+  "provenance": {
+    "layer1_commit": "809c359",
+    "layer2_commit": "f1cf5d5",
+    "layer3_commit": "91f6038",
+    "layer4_commit": "190b206",
+    "layer5_commit": "188b766",
+    "r2d2_v2_checkpoint_sha256": "4ac023567ee12819a8a2ebf62587614c938853692fe8c801c1f50a8aa45da8da",
+    "rtl_simulator": "verilator_c++_rtl",
+    "total_verilator_rtl_cycles": 11262138
+  },
+  "group_status": {
+    "Group_A_Noise_Model_Validity": true,
+    "Group_B_Adaptive_Performance": true,
+    "Group_C_Bayesian_Sufficiency": true,
+    "Group_E_Hardware_Correctness_and_DualLoop_RTL": true,
+    "Group_F_Full_System_ClosedLoop_RTL": true,
+    "Checklist_BM3_BM4_Scaling": true
+  },
+  "overall_publication_gate_passed": true,
+  "figures": [
+    "results/plots/fig01_groupA_noise_validity_and_ood.png",
+    "results/plots/fig02_groupB_adaptive_performance_and_cis.png",
+    "results/plots/fig03_groupC_bayesian_sufficiency_and_temporal_svd.png",
+    "results/plots/fig04_groupE_rtl_correctness_and_dualloop_isolation.png",
+    "results/plots/fig05_groupF_full_system_closedloop_and_timescales.png",
+    "results/plots/fig06_checklist_window_regret_and_distance_scaling.png"
+  ]
+}
