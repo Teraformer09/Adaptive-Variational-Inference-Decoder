@@ -1,0 +1,24 @@
+{
+ "trajectory_id": "test_traj_00_s30000",
+ "master_seed": 30000,
+ "split": "test",
+ "round_id": 208,
+ "sample_id": 208,
+ "packet_hex": "0x000000d000000104",
+ "packet_seq_id": 208,
+ "s_x_packet": 4,
+ "s_x_npz_observed": 4,
+ "s_x_npz_ideal": 4,
+ "true_z_error_qubits": [
+  3
+ ],
+ "logical_error_z_label": 1,
+ "correction_mask": 8,
+ "correction_qubits": [
+  3
+ ],
+ "residual_syndrome_zero": true,
+ "logical_error_scored": false,
+ "bp_core_cycles": 17,
+ "latency_ns": 68.0
+}
