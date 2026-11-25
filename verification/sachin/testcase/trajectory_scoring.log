@@ -1,0 +1,3 @@
+trajectory test_traj_00_s30000, repo commit 54da68d, window=512 commit_delay=20 K=3
+static {'controller_mode': 'static', 'total_rounds': 2000, 'logical_errors_adaptive': 502, 'logical_errors_static': 502, 'ler_adaptive': 0.251, 'ler_static': 0.251, 'swap_count': 1, 'commit_history': [], 'mean_bp_cycles': 17.0} wall_s 4.43
+avid_r2d2 {'controller_mode': 'avid_r2d2', 'total_rounds': 2000, 'logical_errors_adaptive': 502, 'logical_errors_static': 502, 'ler_adaptive': 0.251, 'ler_static': 0.251, 'swap_count': 4, 'commit_history': [(531, 2), (1043, 3), (1555, 4)], 'mean_bp_cycles': 24.345} wall_s 4.37

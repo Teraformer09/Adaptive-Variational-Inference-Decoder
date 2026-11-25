@@ -1,0 +1,14 @@
+--- /home/claude/teraformer09/adaptive-variational-inference-decoder/software/src/inference/avid_daemon.cpp	2026-11-17 05:55:03.470978091 +0000
++++ sw_patched/software/src/inference/avid_daemon.cpp	2026-11-17 07:25:18.499067472 +0000
+@@ -167,6 +167,11 @@
+         true_theta_z(4) = 0.055;
+         true_theta_z(9 + 3) = 0.075; /* pair (4,5) */
+         in_burst = true;
++    } else if (std::strcmp(scenario, "alias_single_hot") == 0) {
++        /* ADDED (analysis only): same syndrome histogram as correlated_noise, but the excess at 0x4 is a single-qubit fault Z3 */
++        true_theta_z(4) = 0.055;
++        true_theta_z(3) = 0.075;
++        in_burst = true;
+     } else if (std::strcmp(scenario, "slowly_drifting_noise") == 0) {
+         const double phase = (double)round_idx / (double)std::max(1, total_rounds);
+         true_theta_z(4) = 0.015 + 0.065 * phase;
